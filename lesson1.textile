@@ -97,8 +97,8 @@ class ScientificCalculator(brand: String) extends BasicCalculator(brand) {
 
 h3. Overloading methods
 
-<code>
+<tt>
 class EvenMoreScientificCalculator(brand: String) extends BasicCalculator(brand) {
   def foo(m: Int) = foo(m, math.exp(1))
 }
-</code>
+</tt>
