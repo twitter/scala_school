@@ -1,0 +1,19 @@
+
+We think it makes the most sense to approach teaching Scala not as if
+it's an improved Java but as a new language. Experience in Java is not
+expected. Focus will be around the interpreter and the
+object-functional style as well as the style of programming we do
+here. An emphasis will be placed on maintainability, clarity of
+expression, and leveraging the type system.
+
+
+A rough syllabus
+
+# values, functions, classes, methods, inheritance
+# traits, case classes, objects, packages
+# try-catch-finally. expression-oriented programming
+# higher-order functions, pattern matching
+# apply, update, Functions are Objects (uniform access principle)
+# functional combinators, for-comprehensions, Options
+# classes that extend Function, manifests, simple implicits
+# types: parametrization, view bounds, rigid, covariant, contravariant
