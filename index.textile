@@ -9,11 +9,12 @@ expression, and leveraging the type system.
 
 A rough syllabus
 
-# values, functions, classes, methods, inheritance
-# traits, case classes, objects, packages
-# try-catch-finally. expression-oriented programming
-# higher-order functions, pattern matching
-# apply, update, Functions are Objects (uniform access principle)
+# values, functions, classes, methods, inheritance, try-catch-finally. expression-oriented programming
+# traits, case classes, objects, packages, apply, update, Functions are Objects (uniform access principle)
+# higher-order functions, pattern matching, unapply, seq
+# the object model, relationship between classes and traits, linearization, overriding
 # functional combinators, for-comprehensions, Options
 # classes that extend Function, manifests, simple implicits
-# types: parametrization, view bounds, rigid, covariant, contravariant
+# types: inference: show Hindley-Milner, give examples. doesn't devolve into Any everywhere.
+# types: parametrization, view bounds, rigid, covariant, contravariant, structural types
+# types: higher kinded types, type classes, existential.
