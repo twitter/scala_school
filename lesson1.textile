@@ -9,10 +9,6 @@ Today we'll cover:
 * basic inheritance
 * try-catch-finally
 
-As a note: all of our examples will be shown with the interactive
-interpreter rather than compiled. The interpreter makes it easy to
-explore problems.
-
 h2. About this class
 
 The first few weeks will cover basic syntax and concepts. Then we'll start
@@ -20,6 +16,9 @@ to open it up with more exercises.
 
 Some examples will be given as if written in the interpreter, others
 as if written in a source file.
+
+Having an interpreter available makes it easy to explore a problem
+space.
 
 
 h2. Why Scala?
