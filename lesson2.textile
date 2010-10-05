@@ -96,30 +96,138 @@ Here our instance object looks like we're calling a method. More on that later!
 
 h3. Functions are Objects
 
-Let's go back to last week's lesson where we defined some functions
+In Scala, we talk about object-functional programming often. What does
+that mean?
+
+We saw earlier that giving your class an apply method you can use it
+like it's a function. Let's look in the other direction. Let's define
+a simple function and see what's under the hood.
+
+def addOne(x: Int) = x + 1
+
+scala> def addOne(x: Int) = x + 1
+addOne: (x: Int)Int
+
+scala> addOne(1)
+res0: Int = 2
+
+Let's partially apply it.
+
+scala> addOne _
+res1: (Int) => Int = <function1>
+
+Hmm, what is a function1? A Function1 is simply a trait for a function
+that takes one argument.
+
+scala> val addOne = new Function1[Int, Int] {
+     |   def apply(x: Int): Int = x + 1
+     | }
+addOne: java.lang.Object with (Int) => Int = <function1>
+
+scala> addOne(1)
+res2: Int = 2
+
+There is Function1 through 22. Why 22? It's an arbitrary magic number
+but I've never needed a function with more than 22 arguments so it
+works out.
+
+As you see, the syntatic sugar of apply is part of the magic of
+object-functional programming. You can pass classes around and use
+them as functions.
+
+Does this mean that everytime you define a method in your class,
+you're actually getting an instance of Function*? No, methods in
+classes are methods. methods defined standalone in the repl are
+Function* instances.
+
 
 h3. Packages
 
-Objects are also used as packages.
+You can organize your code inside of packages.
 
-object ColorHolder {
+package com.twitter.example
+
+at the top of a file will declare everything in the file to be in that package.
+
+Values and functions cannot be outside of a class or object. Objects
+are a useful tool for organizing static functions.
+
+package com.twitter.example
+
+object colorHolder {
   val BLUE = "Blue"
   val RED = "Red"
 }
 
-In fact, look at what the scala repl says when you define this object
+Now you can access the members directly
+
+println("the color is: " + com.twitter.example.colorHolder.BLUE)
+
+
+Notice what the scala repl says when you define this object:
 
 <pre>
-scala> object ColorHolder {
+scala> object colorHolder {
      |   val BLUE = "Blue"
      |   val RED = "Red"
      | }
-defined module ColorHolder
+defined module colorHolder
 </pre>
 
-It gives you a small hint that the designers of Scala think that
-objects make for a powerful module system.
+This gives you a small hint that the designers of Scala designed
+objects to be part of Scala's module system.
+
+
 
 h3. Pattern Matching
 
+One of the most useful parts of Scala.
+
+val times = 1
+
+Matching on values
+
+times match {
+  case 1 => "one"
+  case 2 => "two"
+  case _ => "some other number"
+}
+
+Matching with guards
+
+times match {
+  case i if i == 1 => "one"
+  case i if i == 2 => "two"
+  case _ => "some other number"
+}
+
+Notice how we captured the value in the variable 'i'.
+
+case classes are designed to be used with pattern matching. Let's
+expand on our bottle example from earlier.
+
+
+case class Bottle(color: String, ounces: Int)
+
+val bottle = Bottle("Blue", 20)
+
+
+bottle match {
+  case Bottle("Blue", ounces) => println("found a Blue bottle")
+  case Bottle(color, 20) => println("found a 20 ounce bottle")
+  case Bottle(color, ounces) => println("found an unknown bottle with color " + color +
+                                        "that can hold " + ounces + "oz")
+}
+
+Other alternatives for that last match
+
+  case Bottle(_, _) => println("found an unknown bottle: " + bottle)
+
+  OR we could simply not care that it's a Bottle
+
+  case _ => println("found an unknown object: " + bottle)
+
+  OR we could re-bind the matched value with another name
+
+  case b@Bottle(_, _) => println("found an unknown bottle: " + b)
 
