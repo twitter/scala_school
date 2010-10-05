@@ -1,0 +1,125 @@
+Lesson 2
+
+Today we'll cover:
+* objects
+* case classes
+* apply
+* update
+* Functions are Objects
+* packages
+* pattern matching
+
+
+h3. Objects
+
+Objects are used to hold single instances of a class. Often used for factories.
+
+<pre>
+object Timer {
+  var count = 0
+
+  def currentCount: Long = {
+    count += 1
+    count
+  }
+}
+</pre>
+
+How to use
+
+<pre>
+scala> Timer.currentCount
+res0: Long = 1
+
+</pre>
+
+h3. Case Classes
+
+case classes are used to conveniently store data with a class. You can
+construct them without using new.
+
+<pre>
+scala> case class Bottle(color: String)
+defined class Bottle
+
+scala> Bottle("Blue")
+res0: Bottle = Bottle(Blue)
+
+scala> res3.color
+res1: String = Blue
+</pre>
+
+You will often see them used in Twitter code as record types.
+
+case classes automatically have equality and nice toString methods
+based on the constructor arguments.
+
+<pre>
+scala> val blue = Bottle("Blue")
+blue: Bottle = Bottle(Blue)
+
+scala> val blu = Bottle("Blue")
+blu: Bottle = Bottle(Blue)
+
+scala> blue == blu
+res0: Boolean = true
+
+scala> blue.equals(blu)
+res1: Boolean = true
+</pre>
+
+
+case classes can have methods.
+
+h3. apply methods
+
+apply methods give you a nice syntatic sugar for when a class or object has one main use.
+
+<pre>
+object FooMaker {
+  def apply() = new Foo
+}
+
+scala> class Bar {
+     |   def apply() = 0
+     | }
+defined class Bar
+
+scala> val bar = new Bar
+bar: Bar = Bar@47711479
+
+scala> bar()
+res8: Int = 0
+</pre>
+
+Here our instance object looks like we're calling a method. More on that later!
+
+h3. Functions are Objects
+
+Let's go back to last week's lesson where we defined some functions
+
+h3. Packages
+
+Objects are also used as packages.
+
+object ColorHolder {
+  val BLUE = "Blue"
+  val RED = "Red"
+}
+
+In fact, look at what the scala repl says when you define this object
+
+<pre>
+scala> object ColorHolder {
+     |   val BLUE = "Blue"
+     |   val RED = "Red"
+     | }
+defined module ColorHolder
+</pre>
+
+It gives you a small hint that the designers of Scala think that
+objects make for a powerful module system.
+
+h3. Pattern Matching
+
+
