@@ -118,7 +118,7 @@ res1: (Int) => Int = &lt;function1&gt;
 
 Hmm, what is a function1? A Function1 is simply a trait for a function
 that takes one argument.
-
+<pre>
 scala> val addOne = new Function1[Int, Int] {
      |   def apply(x: Int): Int = x + 1
      | }
@@ -126,6 +126,7 @@ addOne: java.lang.Object with (Int) => Int = &lt;function1&gt;
 
 scala> addOne(1)
 res2: Int = 2
+</pre>
 
 There is Function1 through 22. Why 22? It's an arbitrary magic
 number. I've never needed a function with more than 22 arguments so it
@@ -146,24 +147,26 @@ h3. Packages
 
 You can organize your code inside of packages.
 
+<pre>
 package com.twitter.example
-
+</pre>
 at the top of a file will declare everything in the file to be in that package.
 
 Values and functions cannot be outside of a class or object. Objects
 are a useful tool for organizing static functions.
-
+<pre>
 package com.twitter.example
 
 object colorHolder {
   val BLUE = "Blue"
   val RED = "Red"
 }
-
+</pre>
 Now you can access the members directly
 
+<pre>
 println("the color is: " + com.twitter.example.colorHolder.BLUE)
-
+</pre>
 
 Notice what the scala repl says when you define this object:
 
@@ -184,34 +187,37 @@ h3. Pattern Matching
 
 One of the most useful parts of Scala.
 
-val times = 1
-
 Matching on values
+
+<pre>
+val times = 1
 
 times match {
   case 1 => "one"
   case 2 => "two"
   case _ => "some other number"
 }
+</pre>
 
 Matching with guards
 
+<pre>
 times match {
   case i if i == 1 => "one"
   case i if i == 2 => "two"
   case _ => "some other number"
 }
+</pre>
 
 Notice how we captured the value in the variable 'i'.
 
 case classes are designed to be used with pattern matching. Let's
 expand on our bottle example from earlier.
 
-
+<pre>
 case class Bottle(color: String, ounces: Int)
 
 val bottle = Bottle("Blue", 20)
-
 
 bottle match {
   case Bottle("Blue", ounces) => println("found a Blue bottle")
@@ -219,16 +225,20 @@ bottle match {
   case Bottle(color, ounces) => println("found an unknown bottle with color " + color +
                                         "that can hold " + ounces + "oz")
 }
+</pre>
 
 Other alternatives for that last match
 
+<pre>
   case Bottle(_, _) => println("found an unknown bottle: " + bottle)
-
+</pre>
   OR we could simply not care that it's a Bottle
 
+<pre>
   case _ => println("found an unknown object: " + bottle)
-
+</pre>
   OR we could re-bind the matched value with another name
-
+<pre>
   case b@Bottle(_, _) => println("found an unknown bottle: " + b)
+</pre>
 
