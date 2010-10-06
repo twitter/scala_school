@@ -1,13 +1,37 @@
 Lesson 2
 
 Today we'll cover:
+* apply
 * objects
 * case classes
-* apply
 * update
 * Functions are Objects
 * packages
 * pattern matching
+
+
+h3. apply methods
+
+apply methods give you a nice syntatic sugar for when a class or object has one main use.
+
+<pre>
+object FooMaker {
+  def apply() = new Foo
+}
+
+scala> class Bar {
+     |   def apply() = 0
+     | }
+defined class Bar
+
+scala> val bar = new Bar
+bar: Bar = Bar@47711479
+
+scala> bar()
+res8: Int = 0
+</pre>
+
+Here our instance object looks like we're calling a method. More on that later!
 
 
 h3. Objects
@@ -85,29 +109,6 @@ res1: Boolean = true
 
 
 case classes can have methods.
-
-h3. apply methods
-
-apply methods give you a nice syntatic sugar for when a class or object has one main use.
-
-<pre>
-object FooMaker {
-  def apply() = new Foo
-}
-
-scala> class Bar {
-     |   def apply() = 0
-     | }
-defined class Bar
-
-scala> val bar = new Bar
-bar: Bar = Bar@47711479
-
-scala> bar()
-res8: Int = 0
-</pre>
-
-Here our instance object looks like we're calling a method. More on that later!
 
 h3. Functions are Objects
 
