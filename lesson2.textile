@@ -113,7 +113,7 @@ res0: Int = 2
 Let's partially apply it.
 <pre>
 scala> addOne _
-res1: (Int) => Int = &gt;function1&lt;
+res1: (Int) => Int = &lt;function1&gt;
 </pre>
 
 Hmm, what is a function1? A Function1 is simply a trait for a function
@@ -122,18 +122,19 @@ that takes one argument.
 scala> val addOne = new Function1[Int, Int] {
      |   def apply(x: Int): Int = x + 1
      | }
-addOne: java.lang.Object with (Int) => Int = <function1>
+addOne: java.lang.Object with (Int) => Int = &lt;function1&gt;
 
 scala> addOne(1)
 res2: Int = 2
 
-There is Function1 through 22. Why 22? It's an arbitrary magic number
-but I've never needed a function with more than 22 arguments so it
-works out.
+There is Function1 through 22. Why 22? It's an arbitrary magic
+number. I've never needed a function with more than 22 arguments so it
+seems to work out.
 
-As you see, the syntatic sugar of apply is part of the magic of
-object-functional programming. You can pass classes around and use
-them as functions.
+The syntatic sugar of apply helps unify the duality of object and
+functional programming. You can pass classes around and use them as
+functions and functions are just instances of classes under the
+covers.
 
 Does this mean that everytime you define a method in your class,
 you're actually getting an instance of Function*? No, methods in
