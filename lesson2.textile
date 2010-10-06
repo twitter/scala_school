@@ -113,7 +113,7 @@ res0: Int = 2
 Let's partially apply it.
 <pre>
 scala> addOne _
-res1: (Int) => Int = <function1>
+res1: (Int) => Int = &gt;function1&lt;
 </pre>
 
 Hmm, what is a function1? A Function1 is simply a trait for a function
