@@ -26,7 +26,7 @@ def timesTwo(i: Int): Int = i * 2
 An anonymous function
 
 <pre>
-(i: Int) = &gt; i * 2
+(i: Int) => i * 2
 </pre>
 
 You can assign an anonymous function to a value, thus giving it a name.
