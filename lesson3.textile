@@ -26,7 +26,7 @@ def timesTwo(i: Int): Int = i * 2
 An anonymous function
 
 <pre>
-(i: Int) =&gt; i * 2
+(i: Int) = &gt; i * 2
 </pre>
 
 You can assign an anonymous function to a value, thus giving it a name.
@@ -74,11 +74,13 @@ function now and others later.
 
 This sometimes lead to crazy pieces of code like:
 
+<pre>
 multThenFilter { i: Int =&gt;
   i * 2
 } { i: Int =&gt;
   i < 5
 }
+</pre>
 
 I promise you get used to this over time.
 
