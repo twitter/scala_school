@@ -188,6 +188,19 @@ h4. foreach
 
 foreach is like map but returns nothing. foreach is intended for side-effects only.
 
+<pre>
+scala> numbers.foreach((i: Int) => i * 2)
+</pre>
+
+returns nothing.
+
+You can try to store the return in a value but it'll be of type Unit (i.e. void)
+
+<pre>
+scala> val doubled = numbers.foreach((i: Int) => i * 2)
+doubled: Unit = ()
+</pre>
+
 h4. filter
 
 removes any elements where the function you pass in evaluates to
@@ -309,14 +322,47 @@ Interestingly, every functional combinator shown above can be written
 on top of fold. Let's see some examples.
 
 <pre>
-def map(numbers: List[Int], fn: Int => Int): List[Int] = {
+def ourMap(numbers: List[Int], fn: Int => Int): List[Int] = {
   numbers.foldRight(List[Int]()) { (x: Int, xs: List[Int]) =>
     fn(x) :: xs
   }
 }
 
-scala> map(numbers, timesTwo _)
+scala> ourMap(numbers, timesTwo _)
 res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
 </pre>
 
 Why <tt>List[Int]()</tt>? Scala wasn't smart enough to realize that you wanted an empty list of Ints to accumulate into.
+
+h3. Map?
+
+All of the functional combinators shown work on Maps, too. Maps can be
+thought of as a list of pairs so the functions you write work on a
+pair of the keys and values in the Map.
+
+<pre>
+scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
+extensions: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101), (joe,201))
+</pre>
+
+now filter out every entry who's phone extension is higher than 199
+
+extensions.filter(
+
+<pre>
+scala> extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101), (joe,102))
+</pre>
+
+Because it gives you a tuple, you have to pull out the keys and values with their positional accessors. Yuck!
+
+Lucky us, we can actually use a pattern match to extract the key and value nicely.
+
+<pre>
+scala> extensions.filter { case (name, extension) => extension < 200 }
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101), (joe,102))
+</pre>
+
+Why does this work? Why can you pass in a partial pattern match?
+
+Stay tuned for next week!
