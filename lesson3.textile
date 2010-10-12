@@ -47,11 +47,11 @@ def timesTwo(i: Int): Int = {
 This is also true of an anonymous function
 
 <pre>
-scala&gt; { i: Int =&gt;
+scala&gt; { i: Int =>
   println("hello world")
   i * 2
 }
-res0: (Int) =&gt; Int = &gt;function1&lt;
+res0: (Int) => Int = <function1>;
 </pre>
 
 You will see this syntax often used when passing an anonymous function as an argument.
