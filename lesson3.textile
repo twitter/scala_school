@@ -1,0 +1,104 @@
+Lesson 3
+
+Today we'll cover:
+* Lists
+* Maps
+* functional combinators
+** map
+** foreach
+** filter
+** zip
+** foldRight and foldLeft
+
+
+h2. Preliminaries
+
+Reminders from Lessons 1 & 2: A simpler time.
+
+h4. Functions
+
+The humble function
+
+<pre>
+def timesTwo(i: Int): Int = i * 2
+</pre>
+
+An anonymous function
+
+<pre>
+(i: Int) => i * 2
+</pre>
+
+You can assign an anonymous function to a value, thus giving it a name.
+
+<pre>
+val timesTwo = (i: Int) => i * 2
+</pre>
+
+You can partially apply a function with an underscore, which gives you another function.
+
+<pre>
+scala> timesTwo _
+res0: (Int) => Int = <function1>
+</pre>
+
+
+h2. Basic Datastructures
+
+h3. Lists
+
+<pre>
+val numbers = List(1, 2, 3, 4)
+numbers: List[Int] = List(1, 2, 3, 4)
+</pre>
+
+Scala realized you were talking about a List of Ints and so parameterized it.
+
+You can parameterize it manually if you want.
+
+List[Int](1, 2, 3, 4)
+
+h3. Maps
+
+It can hold basic datatypes.
+
+<pre>
+Map(1 -> 2)
+Map("foo" -> "bar")
+</pre>
+
+Nested Maps:
+<pre>
+Map(1 -> Map("foo" -> "bar"))
+</pre>
+
+You can even hold functions in there:
+<pre>
+Map("timesTwo" -> timesTwo _)
+</pre>
+
+h2. Functional Combinators
+
+They are called combinators because they are meant to be combined. the
+output of one function is often suitable as the input for another.
+
+h4. map
+
+Evaluates a function over each element in the list, returning a list
+with the same number of elements.
+
+<pre>
+numbers.map((i: Int) => i * 2)
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+
+h4. filter
+
+h4. foreach
+
+h4. zip
+
+h4. foldLeft
+
+h4. foldRight
+
