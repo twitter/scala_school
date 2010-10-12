@@ -32,7 +32,7 @@ An anonymous function
 You can assign an anonymous function to a value, thus giving it a name.
 
 <pre>
-val timesTwo = (i: Int) =&gt; i * 2
+val timesTwo = (i: Int) => i * 2
 </pre>
 
 If your function is made up of many expressions, you can use {} to give yourself some breathing room.
@@ -47,11 +47,11 @@ def timesTwo(i: Int): Int = {
 This is also true of an anonymous function
 
 <pre>
-scala&gt; { i: Int =>
+scala&gt { i: Int =>
   println("hello world")
   i * 2
 }
-res0: (Int) => Int = <function1>;
+res0: (Int) => Int = <function1>
 </pre>
 
 You will see this syntax often used when passing an anonymous function as an argument.
@@ -63,7 +63,7 @@ You can partially apply a function with an underscore, which gives you another f
 
 <pre>
 scala> timesTwo _
-res0: (Int) =&gt; Int = &lt;function1&gt;
+res0: (Int) => Int = <function1>
 </pre>
 
 h4. Curried functions
@@ -75,9 +75,9 @@ function now and others later.
 This sometimes lead to crazy pieces of code like:
 
 <pre>
-multThenFilter { i: Int =&gt;
+multThenFilter { i: Int =>
   i * 2
-} { i: Int =&gt;
+} { i: Int =>
   i < 5
 }
 </pre>
@@ -102,7 +102,7 @@ List[Int](1, 2, 3, 4)
 You can also build lists with :: by appending elements onto the empty list: Nil.
 
 <pre>
-scala&gt; val numbers = 1 :: 2 :: 3 :: 4 :: Nil
+scala> val numbers = 1 :: 2 :: 3 :: 4 :: Nil
 numbers: List[Int] = List(1, 2, 3, 4)
 </pre>
 
@@ -111,18 +111,18 @@ h3. Maps
 It can hold basic datatypes.
 
 <pre>
-Map(1 -&gt; 2)
-Map("foo" -&gt; "bar")
+Map(1 -> 2)
+Map("foo" -> "bar")
 </pre>
 
 Nested Maps:
 <pre>
-Map(1 -&gt; Map("foo" -&gt; "bar"))
+Map(1 -> Map("foo" -> "bar"))
 </pre>
 
 You can even hold functions in there:
 <pre>
-Map("timesTwo" -&gt; timesTwo _)
+Map("timesTwo" -> timesTwo _)
 </pre>
 
 h3. Tuple
@@ -131,7 +131,7 @@ Tuples are used for grouping together simple logical collections of
 items without using a class.
 
 <pre>
-scala&gt; val hostPort = ("localhost", 80)
+scala> val hostPort = ("localhost", 80)
 hostPort: (java.lang.String, Int) = (localhost, 80)
 </pre>
 
@@ -139,10 +139,10 @@ Unlike case classes, they don't have named accessors, instead they
 have accessors that are named by their position (1-based).
 
 <pre>
-scala&gt; hostPort._1
+scala> hostPort._1
 res0: java.lang.String = localhost
 
-scala&gt; hostPort._2
+scala> hostPort._2
 res1: Int = 80
 </pre>
 
@@ -167,7 +167,7 @@ Evaluates a function over each element in the list, returning a list
 with the same number of elements.
 
 <pre>
-scala&gt; numbers.map((i: Int) =&gt; i * 2)
+scala> numbers.map((i: Int) => i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
@@ -175,10 +175,10 @@ or pass in a partially evaluated function
 
 <pre>
 
-scala&gt; def timesTwo(i: Int): Int = i * 2
+scala> def timesTwo(i: Int): Int = i * 2
 timesTwo: (i: Int)Int
 
-scala&gt; numbers.map(timesTwo _)
+scala> numbers.map(timesTwo _)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
@@ -193,15 +193,15 @@ false. Functions that return a Boolean are often called predicate
 functions.
 
 <pre>
-scala&gt; numbers.filter((i: Int) =&gt; i % 2 == 0)
+scala> numbers.filter((i: Int) => i % 2 == 0)
 res0: List[Int] = List(2, 4)
 </pre>
 
 <pre>
-scala&gt; def isEven(i: Int): Boolean = i % 2 == 0
+scala> def isEven(i: Int): Boolean = i % 2 == 0
 isEven: (i: Int)Boolean
 
-scala&gt; numbers.filter(isEven _)
+scala> numbers.filter(isEven _)
 res2: List[Int] = List(2, 4)
 </pre>
 
@@ -210,7 +210,7 @@ h4. zip
 zip aggregates the contents of two lists into a single list of pairs.
 
 <pre>
-scala&gt; List(1, 2, 3).zip(List("a", "b", "c"))
+scala> List(1, 2, 3).zip(List("a", "b", "c"))
 res0: List[(Int, java.lang.String)] = List((1,a), (2,b), (3,c))
 </pre>
 
@@ -220,7 +220,7 @@ partition splits a list based on where it falls with respect to a
 predicate function.
 
 <pre>
-scala&gt; List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).partition((i: Int) =&gt; i &gt; 5)
+scala> List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).partition((i: Int) => i > 5)
 res0: (List[Int], List[Int]) = (List(6, 7, 8, 9, 10),List(1, 2, 3, 4, 5))
 </pre>
 
@@ -229,7 +229,7 @@ h4. find
 find returns the first element of a collection that matches a predicate function.
 
 <pre>
-scala&gt; numbers.find((i: Int) =&gt; i &gt; 5)
+scala> numbers.find((i: Int) => i > 5)
 res0: Option[Int] = Some(6)
 </pre>
 
@@ -238,7 +238,7 @@ h4. drop & dropWhile
 Drops the first i elements
 
 <pre>
-scala&gt; numbers.drop(5)
+scala> numbers.drop(5)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
 
@@ -246,14 +246,14 @@ dropWhile removes elements that don't match a predicate function. Here
 we can re-implement drop.
 
 <pre>
-scala&gt; numbers.dropWhile((i: Int) =&gt; i &lt; 6)
+scala> numbers.dropWhile((i: Int) => i < 6)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
 
 h4. foldLeft
 
 <pre>
-scala&gt; numbers.foldLeft(0)((m: Int, n: Int) =&gt; m + n)
+scala> numbers.foldLeft(0)((m: Int, n: Int) => m + n)
 res0: Int = 55
 </pre>
 
@@ -262,7 +262,7 @@ acts as an accumulator.
 
 Seen visually:
 <pre>
-scala&gt; numbers.foldLeft(0) { (m: Int, n: Int) =&gt;
+scala> numbers.foldLeft(0) { (m: Int, n: Int) =>
   println("m: " + m + " n: " + n)
   m + n
 }
@@ -285,7 +285,7 @@ h5. foldRight
 Is the same as foldLeft except it runs in the opposite direction.
 
 <pre>
-scala&gt; numbers.foldRight(0) { (m: Int, n: Int) =&gt; println("m: " + m + " n: " + n); m + n }
+scala> numbers.foldRight(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
 m: 10 n: 0
 m: 9 n: 10
 m: 8 n: 19
@@ -317,7 +317,7 @@ def map(numbers: List[Int], fn: Int => Int): List[Int] = {
   }
 }
 
-scala&gt; map(numbers, timesTwo _)
+scala> map(numbers, timesTwo _)
 res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
 </pre>
 
