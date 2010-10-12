@@ -319,4 +319,4 @@ scala> map(numbers, timesTwo _)
 res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
 </pre>
 
-Why List[Int]()? Scala wasn't smart enough to realize that you wanted an empty list of Ints to accumulate into.
+Why <tt>List[Int]()</tt>? Scala wasn't smart enough to realize that you wanted an empty list of Ints to accumulate into.
