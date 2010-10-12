@@ -264,11 +264,7 @@ acts as an accumulator.
 
 Seen visually:
 <pre>
-scala&gt; numbers.foldLeft(0) { (m: Int, n: Int) =>
-  println("m: " + m + " n: " + n)
-  m + n
-}
-
+scala&gt; numbers.foldLeft(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
 m: 0 n: 1
 m: 1 n: 2
 m: 3 n: 3
