@@ -120,7 +120,7 @@ Nested Maps:
 Map(1 -> Map("foo" -> "bar"))
 </pre>
 
-You can even hold functions in there:
+You can even hold functions as values:
 <pre>
 Map("timesTwo" -> timesTwo _)
 </pre>
@@ -148,10 +148,12 @@ res1: Int = 80
 
 Tuples fit with pattern matching nicely.
 
+<pre>
 hostPort match {
   case ("localhost", port) => ...
   case (host, port) => ...
 }
+</pre>
 
 h2. Functional Combinators
 
@@ -262,7 +264,7 @@ acts as an accumulator.
 
 Seen visually:
 <pre>
-scala> numbers.foldLeft(0) { (m: Int, n: Int) =>
+scala&gt; numbers.foldLeft(0) { (m: Int, n: Int) =>
   println("m: " + m + " n: " + n)
   m + n
 }
