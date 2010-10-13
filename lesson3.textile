@@ -68,14 +68,37 @@ res0: (Int) => Int = <function1>
 
 h4. Curried functions
 
+
 Sometimes it makes sense to let people apply some arguments to your
 function now and others later.
+
+<pre>
+scala> def multiply(m: Int)(n: Int): Int = m * n
+multiply: (m: Int)(n: Int)Int
+</pre>
+
+You can call it directly
+
+<pre>
+scala> multiply(2)(3)
+res0: Int = 6
+</pre>
+
+You can fill in the first parameter and partially applying the second.
+
+<pre>
+scala> val timesTwo = multiply(2) _
+timesTwo: (Int) => Int = <function1>
+
+scala> timesTwo(3)
+res1: Int = 6
+</pre>
 
 
 This sometimes lead to crazy pieces of code like:
 
 <pre>
-multThenFilter { i: Int =>
+multiplyThenFilter { i: Int =>
   i * 2
 } { i: Int =>
   i < 5
