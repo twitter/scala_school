@@ -1,0 +1,108 @@
+Lesson 4: Advanced Pattern Matching and Functional Composition
+
+Today we'll cover
+
+* Functions (again)
+** compose
+** andThen
+** orElse
+* PartialFunctions
+** range and domain
+** composition
+* Pattern Matching
+** extractor methods
+* What is a case statement?
+
+<pre>
+scala> def addUmm(x: String) = x + " umm "
+timesTwo: (x: String)String
+
+scala> def addAhem(x: String) = x + " ahem"
+timesThree: (x: String)String
+
+scala> val timesSix = (timesTwo _) andThen (timesThree _)
+timesSix: (Int) => Int = <function1>
+
+scala> timesSix(2)
+res0: Int = 12
+</pre>
+
+
+compose is f(g(x))
+andThen is g(f(x))
+
+FIXME: HARD TO TELL FROM THESE EXAMPLES SINCE THEY ARE COMMUTATIVE STEVE
+
+<pre>
+
+</pre>
+
+
+h3. PartialFunctions
+
+A function is closed over an entire domain. A function (Int) => String takes any Int.
+
+A Partial Function is only partially closed over a domain. A Partial
+Function (Int) => String might not take every Int.
+
+isDefinedAt is a method on PartialFunction that can be used to
+determine if the PartialFunction closes over a given argument.
+
+<pre>
+scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
+one: PartialFunction[Int,String] = <function1>
+
+scala> one.isDefinedAt(2)
+res0: Boolean = false
+
+scala> one.isDefinedAt(1)
+res1: Boolean = true
+</pre>
+
+PartialFunctions can be composed with <tt>compose</tt> or
+<tt>andThen</tt> just like full functions.
+
+<pre>
+scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
+two: PartialFunction[Int,String] = <function1>
+
+scala> val three: PartialFunction[Int, String] = { case 3 => "three" }
+three: PartialFunction[Int,String] = <function1>
+
+scala> val wildcard: PartialFunction[Int, String] = { case _ => "something else" }
+wildcard: PartialFunction[Int,String] = <function1>
+
+scala> one orElse two orElse three orElse wildcard
+res23: PartialFunction[Int,String] = <function1>
+
+scala> res23(5)
+res24: String = something else
+
+scala> res23(3)
+res25: String = three
+
+scala> res23(2)
+res26: String = two
+
+scala> res23(1)
+res27: String = one
+
+scala> res23(0)
+res28: String = something else
+</pre>
+
+h3. Pattern Matching
+
+h4. Extractor methods
+
+
+h4. The mystery of case.
+
+Last week we saw something curious. We saw a case statement used where
+a function is normally used.
+
+<pre>
+scala> extensions.filter { case (name, extension) => extension < 200 }
+</pre>
+
+
