@@ -129,7 +129,7 @@ h3. Classes
 
 <pre>
 scala> class Calculator {
-     |   val color: String = "blue"
+     |   val brand: String = "HP"
      |   def add(m: Int, n: Int): Int = m + n
      | }
 defined class Calculator
