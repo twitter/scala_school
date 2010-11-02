@@ -13,28 +13,48 @@ Today we'll cover
 ** extractor methods
 * What is a case statement?
 
+h3. Functions (again)
+
+Let's make two helpful functions:
+
 <pre>
-scala> def addUmm(x: String) = x + " umm "
-timesTwo: (x: String)String
+scala> def addUmm(x: String) = x + " umm"
+addUmm: (x: String)java.lang.String
 
-scala> def addAhem(x: String) = x + " ahem"
-timesThree: (x: String)String
-
-scala> val timesSix = (timesTwo _) andThen (timesThree _)
-timesSix: (Int) => Int = <function1>
-
-scala> timesSix(2)
-res0: Int = 12
+scala>  def addAhem(x: String) = x + " ahem"
+addAhem: (x: String)java.lang.String
 </pre>
+
+
+h4. compose
+
+compose calls the second function and then the first function.
 
 compose is f(g(x))
-andThen is g(f(x))
-
-FIXME: HARD TO TELL FROM THESE EXAMPLES SINCE THEY ARE COMMUTATIVE STEVE
 
 <pre>
+scala> val ummThenAhem = (addUmm _) compose (addAhem _)
+ummThenAhem: (String) => java.lang.String = <function1>
 
+scala> ummThenAhem("well")
+res0: java.lang.String = well umm ahem
 </pre>
+
+
+h4. andThen
+
+andThen calls the first function and then the second.
+
+andThen is g(f(x))
+
+<pre>
+scala> val ummThenAhem = (addUmm _) andThen (addAhem _)
+ummThenAhem: (String) => java.lang.String = <function1>
+
+scala> ahemThenUmm("well")
+res1: java.lang.String = well ahem umm
+</pre>
+
 
 h3. Pattern Matching
 
@@ -58,7 +78,6 @@ it's a two!
 
 scala> printNumber(3)
 it's something else!
-
 </pre>
 
 underscore is the wildcard pattern, it matches anything.
@@ -74,7 +93,6 @@ printNumber: (i: Int)Unit
 
 scala> printNumber(3)
 it's the number: 3!
-
 </pre>
 
 
@@ -96,9 +114,9 @@ scala> stevej match {
          case User("stevej", _, _) => println("it's stevej")
 </pre>
 
-But what if we don't want User to be a case class? What if we don't even
-have access to the source of User? How can we make User interact nicely
-with pattern matching?
+But what if we don't want User to be a case class? How can we make
+User interact nicely with pattern matching without changing the User
+class?
 
 Use the extractor method: unapply.
 
@@ -149,8 +167,9 @@ scala> one.isDefinedAt(1)
 res1: Boolean = true
 </pre>
 
-PartialFunctions can be composed with <tt>compose</tt> or
-<tt>andThen</tt> just like full functions.
+PartialFunctions can be composed with something new, called orElse,
+that reflects whether the PartialFunction is defined over the supplied
+argument.
 
 <pre>
 scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
