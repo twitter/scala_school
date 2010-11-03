@@ -1,4 +1,4 @@
-Lesson 1
+h1. Lesson 1
 
 Today we'll cover:
 * values

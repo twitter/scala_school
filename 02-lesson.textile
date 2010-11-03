@@ -1,4 +1,4 @@
-Lesson 2
+h1. Lesson 2
 
 Today we'll cover:
 * apply
@@ -54,7 +54,6 @@ How to use
 <pre>
 scala> Timer.currentCount
 res0: Long = 1
-
 </pre>
 
 
@@ -127,6 +126,7 @@ res0: Int = 2
 </pre>
 
 Let's partially apply it.
+
 <pre>
 scala> addOne _
 res1: (Int) => Int = &lt;function1&gt;
@@ -134,6 +134,7 @@ res1: (Int) => Int = &lt;function1&gt;
 
 Hmm, what is a function1? A Function1 is simply a trait for a function
 that takes one argument.
+
 <pre>
 scala> val addOne = new Function1[Int, Int] {
      |   def apply(x: Int): Int = x + 1
@@ -166,10 +167,12 @@ You can organize your code inside of packages.
 <pre>
 package com.twitter.example
 </pre>
+
 at the top of a file will declare everything in the file to be in that package.
 
 Values and functions cannot be outside of a class or object. Objects
 are a useful tool for organizing static functions.
+
 <pre>
 package com.twitter.example
 
@@ -178,6 +181,7 @@ object colorHolder {
   val RED = "Red"
 }
 </pre>
+
 Now you can access the members directly
 
 <pre>

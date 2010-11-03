@@ -1,4 +1,4 @@
-Lesson 3
+h1. Lesson 3
 
 Today we'll cover:
 * Lists
@@ -139,11 +139,13 @@ Map("foo" -> "bar")
 </pre>
 
 Nested Maps:
+
 <pre>
 Map(1 -> Map("foo" -> "bar"))
 </pre>
 
 You can even hold functions as values:
+
 <pre>
 Map("timesTwo" -> timesTwo _)
 </pre>
@@ -299,6 +301,7 @@ res0: Int = 55
 acts as an accumulator.
 
 Seen visually:
+
 <pre>
 scala&gt; numbers.foldLeft(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
 m: 0 n: 1

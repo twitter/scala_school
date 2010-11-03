@@ -1,4 +1,6 @@
-Lesson 4: Advanced Pattern Matching and Functional Composition
+h1. Lesson 4
+
+h2. Advanced Pattern Matching and Functional Composition
 
 Today we'll cover
 
@@ -42,7 +44,6 @@ res0 is now a function that takes a String and returns a String.
 <pre>
 scala> res0("hi")
 res1: java.lang.String = hi umm
-
 </pre>
 
 h4. compose
