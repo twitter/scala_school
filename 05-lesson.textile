@@ -1,0 +1,256 @@
+h1. Lesson 5
+
+h2. Type Basics
+
+Today we'll cover
+
+* What are types?
+* Parametric Polymorphism
+* Type inference: Hindley-Milner
+* Variance, bounds & quantification
+
+h3. What are static types?  Why are they useful?
+
+According to Pierce: "A type system is a syntactic method for automatically checking the absence of certain erroneous behaviors by classifying program phrases according to the kinds of values they compute."
+
+Types allow you to denote function domain & codomains. For example, from mathematics, we are used to seeing:
+
+<pre>
+f: R -> N
+</pre>
+
+this tells us that function "f" maps values from the set of real numbers to values of the set of natural numbers.
+
+In the abstract, this is exactly what _concrete_ types are, only they give us some more powerful ways to express these sets.
+
+Given this type information, the compiler can now _statically_ (at compile time) verify that the program is _sound_. That is, compilation will fail if values (at runtime) will not comply to the constraints imposed by the program.
+
+Generally speaking, the typechecker can only guarantee that _unsound_ programs do not compile. It cannot guarantee that every sound program _will_ compile.
+
+With increasing expressiveness in type systems, we can produce more reliable code because it allows us to prove invariants about our program before it even runs (modulo bugs in the types themselves, of course!). Academia is pushing the limits of expressiveness very hard, including value-dependent types!
+
+Note that all type information is removed at compile time. It is no longer needed. This is called erasure.
+
+h3. Types in Scala
+
+Scala has a very powerful type system, allowing for very rich expression. Some of its chief features are:
+
+* parametric polymorphism
+* (local) type inference
+* existential quantification
+* views
+
+h3. Parametric polymorphism
+
+Polymorphism is used in order to write generic code (for values of different types) without compromising static typing richness.
+
+For example, without parametric polymorphism, a generic list data structure would always look like this:
+
+<pre>
+scala> 2 :: 1 :: "bar" :: "foo" :: Nil
+res5: List[Any] = List(2, 1, bar, foo)
+</pre>
+
+Now we cannot recover any type information about the individual members.
+
+<pre>
+scala> res5.head
+res6: Any = 2
+</pre>
+
+And so our application would devolve into a series of casts ("asInstanceOf[]") and we would lack typesafety (because these are all dynamic).
+
+Polymorphism is achieved through specifying _type variables_.
+
+<pre>
+scala> def drop1[A](l: List[A]) = l.tail
+drop1: [A](l: List[A])List[A]
+
+scala> drop1(List(1,2,3))
+res1: List[Int] = List(2, 3)
+</pre>
+
+h4. Scala has rank-1 polymorphism
+
+Suppose you had some function
+
+<pre>
+def toList[A](a: A) = List(a)
+</pre>
+
+which you wished to use generically:
+
+<pre>
+def foo[A, B](f: A => List[A], b: B, c: Int) = (f(b), f(c))
+</pre>
+
+This does not compile, because all type variables have to be fixed at the invocation site.
+
+h3. Type inference
+
+A traditional objection to static typing is that it has much syntactic overhead. Scala alleviates this by providing _type inference_.
+
+The classic method for type inference in functional programming languages is _Hindley-Milner_, and it was first employed in ML.
+
+Scala's type inference system works a little differently, but it's similar in spirit: infer constraints, and attempt to unify a type.
+
+In Scala, for example, you cannot do the following:
+
+<pre>
+scala> { x => x }
+<console>:7: error: missing parameter type
+       { x => x }
+</pre>
+
+Whereas in OCaml, you can:
+
+<pre>
+# fun x -> x;;
+- : 'a -> 'a = <fun>
+</pre>
+
+In scala all type inference is _local_.  For example:
+
+<pre>
+scala> def id[T](x: T) = x
+id: [T](x: T)T
+
+scala> val x = id(322) 
+x: Int = 322
+
+scala> val x = id("hey")
+x: java.lang.String = hey
+
+scala> val x = id(Array(1,2,3,4))
+x: Array[Int] = Array(1, 2, 3, 4)
+</pre>
+
+Types are now preserved, The Scala compiler infers the type parameter for us. Note also how we did not have to specify the return type explicitly.
+
+h3. Variance
+
+Scala's type system has to account for class hierarchies together with polymorphism.  Class hierarchies allow the expression of subtype relationships. A central question that comes up when mixing OO with polymorphism is: if <tt>T'</tt> is a subclass of <tt>T</tt>, is <tt>Container[T']</tt> considered a subclass of <tt>Container[T]</tt>? Variance annotations allow you to express the following relationships between class hierarchies & polymorphic types:
+
+|covariant|&nbsp;&nbsp;C[T'] is a subclass of C[T]|
+|contravariant|&nbsp;&nbsp;C[T] is a subclass of C[T']|
+|invariant|&nbsp;&nbsp;C[T] and C[T'] are not related|
+
+The subtype relationship really means: for a given type T, if T' is a subtype, can you substitute it?
+
+<pre>
+scala> class Covariant[+A]
+defined class Covariant
+
+scala> val cv: Covariant[AnyRef] = new Covariant[String]
+cv: Covariant[AnyRef] = Covariant@4035acf6
+
+scala> val cv: Covariant[String] = new Covariant[AnyRef]
+<console>:6: error: type mismatch;
+ found   : Covariant[AnyRef]
+ required: Covariant[String]
+       val cv: Covariant[String] = new Covariant[AnyRef]
+                                   ^
+</pre>
+
+<pre>
+scala> class Contravariant[+A]                          
+defined class Contravariant
+
+scala> val cv: Contravariant[AnyRef] = new Contravariant[String]
+cv: Contravariant[AnyRef] = Contravariant@49fa7ba
+
+scala> val cv: Contravariant[String] = new Contravariant[AnyRef]
+<console>:6: error: type mismatch;
+ found   : Contravariant[AnyRef]
+ required: Contravariant[String]
+       val cv: Contravariant[String] = new Contravariant[AnyRef]
+                                       ^
+</pre>
+
+Contravariance seems strange. When is it used? Somewhat surprising!
+
+<pre>
+trait Function1 [-T1, +R] extends AnyRef
+</pre>
+
+If you think about this from the point of view of substitution, it makes a lot of sense.
+
+<pre>
+scala> val f: (Seq[Int] => Buffer[Int]) = ((s: Seq[Int]) => s.toBuffer)
+f: (scala.collection.mutable.Seq[Int]) => scala.collection.mutable.Buffer[Int] = <function1>
+
+scala> val f: (Seq[Int] => Buffer[Int]) = ((s: Traversable[Int]) => s.toBuffer)
+f: (scala.collection.mutable.Seq[Int]) => scala.collection.mutable.Buffer[Int] = <function1>
+
+scala> val f: (Seq[Int] => Buffer[Int]) = ((s: List[Int]) => s.toBuffer)       
+<console>:8: error: type mismatch;
+ found   : (List[Int]) => scala.collection.mutable.Buffer[Int]
+ required: (scala.collection.mutable.Seq[Int]) => scala.collection.mutable.Buffer[Int]
+       val f: (Seq[Int] => Buffer[Int]) = ((s: List[Int]) => s.toBuffer)
+
+scala> val f: (Seq[Int] => Buffer[Int]) = ((s: Traversable[Int]) => (new ArrayBuffer) ++ s)
+f: (scala.collection.mutable.Seq[Int]) => scala.collection.mutable.Buffer[Int] = <function1>
+</pre>
+
+h3. Bounds
+
+Scala allows you to restrict polymorphic variables using _bounds_. These bounds express subtype relationships.
+
+<pre>
+scala> class F { def foo = "F" }                               
+defined class F
+
+scala> class E extends F { override def foo = "E" }
+defined class E
+
+scala> def callFoo[T](foos: Seq[T]) = foos map (_.foo) foreach println     
+<console>:8: error: value foo is not a member of type parameter T
+       def callFoo[T](foos: Seq[T]) = foos map (_.foo) foreach println
+
+scala> def callFoo[T <: F](foos: Seq[T]) = foos map (_.foo) foreach println
+callFoo: [T <: F](foos: scala.collection.mutable.Seq[T])Unit
+
+scala> callFoo(Seq(new E, new F))                                          
+E
+F
+</pre>
+
+h3. Quantification
+
+Sometimes you do not care to be able to name a type variable, for example:
+
+<pre>
+scala> def count[A](l: List[A]) = l.size
+count: [A](l: List[A])Int
+</pre>
+
+Instead you can use "wildcards":
+
+<pre>
+scala> def count(l: List[_]) = l.size
+count: [A](l: List[A])Int
+</pre>
+
+This is shorthand for:
+
+<pre>
+scala> def count(l: List[T forSome { type T }]) = l.size
+count: (l: List[T forSome { type T }])Int
+</pre>
+
+Note that quantification can get tricky:
+
+<pre>
+scala> def drop1(l: List[_]) = l.tail
+drop1: (l: List[_])List[Any]
+</pre>
+
+Suddenly we lost type information! To see what's going on, revert to the heavy-handed syntax:
+
+<pre>
+scala> def drop1(l: List[T forSome { type T }]) = l.tail
+drop1: (l: List[T forSome { type T }])List[T forSome { type T }]
+</pre>
+
+We can't say anything about T because the type does not allow it.
+
