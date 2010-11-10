@@ -199,18 +199,15 @@ f: (B) => C = <function1>
 scala> val f: (B => C) = ((a: A) => new D)
 f: (B) => C = <function1>
 
-scala> val f: (B => C) = ((a: A) => new A)
-<console>:8: error: type mismatch;
- found   : A
- required: C
-       val f: (B => C) = ((a: A) => new A)
-                                    ^
+scala> val f: (B => C) = ((a: A) => new C)
+f: (B) => C = <function1>
 
-scala> val f: (B => C) = ((b: B) => new A)
+scala> val f: (B => C) = ((c: C) => new C)
 <console>:8: error: type mismatch;
- found   : A
- required: C
-       val f: (B => C) = ((b: B) => new A)
+ found   : (C) => C
+ required: (B) => C
+       val f: (B => C) = ((c: C) => new C)
+                                 ^
                                     ^
 </pre>
 
@@ -278,6 +275,9 @@ res6: Node[A] = Node@1b2b2f7f
 
 scala> ((new Node(new B)).sub(new B)).asInstanceOf[Node[C]]
 res7: Node[C] = Node@6924181b
+
+scala> (((new Node(new B)).sub(new B)).sub(new A)).sub(new C)
+res8: Node[A] = Node@3088890d
 </pre>
 
 Note also how the type changes with subsequent calls to "sub".
