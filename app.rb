@@ -77,6 +77,8 @@ __END__
           </div>
         </div>
       </div>
+    </div>
+    <div id='foot_pad'></div>
   </body>
 </html>
 
@@ -163,3 +165,17 @@ div.fixed-container{padding:0;width:940px;margin:0 auto;}
 div#topbar div.fixed-container ul.right{margin-right:-15px;}
 div#topbar div.fluid-container{padding-left:10px;}
 div#workspace div.fluid-container{margin:0 0 0 220px;}
+div#foot_pad{height:75em;}
+table{width:100%;margin:5px 0 20px;border-collapse:separate;}
+table tr:hover{background:rgba(0, 0, 0, 0.03);}
+table{background:#fff;box-shadow:0 1px 1px rgba(0, 0, 0, 0.3);-moz-box-shadow:0 1px 1px rgba(0, 0, 0, 0.3);-webkit-box-shadow:0 1px 1px rgba(0, 0, 0, 0.3);border-radius:3px;-khtml-border-radius:3px;-moz-border-radius:3px;-webkit-border-radius:3px;border-radius:3px;-khtml-border-radius:3px;-moz-border-radius:3px;-webkit-border-radius:3px;border:1px solid #ddd;}table.table-bordered thead tr:first-child th:first-child{border-radius:3px 0 0 0;-khtml-border-radius:3px 0 0 0;-moz-border-radius:3px 0 0 0;-webkit-border-top-left-radius:3px;}
+table tr:first-child th:last-child{border-radius:0 3px 0 0;-khtml-border-radius:0 3px 0 0;-moz-border-radius:0 3px 0 0;-webkit-border-top-right-radius:3px;}
+table tr:last-child td{border-bottom:0 !important;}
+table tr:last-child th:first-child,table.table-bordered tfoot tr:last-child th:first-child{border-radius:0 0 0 3px;-khtml-border-radius:0 0 0 3px;-moz-border-radius:0 0 0 3px;-webkit-border-bottom-left-radius:3px;}
+table tr:last-child th:last-child,table.table-bordered tfoot tr:last-child th:last-child{border-radius:0 0 3px 0;-khtml-border-radius:0 0 3px 0;-moz-border-radius:0 0 3px 0;-webkit-border-bottom-right-radius:3px;}
+table tr th+th,table tr td+td{border-left:1px solid rgba(255, 255, 255, 0.5) !important;border-right:1px solid rgba(0, 0, 0, 0.1) !important;}
+table tr th:first-child,table.table-bordered td:first-child{border-right:1px solid rgba(0, 0, 0, 0.1) !important;}
+table tr th:last-child,table.table-bordered td:last-child{border-right:0 !important;}
+table tr td{padding:5px 10px;color:#555;line-height:18px;border-bottom:1px solid #eee;vertical-align:top;}
+table tr td a.block-link{display:block;margin:-10px;padding:10px;font-weight:bold;text-shadow:0 1px 1px rgba(255, 255, 255, 0.75);}
+
