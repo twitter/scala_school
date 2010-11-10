@@ -21,9 +21,9 @@ f: R -> N
 
 this tells us that function "f" maps values from the set of real numbers to values of the set of natural numbers.
 
-In the abstract, this is exactly what _concrete_ types are, only they give us some more powerful ways to express these sets.
+In the abstract, this is exactly what _concrete_ types are.  Type systems give us some more powerful ways to express these sets.
 
-Given this type information, the compiler can now _statically_ (at compile time) verify that the program is _sound_. That is, compilation will fail if values (at runtime) will not comply to the constraints imposed by the program.
+Given these annotations, the compiler can now _statically_ (at compile time) verify that the program is _sound_. That is, compilation will fail if values (at runtime) will not comply to the constraints imposed by the program.
 
 Generally speaking, the typechecker can only guarantee that _unsound_ programs do not compile. It cannot guarantee that every sound program _will_ compile.
 
@@ -44,7 +44,7 @@ h3. Parametric polymorphism
 
 Polymorphism is used in order to write generic code (for values of different types) without compromising static typing richness.
 
-For example, without parametric polymorphism, a generic list data structure would always look like this:
+For example, without parametric polymorphism, a generic list data structure would always look like this (and indeed it did look like this in Java prior to generics):
 
 <pre>
 scala> 2 :: 1 :: "bar" :: "foo" :: Nil
@@ -173,7 +173,11 @@ Contravariance seems strange. When is it used? Somewhat surprising!
 trait Function1 [-T1, +R] extends AnyRef
 </pre>
 
-If you think about this from the point of view of substitution, it makes a lot of sense.
+If you think about this from the point of view of substitution, it makes a lot of sense. We'll use an example from Scala's collection types. Where:
+
+<pre>
+Buffer[T] <: Seq[T] <: Traversable[T]
+</pre>
 
 <pre>
 scala> val f: (Seq[Int] => Buffer[Int]) = ((s: Seq[Int]) => s.toBuffer)
