@@ -6,7 +6,7 @@ Today we'll cover
 
 * What are types?
 * Parametric Polymorphism
-* Type inference: Hindley-Milner
+* Type inference: Hindley-Milner vs. local type inference
 * Variance, bounds & quantification
 
 h3. What are static types?  Why are they useful?
@@ -173,27 +173,45 @@ Contravariance seems strange. When is it used? Somewhat surprising!
 trait Function1 [-T1, +R] extends AnyRef
 </pre>
 
-If you think about this from the point of view of substitution, it makes a lot of sense. We'll use an example from Scala's collection types. Where:
+If you think about this from the point of view of substitution, it makes a lot of sense. Let's first define a simple class hierarchy:
 
 <pre>
-Buffer[T] <: Seq[T] <: Traversable[T]
+scala> class A  
+defined class A
+
+scala> class B extends A
+defined class B
+
+scala> class C extends B
+defined class C
+
+scala> class D extends C
+defined class D
 </pre>
 
 <pre>
-scala> val f: (Seq[Int] => Buffer[Int]) = ((s: Seq[Int]) => s.toBuffer)
-f: (scala.collection.mutable.Seq[Int]) => scala.collection.mutable.Buffer[Int] = <function1>
+scala> val f: (B => C) = ((b: B) => new C)
+f: (B) => C = <function1>
 
-scala> val f: (Seq[Int] => Buffer[Int]) = ((s: Traversable[Int]) => s.toBuffer)
-f: (scala.collection.mutable.Seq[Int]) => scala.collection.mutable.Buffer[Int] = <function1>
+scala> val f: (B => C) = ((a: A) => new C)
+f: (B) => C = <function1>
 
-scala> val f: (Seq[Int] => Buffer[Int]) = ((s: List[Int]) => s.toBuffer)       
+scala> val f: (B => C) = ((a: A) => new D)
+f: (B) => C = <function1>
+
+scala> val f: (B => C) = ((a: A) => new A)
 <console>:8: error: type mismatch;
- found   : (List[Int]) => scala.collection.mutable.Buffer[Int]
- required: (scala.collection.mutable.Seq[Int]) => scala.collection.mutable.Buffer[Int]
-       val f: (Seq[Int] => Buffer[Int]) = ((s: List[Int]) => s.toBuffer)
+ found   : A
+ required: C
+       val f: (B => C) = ((a: A) => new A)
+                                    ^
 
-scala> val f: (Seq[Int] => Buffer[Int]) = ((s: Traversable[Int]) => (new ArrayBuffer) ++ s)
-f: (scala.collection.mutable.Seq[Int]) => scala.collection.mutable.Buffer[Int] = <function1>
+scala> val f: (B => C) = ((b: B) => new A)
+<console>:8: error: type mismatch;
+ found   : A
+ required: C
+       val f: (B => C) = ((b: B) => new A)
+                                    ^
 </pre>
 
 h3. Bounds
@@ -218,6 +236,51 @@ scala> callFoo(Seq(new E, new F))
 E
 F
 </pre>
+
+Lower type bounds are also supported. They go hand-in-hand with contravariance. Let's say we had some class Node:
+
+<pre>
+scala> class Node[T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+</pre>
+
+But, we want top make it covariant in T:
+
+<pre>
+scala> class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+<console>:6: error: covariant type T occurs in contravariant position in type T of value v
+       class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+                                      ^
+</pre>
+
+Recall that method arguments are contravariant, and so if we perform our substitution trick, using the same classes as before:
+
+<pre>
+class Node[B](x: Buffer[B]) { def sub(v: B): Node[B] = new Node(v) }
+</pre>
+
+is *not* a subtype of
+
+<pre>
+class Node[A](x: Seq[Int]) { def sub(v: A): Node[A] = new Node(v) }
+</pre>
+
+because A cannot be substituted for B in the argument of "sub". However, we can use lower bounding to enforce correctness.
+
+<pre>
+scala> class Node[+T](x: T) { def sub[U >: T](v: U): Node[U] = new Node(v) }
+defined class Node
+
+scala> (new Node(new B)).sub(new B)
+res5: Node[B] = Node@4efade06
+
+scala> ((new Node(new B)).sub(new B)).sub(new A)           
+res6: Node[A] = Node@1b2b2f7f
+
+scala> ((new Node(new B)).sub(new B)).asInstanceOf[Node[C]]
+res7: Node[C] = Node@6924181b
+</pre>
+
+Note also how the type changes with subsequent calls to "sub".
 
 h3. Quantification
 
@@ -258,3 +321,21 @@ drop1: (l: List[T forSome { type T }])List[T forSome { type T }]
 
 We can't say anything about T because the type does not allow it.
 
+You may also apply bounds to wildcard type variables:
+
+<pre>
+scala> def hashcodes(l: Seq[_ <: AnyRef]) = l map (_.hashCode)
+hashcodes: (l: Seq[_ <: AnyRef])Seq[Int]
+
+scala> hashcodes(Seq(1,2,3))
+<console>:7: error: type mismatch;
+ found   : Int(1)
+ required: AnyRef
+Note: primitive types are not implicitly converted to AnyRef.
+You can safely force boxing by casting x.asInstanceOf[AnyRef].
+       hashcodes(Seq(1,2,3))
+                     ^
+
+scala> hashcodes(Seq("one", "two", "three"))
+res1: Seq[Int] = List(110182, 115276, 110339486)
+</pre>
