@@ -272,3 +272,17 @@ class CredentialsFilter(credentialsParser: CredentialsParser)
   }
 }
 </pre>
+
+These can now be composed:
+
+<pre>
+val upFilter =
+  logTransaction     andThen
+  handleExceptions   andThen
+  extractCredentials andThen
+  homeUser           andThen
+  authenticate       andThen
+  route
+</pre>
+
+Type safely!
