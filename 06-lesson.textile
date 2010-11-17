@@ -64,7 +64,8 @@ Methods may ask for specific "evidence" for a type, namely:
 scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
 defined class Container
 
-scala> (new Container(123)).addIt                                               res11: Int = 246
+scala> (new Container(123)).addIt
+res11: Int = 246
 
 scala> (new Container("123")).addIt
 <console>:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
@@ -148,6 +149,8 @@ List[A]
 Meaning we have to satisfy one "level" of type variables in order to produce a concrete types (just like an uncurried function needs to be supplied by only one argument list to be invoked), a higher-kinded type needs more:
 
 <pre>
+scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
 scala> new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A] = m.head }
 res22: java.lang.Object with Container[List] = $anon$1@6982237d
 
@@ -286,6 +289,17 @@ res4: java.lang.String = hey
 </pre>
 
 This is often a useful trick when doing dependency injection, etc.
+
+You can refer to an abstract type variable using the hash-operator:
+
+<pre>
+scala> trait Foo[M[_]] { type t[A] = M[A] }
+defined trait Foo
+
+scala> val x: Foo[List]#t[Int] = List(1)
+x: List[Int] = List(1)
+</pre>
+
 
 h3. Type erasures & manifests
 
