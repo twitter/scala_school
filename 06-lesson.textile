@@ -1,0 +1,274 @@
+h1. Lesson 6
+
+h2. Types (Cont'd)
+
+Today we'll cover
+
+* View bounds ("type classes")
+* F-bounded polymorphism / recursive types
+* Structural types
+* Abstract types members
+* Type erasures & manifests
+* Case study: Thrust
+
+h3. View bounds ("type classes")
+
+*Implicit* functions in scala allow for on-demand function application when this can help satisfy type inference. eg.:
+
+<pre>
+scala> implicit def strToInt(x: String) = x.toInt
+strToInt: (x: String)Int
+
+scala> "123"
+res0: java.lang.String = 123
+
+scala> val y: Int = "123"
+y: Int = 123
+
+scala> math.max("123", 111)
+res1: Int = 123
+</pre>
+
+view bounds, like type bounds demand such a function exists for the given type.  eg.
+
+<pre>
+scala> class Container[A <% Int] { def addIt(x: A) = 123 + x }
+defined class Container
+</pre>
+
+This says that *A* has to be "viewable" as *Int*.  Let's try it.
+
+<pre>
+scala> (new Container[String]).addIt("123")                   
+res11: Int = 246
+
+scala> (new Container[Int]).addIt(123)     
+res12: Int = 246
+
+scala> (new Container[Float]).addIt(123.2)     
+<console>:8: error: could not find implicit value for evidence parameter of type (Float) => Int
+       (new Container[Float]).addIt(123.2)
+        ^
+</pre>
+
+h3. Other type bounds
+
+Methods may ask for specific "evidence" for a type, namely:
+
+|A =:= B|A must be equal to B|
+|A <:< B|A must be a subtype of B|
+|A <%< B|A must be viewable as B|
+
+<pre>
+scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
+defined class Container
+
+scala> (new Container(123)).addIt                                               res11: Int = 246
+
+scala> (new Container("123")).addIt
+<console>:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
+</pre>
+
+Similarly, given our previous implicit, we can relax the constraint to viewability:
+
+<pre>
+scala> class Container[A](value: A) { def addIt(implicit evidence: A <%< Int) = 123 + value }
+defined class Container
+
+scala> (new Container("123")).addIt                                             res15: Int = 246
+</pre>
+
+h4. Generic programming with views
+
+In the Scala standard library, views are primarily used to implement generic functions over collections.  For example, the "min" function (on *Seq[]*), uses this technique:
+
+<pre>
+def min[B >: A](implicit cmp: Ordering[B]): A = {
+  if (isEmpty)
+    throw new UnsupportedOperationException("empty.min")
+
+  reduceLeft((x, y) => if (cmp.lteq(x, y)) x else y)
+}
+</pre>
+  
+The main advantages of this are:
+
+* Items in the collections aren't required to implement *Ordered*, but *Ordered* uses are still statically type checked.
+* You can define your own orderings without any additional library support:
+
+<pre>
+scala> List(1,2,3,4).min
+res0: Int = 1
+
+scala> List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b compare a })
+res3: Int = 4
+</pre>
+
+As a sidenote, there are views in the standard library that translates *Ordered* into *Ordering* (and vice versa).
+
+<pre>
+trait LowPriorityOrderingImplicits {
+  implicit def ordered[A <: Ordered[A]]: Ordering[A] = new Ordering[A] {
+    def compare(x: A, y: A) = x.compare(y)
+  }
+}
+</pre>
+
+h3. F-bounded polymorphism
+
+Often it's necessary to access a concrete subclass in a (generic) trait. For example, imagine you had some trait that is generic, but can be compared to a particular subclass of that trait.
+
+<pre>
+trait Container extends Ordered[Container]
+</pre>
+
+However, this now necessitates the compare method
+
+<pre>
+def compare(that: Container): Int
+</pre>
+
+And so we cannot access the concrete subtype, eg.:
+
+<pre>
+class MyContainer extends Container {
+  def compare(that: MyContainer): Int
+}
+</pre>
+
+fails to compile, since we are specifying Ordered for *Container*, not the particular subtype.
+
+To reconcile this, we use F-bounded polymorphism.
+
+<pre>
+trait Container[A <: Container[A]] extends Ordered[A]
+</pre>
+
+Strange type!  But note now how Ordered is paramterized on *A*, which itself is *Container[A]*
+
+So, now 
+
+<pre>
+class MyContainer extends Container[MyContainer] { 
+  def compare(that: MyContainer) = 0 
+}
+</pre>
+
+They are now ordered:
+
+<pre>
+scala> List(new MyContainer, new MyContainer, new MyContainer)
+res3: List[MyContainer] = List(MyContainer@30f02a6d, MyContainer@67717334, MyContainer@49428ffa)
+
+scala> List(new MyContainer, new MyContainer, new MyContainer).min
+res4: MyContainer = MyContainer@33dfeb30
+</pre>
+
+Given that they are all subtypes of *Container[_]*, we can define another subclass & create a mixed list of *Container[_]*:
+
+<pre>
+scala> class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
+defined class YourContainer
+
+scala> List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)                   
+res2: List[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]] 
+  = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
+</pre>
+
+Note how the resulting type is now lower-bound by *YourContainer with MyContainer*. This is the work of the type inferencer. Interestingly- this type doesn't even need to make sense, it only provides a logical greatest lower bound for the unified type of the list. What happens if we try to use *Ordered* now?
+
+<pre>
+(new MyContainer, new MyContainer, new MyContainer, new YourContainer).min
+<console>:9: error: could not find implicit value for parameter cmp:
+  Ordering[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]]
+</pre>
+
+No *Ordered[]* exists for the unified type. Too bad.
+
+h3. Structural types
+
+Scala has support for *structural types* -- type requirements are expressed by interface _structure_ instead of a concrete type.
+
+<pre>
+scala> def foo(x: { def get: Int }) = 123 + x.get
+foo: (x: AnyRef{def get: Int})Int
+
+scala> foo(new { def get = 10 })                 
+res0: Int = 133
+</pre>
+
+This can be quite nice in many situations, but the implementation uses reflection, so be performance-aware!
+
+h3. Abstract type members
+
+In a trait, you can leave type members abstract.
+
+<pre>
+scala> trait Foo { type A; val x: A; def getX: A = x }
+defined trait Foo
+
+scala> (new Foo { type A = Int; val x = 123 }).getX   
+res3: Int = 123
+
+scala> (new Foo { type A = String; val x = "hey" }).getX
+res4: java.lang.String = hey
+</pre>
+
+This is often a useful trick when doing dependency injection, etc.
+
+h3. Type erasures & manifests
+
+As we know, type information is lost at compile time due to _erasure_. Scala features *Manifests*, allowing us to selectively recover type information. Manifests are provided as an implicit value, generated by the compiler as needed.
+
+<pre>
+scala> class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
+
+scala> (new MakeFoo[String]).make 
+res10: String = 
+</pre>
+
+h3. Case study: Thrust
+
+See: https://github.com/twitter/thrust
+
+<pre>
+trait Service[-R <: Request] extends ((R, Response) => Unit)
+
+trait Filter[-R1 <: Request, +R2 <: Request] {
+  def apply(request: R1, response: Response, service: Service[R2])
+
+  def andThen(that: Service[R2]) = new Service[R1] {
+    def apply(request: R1, response: Response) {
+      Filter.this(request, response, that)
+    }
+  }
+
+  def andThen[R3 <: Request](that: Filter[R2, R3]) = new Filter[R1, R3] {
+    def apply(request: R1, response: Response, service: Service[R3]) =
+      Filter.this(request, response, new Service[R2] {
+        def apply(req: R2, res: Response) = that(req, res, service)
+      })
+  }
+}
+</pre>
+
+In Woodstar, credentials are added to requests as follows:
+
+<pre>
+trait RequestWithCredentials extends Request {
+  def credentials: Credentials
+}
+
+class CredentialsFilter(credentialsParser: CredentialsParser)
+  extends Filter[Request, RequestWithCredentials]
+{
+  def apply(request: Request, response: Response, service: Service[RequestWithCredentials]) {
+    val requestWithCredentials = new RequestWrapper with RequestWithCredentials {
+      val underlying = request
+      val credentials = credentialsParser(request) getOrElse NullCredentials
+    }
+
+    service(requestWithCredentials, response)
+  }
+}
+</pre>
