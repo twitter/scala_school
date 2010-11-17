@@ -5,6 +5,7 @@ h2. Types (Cont'd)
 Today we'll cover
 
 * View bounds ("type classes")
+* Higher kinded types & ad-hoc polymorphism
 * F-bounded polymorphism / recursive types
 * Structural types
 * Abstract types members
@@ -39,13 +40,13 @@ defined class Container
 This says that *A* has to be "viewable" as *Int*.  Let's try it.
 
 <pre>
-scala> (new Container[String]).addIt("123")                   
+scala> (new Container[String]).addIt("123")
 res11: Int = 246
 
-scala> (new Container[Int]).addIt(123)     
+scala> (new Container[Int]).addIt(123) 
 res12: Int = 246
 
-scala> (new Container[Float]).addIt(123.2)     
+scala> (new Container[Float]).addIt(123.2)
 <console>:8: error: could not find implicit value for evidence parameter of type (Float) => Int
        (new Container[Float]).addIt(123.2)
         ^
@@ -75,7 +76,8 @@ Similarly, given our previous implicit, we can relax the constraint to viewabili
 scala> class Container[A](value: A) { def addIt(implicit evidence: A <%< Int) = 123 + value }
 defined class Container
 
-scala> (new Container("123")).addIt                                             res15: Int = 246
+scala> (new Container("123")).addIt
+res15: Int = 246
 </pre>
 
 h4. Generic programming with views
@@ -112,6 +114,75 @@ trait LowPriorityOrderingImplicits {
     def compare(x: A, y: A) = x.compare(y)
   }
 }
+</pre>
+
+h4. Context bounds & implicitly[]
+
+Scala 2.8 introduced a shorthand for threading through & accessing implicit arguments.
+
+<pre>
+scala> def foo[A](implicit x: Ordered[A]) {}
+foo: [A](implicit x: Ordered[A])Unit
+
+scala> def foo[A : Ordered] {}                        
+foo: [A](implicit evidence$1: Ordered[A])Unit
+</pre>
+
+Implicit values may be accessed via *implicitly*
+
+<pre>
+scala> implicitly[Ordering[Int]]
+res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
+</pre>
+
+Combined, these often result in less code, especially when threading through views.
+
+h3. Higher-kinded types & ad-hoc polymorphism
+
+Scala can abstract over "higher kinded" types. This is analagous to function currying. For example, whereas "unary types" have constructors like this:
+
+<pre>
+List[A]
+</pre>
+
+Meaning we have to satisfy one "level" of type variables in order to produce a concrete types (just like an uncurried function needs to be supplied by only one argument list to be invoked), a higher-kinded type needs more:
+
+<pre>
+scala> new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A] = m.head }
+res22: java.lang.Object with Container[List] = $anon$1@6982237d
+
+scala> new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+res23: java.lang.Object with Container[List] = $anon$1@7c8e3f75
+
+scala> res23.put("hey")
+res24: List[java.lang.String] = List(hey)
+
+scala> res23.put(123)  
+res25: List[Int] = List(123)
+</pre>
+
+Note that *Container* is polymorphic in a parameterized type ("container type").
+
+If we combine using containers with implicits, we get "ad-hoc" polymorphism: the ability to write generic functions over containers.
+
+<pre>
+scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get(m: M[A]: A) }
+
+scala> implicit val listContainer = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+
+scala> implicit val optionContainer = new Container[Some] { def put[A](x: A) = Some(x); def get[A](m: Some[A]) = m.get }
+
+scala> def tupleize[M[_]: Container, A, B](fst: M[A], snd: M[B]) = {
+     | val c = implicitly[Container[M]]                             
+     | c.put(c.get(fst), c.get(snd))
+     | }
+tupleize: [M[_],A,B](fst: M[A],snd: M[B])(implicit evidence$1: Container[M])M[(A, B)]
+
+scala> tupleize(Some(1), Some(2))
+res33: Some[(Int, Int)] = Some((1,2))
+
+scala> tupleize(List(1), List(2))
+res34: List[(Int, Int)] = List((1,2))
 </pre>
 
 h3. F-bounded polymorphism
