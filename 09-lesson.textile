@@ -1,0 +1,138 @@
+h1. Lesson 9
+
+
+Today we will cover testing with Specs, a BDD Framework for Scala.
+
+* Contexts
+** nested examples
+* Setup
+** doFirst
+** doBefore
+** doAfter
+* Matchers
+** mustEqual
+** contains
+** sameSize?
+** Write your own
+* Mocks
+* Spies
+* How does this work?
+** What if we don't like the implicits?
+
+h2. extends Specifcation
+
+Let's just jump in.
+
+<pre>
+import org.specs._
+
+object ArithmeticSpec extends Specification {
+  "Arithmetic" should {
+    "add two numbers" in {
+      1 + 1 mustEqual 2
+    }
+    "add three numbers" in {
+      1 + 1 + 1 mustEqual 3
+    }
+  }
+}
+</pre>
+
+h2. Let's break this down
+
+
+*Arithmetic* is the *System Under Specification*
+
+*add* is a context.
+
+*add two numbers* and *add three numbers* are examples.
+
+@mustEqual@ indicates an *expectation*
+
+@1 mustEqual 1@ is a common placeholder *expectation* before you start
+writing real tests. All examples should have at least one expectation.
+
+
+h2. Duplication
+
+Notice how two tests both have @add@ in their name? We can get rid of
+that by *nesting* expectations.
+
+<pre>
+import org.specs._
+
+object ArithmeticSpec extends Specification {
+  "Arithmetic" should {
+    "add" in {
+      "two numbers" in {
+        1 + 1 mustEqual 2
+      }
+      "three numbers" in {
+        1 + 1 + 1 mustEqual 3
+      }
+    }
+  }
+}
+</pre>
+
+h2. Execution Model
+
+<pre>
+object ExecSpec extends Specification {
+  "Mutations are isolated" should {
+    var x = 0
+    "x equals 1 if we set it." in {
+      x = 1
+      x mustEqual 1
+    }
+    "x is the default value if we don't change it" in {
+      x mustEqual 0
+    }
+  }
+}
+</pre>
+
+h2. Setup
+
+
+
+h3. doBefore & doAfter
+
+<pre>
+"my system" should {
+  doBefore { resetTheSystem() /** user-defined reset function */ }
+  "mess up the system" in {...}
+  "and again" in {...}
+  doAfter { cleanThingsUp() }
+}
+</pre>
+
+
+h3. doFirst & doLast
+
+@doFirst@/@doLast@ is for single-time setup. (need example, I don't use this)
+
+<pre>
+"my system" should {
+  doFirst { openTheCurtains() }
+  "mess up the system" in {...}
+  "and again" in {...}
+  doLast { lockTheHouse() }
+}
+</pre>
+
+
+
+h2. Matchers
+
+You have data, you want to make sure it's right.
+
+h3. mustEqual
+
+We've seen several examples of mustEqual
+
+h3. contains
+
+sameElementsAs
+
+** sameSize?
