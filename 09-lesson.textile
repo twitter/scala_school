@@ -303,3 +303,19 @@ doReturn("one").when(spiedList).get(0)
 </pre>
 
 
+h3. Run individual specs in sbt
+
+
+<pre>
+> test-only com.twitter.yourservice.UserSpec
+</pre>
+
+Will run just that spec.
+
+
+<pre>
+> ~ test-only com.twitter.yourservice.UserSpec
+</pre>
+
+Will run that test in a loop, with each file modification triggering a
+test run.
