@@ -60,17 +60,72 @@ hello world
 When you see a class implementing Runnable, you know it's intended
 to run in a Thread somewhere by somebody.
 
+h2. Something single-threaded
+
+Here's a code snippet that works but has problems.
+
+<pre>
+import java.net.{Socket, ServerSocket}
+import java.util.concurrent.{Executors, ExecutorService}
+import java.util.Date
+
+class NetworkService(port: Int, poolSize: Int) extends Runnable {
+  val serverSocket = new ServerSocket(port)
+
+  def run() {
+    while (true) {
+      // This will block until a connection comes in.
+      val socket = serverSocket.accept()
+      (new Handler(socket)).run()
+    }
+  }
+}
+
+class Handler(socket: Socket) extends Runnable {
+  def message = (Thread.currentThread.getName() + "\n").getBytes
+
+  def run() {
+    socket.getOutputStream.write(message)
+    socket.getOutputStream.close()
+  }
+}
+
+(new NetworkService(2020, 2)).run
+</pre>
+
+Each request will respond with the name of the current Thread, which
+is always @main@.
+
+The main drawback with this code is that only one request at a time
+can be answered!
+
+You could put each request in a Thread. Simply change
+
+<pre>
+(new Handler(socket)).run()
+</pre>
+
+to
+
+<pre>
+(new Thread(new Handler(socket))).start()
+</pre>
+
+but what if you want to reuse threads or have other policies about
+thread behavior?
+
 
 h2. Executors
 
 With the release of Java 5, it was decided that a more abstract
-interface was required.
-
+interface to Threads was required.
 
 You can get an @ExecutorService@ using static methods on the @Executors@
 object. Those methods provide you to configure an @ExecutorService@ with
 a variety of policies such as thread pooling.
 
+Here's our old blocking network server written to allow concurrent
+requests.
 
 <pre>
 import java.net.{Socket, ServerSocket}
@@ -287,6 +342,8 @@ index maps parts of a name to a given User.
 
 This is written in a naive way assuming only single-threaded access.
 
+Note the alternative default constructor @this()@ that uses a @mutable.HashMap@
+
 <pre>
 import scala.collection.mutable
 
@@ -357,7 +414,11 @@ def add(user: User) {
 
 h2. SynchronizedMap
 
-We can mixin synchronization with a mutable HashMap.
+We can mixin synchronization with a mutable HashMap using the
+SynchronizedMap trait.
+
+We can extend our existing InvertedIndex to give users an easy way to
+build the synchronized index.
 
 
 <pre>
@@ -368,26 +429,26 @@ class SynchronizedInvertedIndex(userMap: mutable.Map[String, User]) extends Inve
 }
 </pre>
 
+If you look at the implementation, you realize that it's simply
+synchronizing on every method so while it's safe, it might not have
+the performance you're hoping for.
+
 h2. Java ConcurrentHashMap
 
-Java comes with a nice thread-safe ConcurrentHashMap. We can use
-JavaConversions to give us nice Scala semantics.
+Java comes with a nice thread-safe ConcurrentHashMap. Thankfully, we
+can use JavaConversions to give us nice Scala semantics.
 
 In fact, we can seamlessly layer our new, thread-safe InvertedIndex as
-an extension of the old, error-prone one.
+an extension of the old unsafe one.
 
 <pre>
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
 
-class ConcurrentInvertedIndex(userMap: mutable.ConcurrentMap[String, User])
+class ConcurrentInvertedIndex(userMap: collection.mutable.ConcurrentMap[String, User])
     extends InvertedIndex(userMap) {
 
   def this() = this(new ConcurrentHashMap[String, User])
-
-  override def add(user: User) {
-    tokenizeName(user.name).foreach { term => add(term, user) }
-  }
 }
 </pre>
 
@@ -395,20 +456,83 @@ h2. Let's load our InvertedIndex
 
 h3. The naive way
 
-class FileRecordProducer(path: String) {
+<pre>
+
+trait UserMaker {
   def makeUser(line: String) = line.split(",") match {
     case Array(name, userid) => User(name, userid.trim().toInt)
   }
+}
 
+class FileRecordProducer(path: String) extends UserMaker {
   def run() {
     Source.fromFile(path, "utf-8").getLines.foreach { line =>
       index.add(makeUser(line))
     }
   }
 }
+</pre>
+
+For every line in our file, we call @makeUser@ and then @add@ it to
+our InvertedIndex. If we use a concurrent InvertedIndex, we can call
+add in parallel and since makeUser has no side-effects, it's already
+thread-safe.
 
 We can't read a file in parallel but we _can_ build the User and add
 it to the index in parallel.
 
 h3. A solution: Producer/Consumer
 
+A common pattern for async computation is to separate producers from
+consumers and have them only communicate via a @Queue@. Let's walk
+through how that would work for our search engine indexer.
+
+<pre>
+import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
+
+// Concrete producer
+class Producer[T](path: String, queue: BlockingQueue[T]) implements Runnable {
+  public void run() {
+    Source.fromFile(path, "utf-8").getLines.foreach { line =>
+      queue.put(line)
+    }
+  }
+}
+
+// Abstract consumer
+abstract class Consumer[T](queue: BlockingQueue[T]) implements Runnable {
+  public void run() {
+    while (true) {
+      val item = queue.take()
+      consume(item)
+    }
+  }
+
+  def consume(x: T)
+}
+
+val queue = new LinkedBlockingQueue[String]()
+
+// One thread for the consumer
+val producer = new Producer[String]("users.txt", q)
+new Thread(producer).start()
+
+trait UserMaker {
+  def makeUser(line: String) = line.split(",") match {
+    case Array(name, userid) => User(name, userid.trim().toInt)
+  }
+}
+
+class IndexerConsumer(index: InvertedIndex, queue: BlockingQueue[String]) extends Consumer[String](queue) with UserMaker {
+  def consume(t: String) = index.add(makeUser(t))
+}
+
+// Let's pretend we have 8 cores on this machine.
+val cores = 8
+val pool = Executors.newFixedThreadPool(cores)
+
+// Submit one consumer per core.
+for (i <- i to cores) {
+  pool.submit(new IndexerConsumer[String](index, q))
+}
+</pre>
