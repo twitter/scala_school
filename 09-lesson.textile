@@ -1,4 +1,4 @@
-h1. Lesson 9
+        h1. Lesson 9
 
 
 Today we will cover testing with Specs, a BDD Framework for Scala.
@@ -218,7 +218,8 @@ h3. Write your own Matchers
 h4. As a val
 <pre>
 import org.specs.matcher.Matcher
-
+</pre>
+<pre>
 "A matcher" should {
   "be created as a val" in {
     val beEven = new Matcher[Int] {
