@@ -124,6 +124,28 @@ pool-1-thread-2
 </pre>
 
 
+h2. Futures
+
+A @Future@ represents an asynchronous computation. You can wrap your
+computation in a Future and when you need the result, you simply call
+a blocking @get()@ method on it. @Executor@s return a @Future@.
+
+A @FutureTask@ is a Runnable and is designed to be run by an @Executor@
+
+<pre>
+val future = new FutureTask[String](new Callable[String]() {
+  def call(): String = {
+    searcher.search(target);
+}})
+executor.execute(future)
+</pre>
+
+Now I need the results so let's block until its done.
+
+<pre>
+val blockingResult = future.get()
+</pre>
+
 h2. Thread Safety
 
 <pre>
@@ -138,6 +160,13 @@ This program is not safe in a multi-threaded environment. If two
 threads have references to the same instance of an Adder and call
 @add@, you can't predict what @i@ will be at the end of both calls. It
 could be 2, it could be 1!
+
+In the Java memory model, each processor is allowed to cache values in
+it's L1 or L2 cache so two threads running on different processors can
+each have their own view of data.
+
+Let's talk about some of the tools that force threads to keep a
+consistent view of data.
 
 h2. Three tools
 
@@ -203,6 +232,10 @@ monitors. Monitors cost very little if there's no contention. Since
 synchronize, there will be less contention so @synchronized@ tends to
 be the cheapest option.
 
+When you enter synchronized points, access volatile references, or
+deference AtomicReferences, Java forces the processor to flush their
+cache lines and provide a consistent view of data.
+
 PLEASE CORRECT ME IF I'M WRONG HERE. This is a complicated subject,
 I'm sure there will be a lengthy classroom discussion at this point.
 
@@ -211,6 +244,41 @@ h2. Other neat tools from Java 5
 
 As I mentioned with @AtomicReference@, Java 5 brought many great tools
 along with it.
+
+
+h2. CountDownLatch
+
+A @CountDownLatch@ is a simple mechanism for multiple threads to
+communicate with each other.
+
+<pre>
+val doneSignal = new CountDownLatch(2)
+doAsyncWork(1)
+doAsyncWork(2)
+
+doneSignal.await()
+println("both workers finished!")
+</pre>
+
+
+Among other things, it's great for unit tests. Let's say you're doing
+some async work and want to ensure that functions are
+completing. Simply have your functions @countDown@ the latch and @await@ in
+the test.
+
+h2. AtomicInteger/Long
+
+Since incrementing Ints and Longs is such a common task,
+@AtomicInteger@ and @AtomicLong@ were added.
+
+h2. AtomicBoolean
+
+I probably don't have to explain what this would be for.
+
+h2. ReadWriteLocks
+
+@ReadWriteLock@ lets you take reader and writer locks. reader locks
+only block when a writer lock is taken.
 
 h2. Let's build an unsafe search engine
 
