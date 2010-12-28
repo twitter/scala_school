@@ -427,7 +427,7 @@ scala.collection.mutable.ConcurrentMap <=> java.util.concurrent.ConcurrentMap
 
 In addition, the following one way conversions are provided:
 <pre>
-scala.collection.Seq => java.util.List }
+scala.collection.Seq => java.util.List
 scala.collection.mutable.Seq => java.util.List
 scala.collection.Set => java.util.Set
 scala.collection.Map => java.util.Map
