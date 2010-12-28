@@ -364,19 +364,14 @@ h3. HashMap
 getOrElseUpdate
 +=
 
-<code>
+<pre>
 scala> val numbers = collection.mutable.Map(1 -> 2)
-</code>
-<code>
 numbers: scala.collection.mutable.Map[Int,Int] = Map((1,2))
-</code>
-<code>
+
 scala> numbers.get(1)
 res0: Option[Int] = Some(2)
-</code>
-<code>
+
 scala> numbers.getOrElseUpdate(2, 3)
-</code>
 res54: Int = 3
 
 scala> res52
@@ -384,7 +379,7 @@ res55: scala.collection.mutable.Map[Int,Int] = Map((2,3), (1,2))
 
 scala> res52 += (4 -> 1)
 res56: res52.type = Map((2,3), (4,1), (1,2))
-
+</pre>
 
 h3. ListBuffer and ArrayBuffer
 
@@ -409,17 +404,18 @@ You can easily move between Java and Scala collection types using a
 set of implicit conversions that are available in the JavaConversions
 package.
 
-<code>
+<pre>
    import scala.collection.JavaConversions._
    val sl = new scala.collection.mutable.ListBuffer[Int]
    val jl : java.util.List[Int] = sl
    val sl2 : scala.collection.mutable.Buffer[Int] = jl
    assert(sl eq sl2)
-</code>
+</pre>
 
 
 Two way conversions:
 
+<pre>
 scala.collection.Iterable <=> java.lang.Iterable
 scala.collection.Iterable <=> java.util.Collection
 scala.collection.Iterator <=> java.util.{ Iterator, Enumeration }
@@ -427,10 +423,12 @@ scala.collection.mutable.Buffer <=> java.util.List
 scala.collection.mutable.Set <=> java.util.Set
 scala.collection.mutable.Map <=> java.util.{ Map, Dictionary }
 scala.collection.mutable.ConcurrentMap <=> java.util.concurrent.ConcurrentMap
-
+</pre>
 
 In addition, the following one way conversions are provided:
+<pre>
 scala.collection.Seq => java.util.List }
 scala.collection.mutable.Seq => java.util.List
 scala.collection.Set => java.util.Set
 scala.collection.Map => java.util.Map
+</pre>
