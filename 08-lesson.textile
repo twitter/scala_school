@@ -121,6 +121,7 @@ scala> Map(1 -> 2).toArray
 <code>
 res41: Array[(Int, Int)] = Array((1,2))
 </code>
+
 h3. Iterable
 
 Adds access to an iterator.
