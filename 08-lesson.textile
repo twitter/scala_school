@@ -318,10 +318,10 @@ res2: Seq[Int] = List(1, 2)
 
 Set
 
-<code>
+<pre>
 scala> Set(1, 2)
 res31: scala.collection.immutable.Set[Int] = Set(1, 2)
-</code>
+</pre>
 
 
 
