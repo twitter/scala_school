@@ -129,7 +129,7 @@ Let's partially apply it.
 
 <pre>
 scala> addOne _
-res1: (Int) => Int = &lt;function1&gt;
+res1: (Int) => Int = <function1>
 </pre>
 
 Hmm, what is a function1? A Function1 is simply a trait for a function
@@ -139,7 +139,7 @@ that takes one argument.
 scala> val addOne = new Function1[Int, Int] {
      |   def apply(x: Int): Int = x + 1
      | }
-addOne: java.lang.Object with (Int) => Int = &lt;function1&gt;
+addOne: java.lang.Object with (Int) => Int = <function1>
 
 scala> addOne(1)
 res2: Int = 2
