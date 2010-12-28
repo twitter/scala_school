@@ -240,7 +240,7 @@ Lower type bounds are also supported. They go hand-in-hand with contravariance. 
 scala> class Node[T](x: T) { def sub(v: T): Node[T] = new Node(v) }
 </pre>
 
-But, we want top make it covariant in T:
+But, we want to make it covariant in T:
 
 <pre>
 scala> class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
