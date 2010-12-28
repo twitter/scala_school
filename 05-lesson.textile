@@ -153,18 +153,18 @@ scala> val cv: Covariant[String] = new Covariant[AnyRef]
 </pre>
 
 <pre>
-scala> class Contravariant[+A]                          
+scala> class Contravariant[-A]                          
 defined class Contravariant
 
-scala> val cv: Contravariant[AnyRef] = new Contravariant[String]
+scala> val cv: Contravariant[String] = new Contravariant[AnyRef]
 cv: Contravariant[AnyRef] = Contravariant@49fa7ba
 
-scala> val cv: Contravariant[String] = new Contravariant[AnyRef]
+scala> val fail: Contravariant[AnyRef] = new Contravariant[String]
 <console>:6: error: type mismatch;
- found   : Contravariant[AnyRef]
- required: Contravariant[String]
-       val cv: Contravariant[String] = new Contravariant[AnyRef]
-                                       ^
+ found   : Contravariant[String]
+ required: Contravariant[AnyRef]
+       val fail: Contravariant[AnyRef] = new Contravariant[String]
+                                     ^
 </pre>
 
 Contravariance seems strange. When is it used? Somewhat surprising!
