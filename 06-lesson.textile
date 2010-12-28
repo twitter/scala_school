@@ -166,7 +166,7 @@ Note that *Container* is polymorphic in a parameterized type ("container type").
 If we combine using containers with implicits, we get "ad-hoc" polymorphism: the ability to write generic functions over containers.
 
 <pre>
-scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get(m: M[A]: A) }
+scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
 
 scala> implicit val listContainer = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
 
