@@ -1,4 +1,4 @@
-        h1. Lesson 9
+h1. Lesson 9
 
 
 Today we will cover testing with Specs, a BDD Framework for Scala.
