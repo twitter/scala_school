@@ -53,7 +53,7 @@ compose calls the second function and then the first function.
 compose is f(g(x))
 
 <pre>
-scala> val ummThenAhem = (addUmm _) compose (addAhem _)
+scala> val ummThenAhem = (addAhem _) compose (addUmm _)
 ummThenAhem: (String) => java.lang.String = <function1>
 
 scala> ummThenAhem("well")
@@ -68,8 +68,8 @@ andThen calls the first function and then the second.
 andThen is g(f(x))
 
 <pre>
-scala> val ummThenAhem = (addUmm _) andThen (addAhem _)
-ummThenAhem: (String) => java.lang.String = <function1>
+scala> val ahemThenUmm = (addAhem _) andThen (addUmm _)
+ahemThenUmm: (String) => java.lang.String = <function1>
 
 scala> ahemThenUmm("well")
 res1: java.lang.String = well ahem umm
