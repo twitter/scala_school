@@ -151,9 +151,6 @@ Meaning we have to satisfy one "level" of type variables in order to produce a c
 <pre>
 scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
 
-scala> new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A] = m.head }
-res22: java.lang.Object with Container[List] = $anon$1@6982237d
-
 scala> new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
 res23: java.lang.Object with Container[List] = $anon$1@7c8e3f75
 
