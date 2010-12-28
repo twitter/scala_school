@@ -306,10 +306,7 @@ Same with Seq
 
 <code>
 scala> Seq(1, 2)
-
 res3: Seq[Int] = List(1, 2)
-</code>
-
 
 scala> Iterable(1, 2)
 res1: Iterable[Int] = List(1, 2)
@@ -317,6 +314,7 @@ res1: Iterable[Int] = List(1, 2)
 scala> Sequence(1, 2)
 warning: there were deprecation warnings; re-run with -deprecation for details
 res2: Seq[Int] = List(1, 2)
+</code>
 
 Set
 
