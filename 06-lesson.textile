@@ -215,7 +215,7 @@ To reconcile this, we use F-bounded polymorphism.
 trait Container[A <: Container[A]] extends Ordered[A]
 </pre>
 
-Strange type!  But note now how Ordered is paramterized on *A*, which itself is *Container[A]*
+Strange type!  But note now how Ordered is parameterized on *A*, which itself is *Container[A]*
 
 So, now 
 
