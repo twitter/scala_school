@@ -19,6 +19,6 @@ A rough syllabus
 # types: inference: show Hindley-Milner, give examples. doesn't devolve into Any everywhere.
 # types: parametrization, view bounds, rigid, covariant, contravariant, structural types
 # types: higher kinded types, type classes, existential.
-
+# interop: how to use Scala from Java
 
 Exercises
