@@ -371,11 +371,11 @@ scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
 extensions: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101), (joe,201))
 </pre>
 
-now filter out every entry who's phone extension is higher than 199
+now filter out every entry who's phone extension is lower than 200.
 
 <pre>
 scala> extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)
-res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101), (joe,102))
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101))
 </pre>
 
 Because it gives you a tuple, you have to pull out the keys and values with their positional accessors. Yuck!
@@ -384,7 +384,7 @@ Lucky us, we can actually use a pattern match to extract the key and value nicel
 
 <pre>
 scala> extensions.filter { case (name, extension) => extension < 200 }
-res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101), (joe,102))
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101))
 </pre>
 
 Why does this work? Why can you pass in a partial pattern match?
