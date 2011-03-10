@@ -1,0 +1,4249 @@
+h1. Overview
+
+We think it makes the most sense to approach teaching Scala not as if
+it's an improved Java but as a new language. Experience in Java is not
+expected. Focus will be around the interpreter and the
+object-functional style as well as the style of programming we do
+here. An emphasis will be placed on maintainability, clarity of
+expression, and leveraging the type system.
+
+
+A rough syllabus
+
+# values, functions, classes, methods, inheritance, try-catch-finally. expression-oriented programming
+# traits, case classes, objects, packages, apply, update, Functions are Objects (uniform access principle)
+# higher-order functions, pattern matching, unapply, seq
+# the object model, relationship between classes and traits, linearization, overriding
+# functional combinators, for-comprehensions, Options
+# classes that extend Function, manifests, simple implicits
+# types: inference: show Hindley-Milner, give examples. doesn't devolve into Any everywhere.
+# types: parametrization, view bounds, rigid, covariant, contravariant, structural types
+# types: higher kinded types, type classes, existential.
+# interop: how to use Scala from Java
+
+Jump to a lesson:
+
+# "Lesson 1.":#L1
+# "Lesson 2.":#L2
+# "Lesson 3.":#L3
+# "Lesson 4.":#L4
+# "Lesson 5.":#L5
+# "Lesson 6.":#L6
+# "Lesson 7.":#L7
+# "Lesson 8.":#L8
+# "Lesson 9.":#L9
+# "Lesson 10.":#L10
+# "Lesson 11.":#L11
+
+----
+
+h1(#L1). Lesson 1
+
+Today we'll cover:
+* values
+* expressions
+* functions
+* classes
+* methods
+* basic inheritance
+* try-catch-finally
+
+h2. About this class
+
+The first few weeks will cover basic syntax and concepts. Then we'll start
+to open it up with more exercises.
+
+Some examples will be given as if written in the interpreter, others
+as if written in a source file.
+
+Having an interpreter available makes it easy to explore a problem
+space.
+
+
+h2. Why Scala?
+
+* Expressive
+** First-class functions
+** Closures
+* Concise
+** Type inference
+** Literal syntax for function creation
+* Java interopability
+** Can reuse java libraries
+** Can reuse java tools
+** No performance penalty
+
+h2. How Scala?
+
+* Compiles to java bytecode
+* Works with any standard JVM
+** Or even some non-standard JVMs like Dalvik
+** Scala compiler written by author of Java compiler
+
+h2. Think Scala
+
+Scala is not just a nicer Java. You should learn it with a fresh mind,
+you will get more out of these classes.
+
+h2. Start the Interpreter
+
+<pre>
+$ scala
+
+Welcome to Scala version 2.8.0.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_20).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala>
+</pre>
+
+
+h2. Expressions
+
+<pre>
+scala> 1 + 1
+res0: Int = 2
+</pre>
+
+res0 is an automatically created value name given by the interpreter
+to the result of your expression. It has the type Int and contains the
+Integer 2.
+
+Everything in Scala is an expression.
+
+h2. Values
+
+You can give the result of an expression a name.
+
+<pre>
+scala> val two = 1 + 1
+two: Int = 2
+</pre>
+
+h3. Functions
+
+You can create functions with def.
+
+<pre>
+scala> def addOne(m: Int): Int = m + 1
+addOne: (m: Int)Int
+</pre>
+
+In Scala, you need to specify the type signature for function
+parameters. The interpreter happily repeats the type signature back to
+you.
+
+<pre>
+scala> val three = addOne(2)
+three: Int = 3
+</pre>
+
+h3. Anonymous Functions
+
+You can create anonymous functions.
+
+<pre>
+scala> (x: Int) => x + 1
+res2: (Int) => Int = <function1>
+</pre>
+
+This function adds 1 to an Int.
+
+<pre>
+scala> res2(1)
+res3: Int = 2
+</pre>
+
+You can pass anonymous functions around or save them into vals.
+
+<pre>
+scala> val addOne = (x: Int) => x + 1
+addOne: (Int) => Int = <function1>
+
+scala> addOne(1)
+res4: Int = 2
+</pre>
+
+h3. Classes
+
+<pre>
+scala> class Calculator {
+     |   val brand: String = "HP"
+     |   def add(m: Int, n: Int): Int = m + n
+     | }
+defined class Calculator
+
+scala> val calc = new Calculator
+calc: Calculator = Calculator@e75a11
+
+scala> calc.add(1, 2)
+res1: Int = 3
+
+scala> calc.brand
+res2: String = "HP"
+</pre>
+
+
+Contained are examples are defining methods with def and fields with
+val. methods are just functions that can access the state of the class.
+
+h4. Constructor
+
+Constructors aren't special methods, they are the code outside of
+method definitions in your class. Let's extend our Calculator example
+to take a constructor argument and use it to initialize internal
+state.
+
+<pre>
+class Calculator(brand: String) {
+  /**
+   * A constructor.
+   */
+  val color: String = if (brand == "TI") {
+    "blue"
+  } else if (brand == "HP") {
+    "black"
+  } else {
+    "white"
+  }
+
+  // An instance method.
+  def add(m: Int, n: Int): Int = m + n
+}
+</pre>
+
+Note the two different styles of comments.
+
+h3. Inheritance
+
+<pre>
+class ScientificCalculator(brand: String) extends Calculator(brand) {
+  def log(m: Double, base: Double) = math.log(m) / math.log(base)
+}
+</pre>
+
+h3. Overloading methods
+
+<pre>
+class EvenMoreScientificCalculator(brand: String) extends Calculator(brand) {
+  def log(m: Int) = log(m, math.exp(1))
+}
+</pre>
+
+
+h3. Expressions
+
+Our BasicCalculator example gave an example of how Scala is
+expression-oriented. The value color was bound based on an if/else
+expression.
+
+h3. try-catch-finally
+
+Exceptions are available in Scala.
+
+<pre>
+try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+trys are also expression-oriented
+
+<pre>
+val result: Int = try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => {
+    log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+    0
+  }
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+This is not an example of excellent programming style, just an example
+of expressions in action. Better would be to re-throw.
+
+Finally will be called after any exception has been handled.
+
+----
+
+h1(#L2). Lesson 2
+
+Today we'll cover:
+* apply
+* objects
+* case classes
+* update
+* Functions are Objects
+* packages
+* pattern matching
+
+
+h3. apply methods
+
+apply methods give you a nice syntatic sugar for when a class or object has one main use.
+
+<pre>
+object FooMaker {
+  def apply() = new Foo
+}
+
+scala> class Bar {
+     |   def apply() = 0
+     | }
+defined class Bar
+
+scala> val bar = new Bar
+bar: Bar = Bar@47711479
+
+scala> bar()
+res8: Int = 0
+</pre>
+
+Here our instance object looks like we're calling a method. More on that later!
+
+
+h3. Objects
+
+Objects are used to hold single instances of a class. Often used for factories.
+
+<pre>
+object Timer {
+  var count = 0
+
+  def currentCount: Long = {
+    count += 1
+    count
+  }
+}
+</pre>
+
+How to use
+
+<pre>
+scala> Timer.currentCount
+res0: Long = 1
+</pre>
+
+
+Classes and Objects can have the same name. The object is called a
+'Companion Object'. We commonly use Companion Objects for Factories.
+
+Here is a trivial example that only serves to remove the need to use
+'new' to create an instance.
+
+<pre>
+class Bar(foo: String)
+
+object Bar {
+  def apply(foo: String) = new Bar(foo)
+}
+</pre>
+
+h3. Case Classes
+
+case classes are used to conveniently store data with a class. You can
+construct them without using new.
+
+<pre>
+scala> case class Bottle(color: String)
+defined class Bottle
+
+scala> Bottle("Blue")
+res0: Bottle = Bottle(Blue)
+
+scala> res3.color
+res1: String = Blue
+</pre>
+
+You will often see them used in Twitter code as record types.
+
+case classes automatically have equality and nice toString methods
+based on the constructor arguments.
+
+<pre>
+scala> val blue = Bottle("Blue")
+blue: Bottle = Bottle(Blue)
+
+scala> val blu = Bottle("Blue")
+blu: Bottle = Bottle(Blue)
+
+scala> blue == blu
+res0: Boolean = true
+
+scala> blue.equals(blu)
+res1: Boolean = true
+</pre>
+
+
+case classes can have methods.
+
+h3. Functions are Objects
+
+In Scala, we talk about object-functional programming often. What does
+that mean?
+
+We saw earlier that giving your class an apply method you can use it
+like it's a function. Let's look in the other direction. Let's define
+a simple function and see what's under the hood.
+
+<pre>
+def addOne(x: Int) = x + 1
+
+scala> addOne(1)
+res0: Int = 2
+</pre>
+
+Let's partially apply it.
+
+<pre>
+scala> addOne _
+res1: (Int) => Int = <function1>
+</pre>
+
+Hmm, what is a function1? A Function1 is simply a trait for a function
+that takes one argument.
+
+<pre>
+scala> val addOne = new Function1[Int, Int] {
+     |   def apply(x: Int): Int = x + 1
+     | }
+addOne: java.lang.Object with (Int) => Int = <function1>
+
+scala> addOne(1)
+res2: Int = 2
+</pre>
+
+There is Function1 through 22. Why 22? It's an arbitrary magic
+number. I've never needed a function with more than 22 arguments so it
+seems to work out.
+
+The syntatic sugar of apply helps unify the duality of object and
+functional programming. You can pass classes around and use them as
+functions and functions are just instances of classes under the
+covers.
+
+Does this mean that everytime you define a method in your class,
+you're actually getting an instance of Function*? No, methods in
+classes are methods. methods defined standalone in the repl are
+Function* instances.
+
+
+h3. Packages
+
+You can organize your code inside of packages.
+
+<pre>
+package com.twitter.example
+</pre>
+
+at the top of a file will declare everything in the file to be in that package.
+
+Values and functions cannot be outside of a class or object. Objects
+are a useful tool for organizing static functions.
+
+<pre>
+package com.twitter.example
+
+object colorHolder {
+  val BLUE = "Blue"
+  val RED = "Red"
+}
+</pre>
+
+Now you can access the members directly
+
+<pre>
+println("the color is: " + com.twitter.example.colorHolder.BLUE)
+</pre>
+
+Notice what the scala repl says when you define this object:
+
+<pre>
+scala> object colorHolder {
+     |   val BLUE = "Blue"
+     |   val RED = "Red"
+     | }
+defined module colorHolder
+</pre>
+
+This gives you a small hint that the designers of Scala designed
+objects to be part of Scala's module system.
+
+
+
+h3. Pattern Matching
+
+One of the most useful parts of Scala.
+
+Matching on values
+
+<pre>
+val times = 1
+
+times match {
+  case 1 => "one"
+  case 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+Matching with guards
+
+<pre>
+times match {
+  case i if i == 1 => "one"
+  case i if i == 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+Notice how we captured the value in the variable 'i'.
+
+case classes are designed to be used with pattern matching. Let's
+expand on our bottle example from earlier.
+
+<pre>
+case class Bottle(color: String, ounces: Int)
+
+val bottle = Bottle("Blue", 20)
+
+bottle match {
+  case Bottle("Blue", ounces) => println("found a Blue bottle")
+  case Bottle(color, 20) => println("found a 20 ounce bottle")
+  case Bottle(color, ounces) => println("found an unknown bottle with color " + color +
+                                        "that can hold " + ounces + "oz")
+}
+</pre>
+
+Other alternatives for that last match
+
+<pre>
+  case Bottle(_, _) => println("found an unknown bottle: " + bottle)
+</pre>
+  OR we could simply not care that it's a Bottle
+
+<pre>
+  case _ => println("found an unknown object: " + bottle)
+</pre>
+  OR we could re-bind the matched value with another name
+<pre>
+  case b@Bottle(_, _) => println("found an unknown bottle: " + b)
+</pre>
+
+----
+
+h1(#L3). Lesson 3
+
+Today we'll cover:
+* Lists
+* Maps
+* functional combinators
+** map
+** foreach
+** filter
+** zip
+** foldRight and foldLeft
+
+
+h2. Preliminaries
+
+Reminders from Lessons 1 & 2: A simpler time.
+
+h4. Functions
+
+The humble function
+
+<pre>
+def timesTwo(i: Int): Int = i * 2
+</pre>
+
+An anonymous function
+
+<pre>
+(i: Int) => i * 2
+</pre>
+
+You can assign an anonymous function to a value, thus giving it a name.
+
+<pre>
+val timesTwo = (i: Int) => i * 2
+</pre>
+
+If your function is made up of many expressions, you can use {} to give yourself some breathing room.
+
+<pre>
+def timesTwo(i: Int): Int = {
+  println("hello world")
+  i * 2
+}
+</pre>
+
+This is also true of an anonymous function
+
+<pre>
+scala> { i: Int =>
+  println("hello world")
+  i * 2
+}
+res0: (Int) => Int = <function1>
+</pre>
+
+You will see this syntax often used when passing an anonymous function as an argument.
+
+
+h4. Partial application
+
+You can partially apply a function with an underscore, which gives you another function.
+
+<pre>
+scala> timesTwo _
+res0: (Int) => Int = <function1>
+</pre>
+
+h4. Curried functions
+
+
+Sometimes it makes sense to let people apply some arguments to your
+function now and others later.
+
+<pre>
+scala> def multiply(m: Int)(n: Int): Int = m * n
+multiply: (m: Int)(n: Int)Int
+</pre>
+
+You can call it directly
+
+<pre>
+scala> multiply(2)(3)
+res0: Int = 6
+</pre>
+
+You can fill in the first parameter and partially applying the second.
+
+<pre>
+scala> val timesTwo = multiply(2) _
+timesTwo: (Int) => Int = <function1>
+
+scala> timesTwo(3)
+res1: Int = 6
+</pre>
+
+
+This sometimes lead to crazy pieces of code like:
+
+<pre>
+multiplyThenFilter { i: Int =>
+  i * 2
+} { i: Int =>
+  i < 5
+}
+</pre>
+
+I promise you get used to this over time.
+
+h2. Basic Datastructures
+
+h3. Lists
+
+<pre>
+val numbers = List(1, 2, 3, 4)
+numbers: List[Int] = List(1, 2, 3, 4)
+</pre>
+
+Scala realized you were talking about a List of Ints and so parameterized it.
+
+You can parameterize it manually if you want.
+
+List[Int](1, 2, 3, 4)
+
+You can also build lists with :: by appending elements onto the empty list: Nil.
+
+<pre>
+scala> val numbers = 1 :: 2 :: 3 :: 4 :: Nil
+numbers: List[Int] = List(1, 2, 3, 4)
+</pre>
+
+h3. Maps
+
+It can hold basic datatypes.
+
+<pre>
+Map(1 -> 2)
+Map("foo" -> "bar")
+</pre>
+
+Nested Maps:
+
+<pre>
+Map(1 -> Map("foo" -> "bar"))
+</pre>
+
+You can even hold functions as values:
+
+<pre>
+Map("timesTwo" -> timesTwo _)
+</pre>
+
+h3. Tuple
+
+Tuples are used for grouping together simple logical collections of
+items without using a class.
+
+<pre>
+scala> val hostPort = ("localhost", 80)
+hostPort: (java.lang.String, Int) = (localhost, 80)
+</pre>
+
+Unlike case classes, they don't have named accessors, instead they
+have accessors that are named by their position (1-based).
+
+<pre>
+scala> hostPort._1
+res0: java.lang.String = localhost
+
+scala> hostPort._2
+res1: Int = 80
+</pre>
+
+Tuples fit with pattern matching nicely.
+
+<pre>
+hostPort match {
+  case ("localhost", port) => ...
+  case (host, port) => ...
+}
+</pre>
+
+h2. Functional Combinators
+
+This fancy name is giving to a standard set of functions that can be
+applied to Lists and Maps.
+
+They are called combinators because they are meant to be combined. the
+output of one function is often suitable as the input for another.
+
+h4. map
+
+Evaluates a function over each element in the list, returning a list
+with the same number of elements.
+
+<pre>
+scala> numbers.map((i: Int) => i * 2)
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+
+or pass in a partially evaluated function
+
+<pre>
+
+scala> def timesTwo(i: Int): Int = i * 2
+timesTwo: (i: Int)Int
+
+scala> numbers.map(timesTwo _)
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+
+h4. foreach
+
+foreach is like map but returns nothing. foreach is intended for side-effects only.
+
+<pre>
+scala> numbers.foreach((i: Int) => i * 2)
+</pre>
+
+returns nothing.
+
+You can try to store the return in a value but it'll be of type Unit (i.e. void)
+
+<pre>
+scala> val doubled = numbers.foreach((i: Int) => i * 2)
+doubled: Unit = ()
+</pre>
+
+h4. filter
+
+removes any elements where the function you pass in evaluates to
+false. Functions that return a Boolean are often called predicate
+functions.
+
+<pre>
+scala> numbers.filter((i: Int) => i % 2 == 0)
+res0: List[Int] = List(2, 4)
+</pre>
+
+<pre>
+scala> def isEven(i: Int): Boolean = i % 2 == 0
+isEven: (i: Int)Boolean
+
+scala> numbers.filter(isEven _)
+res2: List[Int] = List(2, 4)
+</pre>
+
+h4. zip
+
+zip aggregates the contents of two lists into a single list of pairs.
+
+<pre>
+scala> List(1, 2, 3).zip(List("a", "b", "c"))
+res0: List[(Int, java.lang.String)] = List((1,a), (2,b), (3,c))
+</pre>
+
+h4. partition
+
+partition splits a list based on where it falls with respect to a
+predicate function.
+
+<pre>
+scala> List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).partition((i: Int) => i > 5)
+res0: (List[Int], List[Int]) = (List(6, 7, 8, 9, 10),List(1, 2, 3, 4, 5))
+</pre>
+
+h4. find
+
+find returns the first element of a collection that matches a predicate function.
+
+<pre>
+scala> numbers.find((i: Int) => i > 5)
+res0: Option[Int] = Some(6)
+</pre>
+
+h4. drop & dropWhile
+
+Drops the first i elements
+
+<pre>
+scala> numbers.drop(5)
+res0: List[Int] = List(6, 7, 8, 9, 10)
+</pre>
+
+dropWhile removes elements that don't match a predicate function. Here
+we can re-implement drop.
+
+<pre>
+scala> numbers.dropWhile((i: Int) => i < 6)
+res0: List[Int] = List(6, 7, 8, 9, 10)
+</pre>
+
+h4. foldLeft
+
+<pre>
+scala> numbers.foldLeft(0)((m: Int, n: Int) => m + n)
+res0: Int = 55
+</pre>
+
+0 is the starting value (Remember that numbers is a List[Int]), and m
+acts as an accumulator.
+
+Seen visually:
+
+<pre>
+scala> numbers.foldLeft(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
+m: 0 n: 1
+m: 1 n: 2
+m: 3 n: 3
+m: 6 n: 4
+m: 10 n: 5
+m: 15 n: 6
+m: 21 n: 7
+m: 28 n: 8
+m: 36 n: 9
+m: 45 n: 10
+res0: Int = 55
+</pre>
+
+h5. foldRight
+
+Is the same as foldLeft except it runs in the opposite direction.
+
+<pre>
+scala> numbers.foldRight(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
+m: 10 n: 0
+m: 9 n: 10
+m: 8 n: 19
+m: 7 n: 27
+m: 6 n: 34
+m: 5 n: 40
+m: 4 n: 45
+m: 3 n: 49
+m: 2 n: 52
+m: 1 n: 54
+res0: Int = 55
+</pre>
+
+
+h4. Generalized functional combinators
+
+Now we've learned a grab-bag of functions for working with
+collections.
+
+What we'd like is to be able to write our own functional combinators.
+
+Interestingly, every functional combinator shown above can be written
+on top of fold. Let's see some examples.
+
+<pre>
+def ourMap(numbers: List[Int], fn: Int => Int): List[Int] = {
+  numbers.foldRight(List[Int]()) { (x: Int, xs: List[Int]) =>
+    fn(x) :: xs
+  }
+}
+
+scala> ourMap(numbers, timesTwo _)
+res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
+</pre>
+
+Why <tt>List[Int]()</tt>? Scala wasn't smart enough to realize that you wanted an empty list of Ints to accumulate into.
+
+h3. Map?
+
+All of the functional combinators shown work on Maps, too. Maps can be
+thought of as a list of pairs so the functions you write work on a
+pair of the keys and values in the Map.
+
+<pre>
+scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
+extensions: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101), (joe,201))
+</pre>
+
+now filter out every entry who's phone extension is lower than 200.
+
+<pre>
+scala> extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101))
+</pre>
+
+Because it gives you a tuple, you have to pull out the keys and values with their positional accessors. Yuck!
+
+Lucky us, we can actually use a pattern match to extract the key and value nicely.
+
+<pre>
+scala> extensions.filter { case (name, extension) => extension < 200 }
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101))
+</pre>
+
+Why does this work? Why can you pass in a partial pattern match?
+
+Stay tuned for next week!
+
+----
+
+h1(#L4). Lesson 4
+
+h2. Advanced Pattern Matching and Functional Composition
+
+Today we'll cover
+
+* Functions (again)
+** compose
+** andThen
+* PartialFunctions
+** range and domain
+** composition with orElse
+* Pattern Matching
+** extractor methods
+* What is a case statement?
+
+h3. Functions (again)
+
+Let's make two helpful functions:
+
+<pre>
+scala> def addUmm(x: String) = x + " umm"
+addUmm: (x: String)java.lang.String
+
+scala>  def addAhem(x: String) = x + " ahem"
+addAhem: (x: String)java.lang.String
+</pre>
+
+
+h4. Partial Application (again)
+
+You can partially apply a function using underscore.
+
+<pre>
+scala>  def addUmm(x: String) = x + " umm"
+addUmm: (x: String)java.lang.String
+
+scala> addUmm _
+res0: (String) => java.lang.String = <function1>
+</pre>
+
+res0 is now a function that takes a String and returns a String.
+
+<pre>
+scala> res0("hi")
+res1: java.lang.String = hi umm
+</pre>
+
+h4. compose
+
+compose calls the second function and then the first function.
+
+compose is f(g(x))
+
+<pre>
+scala> val ummThenAhem = (addAhem _) compose (addUmm _)
+ummThenAhem: (String) => java.lang.String = <function1>
+
+scala> ummThenAhem("well")
+res0: java.lang.String = well umm ahem
+</pre>
+
+
+h4. andThen
+
+andThen calls the first function and then the second.
+
+andThen is g(f(x))
+
+<pre>
+scala> val ahemThenUmm = (addAhem _) andThen (addUmm _)
+ahemThenUmm: (String) => java.lang.String = <function1>
+
+scala> ahemThenUmm("well")
+res1: java.lang.String = well ahem umm
+</pre>
+
+
+h3. Pattern Matching
+
+h4. Refreshing our memory
+
+You can pattern match on values.
+
+<pre>
+scala> def printNumber(i: Int) = i match {
+     |   case 1 => println("it's a one!")
+     |   case 2 => println("it's a two!")
+     |   case _ => println("it's something else!")
+     | }
+printNumber: (i: Int)Unit
+
+scala> printNumber(1)
+it's a one!
+
+scala> printNumber(2)
+it's a two!
+
+scala> printNumber(3)
+it's something else!
+</pre>
+
+underscore is the wildcard pattern, it matches anything.
+
+You can also bind variables in your matches.
+
+<pre>
+scala> def printNumber(i: Int) = i match {
+     |   case 1 => println("it's a one!")
+     |   case 2 => println("it's a two!")
+     |   case m => println("it's the number: " + m + "!")
+     | }
+printNumber: (i: Int)Unit
+
+scala> printNumber(3)
+it's the number: 3!
+</pre>
+
+
+h4. Extractor methods
+
+You can't easily pattern match on regular classes like you can on case classes.
+
+<pre>
+scala> class User(username: String, password: String, userid: Int)
+defined class User
+
+scala> val stevej = new User("stevej", "1234", 150)
+stevej: User = User@4df3e7e8
+
+scala> stevej match {
+     |   case User("stevej", _, _) => println("it's stevej")
+     | }
+<console>:15: error: not found: value User
+         case User("stevej", _, _) => println("it's stevej")
+</pre>
+
+But what if we don't want User to be a case class? How can we make
+User interact nicely with pattern matching without changing the User
+class?
+
+Use the extractor method: unapply.
+
+Make a companion object with an unapply method. The unapply should
+return an Option with a Tuple that matches your class' constructor.
+
+<pre>
+object User {
+  def unapply(user: User): Option[(String, String, Int)] =
+    Some((user.username, user.password, user.userid))
+}
+</pre>
+
+Now it will fit in nicely.
+
+<pre>
+scala> val stevej = new User("stevej", "1234", 150)
+stevej: User = User@5260bd13
+
+scala> stevej match {
+     |   case User("stevej", _, _) => println("it's stevej")
+     | }
+it's stevej
+</pre>
+
+
+h3. case statements
+
+h5. So just what are case statements?
+
+It's a subclass of function called a PartialFunction.
+
+h5. What is a collection of multiple case statements?
+
+They are multiple PartialFunctions composed together.
+
+
+h3. Understanding PartialFunction
+
+A function closes over an entire domain. In other words, a function
+defined as (Int) => String takes any Int and returns a String.
+
+A Partial Function is only partially closed over a domain. A Partial
+Function (Int) => String might not accept every Int.
+
+isDefinedAt is a method on PartialFunction that can be used to
+determine if the PartialFunction will accept a given argument.
+
+<pre>
+scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
+one: PartialFunction[Int,String] = <function1>
+
+scala> one.isDefinedAt(1)
+res0: Boolean = true
+
+scala> one.isDefinedAt(2)
+res1: Boolean = false
+</pre>
+
+You can apply a partial function.
+
+<pre>
+scala> one(1)
+res2: String = one
+</pre>
+
+PartialFunctions can be composed with something new, called orElse, that reflects whether the PartialFunction is defined over the supplied argument.
+
+<pre>
+scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
+two: PartialFunction[Int,String] = <function1>
+
+scala> val three: PartialFunction[Int, String] = { case 3 => "three" }
+three: PartialFunction[Int,String] = <function1>
+
+scala> val wildcard: PartialFunction[Int, String] = { case _ => "something else" }
+wildcard: PartialFunction[Int,String] = <function1>
+
+scala> one orElse two orElse three orElse wildcard
+res23: PartialFunction[Int,String] = <function1>
+
+scala> res23(5)
+res24: String = something else
+
+scala> res23(3)
+res25: String = three
+
+scala> res23(2)
+res26: String = two
+
+scala> res23(1)
+res27: String = one
+
+scala> res23(0)
+res28: String = something else
+</pre>
+
+
+h4. The mystery of case.
+
+Last week we saw something curious. We saw a case statement used where a function is normally used.
+
+<pre>
+scala> case class PhoneExt(name: String, ext: Int)
+defined class PhoneExt
+
+scala> val extensions = List(PhoneExt("steve", 100), PhoneExt("robey", 200))
+extensions: List[PhoneExt] = List(PhoneExt(steve,100), PhoneExt(robey,200))
+
+scala> extensions.filter { case PhoneExt(name, extension) => extension < 200 }
+res0: List[PhoneExt] = List(PhoneExt(steve,100))
+</pre>
+
+Why does this work?
+
+filter takes a function. In this case a predicate function of (PhoneExt) => Boolean.
+
+A PartialFunction is a subtype of Function so filter can also take a PartialFunction!
+
+----
+
+h1(#L5). Lesson 5
+
+h2. Type Basics
+
+Today we'll cover
+
+* What are types?
+* Parametric Polymorphism
+* Type inference: Hindley-Milner vs. local type inference
+* Variance, bounds & quantification
+
+h3. What are static types?  Why are they useful?
+
+According to Pierce: "A type system is a syntactic method for automatically checking the absence of certain erroneous behaviors by classifying program phrases according to the kinds of values they compute."
+
+Types allow you to denote function domain & codomains. For example, from mathematics, we are used to seeing:
+
+<pre>
+f: R -> N
+</pre>
+
+this tells us that function "f" maps values from the set of real numbers to values of the set of natural numbers.
+
+In the abstract, this is exactly what _concrete_ types are.  Type systems give us some more powerful ways to express these sets.
+
+Given these annotations, the compiler can now _statically_ (at compile time) verify that the program is _sound_. That is, compilation will fail if values (at runtime) will not comply to the constraints imposed by the program.
+
+Generally speaking, the typechecker can only guarantee that _unsound_ programs do not compile. It cannot guarantee that every sound program _will_ compile.
+
+With increasing expressiveness in type systems, we can produce more reliable code because it allows us to prove invariants about our program before it even runs (modulo bugs in the types themselves, of course!). Academia is pushing the limits of expressiveness very hard, including value-dependent types!
+
+Note that all type information is removed at compile time. It is no longer needed. This is called erasure.
+
+h3. Types in Scala
+
+Scala has a very powerful type system, allowing for very rich expression. Some of its chief features are:
+
+* parametric polymorphism
+* (local) type inference
+* existential quantification
+* views
+
+h3. Parametric polymorphism
+
+Polymorphism is used in order to write generic code (for values of different types) without compromising static typing richness.
+
+For example, without parametric polymorphism, a generic list data structure would always look like this (and indeed it did look like this in Java prior to generics):
+
+<pre>
+scala> 2 :: 1 :: "bar" :: "foo" :: Nil
+res5: List[Any] = List(2, 1, bar, foo)
+</pre>
+
+Now we cannot recover any type information about the individual members.
+
+<pre>
+scala> res5.head
+res6: Any = 2
+</pre>
+
+And so our application would devolve into a series of casts ("asInstanceOf[]") and we would lack typesafety (because these are all dynamic).
+
+Polymorphism is achieved through specifying _type variables_.
+
+<pre>
+scala> def drop1[A](l: List[A]) = l.tail
+drop1: [A](l: List[A])List[A]
+
+scala> drop1(List(1,2,3))
+res1: List[Int] = List(2, 3)
+</pre>
+
+h4. Scala has rank-1 polymorphism
+
+Suppose you had some function
+
+<pre>
+def toList[A](a: A) = List(a)
+</pre>
+
+which you wished to use generically:
+
+<pre>
+def foo[A, B](f: A => List[A], b: B, c: Int) = (f(b), f(c))
+</pre>
+
+This does not compile, because all type variables have to be fixed at the invocation site.
+
+h3. Type inference
+
+A traditional objection to static typing is that it has much syntactic overhead. Scala alleviates this by providing _type inference_.
+
+The classic method for type inference in functional programming languages is _Hindley-Milner_, and it was first employed in ML.
+
+Scala's type inference system works a little differently, but it's similar in spirit: infer constraints, and attempt to unify a type.
+
+In Scala, for example, you cannot do the following:
+
+<pre>
+scala> { x => x }
+<console>:7: error: missing parameter type
+       { x => x }
+</pre>
+
+Whereas in OCaml, you can:
+
+<pre>
+# fun x -> x;;
+- : 'a -> 'a = <fun>
+</pre>
+
+In scala all type inference is _local_.  For example:
+
+<pre>
+scala> def id[T](x: T) = x
+id: [T](x: T)T
+
+scala> val x = id(322) 
+x: Int = 322
+
+scala> val x = id("hey")
+x: java.lang.String = hey
+
+scala> val x = id(Array(1,2,3,4))
+x: Array[Int] = Array(1, 2, 3, 4)
+</pre>
+
+Types are now preserved, The Scala compiler infers the type parameter for us. Note also how we did not have to specify the return type explicitly.
+
+h3. Variance
+
+Scala's type system has to account for class hierarchies together with polymorphism.  Class hierarchies allow the expression of subtype relationships. A central question that comes up when mixing OO with polymorphism is: if <tt>T'</tt> is a subclass of <tt>T</tt>, is <tt>Container[T']</tt> considered a subclass of <tt>Container[T]</tt>? Variance annotations allow you to express the following relationships between class hierarchies & polymorphic types:
+
+|covariant|&nbsp;&nbsp;C[T'] is a subclass of C[T]|
+|contravariant|&nbsp;&nbsp;C[T] is a subclass of C[T']|
+|invariant|&nbsp;&nbsp;C[T] and C[T'] are not related|
+
+The subtype relationship really means: for a given type T, if T' is a subtype, can you substitute it?
+
+<pre>
+scala> class Covariant[+A]
+defined class Covariant
+
+scala> val cv: Covariant[AnyRef] = new Covariant[String]
+cv: Covariant[AnyRef] = Covariant@4035acf6
+
+scala> val cv: Covariant[String] = new Covariant[AnyRef]
+<console>:6: error: type mismatch;
+ found   : Covariant[AnyRef]
+ required: Covariant[String]
+       val cv: Covariant[String] = new Covariant[AnyRef]
+                                   ^
+</pre>
+
+<pre>
+scala> class Contravariant[-A]                          
+defined class Contravariant
+
+scala> val cv: Contravariant[String] = new Contravariant[AnyRef]
+cv: Contravariant[AnyRef] = Contravariant@49fa7ba
+
+scala> val fail: Contravariant[AnyRef] = new Contravariant[String]
+<console>:6: error: type mismatch;
+ found   : Contravariant[String]
+ required: Contravariant[AnyRef]
+       val fail: Contravariant[AnyRef] = new Contravariant[String]
+                                     ^
+</pre>
+
+Contravariance seems strange. When is it used? Somewhat surprising!
+
+<pre>
+trait Function1 [-T1, +R] extends AnyRef
+</pre>
+
+If you think about this from the point of view of substitution, it makes a lot of sense. Let's first define a simple class hierarchy:
+
+<pre>
+scala> class A  
+defined class A
+
+scala> class B extends A
+defined class B
+
+scala> class C extends B
+defined class C
+
+scala> class D extends C
+defined class D
+</pre>
+
+<pre>
+scala> val f: (B => C) = ((b: B) => new C)
+f: (B) => C = <function1>
+
+scala> val f: (B => C) = ((a: A) => new C)
+f: (B) => C = <function1>
+
+scala> val f: (B => C) = ((a: A) => new D)
+f: (B) => C = <function1>
+
+scala> val f: (B => C) = ((a: A) => new C)
+f: (B) => C = <function1>
+
+scala> val f: (B => C) = ((c: C) => new C)
+<console>:8: error: type mismatch;
+ found   : (C) => C
+ required: (B) => C
+       val f: (B => C) = ((c: C) => new C)
+                                 ^
+                                    ^
+</pre>
+
+h3. Bounds
+
+Scala allows you to restrict polymorphic variables using _bounds_. These bounds express subtype relationships.
+
+<pre>
+scala> class F { def foo = "F" }                               
+defined class F
+
+scala> class E extends F { override def foo = "E" }
+defined class E
+
+scala> def callFoo[T](foos: Seq[T]) = foos map (_.foo) foreach println     
+<console>:8: error: value foo is not a member of type parameter T
+       def callFoo[T](foos: Seq[T]) = foos map (_.foo) foreach println
+
+scala> def callFoo[T <: F](foos: Seq[T]) = foos map (_.foo) foreach println
+callFoo: [T <: F](foos: scala.collection.mutable.Seq[T])Unit
+
+scala> callFoo(Seq(new E, new F))                                          
+E
+F
+</pre>
+
+Lower type bounds are also supported. They go hand-in-hand with contravariance. Let's say we had some class Node:
+
+<pre>
+scala> class Node[T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+</pre>
+
+But, we want to make it covariant in T:
+
+<pre>
+scala> class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+<console>:6: error: covariant type T occurs in contravariant position in type T of value v
+       class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+                                      ^
+</pre>
+
+Recall that method arguments are contravariant, and so if we perform our substitution trick, using the same classes as before:
+
+<pre>
+class Node[B](x: Buffer[B]) { def sub(v: B): Node[B] = new Node(v) }
+</pre>
+
+is *not* a subtype of
+
+<pre>
+class Node[A](x: Seq[Int]) { def sub(v: A): Node[A] = new Node(v) }
+</pre>
+
+because A cannot be substituted for B in the argument of "sub". However, we can use lower bounding to enforce correctness.
+
+<pre>
+scala> class Node[+T](x: T) { def sub[U >: T](v: U): Node[U] = new Node(v) }
+defined class Node
+
+scala> (new Node(new B)).sub(new B)
+res5: Node[B] = Node@4efade06
+
+scala> ((new Node(new B)).sub(new B)).sub(new A)           
+res6: Node[A] = Node@1b2b2f7f
+
+scala> ((new Node(new B)).sub(new B)).asInstanceOf[Node[C]]
+res7: Node[C] = Node@6924181b
+
+scala> (((new Node(new B)).sub(new B)).sub(new A)).sub(new C)
+res8: Node[A] = Node@3088890d
+</pre>
+
+Note also how the type changes with subsequent calls to "sub".
+
+h3. Quantification
+
+Sometimes you do not care to be able to name a type variable, for example:
+
+<pre>
+scala> def count[A](l: List[A]) = l.size
+count: [A](l: List[A])Int
+</pre>
+
+Instead you can use "wildcards":
+
+<pre>
+scala> def count(l: List[_]) = l.size
+count: [A](l: List[A])Int
+</pre>
+
+This is shorthand for:
+
+<pre>
+scala> def count(l: List[T forSome { type T }]) = l.size
+count: (l: List[T forSome { type T }])Int
+</pre>
+
+Note that quantification can get tricky:
+
+<pre>
+scala> def drop1(l: List[_]) = l.tail
+drop1: (l: List[_])List[Any]
+</pre>
+
+Suddenly we lost type information! To see what's going on, revert to the heavy-handed syntax:
+
+<pre>
+scala> def drop1(l: List[T forSome { type T }]) = l.tail
+drop1: (l: List[T forSome { type T }])List[T forSome { type T }]
+</pre>
+
+<pre>
+scala> def drop1[](l: List[T forSome { type T }]) = l.tail
+drop1: (l: List[T forSome { type T }])List[T forSome { type T }]
+</pre>
+
+
+We can't say anything about T because the type does not allow it.
+
+You may also apply bounds to wildcard type variables:
+
+<pre>
+scala> def hashcodes(l: Seq[_ <: AnyRef]) = l map (_.hashCode)
+hashcodes: (l: Seq[_ <: AnyRef])Seq[Int]
+
+scala> hashcodes(Seq(1,2,3))
+<console>:7: error: type mismatch;
+ found   : Int(1)
+ required: AnyRef
+Note: primitive types are not implicitly converted to AnyRef.
+You can safely force boxing by casting x.asInstanceOf[AnyRef].
+       hashcodes(Seq(1,2,3))
+                     ^
+
+scala> hashcodes(Seq("one", "two", "three"))
+res1: Seq[Int] = List(110182, 115276, 110339486)
+</pre>
+
+----
+
+h1(#L6). Lesson 6
+
+h2. Types (Cont'd)
+
+Today we'll cover
+
+* View bounds ("type classes")
+* Higher kinded types & ad-hoc polymorphism
+* F-bounded polymorphism / recursive types
+* Structural types
+* Abstract types members
+* Type erasures & manifests
+* Case study: Thrust
+
+h3. View bounds ("type classes")
+
+*Implicit* functions in scala allow for on-demand function application when this can help satisfy type inference. eg.:
+
+<pre>
+scala> implicit def strToInt(x: String) = x.toInt
+strToInt: (x: String)Int
+
+scala> "123"
+res0: java.lang.String = 123
+
+scala> val y: Int = "123"
+y: Int = 123
+
+scala> math.max("123", 111)
+res1: Int = 123
+</pre>
+
+view bounds, like type bounds demand such a function exists for the given type.  eg.
+
+<pre>
+scala> class Container[A <% Int] { def addIt(x: A) = 123 + x }
+defined class Container
+</pre>
+
+This says that *A* has to be "viewable" as *Int*.  Let's try it.
+
+<pre>
+scala> (new Container[String]).addIt("123")
+res11: Int = 246
+
+scala> (new Container[Int]).addIt(123) 
+res12: Int = 246
+
+scala> (new Container[Float]).addIt(123.2F)
+<console>:8: error: could not find implicit value for evidence parameter of type (Float) => Int
+       (new Container[Float]).addIt(123.2)
+        ^
+</pre>
+
+h3. Other type bounds
+
+Methods may ask for specific "evidence" for a type, namely:
+
+|A =:= B|A must be equal to B|
+|A <:< B|A must be a subtype of B|
+|A <%< B|A must be viewable as B|
+
+<pre>
+scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
+defined class Container
+
+scala> (new Container(123)).addIt
+res11: Int = 246
+
+scala> (new Container("123")).addIt
+<console>:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
+</pre>
+
+Similarly, given our previous implicit, we can relax the constraint to viewability:
+
+<pre>
+scala> class Container[A](value: A) { def addIt(implicit evidence: A <%< Int) = 123 + value }
+defined class Container
+
+scala> (new Container("123")).addIt
+res15: Int = 246
+</pre>
+
+h4. Generic programming with views
+
+In the Scala standard library, views are primarily used to implement generic functions over collections.  For example, the "min" function (on *Seq[]*), uses this technique:
+
+<pre>
+def min[B >: A](implicit cmp: Ordering[B]): A = {
+  if (isEmpty)
+    throw new UnsupportedOperationException("empty.min")
+
+  reduceLeft((x, y) => if (cmp.lteq(x, y)) x else y)
+}
+</pre>
+  
+The main advantages of this are:
+
+* Items in the collections aren't required to implement *Ordered*, but *Ordered* uses are still statically type checked.
+* You can define your own orderings without any additional library support:
+
+<pre>
+scala> List(1,2,3,4).min
+res0: Int = 1
+
+scala> List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b compare a })
+res3: Int = 4
+</pre>
+
+As a sidenote, there are views in the standard library that translates *Ordered* into *Ordering* (and vice versa).
+
+<pre>
+trait LowPriorityOrderingImplicits {
+  implicit def ordered[A <: Ordered[A]]: Ordering[A] = new Ordering[A] {
+    def compare(x: A, y: A) = x.compare(y)
+  }
+}
+</pre>
+
+h4. Context bounds & implicitly[]
+
+Scala 2.8 introduced a shorthand for threading through & accessing implicit arguments.
+
+<pre>
+scala> def foo[A](implicit x: Ordered[A]) {}
+foo: [A](implicit x: Ordered[A])Unit
+
+scala> def foo[A : Ordered] {}                        
+foo: [A](implicit evidence$1: Ordered[A])Unit
+</pre>
+
+Implicit values may be accessed via *implicitly*
+
+<pre>
+scala> implicitly[Ordering[Int]]
+res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
+</pre>
+
+Combined, these often result in less code, especially when threading through views.
+
+h3. Higher-kinded types & ad-hoc polymorphism
+
+Scala can abstract over "higher kinded" types. This is analagous to function currying. For example, whereas "unary types" have constructors like this:
+
+<pre>
+List[A]
+</pre>
+
+Meaning we have to satisfy one "level" of type variables in order to produce a concrete types (just like an uncurried function needs to be supplied by only one argument list to be invoked), a higher-kinded type needs more:
+
+<pre>
+scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala> new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+res23: java.lang.Object with Container[List] = $anon$1@7c8e3f75
+
+scala> res23.put("hey")
+res24: List[java.lang.String] = List(hey)
+
+scala> res23.put(123)  
+res25: List[Int] = List(123)
+</pre>
+
+Note that *Container* is polymorphic in a parameterized type ("container type").
+
+If we combine using containers with implicits, we get "ad-hoc" polymorphism: the ability to write generic functions over containers.
+
+<pre>
+scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala> implicit val listContainer = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+
+scala> implicit val optionContainer = new Container[Some] { def put[A](x: A) = Some(x); def get[A](m: Some[A]) = m.get }
+
+scala> def tupleize[M[_]: Container, A, B](fst: M[A], snd: M[B]) = {
+     | val c = implicitly[Container[M]]                             
+     | c.put(c.get(fst), c.get(snd))
+     | }
+tupleize: [M[_],A,B](fst: M[A],snd: M[B])(implicit evidence$1: Container[M])M[(A, B)]
+
+scala> tupleize(Some(1), Some(2))
+res33: Some[(Int, Int)] = Some((1,2))
+
+scala> tupleize(List(1), List(2))
+res34: List[(Int, Int)] = List((1,2))
+</pre>
+
+h3. F-bounded polymorphism
+
+Often it's necessary to access a concrete subclass in a (generic) trait. For example, imagine you had some trait that is generic, but can be compared to a particular subclass of that trait.
+
+<pre>
+trait Container extends Ordered[Container]
+</pre>
+
+However, this now necessitates the compare method
+
+<pre>
+def compare(that: Container): Int
+</pre>
+
+And so we cannot access the concrete subtype, eg.:
+
+<pre>
+class MyContainer extends Container {
+  def compare(that: MyContainer): Int
+}
+</pre>
+
+fails to compile, since we are specifying Ordered for *Container*, not the particular subtype.
+
+To reconcile this, we use F-bounded polymorphism.
+
+<pre>
+trait Container[A <: Container[A]] extends Ordered[A]
+</pre>
+
+Strange type!  But note now how Ordered is parameterized on *A*, which itself is *Container[A]*
+
+So, now 
+
+<pre>
+class MyContainer extends Container[MyContainer] { 
+  def compare(that: MyContainer) = 0 
+}
+</pre>
+
+They are now ordered:
+
+<pre>
+scala> List(new MyContainer, new MyContainer, new MyContainer)
+res3: List[MyContainer] = List(MyContainer@30f02a6d, MyContainer@67717334, MyContainer@49428ffa)
+
+scala> List(new MyContainer, new MyContainer, new MyContainer).min
+res4: MyContainer = MyContainer@33dfeb30
+</pre>
+
+Given that they are all subtypes of *Container[_]*, we can define another subclass & create a mixed list of *Container[_]*:
+
+<pre>
+scala> class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
+defined class YourContainer
+
+scala> List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)                   
+res2: List[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]] 
+  = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
+</pre>
+
+Note how the resulting type is now lower-bound by *YourContainer with MyContainer*. This is the work of the type inferencer. Interestingly- this type doesn't even need to make sense, it only provides a logical greatest lower bound for the unified type of the list. What happens if we try to use *Ordered* now?
+
+<pre>
+(new MyContainer, new MyContainer, new MyContainer, new YourContainer).min
+<console>:9: error: could not find implicit value for parameter cmp:
+  Ordering[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]]
+</pre>
+
+No *Ordered[]* exists for the unified type. Too bad.
+
+h3. Structural types
+
+Scala has support for *structural types* -- type requirements are expressed by interface _structure_ instead of a concrete type.
+
+<pre>
+scala> def foo(x: { def get: Int }) = 123 + x.get
+foo: (x: AnyRef{def get: Int})Int
+
+scala> foo(new { def get = 10 })                 
+res0: Int = 133
+</pre>
+
+This can be quite nice in many situations, but the implementation uses reflection, so be performance-aware!
+
+h3. Abstract type members
+
+In a trait, you can leave type members abstract.
+
+<pre>
+scala> trait Foo { type A; val x: A; def getX: A = x }
+defined trait Foo
+
+scala> (new Foo { type A = Int; val x = 123 }).getX   
+res3: Int = 123
+
+scala> (new Foo { type A = String; val x = "hey" }).getX
+res4: java.lang.String = hey
+</pre>
+
+This is often a useful trick when doing dependency injection, etc.
+
+You can refer to an abstract type variable using the hash-operator:
+
+<pre>
+scala> trait Foo[M[_]] { type t[A] = M[A] }
+defined trait Foo
+
+scala> val x: Foo[List]#t[Int] = List(1)
+x: List[Int] = List(1)
+</pre>
+
+
+h3. Type erasures & manifests
+
+As we know, type information is lost at compile time due to _erasure_. Scala features *Manifests*, allowing us to selectively recover type information. Manifests are provided as an implicit value, generated by the compiler as needed.
+
+<pre>
+scala> class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
+
+scala> (new MakeFoo[String]).make 
+res10: String = 
+</pre>
+
+h3. Case study: Thrust
+
+See: https://github.com/twitter/thrust
+
+<pre>
+trait Service[-R <: Request] extends ((R, Response) => Unit)
+
+trait Filter[-R1 <: Request, +R2 <: Request] {
+  def apply(request: R1, response: Response, service: Service[R2])
+
+  def andThen(that: Service[R2]) = new Service[R1] {
+    def apply(request: R1, response: Response) {
+      Filter.this(request, response, that)
+    }
+  }
+
+  def andThen[R3 <: Request](that: Filter[R2, R3]) = new Filter[R1, R3] {
+    def apply(request: R1, response: Response, service: Service[R3]) =
+      Filter.this(request, response, new Service[R2] {
+        def apply(req: R2, res: Response) = that(req, res, service)
+      })
+  }
+}
+</pre>
+
+In Woodstar, credentials are added to requests as follows:
+
+<pre>
+trait RequestWithCredentials extends Request {
+  def credentials: Credentials
+}
+
+class CredentialsFilter(credentialsParser: CredentialsParser)
+  extends Filter[Request, RequestWithCredentials]
+{
+  def apply(request: Request, response: Response, service: Service[RequestWithCredentials]) {
+    val requestWithCredentials = new RequestWrapper with RequestWithCredentials {
+      val underlying = request
+      val credentials = credentialsParser(request) getOrElse NullCredentials
+    }
+
+    service(requestWithCredentials, response)
+  }
+}
+</pre>
+
+These can now be composed:
+
+<pre>
+val upFilter =
+  logTransaction     andThen
+  handleExceptions   andThen
+  extractCredentials andThen
+  homeUser           andThen
+  authenticate       andThen
+  route
+</pre>
+
+Type safely!
+
+----
+
+h1(#L7). Lesson 7
+
+Today we'll cover SBT! Specific topics include:
+* creating an sbt project
+* basic commands
+* the sbt console
+* continuous command execution
+* customizing your project
+* custom commands
+* quick tour of sbt source (if time)
+
+h2. About SBT
+
+SBT is a modern build tool. While it is written in Scala and provides many Scala conveniences, it is a general purpose build tool.
+
+
+h2. Why SBT?
+
+* Sane(ish) dependency management
+** Ivy for dependency management
+** Only-update-on-request model
+* Full Scala language support for creating tasks
+* Continuous command execution
+* Launch REPL in project context
+
+h2. Getting Started
+
+* Download the jar:http://code.google.com/p/simple-build-tool/downloads/list
+* Create an sbt shell script that calls the jar, e.g.
+
+<pre>
+java -Xmx512M -jar sbt-launch.jar "$@"
+</pre>
+
+* make sure it's executable and in your path
+* run sbt to create your project
+
+<pre>
+[local ~/projects]$ sbt
+Project does not exist, create new project? (y/N/s) y
+Name: sample
+Organization: com.twitter
+Version [1.0]: 1.0-SNAPSHOT
+Scala version [2.7.7]: 2.8.1
+sbt version [0.7.4]:      
+Getting Scala 2.7.7 ...
+:: retrieving :: org.scala-tools.sbt#boot-scala
+	confs: [default]
+	2 artifacts copied, 0 already retrieved (9911kB/221ms)
+Getting org.scala-tools.sbt sbt_2.7.7 0.7.4 ...
+:: retrieving :: org.scala-tools.sbt#boot-app
+	confs: [default]
+	15 artifacts copied, 0 already retrieved (4096kB/167ms)
+[success] Successfully initialized directory structure.
+Getting Scala 2.8.1 ...
+:: retrieving :: org.scala-tools.sbt#boot-scala
+	confs: [default]
+	2 artifacts copied, 0 already retrieved (15118kB/386ms)
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
+> 
+</pre>
+
+Note that it's good form to start out with a SNAPSHOT version of your project.
+
+h2. Project Layout
+
+* project - project definition files
+** project/build/<yourproject>.scala - the main project definition file
+** project/build.properties - project, sbt and scala version definitions
+* src/main - your app code goes here, in a subdirectory indicating the
+code's language (e.g. src/main/scala, src/main/java)
+* src/main/resources - static files you want added to your jar
+  (e.g. logging config)
+* src/test - like src/main, but for tests
+* lib_managed - the jar files your project depends on. Populated by sbt update
+* target - the destination for generated stuff (e.g. generated thrift
+  code, class files, jars)
+
+h2. Adding Some Code
+
+We'll be creating a simple JSON parser for simple tweets.  Add the
+following code to
+src/main/project/com/twitter/sample/SimpleParser.scala
+
+<pre>
+package com.twitter.sample
+
+case class SimpleParsed(id: Long, text: String)
+
+class SimpleParser {
+
+  val tweetRegex = "\"id\":(.*),\"text\":\"(.*)\"".r
+
+  def parse(str: String) = {
+    tweetRegex.findFirstMatchIn(str) match {
+      case Some(m) => {
+        val id = str.substring(m.start(1), m.end(1)).toInt
+        val text = str.substring(m.start(2), m.end(2))
+        Some(SimpleParsed(id, text))
+      }
+      case _ => None
+    }
+  }
+}
+</pre>
+
+This is ugly and buggy, but should compile.
+
+h2. Testing in the Console
+
+SBT can be used both as a command line script and as a build console.
+We'll be primarily using it as a build console, but most commands can
+be run standalone by passing the command as an argument to SBT, e.g.
+<pre>
+sbt test
+</pre>
+Note that if a command takes arguments, you need to quote the entire
+argument path, e.g.
+<pre>
+sbt 'test-only com.twitter.sample.SampleSpec'
+</pre>
+It's weird that way.
+
+Anyway. To start working with our code, launch sbt
+
+<pre>
+[local ~/projects/sbt-sample]$ sbt
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
+> 
+</pre>
+
+SBT allows you to start a Scala REPL with all your project
+dependencies loaded. It compiles your project source before launching
+the console, providing us a quick way to bench test our parser.
+
+<pre>
+> console
+[info] 
+[info] == compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling main sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 3 classes.
+[info] == compile ==
+[info] 
+[info] == copy-test-resources ==
+[info] == copy-test-resources ==
+[info] 
+[info] == test-compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling test sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 0 classes.
+[info] == test-compile ==
+[info] 
+[info] == copy-resources ==
+[info] == copy-resources ==
+[info] 
+[info] == console ==
+[info] Starting scala interpreter...
+[info] 
+Welcome to Scala version 2.8.1.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_22).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> 
+</pre>
+
+Our code has compiled, and we're provide the typical Scala prompt.
+We'll create a new parser, an exemplar tweet, and ensure it "works"
+
+<pre>
+scala> import com.twitter.sample._            
+import com.twitter.sample._
+
+scala> val tweet = """{"id":1,"text":"foo"}"""
+tweet: java.lang.String = {"id":1,"text":"foo"}
+
+scala> val parser = new SimpleParser          
+parser: com.twitter.sample.SimpleParser = com.twitter.sample.SimpleParser@71060c3e
+
+scala> parser.parse(tweet)                    
+res0: Option[com.twitter.sample.SimpleParsed] = Some(SimpleParsed(1,"foo"}))
+
+scala> 
+</pre>
+
+h2. Adding Dependencies
+
+Our simple parser works for this very small set of inputs, but we want to
+add tests and break it.  The first step is adding the specs test
+library and a real JSON parser to our project. To do this we have to go beyond the default
+SBT project layout and create a project. 
+
+SBT considers Scala files in the project/build directory to be project
+definitions.  Add the following to project/build/SampleProject.scala
+
+<pre>
+import sbt._
+
+class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
+  val jackson = "org.codehaus.jackson" % "jackson-core-asl" % "1.6.1"
+  val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
+}
+</pre> 
+
+A project definition is an SBT class. In our case we extend SBT's
+DefaultProject.
+
+You declare dependencies by specifing a val that is a dependency. SBT
+uses reflection to scan all the dependency vals in your project and
+build up a dependency tree at build time. The syntax here may be new,
+but this is equivalent to the maven dependency
+
+<pre>
+<dependency>
+  <groupId>org.codehaus.jackson</groupId>
+  <artifactId>jackson-core-asl</artifactId>
+  <version>1.6.1</version>
+</dependency>
+<dependency>
+  <groupId>org.scala-tools.testing</groupId>
+  <artifactId>specs_2.8.0</artifactId>
+  <version>1.6.5</version>
+  <scope>test</scope>
+</dependency>
+</pre>
+
+Now we can pull down dependencies for our project.  From the command
+line (not the sbt console), run sbt update
+
+<pre>
+[local ~/projects/sbt-sample]$ sbt update
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using SampleProject with sbt 0.7.4 and Scala 2.7.7
+[info] 
+[info] == update ==
+[info] :: retrieving :: com.twitter#sample_2.8.1 [sync]
+[info] 	confs: [compile, runtime, test, provided, system, optional, sources, javadoc]
+[info] 	1 artifacts copied, 0 already retrieved (2785kB/71ms)
+[info] == update ==
+[success] Successful.
+[info] 
+[info] Total time: 1 s, completed Nov 24, 2010 8:47:26 AM
+[info] 
+[info] Total session time: 2 s, completed Nov 24, 2010 8:47:26 AM
+[success] Build completed successfully.
+</pre>
+
+You'll see that sbt retrieved the specs library. You'll now also have
+a lib_managed directory, and lib_managed/scala_2.8.1/test will have
+specs_2.8.0-1.6.5.jar
+
+h2. Adding Tests
+
+Now that we have a test library added, put the following code in
+src/test/scala/com/twitter/sample/SimpleParserSpec.scala
+
+<pre>
+package com.twitter.sample
+
+import org.specs._
+
+object SimpleParserSpec extends Specification {
+  "SimpleParser" should {
+    val parser = new SimpleParser()
+    "work with basic tweet" in {
+      val tweet = """{"id":1,"text":"foo"}"""
+      parser.parse(tweet) match {
+        case Some(parsed) => {
+          parsed.text must be_==("foo")
+          parsed.id must be_==(1)
+        }
+        case _ => fail("didn't parse tweet")
+      }
+    }
+  }
+}
+</pre>
+
+In the sbt console, run test
+
+<pre>
+> test
+[info] 
+[info] == compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling main sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 3 classes.
+[info] == compile ==
+[info] 
+[info] == test-compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling test sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 10 classes.
+[info] == test-compile ==
+[info] 
+[info] == copy-test-resources ==
+[info] == copy-test-resources ==
+[info] 
+[info] == copy-resources ==
+[info] == copy-resources ==
+[info] 
+[info] == test-start ==
+[info] == test-start ==
+[info] 
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] SimpleParserSpec
+[info] SimpleParser should
+[info]   + work with basic tweet
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] 
+[info] == test-complete ==
+[info] == test-complete ==
+[info] 
+[info] == test-finish ==
+[info] Passed: : Total 1, Failed 0, Errors 0, Passed 1, Skipped 0
+[info]  
+[info] All tests PASSED.
+[info] == test-finish ==
+[info] 
+[info] == test-cleanup ==
+[info] == test-cleanup ==
+[info] 
+[info] == test ==
+[info] == test ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 8:54:45 AM
+> 
+</pre>
+
+Our test works!  Now we can add more. One of the nice things SBT
+provides is a way to run triggered actions. Prefacing an action with a
+tilde starts up a loop that runs the action any time source files
+change.  Lets run ~test and see what happens.
+
+<pre>
+[info] == test ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 8:55:50 AM
+1. Waiting for source changes... (press enter to interrupt)
+</pre>
+
+Now let's add the following test cases
+
+<pre>
+    "reject a non-JSON tweet" in {
+      val tweet = """"id":1,"text":"foo""""
+      parser.parse(tweet) match {
+        case Some(parsed) => fail("didn't reject a non-JSON tweet")
+        case e => e must be_==(None)
+      }
+    }
+
+    "ignore nested content" in {
+      val tweet = """{"id":1,"text":"foo","nested":{"id":2}}"""
+      parser.parse(tweet) match {
+        case Some(parsed) => {
+          parsed.text must be_==("foo")
+          parsed.id must be_==(1)
+        }
+        case _ => fail("didn't parse tweet")
+      }
+    }
+
+    "fail on partial content" in {
+      val tweet = """{"id":1}"""
+      parser.parse(tweet) match {
+        case Some(parsed) => fail("didn't reject a partial tweet")
+        case e => e must be_==(None)
+      }
+    }
+</pre>
+
+After we save our file, SBT detects our changes, runs tests, and
+informs us our parser is lame
+
+<pre>
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] SimpleParserSpec
+[info] SimpleParser should
+[info]   + work with basic tweet
+[info]   x reject a non-JSON tweet
+[info]     didn't reject a non-JSON tweet (Specification.scala:43)
+[info]   x ignore nested content
+[info]     'foo","nested":{"id' is not equal to 'foo' (SimpleParserSpec.scala:31)
+[info]   + fail on partial content
+</pre>
+
+So let's rework our JSON parser to be real
+
+<pre>
+package com.twitter.sample
+
+import org.codehaus.jackson._
+import org.codehaus.jackson.JsonToken._
+
+case class SimpleParsed(id: Long, text: String)
+
+class SimpleParser {
+
+  val parserFactory = new JsonFactory()
+
+  def parse(str: String) = {
+    val parser = parserFactory.createJsonParser(str)
+    if (parser.nextToken() == START_OBJECT) {
+      var token = parser.nextToken()
+      var textOpt:Option[String] = None
+      var idOpt:Option[Long] = None
+      while(token != null) {
+        if (token == FIELD_NAME) {
+          parser.getCurrentName() match {
+            case "text" => {
+              parser.nextToken()
+              textOpt = Some(parser.getText())
+            }
+            case "id" => {
+              parser.nextToken()
+              idOpt = Some(parser.getLongValue())
+            }
+            case _ => // noop
+          }
+        }
+        token = parser.nextToken()
+      }
+      if (textOpt.isDefined && idOpt.isDefined) {
+        Some(SimpleParsed(idOpt.get, textOpt.get))
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+  }
+}
+</pre>
+
+This is a simple Jackson parser. When we save, SBT recompiles our code
+and reruns our tests.  Getting better!
+
+<pre>
+info] SimpleParser should
+[info]   + work with basic tweet
+[info]   + reject a non-JSON tweet
+[info]   x ignore nested content
+[info]     '2' is not equal to '1' (SimpleParserSpec.scala:32)
+[info]   + fail on partial content
+[info] == com.twitter.sample.SimpleParserSpec ==
+</pre>
+
+Uhoh.  We need to check for nested objects.  Let's add some ugly
+guards to our token reading loop.
+
+<pre>
+  def parse(str: String) = {
+    val parser = parserFactory.createJsonParser(str)
+    var nested = 0
+    if (parser.nextToken() == START_OBJECT) {
+      var token = parser.nextToken()
+      var textOpt:Option[String] = None
+      var idOpt:Option[Long] = None
+      while(token != null) {
+        if (token == FIELD_NAME && nested == 0) {
+          parser.getCurrentName() match {
+            case "text" => {
+              parser.nextToken()
+              textOpt = Some(parser.getText())
+            }
+            case "id" => {
+              parser.nextToken()
+              idOpt = Some(parser.getLongValue())
+            }
+            case _ => // noop
+          }
+        } else if (token == START_OBJECT) {
+          nested += 1
+        } else if (token == END_OBJECT) {
+          nested -= 1
+        }
+        token = parser.nextToken()
+      }
+      if (textOpt.isDefined && idOpt.isDefined) {
+        Some(SimpleParsed(idOpt.get, textOpt.get))
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+  }
+</pre>
+
+And... it works!
+
+h2. Packaging and Publishing
+
+At this point we can run the package command to generate a jar file.
+However we may want to share our jar with other teams.  To do this
+we'll build on StandardProject, which gives us a big head start.
+
+The first step is include StandardProject as an SBT plugin.  Plugins
+are a way to introduce dependencies to your build, rather than your
+project. These dependencies are defined in
+project/plugins/Plugins.scala.  Add the following to the Plugins.scala
+file.
+
+<pre>
+import sbt._
+
+class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
+  val twitterMaven = "twitter.com" at "http://maven.twttr.com/"
+  val defaultProject = "com.twitter" % "standard-project" % "0.7.14"
+}
+</pre>
+
+Note that we've specified a maven repository as well as a
+dependency. That's because the standard project library is hosted by
+us, which isn't one of the default repos sbt checks.
+
+We'll also update our project definition to extend StandardProject,
+include an SVN publishing trait, and define the repository we wish to
+publish to.  Alter SampleProject.scala to the following
+
+<pre>
+import sbt._
+import com.twitter.sbt._
+
+class SampleProject(info: ProjectInfo) extends StandardProject(info) with SubversionPublisher {
+  val jackson = "org.codehaus.jackson" % "jackson-core-asl" % "1.6.1"
+  val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
+
+  override def subversionRepository = Some("http://svn.local.twitter.com/maven/")
+}
+</pre>
+
+Now if we run the publish action we'll see the following
+
+<pre>
+[info] == deliver ==
+IvySvn Build-Version: null
+IvySvn Build-DateTime: null
+[info] :: delivering :: com.twitter#sample;1.0-SNAPSHOT :: 1.0-SNAPSHOT :: release :: Wed Nov 24 10:26:45 PST 2010
+[info] 	delivering ivy file to /Users/mmcbride/projects/sbt-sample/target/ivy-1.0-SNAPSHOT.xml
+[info] == deliver ==
+[info] 
+[info] == make-pom ==
+[info] Wrote /Users/mmcbride/projects/sbt-sample/target/sample-1.0-SNAPSHOT.pom
+[info] == make-pom ==
+[info] 
+[info] == publish ==
+[info] :: publishing :: com.twitter#sample
+[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
+[info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
+[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
+[info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
+[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
+[info] 	published ivy to com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
+[info] Binary diff deleting com/twitter/sample/1.0-SNAPSHOT
+[info] Commit finished r977 by 'mmcbride' at Wed Nov 24 10:26:47 PST 2010
+[info] Copying from com/twitter/sample/.upload to com/twitter/sample/1.0-SNAPSHOT
+[info] Binary diff finished : r978 by 'mmcbride' at Wed Nov 24 10:26:47 PST 2010
+[info] == publish ==
+[success] Successful.
+[info] 
+[info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
+</pre>
+And (after some time), we can go to
+binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/
+to see our published jar.
+
+h2. Adding Tasks
+
+Tasks are Scala functions.  The simplest way to add a task is to
+include a val in your project definition using the task method, e.g.
+
+<pre>
+lazy val print = task {log.info("a test action"); None}
+</pre>
+
+If you want dependencies and a description you can add them like this
+
+<pre>
+lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
+</pre>
+
+If we reload our project and run the print action we'll see the
+following
+
+<pre>
+> print
+[info] 
+[info] == print ==
+[info] a test action
+[info] == print ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 11:05:12 AM
+> 
+</pre>
+
+So it works. If you're defining a task in a single project this works
+just fine.  However if you're defining this in a plugin it's fairly
+inflexible.  I may want to 
+
+<pre>
+lazy val print = printAction
+def printAction = printTask.dependsOn(compile) describedAs("prints a line after compile")
+def printTask = task {log.info("a test action"); None}
+</pre>
+
+This allows consumers to override the task itself, the dependencies
+and/or description of the task, or the action.  Most built in
+SBT actions follow this pattern.  As an example, we can modify the
+builtin package task to print the current timestamp by doing the
+following
+
+<pre>
+lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
+override def packageAction = super.packageAction.dependsOn(printTimestamp)
+</pre>
+
+There are many examples in StandardProject of tweaking SBT defaults
+and adding custom tasks.
+
+h2. Quick Reference
+
+h3. Common Commands
+
+* actions - show actions available for this project
+* update - downloads dependencies
+* compile - compiles source
+* test - runs tests
+* package - creates a publishable jar file
+* publish-local - installs the built jar in your local ivy cache
+* publish - pushes your jar to a remote repo (if configured)
+
+h3. Moar Commands
+
+* test-failed - run any specs that failed
+* test-quick - run any specs that failed and/or had dependencies updated
+* clean-cache - remove all sorts of sbt cached stuff.  Like clean for sbt
+* clean-lib - remove everything in lib_managed
+
+h3. Project Layout
+
+TBD
+
+----
+
+h1(#L8). Lesson 8
+
+h2. Collections
+
+"This page":http://www.decodified.com/scala/collections-api.xml offers a great way to follow the default implementations and links to all the scaladoc.
+
+h2. The Hierarchy
+
+These are all traits, both the mutable and immutable packages have
+implementations of these as well as specialized implementations.
+
+h3. Traversable
+
+All collections can be traversed. Gives you the standard function combinators.
+
+
+h3. Iterable
+
+Has an iterator() method to give you an Iterator over the elements.
+
+h3. Seq
+
+Sequence of items with ordering.
+
+h3. Set
+
+A collection of items with no duplicates.
+
+h3. Map
+
+Key Value Pairs.
+
+h2. The methods
+
+h3. Traversable
+
+All of these methods below are available all the way down. The
+argument and return types types won't always look the same as
+subclasses are free to override them.
+
+<code>
+def head : A
+</code>
+<code>
+def tail : Traversable[A]
+</code>
+
+Here are where the Fuctional Combinators are defined.
+
+<code>
+def map [B] (f: (A) => B) : CC[B]
+</code>
+<code>
+def foreach[U](f: Elem => U): Unit
+</code>
+<code>
+def find (p: (A) => Boolean) : Option[A]
+</code>
+<code>
+def filter (p: (A) => Boolean) : Traversable[A]
+</code>
+
+Partitioning:
+<code>
+def partition (p: (A) ⇒ Boolean) : (Traversable[A], Traversable[A])
+</code>
+
+<code>
+def groupBy [K] (f: (A) => K) : Map[K, Traversable[A]]
+</code>
+
+Conversion:
+
+Interestingly, you can convert one collection type to another.
+
+<code>
+def toArray : Array[A]
+</code>
+<code>
+def toArray [B >: A] (implicit arg0: ClassManifest[B]) : Array[B]
+</code>
+<code>
+def toBuffer [B >: A] : Buffer[B]
+</code>
+<code>
+def toIndexedSeq [B >: A] : IndexedSeq[B]
+</code>
+<code>
+def toIterable : Iterable[A]
+</code>
+<code>
+def toIterator : Iterator[A]
+</code>
+<code>
+def toList : List[A]
+</code>
+<code>
+def toMap [T, U] (implicit ev: <:<[A, (T, U)]) : Map[T, U]
+</code>
+<code>
+def toSeq : Seq[A]
+</code>
+<code>
+def toSet [B >: A] : Set[B]
+</code>
+<code>
+def toStream : Stream[A]
+</code>
+<code>
+def toString () : String
+</code>
+<code>
+def toTraversable : Traversable[A]
+</code>
+
+Let's convert a Map to an Array. What you get is an Array of the Key Value pairs.
+
+<code>
+scala> Map(1 -> 2).toArray
+</code>
+<code>
+res41: Array[(Int, Int)] = Array((1,2))
+</code>
+
+h3. Iterable
+
+Adds access to an iterator.
+
+<code>
+  def iterator: Iterator[A]
+</code>
+
+What does an Iterator give you?
+
+<code>
+def hasNext(): Boolean
+</code>
+<code>
+def next(): A
+</code>
+
+This is very Java-esque. You often won't see iterators used in Scala,
+you are much more likely to see the functional combinators or a
+for-comprehension used.
+
+h3. Set
+
+<code>
+  def contains(key: A): Boolean
+</code>
+<code>
+  def +(elem: A): Set[A]
+</code>
+<code>
+  def -(elem: A): Set[A]
+</code>
+
+h5. Map
+
+Sequence of key and value pairs with lookup by key.
+
+Pass a List of Pairs into apply() like so
+<code>
+scala> Map("a" -> 1, "b" -> 2)
+</code>
+<code>
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2))
+</code>
+
+Or also like:
+
+<code>
+scala> Map(("a", 2), ("b", 2))
+</code>
+<code>
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,2), (b,2))
+</code>
+
+h6. Digression
+
+What is <code>-></code>? That isn't special syntax, it's a method that returns a Tuple.
+
+<code>
+scala> "a" -> 2
+
+res0: (java.lang.String, Int) = (a,2)
+</code>
+
+Remember, that is just sugar for
+
+<code>
+scala> "a".->(2)
+
+res1: (java.lang.String, Int) = (a,2)
+</code>
+
+You can also build one up via <code>++</code>
+
+<code>
+scala> Map.empty ++ List(("a", 1), ("b", 2), ("c", 3))
+</code>
+<code>
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (c,3))
+</code>
+
+h3. Commonly used subclasses
+
+h4. HashSet and HashMap
+
+Quick lookup, the most commonly used forms of these collections.
+
+h5. TreeMap
+
+A subclass of SortedMap, it gives you ordered access.
+
+
+h5. Vector
+
+Fast random selection and fast updates.
+
+<code>
+scala> IndexedSeq(1, 2, 3)
+</code>
+<code>
+res0: IndexedSeq[Int] = Vector(1, 2, 3)
+</code>
+
+h4. List
+
+The old standby.
+
+<code>
+scala> List(1, 2, 3)
+</code>
+<code>
+res43: List[Int] = List(1, 2, 3)
+</code>
+<code>
+scala> 1 :: 2 :: 3 :: Nil
+</code>
+<code>
+res44: List[Int] = List(1, 2, 3)
+</code>
+
+h4. Range
+
+Ordered sequence of Ints that are spaced apart. You will often see
+this used where a counting for-loop was used before.
+
+<code>
+scala> for (i <- 1 to 10) { println(i) }
+</code>
+<code>
+1
+</code>
+<code>
+2
+</code>
+<code>
+3
+</code>
+<code>
+4
+</code>
+<code>
+5
+</code>
+<code>
+6
+</code>
+<code>
+7
+</code>
+<code>
+8
+</code>
+<code>
+9
+</code>
+<code>
+10
+</code>
+
+Ranges have the standard functional combinators available to them.
+
+<code>
+scala> (1 to 10).map { i => i }
+</code>
+<code>
+res0: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+</code>
+
+h3. Defaults
+
+Using apply methods on the traits will give you an instance of the
+default implementation, For instance, Iterable(1, 2) returns a List as
+it's default implementation.
+
+<code>
+scala> Iterable(1, 2)
+
+res0: Iterable[Int] = List(1, 2)
+</code>
+
+Same with Seq
+
+<pre>
+scala> Seq(1, 2)
+res3: Seq[Int] = List(1, 2)
+
+scala> Iterable(1, 2)
+res1: Iterable[Int] = List(1, 2)
+
+scala> Sequence(1, 2)
+warning: there were deprecation warnings; re-run with -deprecation for details
+res2: Seq[Int] = List(1, 2)
+</pre>
+
+Set
+
+<pre>
+scala> Set(1, 2)
+res31: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+
+
+
+h4. IndexedSeq
+
+fast random-access of elements and a fast length operation.
+
+h4. LinearSeq
+
+fast access only to the first element via head, but also has a fast tail operation.
+
+
+h4. Mutable vs. Immutable
+
+immutable
+
+Pros
+* Can't change in multiple threads
+
+Con
+* Can't change at all
+
+Scala allows us to be pragmatic, it encourages immutability but does
+not penalize us for needing mutatability. This is very similar to var
+vs. val. We always start with val and move back to var when required.
+
+We favor starting with the immutable versions of collections but
+switching to the mutable ones if performance dictates. Using immutable
+collections means you won't accidentally change things in multiple
+threads.
+
+
+h2. Mutatable
+
+All of the above classes we've discussed were immutable. Let's discuss
+the commonly used mutable collections.
+
+h3. HashMap
+
+getOrElseUpdate
++=
+
+<pre>
+scala> val numbers = collection.mutable.Map(1 -> 2)
+numbers: scala.collection.mutable.Map[Int,Int] = Map((1,2))
+
+scala> numbers.get(1)
+res0: Option[Int] = Some(2)
+
+scala> numbers.getOrElseUpdate(2, 3)
+res54: Int = 3
+
+scala> res52
+res55: scala.collection.mutable.Map[Int,Int] = Map((2,3), (1,2))
+
+scala> res52 += (4 -> 1)
+res56: res52.type = Map((2,3), (4,1), (1,2))
+</pre>
+
+h3. ListBuffer and ArrayBuffer
+
++=
+
+h3. LinkedList and DoublyLinkedList
+
+h3. PriorityQueue
+
+h3. Stack and ArrayStack
+
+
+h3. StringBuilder
+
+Interestingly, StringBuilder is a collection.
+
+
+
+h2. Life with Java
+
+You can easily move between Java and Scala collection types using a
+set of implicit conversions that are available in the JavaConversions
+package.
+
+<pre>
+   import scala.collection.JavaConversions._
+   val sl = new scala.collection.mutable.ListBuffer[Int]
+   val jl : java.util.List[Int] = sl
+   val sl2 : scala.collection.mutable.Buffer[Int] = jl
+   assert(sl eq sl2)
+</pre>
+
+
+Two way conversions:
+
+<pre>
+scala.collection.Iterable <=> java.lang.Iterable
+scala.collection.Iterable <=> java.util.Collection
+scala.collection.Iterator <=> java.util.{ Iterator, Enumeration }
+scala.collection.mutable.Buffer <=> java.util.List
+scala.collection.mutable.Set <=> java.util.Set
+scala.collection.mutable.Map <=> java.util.{ Map, Dictionary }
+scala.collection.mutable.ConcurrentMap <=> java.util.concurrent.ConcurrentMap
+</pre>
+
+In addition, the following one way conversions are provided:
+<pre>
+scala.collection.Seq => java.util.List
+scala.collection.mutable.Seq => java.util.List
+scala.collection.Set => java.util.Set
+scala.collection.Map => java.util.Map
+</pre>
+
+----
+
+h1(#L9). Lesson 9
+
+
+Today we will cover testing with Specs, a BDD Framework for Scala.
+
+* Contexts
+** nested examples
+* Setup
+** doFirst
+** doBefore
+** doAfter
+* Matchers
+** mustEqual
+** contains
+** sameSize?
+** Write your own
+* Mocks
+* Spies
+* How does this work?
+** What if we don't like the implicits?
+
+h2. extends Specifcation
+
+Let's just jump in.
+
+<pre>
+import org.specs._
+
+object ArithmeticSpec extends Specification {
+  "Arithmetic" should {
+    "add two numbers" in {
+      1 + 1 mustEqual 2
+    }
+    "add three numbers" in {
+      1 + 1 + 1 mustEqual 3
+    }
+  }
+}
+</pre>
+
+h2. Let's break this down
+
+
+*Arithmetic* is the *System Under Specification*
+
+*add* is a context.
+
+*add two numbers* and *add three numbers* are examples.
+
+@mustEqual@ indicates an *expectation*
+
+@1 mustEqual 1@ is a common placeholder *expectation* before you start
+writing real tests. All examples should have at least one expectation.
+
+
+h2. Duplication
+
+Notice how two tests both have @add@ in their name? We can get rid of
+that by *nesting* expectations.
+
+<pre>
+import org.specs._
+
+object ArithmeticSpec extends Specification {
+  "Arithmetic" should {
+    "add" in {
+      "two numbers" in {
+        1 + 1 mustEqual 2
+      }
+      "three numbers" in {
+        1 + 1 + 1 mustEqual 3
+      }
+    }
+  }
+}
+</pre>
+
+h2. Execution Model
+
+<pre>
+object ExecSpec extends Specification {
+  "Mutations are isolated" should {
+    var x = 0
+    "x equals 1 if we set it." in {
+      x = 1
+      x mustEqual 1
+    }
+    "x is the default value if we don't change it" in {
+      x mustEqual 0
+    }
+  }
+}
+</pre>
+
+h2. Setup
+
+h3. doBefore & doAfter
+
+<pre>
+"my system" should {
+  doBefore { resetTheSystem() /** user-defined reset function */ }
+  "mess up the system" in {...}
+  "and again" in {...}
+  doAfter { cleanThingsUp() }
+}
+</pre>
+
+*NOTE* @doBefore@/@doAfter@ are only run on leaf examples.
+
+h3. doFirst & doLast
+
+@doFirst@/@doLast@ is for single-time setup. (need example, I don't use this)
+
+<pre>
+"Foo" should {
+  doFirst { openTheCurtains() }
+  "test stateless methods" in {...}
+  "test other stateless methods" in {...}
+  doLast { closeTheCurtains() }
+}
+</pre>
+
+h2. Matchers
+
+You have data, you want to make sure it's right.
+
+Let's tour the most commonly used matchers.
+
+"Matchers Guide":http://code.google.com/p/specs/wiki/MatchersGuide
+
+h3. mustEqual
+
+We've seen several examples of mustEqual already.
+
+<pre>
+1 mustEqual 1
+
+"a" mustEqual "a"
+</pre>
+
+Reference equality, value equality.
+
+h3. elements in a Sequence
+
+<pre>
+val numbers = List(1, 2, 3)
+
+numbers must contain(1)
+numbers must not contain(4)
+
+numbers must containAll(List(1, 2, 3))
+numbers must containInOrder(List(1, 2, 3))
+
+List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4), 2, 3), 1))
+</pre>
+
+
+h3. Items in a Map
+
+<pre>
+map must haveKey(k)
+map must notHaveKey(k)
+
+map must haveValue(v)
+map must notHaveValue(v)
+</pre>
+
+h3. Numbers
+
+<pre>
+a must beGreaterThan(b)
+a must beGreaterThanOrEqualTo(b)
+
+a must beLessThan(b)
+a must beLessThanOrEqualTo(b)
+
+a must beCloseTo(b, delta)
+</pre>
+
+
+h3. Options
+
+<pre>
+a must beNone
+
+a must beSome[Type]
+
+a must beSomething
+
+a must beSome(value)
+</pre>
+
+h3. throwA
+
+<pre>
+a must throwA[WhateverException]
+</pre>
+
+This is shorter than a try catch with a fail in the body.
+
+You can also expect a specific message
+
+<pre>
+a must throwA(WhateverException("message"))
+</pre>
+
+You can also match on the exception:
+
+<pre>
+a must throwA(new Exception) like {
+  case Exception(m) => m.startsWith("bad")
+}
+</pre>
+
+
+h3. Write your own Matchers
+
+h4. As a val
+<pre>
+import org.specs.matcher.Matcher
+</pre>
+<pre>
+"A matcher" should {
+  "be created as a val" in {
+    val beEven = new Matcher[Int] {
+      def apply(n: => Int) = {
+        (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
+      }
+    }
+    2 must beEven
+  }
+}
+</pre>
+
+The contract is to return a tuple containing whether the expectation
+is true, and a mess for when it is and isn't true.
+
+
+h4. As a case class
+
+<pre>
+case class beEven(b: Int) extends Matcher[Int]() {
+  def apply(n: => Int) =  (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
+}
+</pre>
+
+Using a case class makes it more shareable.
+
+h3. Mocks
+
+<pre>
+import org.specs.Specification
+import org.specs.mock.Mockito
+
+class Foo[T] {
+  def get(i: Int): T
+}
+
+object MockExampleSpec extends Specification with Mockito {
+  val m = mock[Foo[String]]
+
+  m.get(0) returns "one"
+
+  m.get(0)
+
+  there was one(m).get(0)
+
+  there was no(m).get(1)
+}
+</pre>
+
+
+h3. Spies
+
+Spies can also be used in order to do some "partial mocking" of real
+objects:
+
+<pre>
+val list = new LinkedList[String]
+val spiedList = spy(list)
+
+// methods can be stubbed on a spy
+spiedList.size returns 100
+
+// other methods can also be used
+spiedList.add("one")
+spiedList.add("two")
+
+// and verification can happen on a spy
+there was one(spiedList).add("one")
+</pre>
+
+However, working with spies can be tricky:
+
+<pre>
+// if the list is empty, this will throws an IndexOutOfBoundsException
+spiedList.get(0) returns "one"
+</pre>
+
+@doReturn@ must be used in that case:
+
+<pre>
+doReturn("one").when(spiedList).get(0)
+</pre>
+
+
+h3. Run individual specs in sbt
+
+
+<pre>
+> test-only com.twitter.yourservice.UserSpec
+</pre>
+
+Will run just that spec.
+
+
+<pre>
+> ~ test-only com.twitter.yourservice.UserSpec
+</pre>
+
+Will run that test in a loop, with each file modification triggering a
+test run.
+
+----
+
+h1(#L10). Lesson 10
+
+h1. Concurrency in Scala
+
+* Runnable
+* Callable
+* Threads
+* Executors
+* ExecutorService
+* Futures
+** Stock Java
+** Our own Futures
+* Solutions
+** Producer/Consumer
+** Parrallel combinators
+** Single-machine MapReduce
+
+
+h2. Runnable/Callable
+
+Runnable has a single method that returns no value.
+
+<pre>
+trait Runnable {
+  def run(): Unit
+}
+</pre>
+
+Callable is similar to run except that it returns a value
+
+<pre>
+trait Callable[V] {
+  def call(): V
+}
+</pre>
+
+
+h2. Threads
+
+Scala concurrency is built on top of the Java concurrency model.
+
+On Sun JVMs, with a IO-heavy workload, we can run tens of thousands of
+threads on a single machine.
+
+A Thread takes a Runnable. You have to call @start@ on a Thread in
+order for it to run the Runnable.
+
+
+<pre>
+scala> val hello = new Thread(new Runnable {
+  def run() {
+    println("hello world")
+  }
+})
+hello: java.lang.Thread = Thread[Thread-3,5,main]
+
+scala> hello.start
+hello world
+
+</pre>
+
+When you see a class implementing Runnable, you know it's intended
+to run in a Thread somewhere by somebody.
+
+h2. Something single-threaded
+
+Here's a code snippet that works but has problems.
+
+<pre>
+import java.net.{Socket, ServerSocket}
+import java.util.concurrent.{Executors, ExecutorService}
+import java.util.Date
+
+class NetworkService(port: Int, poolSize: Int) extends Runnable {
+  val serverSocket = new ServerSocket(port)
+
+  def run() {
+    while (true) {
+      // This will block until a connection comes in.
+      val socket = serverSocket.accept()
+      (new Handler(socket)).run()
+    }
+  }
+}
+
+class Handler(socket: Socket) extends Runnable {
+  def message = (Thread.currentThread.getName() + "\n").getBytes
+
+  def run() {
+    socket.getOutputStream.write(message)
+    socket.getOutputStream.close()
+  }
+}
+
+(new NetworkService(2020, 2)).run
+</pre>
+
+Each request will respond with the name of the current Thread, which
+is always @main@.
+
+The main drawback with this code is that only one request at a time
+can be answered!
+
+You could put each request in a Thread. Simply change
+
+<pre>
+(new Handler(socket)).run()
+</pre>
+
+to
+
+<pre>
+(new Thread(new Handler(socket))).start()
+</pre>
+
+but what if you want to reuse threads or have other policies about
+thread behavior?
+
+
+h2. Executors
+
+With the release of Java 5, it was decided that a more abstract
+interface to Threads was required.
+
+You can get an @ExecutorService@ using static methods on the @Executors@
+object. Those methods provide you to configure an @ExecutorService@ with
+a variety of policies such as thread pooling.
+
+Here's our old blocking network server written to allow concurrent
+requests.
+
+<pre>
+import java.net.{Socket, ServerSocket}
+import java.util.concurrent.{Executors, ExecutorService}
+import java.util.Date
+
+class NetworkService(port: Int, poolSize: Int) extends Runnable {
+  val serverSocket = new ServerSocket(port)
+  val pool: ExecutorService = Executors.newFixedThreadPool(poolSize)
+
+  def run() {
+    try {
+      while (true) {
+        // This will block until a connection comes in.
+        val socket = serverSocket.accept()
+        pool.execute(new Handler(socket))
+      }
+    } finally {
+      pool.shutdown()
+    }
+  }
+}
+
+class Handler(socket: Socket) extends Runnable {
+  def message = (Thread.currentThread.getName() + "\n").getBytes
+
+  def run() {
+    socket.getOutputStream.write(message)
+    socket.getOutputStream.close()
+  }
+}
+
+(new NetworkService(2020, 2)).run
+</pre>
+
+Here's a transcript connecting to it showing how the internal threads
+are re-used.
+
+<pre>
+$ nc localhost 2020
+pool-1-thread-1
+
+$ nc localhost 2020
+pool-1-thread-2
+
+$ nc localhost 2020
+pool-1-thread-1
+
+$ nc localhost 2020
+pool-1-thread-2
+</pre>
+
+
+h2. Futures
+
+A @Future@ represents an asynchronous computation. You can wrap your
+computation in a Future and when you need the result, you simply call
+a blocking @get()@ method on it. @Executor@s return a @Future@.
+
+A @FutureTask@ is a Runnable and is designed to be run by an @Executor@
+
+<pre>
+val future = new FutureTask[String](new Callable[String]() {
+  def call(): String = {
+    searcher.search(target);
+}})
+executor.execute(future)
+</pre>
+
+Now I need the results so let's block until its done.
+
+<pre>
+val blockingResult = future.get()
+</pre>
+
+h2. Thread Safety
+
+<pre>
+class Person(var name: String) {
+  def set(changedName: String) {
+    name = changedName
+  }
+}
+</pre>
+
+This program is not safe in a multi-threaded environment. If two
+threads have references to the same instance of an Adder and call
+@add@, you can't predict what @i@ will be at the end of both calls. It
+could be 2, it could be 1!
+
+In the Java memory model, each processor is allowed to cache values in
+it's L1 or L2 cache so two threads running on different processors can
+each have their own view of data.
+
+Let's talk about some of the tools that force threads to keep a
+consistent view of data.
+
+h2. Three tools
+
+h4. synchronization
+
+Mutexes provide ownership semantics. When you enter a mutex, you own
+it. The most common way of using a mutex in the JVM is by
+synchronizing on something. In this case, we'll synchronize on our
+userMap.
+
+In the JVM, you can synchronize on any instance that's not null.
+
+<pre>
+class Person(var name: String) {
+  def set(changedName: String) {
+    name.synchronized {
+      name = changedName
+    }
+  }
+}
+</pre>
+
+
+
+h4. volatile
+
+With Java 5's change to the memory model, volatile and synchronized
+are basically identical except with volatile, nulls are allowed.
+
+@synchronized@ allows for more fine-grained locking. @volatile@
+synchronizes on every access.
+
+<pre>
+class Person(@volatile var name: String) {
+  def set(changedName: String) {
+    name = changedName
+  }
+}
+</pre>
+
+h4. AtomicReference
+
+Also in Java 5, a whole raft of low-level concurrency primitives were added. One of them is an @AtomicReference@ class
+
+<pre>
+import java.util.concurrent.atomic.AtomicReference
+
+class Person(val name: AtomicReference[String]) {
+  def set(changedName: String) {
+    name.set(changedName)
+  }
+}
+</pre>
+
+h4. Does this cost anything?
+
+@AtomicReference is the most costly of these two choices since you
+have to go through method dispatch to access values.
+
+@volatile@ and @synchronized@ are built on top of Java's built-in
+monitors. Monitors cost very little if there's no contention. Since
+@synchronized@ allows you more fine-grained control over when you
+synchronize, there will be less contention so @synchronized@ tends to
+be the cheapest option.
+
+When you enter synchronized points, access volatile references, or
+deference AtomicReferences, Java forces the processor to flush their
+cache lines and provide a consistent view of data.
+
+PLEASE CORRECT ME IF I'M WRONG HERE. This is a complicated subject,
+I'm sure there will be a lengthy classroom discussion at this point.
+
+
+h2. Other neat tools from Java 5
+
+As I mentioned with @AtomicReference@, Java 5 brought many great tools
+along with it.
+
+
+h2. CountDownLatch
+
+A @CountDownLatch@ is a simple mechanism for multiple threads to
+communicate with each other.
+
+<pre>
+val doneSignal = new CountDownLatch(2)
+doAsyncWork(1)
+doAsyncWork(2)
+
+doneSignal.await()
+println("both workers finished!")
+</pre>
+
+
+Among other things, it's great for unit tests. Let's say you're doing
+some async work and want to ensure that functions are
+completing. Simply have your functions @countDown@ the latch and @await@ in
+the test.
+
+h2. AtomicInteger/Long
+
+Since incrementing Ints and Longs is such a common task,
+@AtomicInteger@ and @AtomicLong@ were added.
+
+h2. AtomicBoolean
+
+I probably don't have to explain what this would be for.
+
+h2. ReadWriteLocks
+
+@ReadWriteLock@ lets you take reader and writer locks. reader locks
+only block when a writer lock is taken.
+
+h2. Let's build an unsafe search engine
+
+Here's a simple inverted index that isn't thread-safe. Our inverted
+index maps parts of a name to a given User.
+
+This is written in a naive way assuming only single-threaded access.
+
+Note the alternative default constructor @this()@ that uses a @mutable.HashMap@
+
+<pre>
+import scala.collection.mutable
+
+case class User(name: String, id: Int)
+
+class InvertedIndex(val userMap: mutable.Map[String, User]) {
+
+  def this() = this(new mutable.HashMap[String, User])
+
+  def tokenizeName(name: String): Seq[String] = {
+    name.split(" ").map(_.toLowerCase)
+  }
+
+  def add(term: String, user: User) {
+    userMap += term -> user
+  }
+
+  def add(user: User) {
+    tokenizeName(user.name).foreach { term =>
+      add(term, user)
+    }
+  }
+}
+</pre>
+
+I've left out how to get users out of our index for now. We'll get to
+that later.
+
+h2. Let's make it safe
+
+In our inverted index example above, userMap is not guaranteed to be
+safe. Multiple clients could try to add items at the same time and
+have the same kinds of visibility errors we saw in our first @Person@
+example.
+
+Since userMap isn't thread-safe, how we do we keep only a single
+thread at a time mutating it?
+
+You might consider locking on userMap while adding.
+
+<pre>
+def add(user: User) {
+  userMap.synchronized {
+    tokenizeName(user.name).foreach { term =>
+      add(term, user)
+    }
+  }
+}
+</pre>
+
+Unfortunately, this is too coarse. Always try to do as much expensive
+work outside of the mutex as possible. Remember what I said about
+locking being cheap if there is no contention. If you do less work
+inside of a block, there will be less contention.
+
+<pre>
+def add(user: User) {
+  // tokenizeName was measured to be the most expensive operation.
+  val tokens = tokenizeName(user.name)
+
+  tokens.foreach { term =>
+    userMap.synchronized {
+      add(term, user)
+    }
+  }
+}
+</pre>
+
+h2. SynchronizedMap
+
+We can mixin synchronization with a mutable HashMap using the
+SynchronizedMap trait.
+
+We can extend our existing InvertedIndex to give users an easy way to
+build the synchronized index.
+
+
+<pre>
+import scala.collection.mutable.SynchronizedMap
+
+class SynchronizedInvertedIndex(userMap: mutable.Map[String, User]) extends InvertedIndex(userMap) {
+  def this() = this(new mutable.HashMap[String, User] with SynchronizedMap[String, User])
+}
+</pre>
+
+If you look at the implementation, you realize that it's simply
+synchronizing on every method so while it's safe, it might not have
+the performance you're hoping for.
+
+h2. Java ConcurrentHashMap
+
+Java comes with a nice thread-safe ConcurrentHashMap. Thankfully, we
+can use JavaConversions to give us nice Scala semantics.
+
+In fact, we can seamlessly layer our new, thread-safe InvertedIndex as
+an extension of the old unsafe one.
+
+<pre>
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.JavaConversions._
+
+class ConcurrentInvertedIndex(userMap: collection.mutable.ConcurrentMap[String, User])
+    extends InvertedIndex(userMap) {
+
+  def this() = this(new ConcurrentHashMap[String, User])
+}
+</pre>
+
+h2. Let's load our InvertedIndex
+
+h3. The naive way
+
+<pre>
+
+trait UserMaker {
+  def makeUser(line: String) = line.split(",") match {
+    case Array(name, userid) => User(name, userid.trim().toInt)
+  }
+}
+
+class FileRecordProducer(path: String) extends UserMaker {
+  def run() {
+    Source.fromFile(path, "utf-8").getLines.foreach { line =>
+      index.add(makeUser(line))
+    }
+  }
+}
+</pre>
+
+For every line in our file, we call @makeUser@ and then @add@ it to
+our InvertedIndex. If we use a concurrent InvertedIndex, we can call
+add in parallel and since makeUser has no side-effects, it's already
+thread-safe.
+
+We can't read a file in parallel but we _can_ build the User and add
+it to the index in parallel.
+
+h3. A solution: Producer/Consumer
+
+A common pattern for async computation is to separate producers from
+consumers and have them only communicate via a @Queue@. Let's walk
+through how that would work for our search engine indexer.
+
+<pre>
+import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
+
+// Concrete producer
+class Producer[T](path: String, queue: BlockingQueue[T]) implements Runnable {
+  public void run() {
+    Source.fromFile(path, "utf-8").getLines.foreach { line =>
+      queue.put(line)
+    }
+  }
+}
+
+// Abstract consumer
+abstract class Consumer[T](queue: BlockingQueue[T]) implements Runnable {
+  public void run() {
+    while (true) {
+      val item = queue.take()
+      consume(item)
+    }
+  }
+
+  def consume(x: T)
+}
+
+val queue = new LinkedBlockingQueue[String]()
+
+// One thread for the consumer
+val producer = new Producer[String]("users.txt", q)
+new Thread(producer).start()
+
+trait UserMaker {
+  def makeUser(line: String) = line.split(",") match {
+    case Array(name, userid) => User(name, userid.trim().toInt)
+  }
+}
+
+class IndexerConsumer(index: InvertedIndex, queue: BlockingQueue[String]) extends Consumer[String](queue) with UserMaker {
+  def consume(t: String) = index.add(makeUser(t))
+}
+
+// Let's pretend we have 8 cores on this machine.
+val cores = 8
+val pool = Executors.newFixedThreadPool(cores)
+
+// Submit one consumer per core.
+for (i <- i to cores) {
+  pool.submit(new IndexerConsumer[String](index, q))
+}
+</pre>
+
+----
+
+h1(#L11). Lesson 11
+
+h1. Using Scala from Java
+
+* Javap
+* Classes
+* Exceptions
+* Traits
+* Objects
+* Closures and Functions
+* Variance
+
+h2. Javap
+
+javap is a tool that ships with the JDK.  Not the JRE. There's a
+difference. Javap decompiles class definitions and shows you what's
+inside.  Usage is pretty simple
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
+Compiled from "Scalaisms.scala"
+public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
+    public abstract java.lang.String traitName();
+    public abstract java.lang.String upperTraitName();
+}
+</pre>
+
+If you're hardcore you can look at byte code
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap -c MyTrait\$class
+Compiled from "Scalaisms.scala"
+public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
+public static java.lang.String upperTraitName(com.twitter.interop.MyTrait);
+  Code:
+   0:	aload_0
+   1:	invokeinterface	#12,  1; //InterfaceMethod com/twitter/interop/MyTrait.traitName:()Ljava/lang/String;
+   6:	invokevirtual	#17; //Method java/lang/String.toUpperCase:()Ljava/lang/String;
+   9:	areturn
+
+public static void $init$(com.twitter.interop.MyTrait);
+  Code:
+   0:	return
+
+}
+</pre>
+
+If you start wondering why stuff doesn't work in Java land, reach for javap!
+
+h2. Classes
+
+The four major items to consider when using a Scala _class_ from
+Java are
+
+* Class parameters
+* Class vals
+* Class vars
+* Exceptions
+
+We'll construct a simple scala class to show the full range of
+entities
+
+<pre>
+package com.twitter.interop
+
+import java.io.IOException
+import scala.throws
+import scala.reflect.{BeanProperty, BooleanBeanProperty}
+
+class SimpleClass(name: String, val acc: String, @BeanProperty var mutable: String) {
+  val foo = "foo"
+  var bar = "bar"
+  @BeanProperty
+  val fooBean = "foobean"
+  @BeanProperty
+  var barBean = "barbean"
+  @BooleanBeanProperty
+  var awesome = true
+
+  def dangerFoo() = {
+    throw new IOException("SURPRISE!")
+  }
+
+  @throws(classOf[IOException])
+  def dangerBar() = {
+    throw new IOException("NO SURPRISE!")
+  }
+}
+</pre>
+
+h3. Class parameters
+
+* by default, class parameters are effectively constructor args in
+  Java land.  This means you can't access them outside the class.
+* declaring a class parameter as a val/var is the same as this code
+
+<pre>
+class SimpleClass(acc_: String) {
+  val acc = acc_
+}
+</pre>
+which makes it accessible from Java code just like other vals
+
+h3. Vals
+
+* vals get a method defined for access from Java. You can access the
+value of the val "foo" via the method "foo()"
+
+h3. Vars
+
+* vars get a method <name>_$eq defined.  You can call it like so
+
+<pre>
+foo$_eq("newfoo");
+</pre>
+
+h3. BeanProperty
+
+You can annotate vals and vars with the @BeanProperty annotation.
+This generates getters/setters that look like POJO getter/setter
+definitions. If you want the isFoo variant, use the
+BooleanBeanProperty annotation. The ugly foo$_eq becomes
+
+<pre>
+setFoo("newfoo");
+getFoo();
+</pre>
+
+
+h3. Exceptions
+
+Scala doesn't have checked exceptions. Java does. This is a
+philosophical debate we won't get into, but it *does* matter when you
+want to catch an exception in Java.  The definitions of dangerFoo and
+dangerBar demonstrate this. In Java I can't do this
+
+<pre>
+        // exception erasure!
+        try {
+            s.dangerFoo();
+        } catch (IOException e) {
+            // UGLY
+        }
+
+</pre>
+
+Java complains that the body of s.dangerFoo never throws
+IOException. We can hack around this by catching Throwable, but that's
+lame.
+
+Instead, as a good Scala citizen it's a decent idea to use the throws
+annotation like we did on dangerBar.  This allows us to continue using
+checked exceptions in Java land.
+
+h3. Further Reading
+
+A full list of Scala annotations for supporting Java interop can be
+found here http://www.scala-lang.org/node/106.
+
+h2. Traits
+
+How do you get an interface + implementation? Let's take a simple
+trait definition and look
+
+<pre>
+trait MyTrait {
+  def traitName:String
+  def upperTraitName = traitName.toUpperCase
+}
+</pre>
+
+This trait has one abstract method (traitName) and one implemented
+method (upperTraitName).  What does Scala generate for us? An
+interface named MyTrait, and a companion implementation named
+MyTrait$class.
+
+The implementation of MyTrait is what you'd expect
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
+Compiled from "Scalaisms.scala"
+public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
+    public abstract java.lang.String traitName();
+    public abstract java.lang.String upperTraitName();
+}
+</pre>
+
+The implementation of MyTrait$class is more interesting
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait\$class
+Compiled from "Scalaisms.scala"
+public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
+    public static java.lang.String upperTraitName(com.twitter.interop.MyTrait);
+    public static void $init$(com.twitter.interop.MyTrait);
+}
+</pre>
+
+MyTrait$class has only static methods that take an instance of
+MyTrait.  This gives us a clue as to how to extend a Trait in Java.
+
+Our first try is the following
+
+<pre>
+package com.twitter.interop;
+
+public class JTraitImpl implements MyTrait {
+    private String name = null;
+
+    public JTraitImpl(String name) {
+        this.name = name;
+    }
+
+    public String traitName() {
+        return name;
+    }
+}
+</pre>
+
+And we get the following error
+
+<pre>
+[info] Compiling main sources...
+[error] /Users/mmcbride/projects/interop/src/main/java/com/twitter/interop/JTraitImpl.java:3: com.twitter.interop.JTraitImpl is not abstract and does not override abstract method upperTraitName() in com.twitter.interop.MyTrait
+[error] public class JTraitImpl implements MyTrait {
+[error]        ^
+</pre>
+
+We _could_ just implement this ourselves.  But there's a sneakier way.
+
+<pre>
+package com.twitter.interop;
+
+    public String upperTraitName() {
+        return MyTrait$class.upperTraitName(this);
+    }
+</pre>
+
+We can just delegate this call to the generated Scala
+implementation. We can also override it if we want.
+
+h2. Objects
+
+Objects are the way Scala implements static methods/singletons. Using
+them from Java is a bit odd. There isn't a stylistically perfect way
+to use them, but in Scala 2.8 it's not terrible
+
+A Scala object is compiled to a class that has a trailing "$". Let's
+set up a class and a companion object
+
+<pre>
+class TraitImpl(name: String) extends MyTrait {
+  def traitName = name
+}
+
+object TraitImpl {
+  def apply = new TraitImpl("foo")
+  def apply(name: String) = new TraitImpl(name)
+}
+</pre>
+
+We can naïvely access this in Java like so
+
+<pre>
+MyTrait foo = TraitImpl$.MODULE$.apply("foo");
+</pre>
+
+Now you may be asking yourself, WTF? This is a valid response. Let's
+look at what's actually inside TraitImpl$
+
+<pre>
+local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
+Compiled from "Scalaisms.scala"
+public final class com.twitter.interop.TraitImpl$ extends java.lang.Object implements scala.ScalaObject{
+    public static final com.twitter.interop.TraitImpl$ MODULE$;
+    public static {};
+    public com.twitter.interop.TraitImpl apply();
+    public com.twitter.interop.TraitImpl apply(java.lang.String);
+}
+</pre>
+
+There actually aren't any static methods. Instead it has a static
+member named MODULE$. The method implementations delegate to this
+member. This makes access ugly, but workable if you know to use
+MODULE$.
+
+h3. Forwarding Methods
+
+In Scala 2.8 dealing with Objects got quite a bit easier. If you have
+a class with a companion object, the 2.8 compiler generates forwarding
+methods on the companion class. So if you built with 2.8, you can
+access methods in the TraitImpl Object like so
+
+<pre>
+MyTrait foo = TraitImpl.apply("foo");
+</pre>
+
+h2. Closures Functions
+
+One of Scala's most important features is the treatment of functions
+as first class citizens. Let's define a class that defines some
+methods that take functions as arguments.
+
+<pre>
+class ClosureClass {
+  def printResult[T](f: => T) = {
+    println(f)
+  }
+
+  def printResult[T](f: String => T) = {
+    println(f("HI THERE"))
+  }
+}
+</pre>
+
+In Scala I can call this like so
+
+<pre>
+val cc = new ClosureClass
+cc.printResult { "HI MOM" }
+</pre>
+
+In Java it's not so easy, but it's not terrible either.  Let's see
+what ClosureClass actually compiled to:
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
+Compiled from "Scalaisms.scala"
+public class com.twitter.interop.ClosureClass extends java.lang.Object implements scala.ScalaObject{
+    public void printResult(scala.Function0);
+    public void printResult(scala.Function1);
+    public com.twitter.interop.ClosureClass();
+}
+</pre>
+
+This isn't so scary. "f: => T" translates to "Function0", and
+"f: String => T" translates to "Function1". Scala actually defines
+Function0 through Function22, supporting this stuff up to 22
+arguments.  Which really should be enough.
+
+Now we just need to figure out how to get those things going in
+Java. Turns out Scala provides an AbstractFunction0 and an
+AbstractFunction1 we can pass in like so
+
+<pre>
+    @Test public void closureTest() {
+        ClosureClass c = new ClosureClass();
+        c.printResult(new AbstractFunction0() {
+                public String apply() {
+                    return "foo";
+                }
+            });
+        c.printResult(new AbstractFunction1<String, String>() {
+                public String apply(String arg) {
+                    return arg + "foo";
+                }
+            });
+    }
+</pre>
+
+Note that we can use generics to parameterize arguments.
+
+h2. Variance
+
+Java totally ignores this. It does carry through generics info, but
+variance is a Scala type checker thing. You're free to go all
+barbarian like Java lets you.
+
+h2. QUESTIONS??
