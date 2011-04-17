@@ -8,17 +8,16 @@ here. An emphasis will be placed on maintainability, clarity of
 expression, and leveraging the type system.
 
 
-A rough syllabus
+h3. Table of Contents
 
 # values, functions, classes, methods, inheritance, try-catch-finally. expression-oriented programming
-# traits, case classes, objects, packages, apply, update, Functions are Objects (uniform access principle)
-# higher-order functions, pattern matching, unapply, seq
-# the object model, relationship between classes and traits, linearization, overriding
-# functional combinators, for-comprehensions, Options
-# classes that extend Function, manifests, simple implicits
-# types: inference: show Hindley-Milner, give examples. doesn't devolve into Any everywhere.
-# types: parametrization, view bounds, rigid, covariant, contravariant, structural types
-# types: higher kinded types, type classes, existential.
-# interop: how to use Scala from Java
-
-Exercises
+# case classes, objects, packages, apply, update, Functions are Objects (uniform access principle), pattern matching
+# Lists, Maps, functional combinators: map, foreach, filter, zip, folds
+# More functions! PartialFunctions, more Pattern Matching
+# Basic Types, type inference, variance, bounds, quantification
+# Advanced Types, view bounds, higher-kinded types, recursive types, structural types
+# All about SBT
+# Tour of the Scala Collections library
+# Write tests with Specs, a BDD testing framework for Scala
+# Concurrent in Scala
+# Java/Scala interoperability
