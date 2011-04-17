@@ -16,7 +16,7 @@ h3. Table of Contents
 # More functions! PartialFunctions, more Pattern Matching
 # Basic Types, type inference, variance, bounds, quantification
 # Advanced Types, view bounds, higher-kinded types, recursive types, structural types
-# All about SBT
+# All about SBT, the standard Scala build tool.
 # Tour of the Scala Collections library
 # Write tests with Specs, a BDD testing framework for Scala
 # Concurrent in Scala
