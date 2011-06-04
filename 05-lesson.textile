@@ -252,13 +252,13 @@ scala> class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
 Recall that method arguments are contravariant, and so if we perform our substitution trick, using the same classes as before:
 
 <pre>
-class Node[B](x: Buffer[B]) { def sub(v: B): Node[B] = new Node(v) }
+class Node[B](x: B) { def sub(v: B): Node[B] = new Node(v) }
 </pre>
 
 is *not* a subtype of
 
 <pre>
-class Node[A](x: Seq[Int]) { def sub(v: A): Node[A] = new Node(v) }
+class Node[A](x: A) { def sub(v: A): Node[A] = new Node(v) }
 </pre>
 
 because A cannot be substituted for B in the argument of "sub". However, we can use lower bounding to enforce correctness.
