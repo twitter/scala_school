@@ -239,7 +239,7 @@ In the JVM, you can synchronize on any instance that's not null.
 <pre>
 class Person(var name: String) {
   def set(changedName: String) {
-    name.synchronized {
+    this.synchronized {
       name = changedName
     }
   }
