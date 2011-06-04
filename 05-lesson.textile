@@ -319,12 +319,6 @@ scala> def drop1(l: List[T forSome { type T }]) = l.tail
 drop1: (l: List[T forSome { type T }])List[T forSome { type T }]
 </pre>
 
-<pre>
-scala> def drop1[](l: List[T forSome { type T }]) = l.tail
-drop1: (l: List[T forSome { type T }])List[T forSome { type T }]
-</pre>
-
-
 We can't say anything about T because the type does not allow it.
 
 You may also apply bounds to wildcard type variables:
