@@ -233,7 +233,7 @@ import org.specs.matcher.Matcher
 </pre>
 
 The contract is to return a tuple containing whether the expectation
-is true, and a mess for when it is and isn't true.
+is true, and a message for when it is and isn't true.
 
 
 h4. As a case class
