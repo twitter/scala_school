@@ -374,11 +374,11 @@ res0: Option[Int] = Some(2)
 scala> numbers.getOrElseUpdate(2, 3)
 res54: Int = 3
 
-scala> res52
+scala> numbers
 res55: scala.collection.mutable.Map[Int,Int] = Map((2,3), (1,2))
 
-scala> res52 += (4 -> 1)
-res56: res52.type = Map((2,3), (4,1), (1,2))
+scala> numbers += (4 -> 1)
+res56: numbers.type = Map((2,3), (4,1), (1,2))
 </pre>
 
 h3. ListBuffer and ArrayBuffer
