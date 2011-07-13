@@ -122,7 +122,7 @@ h4. Extractor methods
 You can't easily pattern match on regular classes like you can on case classes.
 
 <pre>
-scala> class User(username: String, password: String, userid: Int)
+scala> class User(val username: String, val password: String, val userid: Int)
 defined class User
 
 scala> val stevej = new User("stevej", "1234", 150)

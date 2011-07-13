@@ -115,7 +115,7 @@ In scala all type inference is _local_.  For example:
 scala> def id[T](x: T) = x
 id: [T](x: T)T
 
-scala> val x = id(322) 
+scala> val x = id(322)
 x: Int = 322
 
 scala> val x = id("hey")
@@ -153,7 +153,7 @@ scala> val cv: Covariant[String] = new Covariant[AnyRef]
 </pre>
 
 <pre>
-scala> class Contravariant[-A]                          
+scala> class Contravariant[-A]
 defined class Contravariant
 
 scala> val cv: Contravariant[String] = new Contravariant[AnyRef]
@@ -176,7 +176,7 @@ trait Function1 [-T1, +R] extends AnyRef
 If you think about this from the point of view of substitution, it makes a lot of sense. Let's first define a simple class hierarchy:
 
 <pre>
-scala> class A  
+scala> class A
 defined class A
 
 scala> class B extends A
@@ -216,20 +216,20 @@ h3. Bounds
 Scala allows you to restrict polymorphic variables using _bounds_. These bounds express subtype relationships.
 
 <pre>
-scala> class F { def foo = "F" }                               
+scala> class F { def foo = "F" }
 defined class F
 
 scala> class E extends F { override def foo = "E" }
 defined class E
 
-scala> def callFoo[T](foos: Seq[T]) = foos map (_.foo) foreach println     
+scala> def callFoo[T](foos: Seq[T]) = foos map (_.foo) foreach println
 <console>:8: error: value foo is not a member of type parameter T
        def callFoo[T](foos: Seq[T]) = foos map (_.foo) foreach println
 
 scala> def callFoo[T <: F](foos: Seq[T]) = foos map (_.foo) foreach println
 callFoo: [T <: F](foos: scala.collection.mutable.Seq[T])Unit
 
-scala> callFoo(Seq(new E, new F))                                          
+scala> callFoo(Seq(new E, new F))
 E
 F
 </pre>
@@ -270,7 +270,7 @@ defined class Node
 scala> (new Node(new B)).sub(new B)
 res5: Node[B] = Node@4efade06
 
-scala> ((new Node(new B)).sub(new B)).sub(new A)           
+scala> ((new Node(new B)).sub(new B)).sub(new A)
 res6: Node[A] = Node@1b2b2f7f
 
 scala> ((new Node(new B)).sub(new B)).asInstanceOf[Node[C]]
@@ -288,35 +288,35 @@ Sometimes you do not care to be able to name a type variable, for example:
 
 <pre>
 scala> def count[A](l: List[A]) = l.size
-count: [A](l: List[A])Int
+count: [A](List[A])Int
 </pre>
 
 Instead you can use "wildcards":
 
 <pre>
 scala> def count(l: List[_]) = l.size
-count: [A](l: List[A])Int
+count: (List[_])Int
 </pre>
 
 This is shorthand for:
 
 <pre>
 scala> def count(l: List[T forSome { type T }]) = l.size
-count: (l: List[T forSome { type T }])Int
+count: (List[T forSome { type T }])Int
 </pre>
 
 Note that quantification can get tricky:
 
 <pre>
 scala> def drop1(l: List[_]) = l.tail
-drop1: (l: List[_])List[Any]
+drop1: (List[_])List[Any]
 </pre>
 
 Suddenly we lost type information! To see what's going on, revert to the heavy-handed syntax:
 
 <pre>
 scala> def drop1(l: List[T forSome { type T }]) = l.tail
-drop1: (l: List[T forSome { type T }])List[T forSome { type T }]
+drop1: (List[T forSome { type T }])List[T forSome { type T }]
 </pre>
 
 We can't say anything about T because the type does not allow it.
@@ -325,7 +325,7 @@ You may also apply bounds to wildcard type variables:
 
 <pre>
 scala> def hashcodes(l: Seq[_ <: AnyRef]) = l map (_.hashCode)
-hashcodes: (l: Seq[_ <: AnyRef])Seq[Int]
+hashcodes: (Seq[_ <: AnyRef])Seq[Int]
 
 scala> hashcodes(Seq(1,2,3))
 <console>:7: error: type mismatch;
