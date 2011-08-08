@@ -10,7 +10,7 @@ Today we'll cover
 * Structural types
 * Abstract types members
 * Type erasures & manifests
-* Case study: Thrust
+* Case study: Finagle
 
 h3. View bounds ("type classes")
 
@@ -309,32 +309,38 @@ scala> (new MakeFoo[String]).make
 res10: String = 
 </pre>
 
-h3. Case study: Thrust
+h3. Case study: Finagle
 
-See: https://github.com/twitter/thrust
+See: https://github.com/twitter/finagle
 
 <pre>
-trait Service[-R <: Request] extends ((R, Response) => Unit)
+trait Service[-Req, +Rep] extends (Req => Future[Rep])
 
-trait Filter[-R1 <: Request, +R2 <: Request] {
-  def apply(request: R1, response: Response, service: Service[R2])
-
-  def andThen(that: Service[R2]) = new Service[R1] {
-    def apply(request: R1, response: Response) {
-      Filter.this(request, response, that)
+trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
+  extends ((ReqIn, Service[ReqOut, RepIn]) => Future[RepOut])
+{
+  def andThen[Req2, Rep2](next: Filter[ReqOut, RepIn, Req2, Rep2]) =
+    new Filter[ReqIn, RepOut, Req2, Rep2] {
+      def apply(request: ReqIn, service: Service[Req2, Rep2]) = {
+        Filter.this.apply(request, new Service[ReqOut, RepIn] {
+          def apply(request: ReqOut): Future[RepIn] = next(request, service)
+          override def release() = service.release()
+          override def isAvailable = service.isAvailable
+        })
+      }
     }
-  }
+    
+  def andThen(service: Service[ReqOut, RepIn]) = new Service[ReqIn, RepOut] {
+    private[this] val refcounted = new RefcountedService(service)
 
-  def andThen[R3 <: Request](that: Filter[R2, R3]) = new Filter[R1, R3] {
-    def apply(request: R1, response: Response, service: Service[R3]) =
-      Filter.this(request, response, new Service[R2] {
-        def apply(req: R2, res: Response) = that(req, res, service)
-      })
-  }
+    def apply(request: ReqIn) = Filter.this.apply(request, refcounted)
+    override def release() = refcounted.release()
+    override def isAvailable = refcounted.isAvailable
+  }    
 }
 </pre>
 
-In Woodstar, credentials are added to requests as follows:
+An may authenticate requests with a filter.
 
 <pre>
 trait RequestWithCredentials extends Request {
@@ -342,20 +348,22 @@ trait RequestWithCredentials extends Request {
 }
 
 class CredentialsFilter(credentialsParser: CredentialsParser)
-  extends Filter[Request, RequestWithCredentials]
+  extends Filter[Request, Response, RequestWithCredentials, Response]
 {
-  def apply(request: Request, response: Response, service: Service[RequestWithCredentials]) {
+  def apply(request: Request, service: Service[RequestWithCredentials, Response]): Future[Response] = {
     val requestWithCredentials = new RequestWrapper with RequestWithCredentials {
       val underlying = request
       val credentials = credentialsParser(request) getOrElse NullCredentials
     }
 
-    service(requestWithCredentials, response)
+    service(requestWithCredentials)
   }
 }
 </pre>
 
-These can now be composed:
+Note how the underlying service requires an authenticated request, and that this is statically verified. Filters can thus be thought of as service transformers.
+
+Many filters can be composed together:
 
 <pre>
 val upFilter =
