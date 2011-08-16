@@ -186,7 +186,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 h3. Overloading methods
 
 <pre>
-class EvenMoreScientificCalculator(brand: String) extends Calculator(brand) {
+class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
   def log(m: Int) = log(m, math.exp(1))
 }
 </pre>
