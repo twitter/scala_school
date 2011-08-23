@@ -1,3 +1,10 @@
+---
+permalink: collections.html
+title: Collections
+layout: default
+desc: Covers basic collections
+---
+
 h1. Lesson 3
 
 Today we'll cover:

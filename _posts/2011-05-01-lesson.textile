@@ -1,3 +1,10 @@
+---
+permalink: basics.html
+title: Basics
+layout: default
+desc: Covers basics of scala
+---
+
 h1. Lesson 1
 
 Today we'll cover:

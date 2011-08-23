@@ -1,3 +1,11 @@
+---
+permalink: pattern-matching-and-functional-composition.html
+title: Pattern matching & functional composition
+layout: default
+desc: More advanced functional stuff.
+---
+
+
 h1. Lesson 4
 
 h2. Advanced Pattern Matching and Functional Composition

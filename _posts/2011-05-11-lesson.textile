@@ -1,3 +1,10 @@
+---
+permalink: java.html
+title: Java + Scala
+layout: default
+desc: Using Scala from Java
+---
+
 h1. Lesson 11
 
 h1. Using Scala from Java

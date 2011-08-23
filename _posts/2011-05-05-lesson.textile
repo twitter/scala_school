@@ -1,3 +1,10 @@
+---
+permalink: type-basics.html
+title: Type & polymorphism basics
+layout: default
+desc: Typing & polymorphism
+---
+
 h1. Lesson 5
 
 h2. Type Basics

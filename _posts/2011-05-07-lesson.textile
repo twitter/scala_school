@@ -1,3 +1,9 @@
+---
+permalink: sbt.html
+title: Simple Build Tool
+layout: default
+desc: The (not so) simple build tool
+---
 h1. Lesson 7
 
 Today we'll cover SBT! Specific topics include:

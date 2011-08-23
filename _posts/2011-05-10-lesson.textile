@@ -1,3 +1,11 @@
+---
+permalink: concurrency.html
+title: Concurrency in Scala
+layout: default
+desc: Concurrency
+---
+
+
 h1. Lesson 10
 
 h1. Concurrency in Scala

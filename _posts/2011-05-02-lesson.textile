@@ -1,3 +1,10 @@
+---
+permalink: basics2.html
+title: Basics2
+layout: default
+desc: More basics - functional
+---
+
 h1. Lesson 2
 
 Today we'll cover:

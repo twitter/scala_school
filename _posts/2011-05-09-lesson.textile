@@ -1,3 +1,10 @@
+---
+permalink: specs.html
+title: Testing with specs
+layout: default
+desc: Testing with specs
+---
+
 h1. Lesson 9
 
 

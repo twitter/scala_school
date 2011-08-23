@@ -1,3 +1,11 @@
+---
+permalink: type-contd.html
+title: Types - continued
+layout: default
+desc: More types
+---
+
+
 h1. Lesson 6
 
 h2. Types (Cont'd)

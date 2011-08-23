@@ -1,3 +1,8 @@
+---
+layout: default
+title: Overview
+---
+
 h1. Overview
 
 We think it makes the most sense to approach teaching Scala not as if

@@ -1,0 +1,28 @@
+---
+layout: default
+title: Scala School
+---
+
+      <div class="hero-unit">
+        <h1>Scala School!</h1>
+        <p>From 0 to Distributed Service</p>
+        <p><a class="btn primary large">Learn more &raquo;</a></p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span6">
+          <h2>Heading</h2>
+          <p>Etiam porta sem malesuada magna mollis euismod. Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit.</p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+        </div>
+        <div class="span10">
+          <h2>Lessons</h2>
+            {% for post in site.posts reversed %}
+              <p><a class="btn" href="{{ post.url }}">{{ post.title }}</a> {{ post.desc }}</p>
+            {% endfor %}
+       </div>
+      </div>
+    </div> <!-- /container -->
+  </body>
+</html>
