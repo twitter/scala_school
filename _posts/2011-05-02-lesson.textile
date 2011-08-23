@@ -1,6 +1,6 @@
 ---
 permalink: basics2.html
-title: Basics yes?
+title: Basics continued
 layout: post
 desc: Case classes, objects, packages, apply, update, Functions are Objects (uniform access principle), pattern matching.
 ---

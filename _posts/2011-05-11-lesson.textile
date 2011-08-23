@@ -2,7 +2,7 @@
 permalink: java.html
 title: Java + Scala
 layout: post
-desc: Using Scala from Java
+desc: 'Java interop: Using Scala from Java'
 ---
 
 h1. Lesson 11
