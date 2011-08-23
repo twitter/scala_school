@@ -1,7 +1,7 @@
 _site/
 .DS_Store
-**/project/boot/
-**/project/plugins/project/
-**/project/plugins/src_managed/
-**/lib_managed
-**/target
+searchbird/project/boot
+searchbird/project/plugins/project/
+searchbird/project/plugins/src_managed/
+lib_managed/
+target/

@@ -17,10 +17,11 @@ JAR_NAME="$APP_NAME-$VERSION.jar"
 STAGE="production"
 
 HEAP_OPTS="-Xmx4096m -Xms4096m -XX:NewSize=768m"
-GC_OPTS="-verbosegc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+UseConcMarkSweepGC -XX:+UseParNewGC"
+GC_OPTS="-XX:+UseParallelOldGC -XX:+UseAdaptiveSizePolicy -XX:MaxGCPauseMillis=1000 -XX:GCTimeRatio=99"
+GC_LOG_OPTS="-XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -XX:+PrintTenuringDistribution -XX:+PrintHeapAtGC"
 GC_LOG="-Xloggc:/var/log/$APP_NAME/gc.log"
 DEBUG_OPTS="-XX:ErrorFile=/var/log/$APP_NAME/java_error%p.log"
-JAVA_OPTS="-server -Dstage=$STAGE $GC_OPTS $GC_LOG $HEAP_OPTS $DEBUG_OPTS"
+JAVA_OPTS="-server -Dstage=$STAGE $GC_OPTS $GC_LOG_OPTS $GC_LOG $HEAP_OPTS $DEBUG_OPTS"
 
 pidfile="/var/run/$APP_NAME/$APP_NAME.pid"
 daemon_pidfile="/var/run/$APP_NAME/$APP_NAME-daemon.pid"
@@ -64,7 +65,7 @@ case "$1" in
       echo "already running."
       exit 0
     fi
-    
+
     ulimit -c unlimited || echo -n " (no coredump)"
     $DAEMON $daemon_args $daemon_start_args -- sh -c "echo "'$$'" > $pidfile; exec ${JAVA_HOME}/bin/java ${JAVA_OPTS} -jar ${APP_HOME}/${JAR_NAME}"
     tries=0
@@ -86,7 +87,7 @@ case "$1" in
       exit 0
     fi
 
-    curl -s http://localhost:${ADMIN_PORT}/shutdown.txt > /dev/null
+    curl -m 5 -s http://localhost:${ADMIN_PORT}/shutdown.txt > /dev/null
     tries=0
     while running; do
       tries=$((tries + 1))
@@ -112,7 +113,7 @@ case "$1" in
     done
     echo "done."
   ;;
-  
+
   status)
     if running; then
       echo "$APP_NAME is running."

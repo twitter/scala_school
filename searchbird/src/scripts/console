@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-$: << File.dirname(__FILE__) + "/../../target/gen-rb"
+$: << File.dirname(__FILE__) + "/../../../target/gen-rb"
 
 require "rubygems"
 require "bundler/setup"

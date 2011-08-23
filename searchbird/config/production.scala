@@ -5,9 +5,9 @@ import com.twitter.searchbird.config._
 
 // production mode.
 new SearchbirdServiceConfig {
-	
+
   // Add your own config here
-  
+
   // Where your service will be exposed.
   thriftPort = 9999
 
@@ -15,7 +15,7 @@ new SearchbirdServiceConfig {
   admin.httpPort = 9900
 
   // End user configuration
-  
+
   // Expert-only: Ostrich stats and logger configuration.
   admin.statsNodes = new StatsConfig {
     reporters = new JsonStatsLoggerConfig {

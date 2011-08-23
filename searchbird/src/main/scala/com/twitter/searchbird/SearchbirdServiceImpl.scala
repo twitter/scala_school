@@ -8,23 +8,24 @@ import config._
 class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdServiceServer {
   val serverName = "Searchbird"
   val thriftPort = config.thriftPort
-  
+
   /**
-   * These services are based on finagle, which implements a nonblocking server.  If you 
+   * These services are based on finagle, which implements a nonblocking server.  If you
    * are making blocking rpc calls, it's really important that you run these actions in
    * a thread pool, so that you don't block the main event loop.  This thread pool is only
    * needed for these blocking actions.  The code looks like:
    *
    *     // Depends on com.twitter.util >= 1.6.10
    *     val futurePool = new FuturePool(Executors.newFixedThreadPool(config.threadPoolSize))
-   * 
+   *
    *     def hello() = futurePool {
    *       someService.blockingRpcCall
    *     }
-   * 
-   */   
+   *
+   */
 
-  val database = new mutable.HashMap[String, String]()  
+  val database = new mutable.HashMap[String, String]
+    with mutable.SynchronizedMap[String, String]
 
   def get(key: String) = {
     database.get(key) match {
