@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{{ page.title }}</title>
+    <title>Scala School - {{ page.title }}</title>
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -17,6 +17,23 @@
   </head>
 
   <body>
+  
+    <div class="topbar">
+      <div class="fill">
+        <div class="container fixed">
+          <h3><a href="index.html">{{ page.title }}</a></h3>
+          <ul class="nav secondary-nav">
+            {% if page.previous.url %}
+              <li><a href="{{ page.previous.url }}">&laquo;Previous</a></li>
+            {% endif %}
+            {% if page.next.url %}
+              <li><a href="{{ page.next.url }}">Next&raquo;</a></li>
+            {% endif %}
+          </ul>
+
+        </div>
+      </div>
+    </div>
 
     <div class="container">
     
@@ -34,7 +51,6 @@
         </div>
       </div>
     </div>
-
 
   </body>
 </html>

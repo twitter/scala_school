@@ -1,8 +1,8 @@
 ---
 permalink: sbt.html
 title: Simple Build Tool
-layout: default
-desc: The (not so) simple build tool
+layout: post
+desc: All about SBT, the standard Scala build tool
 ---
 h1. Lesson 7
 

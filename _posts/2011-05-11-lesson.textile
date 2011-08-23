@@ -1,7 +1,7 @@
 ---
 permalink: java.html
 title: Java + Scala
-layout: default
+layout: post
 desc: Using Scala from Java
 ---
 

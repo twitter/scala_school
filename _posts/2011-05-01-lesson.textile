@@ -1,8 +1,8 @@
 ---
 permalink: basics.html
 title: Basics
-layout: default
-desc: Covers basics of scala
+layout: post
+desc: Values, functions, classes, methods, inheritance, try-catch-finally. Expression-oriented programming
 ---
 
 h1. Lesson 1

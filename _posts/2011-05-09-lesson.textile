@@ -1,8 +1,8 @@
 ---
 permalink: specs.html
 title: Testing with specs
-layout: default
-desc: Testing with specs
+layout: post
+desc: Write tests with Specs, a BDD testing framework for Scala
 ---
 
 h1. Lesson 9

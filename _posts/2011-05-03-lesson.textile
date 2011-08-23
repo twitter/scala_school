@@ -1,8 +1,8 @@
 ---
 permalink: collections.html
 title: Collections
-layout: default
-desc: Covers basic collections
+layout: post
+desc: Lists, Maps, functional combinators (map, foreach, filter, zip, folds)
 ---
 
 h1. Lesson 3

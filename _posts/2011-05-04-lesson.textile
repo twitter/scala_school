@@ -1,8 +1,8 @@
 ---
 permalink: pattern-matching-and-functional-composition.html
 title: Pattern matching & functional composition
-layout: default
-desc: More advanced functional stuff.
+layout: post
+desc: More functions! PartialFunctions, more Pattern Matching
 ---
 
 

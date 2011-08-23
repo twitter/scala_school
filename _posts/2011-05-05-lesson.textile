@@ -1,8 +1,8 @@
 ---
 permalink: type-basics.html
 title: Type & polymorphism basics
-layout: default
-desc: Typing & polymorphism
+layout: post
+desc: Basic Types and type polymorphism, type inference, variance, bounds, quantification
 ---
 
 h1. Lesson 5

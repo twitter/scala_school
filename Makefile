@@ -1,4 +1,7 @@
 all:
 	jekyll
+	
+serve:
+	jekyll --serve --auto
 
-.PHONY: all
+.PHONY: all serve

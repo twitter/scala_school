@@ -1,10 +1,9 @@
 ---
 permalink: concurrency.html
 title: Concurrency in Scala
-layout: default
-desc: Concurrency
+layout: post
+desc: Runnable, callable, threads, Futures, Twitter Futures
 ---
-
 
 h1. Lesson 10
 

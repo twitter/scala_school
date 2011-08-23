@@ -1,8 +1,8 @@
 ---
 permalink: coll2.html
 title: More collections
-layout: default
-desc: Advanced scala collections.
+layout: post
+desc: Tour of the Scala Collections library
 ---
 
 h1. Lesson 8

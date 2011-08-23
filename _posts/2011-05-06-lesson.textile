@@ -1,8 +1,8 @@
 ---
-permalink: type-contd.html
-title: Types - continued
-layout: default
-desc: More types
+permalink: advanced-types.html
+title: Advanced types
+layout: post
+desc: Advanced Types, view bounds, higher-kinded types, recursive types, structural types
 ---
 
 
