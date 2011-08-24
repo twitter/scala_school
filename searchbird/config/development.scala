@@ -6,13 +6,19 @@ import com.twitter.searchbird.config._
 // development mode.
 new SearchbirdServiceConfig {
 
+  shards = Seq(
+    "localhost:9000",
+    "localhost:9001",
+    "localhost:9002"
+  )
+
   // Add your own config here
 
   // Where your service will be exposed.
   thriftPort = 9999
 
   // Ostrich http admin port.  Curl this for stats, etc
-  admin.httpPort = 9900
+  // admin.httpPort = 9900
 
   // End user configuration
 
