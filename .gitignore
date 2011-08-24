@@ -1,4 +1,4 @@
-_site/
+web.out/
 .DS_Store
 searchbird/project/boot
 searchbird/project/plugins/project/
