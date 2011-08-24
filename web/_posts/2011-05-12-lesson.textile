@@ -5,9 +5,9 @@ layout: post
 desc: Building a distributed search engine using Finagle
 ---
 
-Start the project:
+We're going to build a very simple distributed search engine using "Finagle":http://github.com/twitter/finagle. First, create a skeleton project using "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper
 
-Exploring a scala service. Creates a simple k/v store.
+<code>scala-bootstrapper</code> will create a very simple finagle based scala service that exports an in-memory key-value store. We'll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.
 
 <pre>
 $ mkdir searchbird; cd searchbird
@@ -33,11 +33,7 @@ $ find . -type f
 ./src/test/scala/com/twitter/searchbird/SearchbirdServiceSpec.scala
 </pre>
 
-This creates 
-
-* Change finagle & util to latest versions (1.8.3, 1.11.2 at the time of writing)
-
-h2. Exploring the default bootstrapper project
+h3. Exploring the default bootstrapper project
 
 Let's first explore the default project <code>scala-bootstrapper</code> creates for us. This is meant as a template. You'll end up substituting most of it, but it serves as a convenient scaffold. It defines a simple (but complete) key-value store. Configuration, a thrift interface, stats export and logging are all included.
 
