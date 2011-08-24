@@ -210,14 +210,13 @@ h5. src/main/thrift/searchbird.thrift
 service SearchbirdService {
   string get(1: string key) throws(1: SearchbirdException ex)
   void put(1: string key, 2: string value)
-  list<string> search(1: string query)adsf
+  list<string> search(1: string query)
 }
 </pre>
 
 We've added a <code>search</code> method that searches the current hashtable, returning the list of keys whose values match the query. The implementation is also straightforward:
 
 h5. …/SearchbirdServiceImpl.scala
-
 
 
 
