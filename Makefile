@@ -1,7 +1,8 @@
 all:
-	jekyll
-	
+	jekyll web web.out
+
 serve:
-	jekyll --serve --auto
+	jekyll --serve --auto web web.out
+
 
 .PHONY: all serve

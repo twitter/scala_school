@@ -1,2 +1,9 @@
-_site/
+web.out/
 .DS_Store
+searchbird/project/boot
+searchbird/project/plugins/project/
+searchbird/project/plugins/src_managed/
+searchbird/*.log
+searchbird/*.lock
+lib_managed/
+target/

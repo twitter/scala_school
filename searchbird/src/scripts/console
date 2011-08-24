@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+$: << File.dirname(__FILE__) + "/../../target/gen-rb"
+
+require "rubygems"
+require "bundler/setup"
+
+require "thrift"
+require "thrift_client"
+require "searchbird_service"
+require "irb"
+
+class SearchbirdClient < ThriftClient
+  DEFAULTS = { :transport_wrapper => Thrift::FramedTransport }
+  def initialize(servers = nil, options = {})
+    if servers.nil? or servers.empty?
+      STDERR.puts "No servers specified, using 127.0.0.1:9999"
+      servers = ['127.0.0.1:9999']
+    else
+      servers = Array(servers)
+    end
+
+    super(Searchbird::SearchbirdService::Client, servers, DEFAULTS.merge(options))
+  end
+end
+
+puts "Hint: the client is in the variable `$client`"
+$client = SearchbirdClient.new ARGV.shift
+
+IRB.start
