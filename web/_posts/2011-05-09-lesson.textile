@@ -5,10 +5,7 @@ layout: post
 desc: Write tests with Specs, a BDD testing framework for Scala
 ---
 
-h1. Lesson 9
-
-
-Today we will cover testing with Specs, a BDD Framework for Scala.
+This lesson covers testing with Specs, a BDD Framework for Scala.
 
 * Contexts
 ** nested examples
@@ -56,14 +53,12 @@ h2. Let's break this down
 
 @mustEqual@ indicates an *expectation*
 
-@1 mustEqual 1@ is a common placeholder *expectation* before you start
-writing real tests. All examples should have at least one expectation.
+@1 mustEqual 1@ is a common placeholder *expectation* before you start writing real tests.  All examples should have at least one expectation.
 
 
 h2. Duplication
 
-Notice how two tests both have @add@ in their name? We can get rid of
-that by *nesting* expectations.
+Notice how two tests both have @add@ in their name?  We can get rid of that by *nesting* expectations.
 
 <pre>
 import org.specs._
@@ -239,9 +234,7 @@ import org.specs.matcher.Matcher
 }
 </pre>
 
-The contract is to return a tuple containing whether the expectation
-is true, and a message for when it is and isn't true.
-
+The contract is to return a tuple containing whether the expectation is true, and a message for when it is and isn't true.
 
 h4. As a case class
 
@@ -279,8 +272,7 @@ object MockExampleSpec extends Specification with Mockito {
 
 h3. Spies
 
-Spies can also be used in order to do some "partial mocking" of real
-objects:
+Spies can also be used in order to do some "partial mocking" of real objects:
 
 <pre>
 val list = new LinkedList[String]

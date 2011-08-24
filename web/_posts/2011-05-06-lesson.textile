@@ -5,12 +5,7 @@ layout: post
 desc: Advanced Types, view bounds, higher-kinded types, recursive types, structural types
 ---
 
-
-h1. Lesson 6
-
-h2. Types (Cont'd)
-
-Today we'll cover
+This lesson covers:
 
 * View bounds ("type classes")
 * Higher kinded types & ad-hoc polymorphism

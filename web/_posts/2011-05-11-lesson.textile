@@ -5,9 +5,7 @@ layout: post
 desc: 'Java interop: Using Scala from Java'
 ---
 
-h1. Lesson 11
-
-h1. Using Scala from Java
+This lesson covers Java interoperability.
 
 * Javap
 * Classes
@@ -19,9 +17,7 @@ h1. Using Scala from Java
 
 h2. Javap
 
-javap is a tool that ships with the JDK.  Not the JRE. There's a
-difference. Javap decompiles class definitions and shows you what's
-inside.  Usage is pretty simple
+javap is a tool that ships with the JDK.  Not the JRE.  There's a difference.  Javap decompiles class definitions and shows you what's inside.  Usage is pretty simple
 
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
@@ -56,16 +52,15 @@ If you start wondering why stuff doesn't work in Java land, reach for javap!
 
 h2. Classes
 
-The four major items to consider when using a Scala _class_ from
-Java are
+The four major items to consider when using a Scala _class_ from Java are
 
 * Class parameters
 * Class vals
 * Class vars
 * Exceptions
 
-We'll construct a simple scala class to show the full range of
-entities
+We'll construct a simple scala class to show the full range of entities
+
 
 <pre>
 package com.twitter.interop
@@ -97,8 +92,7 @@ class SimpleClass(name: String, val acc: String, @BeanProperty var mutable: Stri
 
 h3. Class parameters
 
-* by default, class parameters are effectively constructor args in
-  Java land.  This means you can't access them outside the class.
+* by default, class parameters are effectively constructor args in Java land.  This means you can't access them outside the class.
 * declaring a class parameter as a val/var is the same as this code
 
 <pre>
@@ -110,8 +104,7 @@ which makes it accessible from Java code just like other vals
 
 h3. Vals
 
-* vals get a method defined for access from Java. You can access the
-value of the val "foo" via the method "foo()"
+* vals get a method defined for access from Java.  You can access the value of the val "foo" via the method "foo()"
 
 h3. Vars
 
@@ -123,10 +116,7 @@ foo$_eq("newfoo");
 
 h3. BeanProperty
 
-You can annotate vals and vars with the @BeanProperty annotation.
-This generates getters/setters that look like POJO getter/setter
-definitions. If you want the isFoo variant, use the
-BooleanBeanProperty annotation. The ugly foo$_eq becomes
+You can annotate vals and vars with the @BeanProperty annotation.  This generates getters/setters that look like POJO getter/setter definitions.  If you want the isFoo variant, use the BooleanBeanProperty annotation.  The ugly foo$_eq becomes
 
 <pre>
 setFoo("newfoo");
@@ -136,10 +126,7 @@ getFoo();
 
 h3. Exceptions
 
-Scala doesn't have checked exceptions. Java does. This is a
-philosophical debate we won't get into, but it *does* matter when you
-want to catch an exception in Java.  The definitions of dangerFoo and
-dangerBar demonstrate this. In Java I can't do this
+Scala doesn't have checked exceptions.  Java does.  This is a philosophical debate we won't get into, but it *does* matter when you want to catch an exception in Java.  The definitions of dangerFoo and dangerBar demonstrate this.  In Java I can't do this
 
 <pre>
         // exception erasure!
@@ -151,23 +138,18 @@ dangerBar demonstrate this. In Java I can't do this
 
 </pre>
 
-Java complains that the body of s.dangerFoo never throws
-IOException. We can hack around this by catching Throwable, but that's
-lame.
+Java complains that the body of s.dangerFoo never throws IOException.  We can hack around this by catching Throwable, but that's lame.
 
-Instead, as a good Scala citizen it's a decent idea to use the throws
-annotation like we did on dangerBar.  This allows us to continue using
-checked exceptions in Java land.
+Instead, as a good Scala citizen it's a decent idea to use the throws annotation like we did on dangerBar.  This allows us to continue using checked exceptions in Java land.
 
 h3. Further Reading
 
-A full list of Scala annotations for supporting Java interop can be
-found here http://www.scala-lang.org/node/106.
+A full list of Scala annotations for supporting Java interop can be found here http://www.scala-lang.org/node/106.
 
 h2. Traits
 
-How do you get an interface + implementation? Let's take a simple
-trait definition and look
+How do you get an interface + implementation?  Let's take a simple trait definition and look
+
 
 <pre>
 trait MyTrait {
@@ -176,10 +158,7 @@ trait MyTrait {
 }
 </pre>
 
-This trait has one abstract method (traitName) and one implemented
-method (upperTraitName).  What does Scala generate for us? An
-interface named MyTrait, and a companion implementation named
-MyTrait$class.
+This trait has one abstract method (traitName) and one implemented method (upperTraitName).  What does Scala generate for us?  An interface named MyTrait, and a companion implementation named MyTrait$class.
 
 The implementation of MyTrait is what you'd expect
 
@@ -203,8 +182,7 @@ public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object
 }
 </pre>
 
-MyTrait$class has only static methods that take an instance of
-MyTrait.  This gives us a clue as to how to extend a Trait in Java.
+MyTrait$class has only static methods that take an instance of MyTrait.  This gives us a clue as to how to extend a Trait in Java.
 
 Our first try is the following
 
@@ -243,17 +221,13 @@ package com.twitter.interop;
     }
 </pre>
 
-We can just delegate this call to the generated Scala
-implementation. We can also override it if we want.
+We can just delegate this call to the generated Scala implementation.  We can also override it if we want.
 
-h2. Objects
+h2.  Objects
 
-Objects are the way Scala implements static methods/singletons. Using
-them from Java is a bit odd. There isn't a stylistically perfect way
-to use them, but in Scala 2.8 it's not terrible
+Objects are the way Scala implements static methods/singletons.  Using them from Java is a bit odd.  There isn't a stylistically perfect way to use them, but in Scala 2.8 it's not terrible
 
-A Scala object is compiled to a class that has a trailing "$". Let's
-set up a class and a companion object
+A Scala object is compiled to a class that has a trailing "$".  Let's set up a class and a companion object
 
 <pre>
 class TraitImpl(name: String) extends MyTrait {
@@ -272,8 +246,7 @@ We can naïvely access this in Java like so
 MyTrait foo = TraitImpl$.MODULE$.apply("foo");
 </pre>
 
-Now you may be asking yourself, WTF? This is a valid response. Let's
-look at what's actually inside TraitImpl$
+Now you may be asking yourself, WTF?  This is a valid response.  Let's look at what's actually inside TraitImpl$
 
 <pre>
 local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
@@ -286,17 +259,11 @@ public final class com.twitter.interop.TraitImpl$ extends java.lang.Object imple
 }
 </pre>
 
-There actually aren't any static methods. Instead it has a static
-member named MODULE$. The method implementations delegate to this
-member. This makes access ugly, but workable if you know to use
-MODULE$.
+There actually aren't any static methods.  Instead it has a static member named MODULE$.  The method implementations delegate to this member.  This makes access ugly, but workable if you know to use MODULE$.
 
-h3. Forwarding Methods
+h3.  Forwarding Methods
 
-In Scala 2.8 dealing with Objects got quite a bit easier. If you have
-a class with a companion object, the 2.8 compiler generates forwarding
-methods on the companion class. So if you built with 2.8, you can
-access methods in the TraitImpl Object like so
+In Scala 2.8 dealing with Objects got quite a bit easier.  If you have a class with a companion object, the 2.8 compiler generates forwarding methods on the companion class.  So if you built with 2.8, you can access methods in the TraitImpl Object like so
 
 <pre>
 MyTrait foo = TraitImpl.apply("foo");
@@ -304,9 +271,7 @@ MyTrait foo = TraitImpl.apply("foo");
 
 h2. Closures Functions
 
-One of Scala's most important features is the treatment of functions
-as first class citizens. Let's define a class that defines some
-methods that take functions as arguments.
+One of Scala's most important features is the treatment of functions as first class citizens.  Let's define a class that defines some methods that take functions as arguments.
 
 <pre>
 class ClosureClass {
@@ -327,8 +292,8 @@ val cc = new ClosureClass
 cc.printResult { "HI MOM" }
 </pre>
 
-In Java it's not so easy, but it's not terrible either.  Let's see
-what ClosureClass actually compiled to:
+In Java it's not so easy, but it's not terrible either.  Let's see what ClosureClass actually compiled to:
+
 
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
@@ -340,14 +305,10 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
 }
 </pre>
 
-This isn't so scary. "f: => T" translates to "Function0", and
-"f: String => T" translates to "Function1". Scala actually defines
-Function0 through Function22, supporting this stuff up to 22
-arguments.  Which really should be enough.
+This isn't so scary.  "f: => T" translates to "Function0", and "f: String => T" translates to "Function1".  Scala actually defines Function0 through Function22, supporting this stuff up to 22 arguments.  Which really should be enough.
 
-Now we just need to figure out how to get those things going in
-Java. Turns out Scala provides an AbstractFunction0 and an
-AbstractFunction1 we can pass in like so
+Now we just need to figure out how to get those things going in Java.  Turns out Scala provides an AbstractFunction0 and an AbstractFunction1 we can pass in like so
+
 
 <pre>
     @Test public void closureTest() {
@@ -367,10 +328,3 @@ AbstractFunction1 we can pass in like so
 
 Note that we can use generics to parameterize arguments.
 
-h2. Variance
-
-Java totally ignores this. It does carry through generics info, but
-variance is a Scala type checker thing. You're free to go all
-barbarian like Java lets you.
-
-h2. QUESTIONS??

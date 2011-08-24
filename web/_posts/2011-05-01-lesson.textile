@@ -5,9 +5,7 @@ layout: post
 desc: Values, functions, classes, methods, inheritance, try-catch-finally. Expression-oriented programming
 ---
 
-h1. Lesson 1
-
-Today we'll cover:
+This lesson covers:
 * values
 * expressions
 * functions
@@ -18,14 +16,11 @@ Today we'll cover:
 
 h2. About this class
 
-The first few weeks will cover basic syntax and concepts. Then we'll start
-to open it up with more exercises.
+The first few weeks will cover basic syntax and concepts.  Then we'll start to open it up with more exercises.
 
-Some examples will be given as if written in the interpreter, others
-as if written in a source file.
+Some examples will be given as if written in the interpreter, others as if written in a source file.
 
-Having an interpreter available makes it easy to explore a problem
-space.
+Having an interpreter available makes it easy to explore a problem space.
 
 
 h2. Why Scala?
@@ -50,8 +45,7 @@ h2. How Scala?
 
 h2. Think Scala
 
-Scala is not just a nicer Java. You should learn it with a fresh mind,
-you will get more out of these classes.
+Scala is not just a nicer Java.  You should learn it with a fresh mind, you will get more out of these classes.
 
 h2. Start the Interpreter
 
@@ -73,11 +67,9 @@ scala> 1 + 1
 res0: Int = 2
 </pre>
 
-res0 is an automatically created value name given by the interpreter
-to the result of your expression. It has the type Int and contains the
-Integer 2.
+res0 is an automatically created value name given by the interpreter to the result of your expression.  It has the type Int and contains the Integer 2.
 
-Everything in Scala is an expression.
+(Almost) everything in Scala is an expression.
 
 h2. Values
 
@@ -97,9 +89,7 @@ scala> def addOne(m: Int): Int = m + 1
 addOne: (m: Int)Int
 </pre>
 
-In Scala, you need to specify the type signature for function
-parameters. The interpreter happily repeats the type signature back to
-you.
+In Scala, you need to specify the type signature for function parameters.  The interpreter happily repeats the type signature back to you.
 
 <pre>
 scala> val three = addOne(2)
@@ -151,16 +141,11 @@ scala> calc.brand
 res2: String = "HP"
 </pre>
 
-
-Contained are examples are defining methods with def and fields with
-val. methods are just functions that can access the state of the class.
+Contained are examples are defining methods with def and fields with val.  methods are just functions that can access the state of the class.
 
 h4. Constructor
 
-Constructors aren't special methods, they are the code outside of
-method definitions in your class. Let's extend our Calculator example
-to take a constructor argument and use it to initialize internal
-state.
+Constructors aren't special methods, they are the code outside of method definitions in your class.  Let's extend our Calculator example to take a constructor argument and use it to initialize internal state.
 
 <pre>
 class Calculator(brand: String) {
@@ -201,9 +186,7 @@ class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(b
 
 h3. Expressions
 
-Our BasicCalculator example gave an example of how Scala is
-expression-oriented. The value color was bound based on an if/else
-expression.
+Our BasicCalculator example gave an example of how Scala is expression-oriented.  The value color was bound based on an if/else expression.
 
 h3. try-catch-finally
 
@@ -234,7 +217,6 @@ val result: Int = try {
 }
 </pre>
 
-This is not an example of excellent programming style, just an example
-of expressions in action. Better would be to re-throw.
+This is not an example of excellent programming style, just an example of expressions in action.  Better would be to re-throw.
 
 Finally will be called after any exception has been handled.

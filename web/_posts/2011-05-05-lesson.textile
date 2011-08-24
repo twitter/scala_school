@@ -5,11 +5,7 @@ layout: post
 desc: Basic Types and type polymorphism, type inference, variance, bounds, quantification
 ---
 
-h1. Lesson 5
-
-h2. Type Basics
-
-Today we'll cover
+This lesson covers:
 
 * What are types?
 * Parametric Polymorphism

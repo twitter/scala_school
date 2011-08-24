@@ -4,9 +4,8 @@ title: Simple Build Tool
 layout: post
 desc: All about SBT, the standard Scala build tool
 ---
-h1. Lesson 7
 
-Today we'll cover SBT! Specific topics include:
+This lesson covers SBT! Specific topics include:
 * creating an sbt project
 * basic commands
 * the sbt console
@@ -18,7 +17,6 @@ Today we'll cover SBT! Specific topics include:
 h2. About SBT
 
 SBT is a modern build tool. While it is written in Scala and provides many Scala conveniences, it is a general purpose build tool.
-
 
 h2. Why SBT?
 
@@ -115,9 +113,8 @@ This is ugly and buggy, but should compile.
 
 h2. Testing in the Console
 
-SBT can be used both as a command line script and as a build console.
-We'll be primarily using it as a build console, but most commands can
-be run standalone by passing the command as an argument to SBT, e.g.
+SBT can be used both as a command line script and as a build console.  We'll be primarily using it as a build console, but most commands can be run standalone by passing the command as an argument to SBT, e.g.
+
 <pre>
 sbt test
 </pre>
@@ -174,8 +171,7 @@ Type :help for more information.
 scala> 
 </pre>
 
-Our code has compiled, and we're provide the typical Scala prompt.
-We'll create a new parser, an exemplar tweet, and ensure it "works"
+Our code has compiled, and we're provide the typical Scala prompt.  We'll create a new parser, an exemplar tweet, and ensure it "works"
 
 <pre>
 scala> import com.twitter.sample._            
@@ -195,13 +191,9 @@ scala>
 
 h2. Adding Dependencies
 
-Our simple parser works for this very small set of inputs, but we want to
-add tests and break it.  The first step is adding the specs test
-library and a real JSON parser to our project. To do this we have to go beyond the default
-SBT project layout and create a project. 
+Our simple parser works for this very small set of inputs, but we want to add tests and break it.  The first step is adding the specs test library and a real JSON parser to our project.  To do this we have to go beyond the default SBT project layout and create a project.
 
-SBT considers Scala files in the project/build directory to be project
-definitions.  Add the following to project/build/SampleProject.scala
+SBT considers Scala files in the project/build directory to be project definitions.  Add the following to project/build/SampleProject.scala
 
 <pre>
 import sbt._
@@ -212,13 +204,9 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 }
 </pre> 
 
-A project definition is an SBT class. In our case we extend SBT's
-DefaultProject.
+A project definition is an SBT class.  In our case we extend SBT's DefaultProject.
 
-You declare dependencies by specifing a val that is a dependency. SBT
-uses reflection to scan all the dependency vals in your project and
-build up a dependency tree at build time. The syntax here may be new,
-but this is equivalent to the maven dependency
+You declare dependencies by specifing a val that is a dependency.  SBT uses reflection to scan all the dependency vals in your project and build up a dependency tree at build time.  The syntax here may be new, but this is equivalent to the maven dependency
 
 <pre>
 <dependency>
@@ -234,8 +222,7 @@ but this is equivalent to the maven dependency
 </dependency>
 </pre>
 
-Now we can pull down dependencies for our project.  From the command
-line (not the sbt console), run sbt update
+Now we can pull down dependencies for our project.  From the command line (not the sbt console), run sbt update
 
 <pre>
 [local ~/projects/sbt-sample]$ sbt update
@@ -255,9 +242,7 @@ line (not the sbt console), run sbt update
 [success] Build completed successfully.
 </pre>
 
-You'll see that sbt retrieved the specs library. You'll now also have
-a lib_managed directory, and lib_managed/scala_2.8.1/test will have
-specs_2.8.0-1.6.5.jar
+You'll see that sbt retrieved the specs library.  You'll now also have a lib_managed directory, and lib_managed/scala_2.8.1/test will have specs_2.8.0-1.6.5.jar
 
 h2. Adding Tests
 
@@ -340,10 +325,7 @@ In the sbt console, run test
 > 
 </pre>
 
-Our test works!  Now we can add more. One of the nice things SBT
-provides is a way to run triggered actions. Prefacing an action with a
-tilde starts up a loop that runs the action any time source files
-change.  Lets run ~test and see what happens.
+Our test works!  Now we can add more.  One of the nice things SBT provides is a way to run triggered actions.  Prefacing an action with a tilde starts up a loop that runs the action any time source files change.  Lets run ~test and see what happens.
 
 <pre>
 [info] == test ==
@@ -384,8 +366,7 @@ Now let's add the following test cases
     }
 </pre>
 
-After we save our file, SBT detects our changes, runs tests, and
-informs us our parser is lame
+After we save our file, SBT detects our changes, runs tests, and informs us our parser is lame
 
 <pre>
 [info] == com.twitter.sample.SimpleParserSpec ==
@@ -447,8 +428,7 @@ class SimpleParser {
 }
 </pre>
 
-This is a simple Jackson parser. When we save, SBT recompiles our code
-and reruns our tests.  Getting better!
+This is a simple Jackson parser.  When we save, SBT recompiles our code and reruns our tests.  Getting better!
 
 <pre>
 info] SimpleParser should
@@ -506,15 +486,9 @@ And... it works!
 
 h2. Packaging and Publishing
 
-At this point we can run the package command to generate a jar file.
-However we may want to share our jar with other teams.  To do this
-we'll build on StandardProject, which gives us a big head start.
+At this point we can run the package command to generate a jar file.  However we may want to share our jar with other teams.  To do this we'll build on StandardProject, which gives us a big head start.
 
-The first step is include StandardProject as an SBT plugin.  Plugins
-are a way to introduce dependencies to your build, rather than your
-project. These dependencies are defined in
-project/plugins/Plugins.scala.  Add the following to the Plugins.scala
-file.
+The first step is include StandardProject as an SBT plugin.  Plugins are a way to introduce dependencies to your build, rather than your project.  These dependencies are defined in project/plugins/Plugins.scala.  Add the following to the Plugins.scala file.
 
 <pre>
 import sbt._
@@ -525,13 +499,9 @@ class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
 }
 </pre>
 
-Note that we've specified a maven repository as well as a
-dependency. That's because the standard project library is hosted by
-us, which isn't one of the default repos sbt checks.
+Note that we've specified a maven repository as well as a dependency.  That's because the standard project library is hosted by us, which isn't one of the default repos sbt checks.
 
-We'll also update our project definition to extend StandardProject,
-include an SVN publishing trait, and define the repository we wish to
-publish to.  Alter SampleProject.scala to the following
+We'll also update our project definition to extend StandardProject, include an SVN publishing trait, and define the repository we wish to publish to.  Alter SampleProject.scala to the following
 
 <pre>
 import sbt._
@@ -576,14 +546,12 @@ IvySvn Build-DateTime: null
 [info] 
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
-And (after some time), we can go to
-binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/
-to see our published jar.
+
+And (after some time), we can go to binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ to see our published jar.
 
 h2. Adding Tasks
 
-Tasks are Scala functions.  The simplest way to add a task is to
-include a val in your project definition using the task method, e.g.
+Tasks are Scala functions.  The simplest way to add a task is to include a val in your project definition using the task method, e.g.
 
 <pre>
 lazy val print = task {log.info("a test action"); None}
@@ -595,8 +563,7 @@ If you want dependencies and a description you can add them like this
 lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
 </pre>
 
-If we reload our project and run the print action we'll see the
-following
+If we reload our project and run the print action we'll see the following
 
 <pre>
 > print
@@ -610,9 +577,7 @@ following
 > 
 </pre>
 
-So it works. If you're defining a task in a single project this works
-just fine.  However if you're defining this in a plugin it's fairly
-inflexible.  I may want to 
+So it works.  If you're defining a task in a single project this works just fine.  However if you're defining this in a plugin it's fairly inflexible.  I may want to
 
 <pre>
 lazy val print = printAction
@@ -620,19 +585,14 @@ def printAction = printTask.dependsOn(compile) describedAs("prints a line after 
 def printTask = task {log.info("a test action"); None}
 </pre>
 
-This allows consumers to override the task itself, the dependencies
-and/or description of the task, or the action.  Most built in
-SBT actions follow this pattern.  As an example, we can modify the
-builtin package task to print the current timestamp by doing the
-following
+This allows consumers to override the task itself, the dependencies and/or description of the task, or the action.  Most built in SBT actions follow this pattern.  As an example, we can modify the builtin package task to print the current timestamp by doing the following
 
 <pre>
 lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
 override def packageAction = super.packageAction.dependsOn(printTimestamp)
 </pre>
 
-There are many examples in StandardProject of tweaking SBT defaults
-and adding custom tasks.
+There are many examples in StandardProject of tweaking SBT defaults and adding custom tasks.
 
 h2. Quick Reference
 

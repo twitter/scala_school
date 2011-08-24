@@ -6,11 +6,9 @@ desc: More functions! PartialFunctions, more Pattern Matching
 ---
 
 
-h1. Lesson 4
-
 h2. Advanced Pattern Matching and Functional Composition
 
-Today we'll cover
+This lesson covers:
 
 * Functions (again)
 ** compose
@@ -143,14 +141,11 @@ scala> stevej match {
          case User("stevej", _, _) => println("it's stevej")
 </pre>
 
-But what if we don't want User to be a case class? How can we make
-User interact nicely with pattern matching without changing the User
-class?
+But what if we don't want User to be a case class?  How can we make User interact nicely with pattern matching without changing the User class?
 
 Use the extractor method: unapply.
 
-Make a companion object with an unapply method. The unapply should
-return an Option with a Tuple that matches your class' constructor.
+Make a companion object with an unapply method.  The unapply should return an Option with a Tuple that matches your class' constructor.
 
 <pre>
 object User {
@@ -185,14 +180,11 @@ They are multiple PartialFunctions composed together.
 
 h3. Understanding PartialFunction
 
-A function closes over an entire domain. In other words, a function
-defined as (Int) => String takes any Int and returns a String.
+A function closes over an entire domain.  In other words, a function defined as (Int) => String takes any Int and returns a String.
 
-A Partial Function is only partially closed over a domain. A Partial
-Function (Int) => String might not accept every Int.
+A Partial Function is only partially closed over a domain.  A Partial Function (Int) => String might not accept every Int.
 
-isDefinedAt is a method on PartialFunction that can be used to
-determine if the PartialFunction will accept a given argument.
+isDefinedAt is a method on PartialFunction that can be used to determine if the PartialFunction will accept a given argument.
 
 <pre>
 scala> val one: PartialFunction[Int, String] = { case 1 => "one" }

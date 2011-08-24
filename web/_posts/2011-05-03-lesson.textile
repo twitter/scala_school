@@ -5,9 +5,7 @@ layout: post
 desc: Lists, Maps, functional combinators (map, foreach, filter, zip, folds)
 ---
 
-h1. Lesson 3
-
-Today we'll cover:
+This lesson covers:
 * Lists
 * Maps
 * Sets
@@ -171,8 +169,7 @@ res0: scala.collection.immutable.Set[Int] = Set(1, 2)
 
 h3. Seq
 
-Sequences have a defined order, they are Lists under the covers but
-many APIs will use the more generic Seq as their return type.
+Sequences have a defined order, they are Lists under the covers but many APIs will use the more generic Seq as their return type.
 
 <pre>
 scala> Seq(1, 1, 2)
@@ -189,8 +186,7 @@ scala> val hostPort = ("localhost", 80)
 hostPort: (java.lang.String, Int) = (localhost, 80)
 </pre>
 
-Unlike case classes, they don't have named accessors, instead they
-have accessors that are named by their position (1-based).
+Unlike case classes, they don't have named accessors, instead they have accessors that are named by their position (1-based).
 
 <pre>
 scala> hostPort._1
@@ -211,16 +207,13 @@ hostPort match {
 
 h2. Functional Combinators
 
-This fancy name is giving to a standard set of functions that can be
-applied to Lists and Maps.
+This fancy name is giving to a standard set of functions that can be applied to Lists and Maps.
 
-They are called combinators because they are meant to be combined. the
-output of one function is often suitable as the input for another.
+They are called combinators because they are meant to be combined.  the output of one function is often suitable as the input for another.
 
 h4. map
 
-Evaluates a function over each element in the list, returning a list
-with the same number of elements.
+Evaluates a function over each element in the list, returning a list with the same number of elements.
 
 <pre>
 scala> numbers.map((i: Int) => i * 2)
@@ -257,9 +250,7 @@ doubled: Unit = ()
 
 h4. filter
 
-removes any elements where the function you pass in evaluates to
-false. Functions that return a Boolean are often called predicate
-functions.
+removes any elements where the function you pass in evaluates to false.  Functions that return a Boolean are often called predicate functions.
 
 <pre>
 scala> numbers.filter((i: Int) => i % 2 == 0)
@@ -285,8 +276,7 @@ res0: List[(Int, java.lang.String)] = List((1,a), (2,b), (3,c))
 
 h4. partition
 
-partition splits a list based on where it falls with respect to a
-predicate function.
+partition splits a list based on where it falls with respect to a predicate function.
 
 <pre>
 scala> List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).partition((i: Int) => i > 5)
@@ -311,8 +301,7 @@ scala> numbers.drop(5)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
 
-dropWhile removes elements that don't match a predicate function. Here
-we can re-implement drop.
+dropWhile removes elements that don't match a predicate function.  Here we can re-implement drop.
 
 <pre>
 scala> numbers.dropWhile((i: Int) => i < 6)
@@ -368,13 +357,11 @@ res0: Int = 55
 
 h4. Generalized functional combinators
 
-Now we've learned a grab-bag of functions for working with
-collections.
+Now we've learned a grab-bag of functions for working with collections.
 
 What we'd like is to be able to write our own functional combinators.
 
-Interestingly, every functional combinator shown above can be written
-on top of fold. Let's see some examples.
+Interestingly, every functional combinator shown above can be written on top of fold.  Let's see some examples.
 
 <pre>
 def ourMap(numbers: List[Int], fn: Int => Int): List[Int] = {
@@ -391,9 +378,7 @@ Why <tt>List[Int]()</tt>? Scala wasn't smart enough to realize that you wanted a
 
 h3. Map?
 
-All of the functional combinators shown work on Maps, too. Maps can be
-thought of as a list of pairs so the functions you write work on a
-pair of the keys and values in the Map.
+All of the functional combinators shown work on Maps, too.  Maps can be thought of as a list of pairs so the functions you write work on a pair of the keys and values in the Map.
 
 <pre>
 scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
