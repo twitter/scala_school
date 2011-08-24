@@ -24,11 +24,13 @@ class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdS
    *
    */
 
-  val database = new mutable.HashMap[String, String]
+  val forward = new mutable.HashMap[String, String]
     with mutable.SynchronizedMap[String, String]
+  val reverse = new mutable.HashMap[String, List[String]]
+    with mutable.SynchronizedMap[String, List[String]]
 
   def get(key: String) = {
-    database.get(key) match {
+    forward.get(key) match {
       case None =>
         log.debug("get %s: miss", key)
         Future.exception(new SearchbirdException("No such key"))
@@ -40,7 +42,29 @@ class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdS
 
   def put(key: String, value: String) = {
     log.debug("put %s", key)
-    database(key) = value
+    
+    forward(key) = value
+
+    // admit only one updater.
+    synchronized {
+      (Set() ++ value.split(" ")) foreach { token =>
+        val current = reverse.get(token) getOrElse Nil
+        reverse(token) = key :: Nil
+      }
+    }
+
     Future.void
+  }
+
+  def search(query: String) = Future.value {
+    val tokenHits = (Set() ++ query.split(" ")) map { token =>
+      reverse.getOrElse(token, Nil)
+    }
+
+    val intersection = tokenHits.foldLeft(Set(): Set[String]) { 
+      case (s, hits) => s & (Set() ++ hits)
+    }
+    
+    intersection.toList
   }
 }
