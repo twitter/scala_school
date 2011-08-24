@@ -5,9 +5,6 @@ layout: post
 desc: More functions! PartialFunctions, more Pattern Matching
 ---
 
-
-h2. Advanced Pattern Matching and Functional Composition
-
 This lesson covers:
 
 * Functions (again)

@@ -5,8 +5,6 @@ layout: post
 desc: Runnable, callable, threads, Futures, Twitter Futures
 ---
 
-h1. Concurrency in Scala
-
 * Runnable
 * Callable
 * Threads
