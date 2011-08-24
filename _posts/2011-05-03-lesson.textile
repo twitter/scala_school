@@ -10,6 +10,9 @@ h1. Lesson 3
 Today we'll cover:
 * Lists
 * Maps
+* Sets
+* Seq
+* Tuples
 * functional combinators
 ** map
 ** foreach
@@ -155,6 +158,25 @@ You can even hold functions as values:
 
 <pre>
 Map("timesTwo" -> timesTwo _)
+</pre>
+
+h3. Sets
+
+Sets have no duplicates
+
+<pre>
+scala> Set(1, 1, 2)
+res0: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+
+h3. Seq
+
+Sequences have a defined order, they are Lists under the covers but
+many APIs will use the more generic Seq as their return type.
+
+<pre>
+scala> Seq(1, 1, 2)
+res0: Seq[Int] = List(1, 1, 2)
 </pre>
 
 h3. Tuple
