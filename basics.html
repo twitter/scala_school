@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Basics</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+
+  </head>
+
+  <body>
+  
+    <div class="topbar">
+      <div class="fill">
+        <div class="container fixed">
+          <h3><a href="index.html">Basics</a></h3>
+          <ul class="nav secondary-nav">
+            
+            
+              <li><a href="basics2.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding-top: 60px;">
+      <p>This lesson covers:</p>
+<ul>
+	<li>values</li>
+	<li>expressions</li>
+	<li>functions</li>
+	<li>classes</li>
+	<li>methods</li>
+	<li>basic inheritance</li>
+	<li>try-catch-finally</li>
+</ul>
+<h2>About this class</h2>
+<p>The first few weeks will cover basic syntax and concepts.  Then we&#8217;ll start to open it up with more exercises.</p>
+<p>Some examples will be given as if written in the interpreter, others as if written in a source file.</p>
+<p>Having an interpreter available makes it easy to explore a problem space.</p>
+<h2>Why Scala?</h2>
+<ul>
+	<li>Expressive
+	<ul>
+		<li>First-class functions</li>
+		<li>Closures</li>
+	</ul></li>
+	<li>Concise
+	<ul>
+		<li>Type inference</li>
+		<li>Literal syntax for function creation</li>
+	</ul></li>
+	<li>Java interopability
+	<ul>
+		<li>Can reuse java libraries</li>
+		<li>Can reuse java tools</li>
+		<li>No performance penalty</li>
+	</ul></li>
+</ul>
+<h2>How Scala?</h2>
+<ul>
+	<li>Compiles to java bytecode</li>
+	<li>Works with any standard <span class="caps">JVM</span>
+	<ul>
+		<li>Or even some non-standard JVMs like Dalvik</li>
+		<li>Scala compiler written by author of Java compiler</li>
+	</ul></li>
+</ul>
+<h2>Think Scala</h2>
+<p>Scala is not just a nicer Java.  You should learn it with a fresh mind, you will get more out of these classes.</p>
+<h2>Start the Interpreter</h2>
+<pre>
+$ scala
+
+Welcome to Scala version 2.8.0.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_20).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala&gt;
+</pre>
+<h2>Expressions</h2>
+<pre>
+scala&gt; 1 + 1
+res0: Int = 2
+</pre>
+<p>res0 is an automatically created value name given by the interpreter to the result of your expression.  It has the type Int and contains the Integer 2.</p>
+<p>(Almost) everything in Scala is an expression.</p>
+<h2>Values</h2>
+<p>You can give the result of an expression a name.</p>
+<pre>
+scala&gt; val two = 1 + 1
+two: Int = 2
+</pre>
+<h3>Functions</h3>
+<p>You can create functions with def.</p>
+<pre>
+scala&gt; def addOne(m: Int): Int = m + 1
+addOne: (m: Int)Int
+</pre>
+<p>In Scala, you need to specify the type signature for function parameters.  The interpreter happily repeats the type signature back to you.</p>
+<pre>
+scala&gt; val three = addOne(2)
+three: Int = 3
+</pre>
+<h3>Anonymous Functions</h3>
+<p>You can create anonymous functions.</p>
+<pre>
+scala&gt; (x: Int) =&gt; x + 1
+res2: (Int) =&gt; Int = &lt;function1&gt;
+</pre>
+<p>This function adds 1 to an Int.</p>
+<pre>
+scala&gt; res2(1)
+res3: Int = 2
+</pre>
+<p>You can pass anonymous functions around or save them into vals.</p>
+<pre>
+scala&gt; val addOne = (x: Int) =&gt; x + 1
+addOne: (Int) =&gt; Int = &lt;function1&gt;
+
+scala&gt; addOne(1)
+res4: Int = 2
+</pre>
+<h3>Classes</h3>
+<pre>
+scala&gt; class Calculator {
+     |   val brand: String = "HP"
+     |   def add(m: Int, n: Int): Int = m + n
+     | }
+defined class Calculator
+
+scala&gt; val calc = new Calculator
+calc: Calculator = Calculator@e75a11
+
+scala&gt; calc.add(1, 2)
+res1: Int = 3
+
+scala&gt; calc.brand
+res2: String = "HP"
+</pre>
+<p>Contained are examples are defining methods with def and fields with val.  methods are just functions that can access the state of the class.</p>
+<h4>Constructor</h4>
+<p>Constructors aren&#8217;t special methods, they are the code outside of method definitions in your class.  Let&#8217;s extend our Calculator example to take a constructor argument and use it to initialize internal state.</p>
+<pre>
+class Calculator(brand: String) {
+  /**
+   * A constructor.
+   */
+  val color: String = if (brand == "TI") {
+    "blue"
+  } else if (brand == "HP") {
+    "black"
+  } else {
+    "white"
+  }
+
+  // An instance method.
+  def add(m: Int, n: Int): Int = m + n
+}
+</pre>
+<p>Note the two different styles of comments.</p>
+<h3>Inheritance</h3>
+<pre>
+class ScientificCalculator(brand: String) extends Calculator(brand) {
+  def log(m: Double, base: Double) = math.log(m) / math.log(base)
+}
+</pre>
+<h3>Overloading methods</h3>
+<pre>
+class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
+  def log(m: Int) = log(m, math.exp(1))
+}
+</pre>
+<h3>Expressions</h3>
+<p>Our BasicCalculator example gave an example of how Scala is expression-oriented.  The value color was bound based on an if/else expression.</p>
+<h3>try-catch-finally</h3>
+<p>Exceptions are available in Scala.</p>
+<pre>
+try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException =&gt; log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+<p>trys are also expression-oriented</p>
+<pre>
+val result: Int = try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException =&gt; {
+    log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+    0
+  }
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+<p>This is not an example of excellent programming style, just an example of expressions in action.  Better would be to re-throw.</p>
+<p>Finally will be called after any exception has been handled.</p>
+    </div> <!-- /container -->
+
+    <div id="footer">
+      <div class="inner">
+        <div class="container">
+          <p>
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a> and <a href="http://twitter.com/marius" target="_blank">@marius</a>.<br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

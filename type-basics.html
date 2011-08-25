@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Type & polymorphism basics</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+
+  </head>
+
+  <body>
+  
+    <div class="topbar">
+      <div class="fill">
+        <div class="container fixed">
+          <h3><a href="index.html">Type & polymorphism basics</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="pattern-matching-and-functional-composition.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="advanced-types.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding-top: 60px;">
+      <p>This lesson covers:</p>
+<ul>
+	<li>What are types?</li>
+	<li>Parametric Polymorphism</li>
+	<li>Type inference: Hindley-Milner vs. local type inference</li>
+	<li>Variance, bounds &amp; quantification</li>
+</ul>
+<h3>What are static types?  Why are they useful?</h3>
+<p>According to Pierce: &#8220;A type system is a syntactic method for automatically checking the absence of certain erroneous behaviors by classifying program phrases according to the kinds of values they compute.&#8221;</p>
+<p>Types allow you to denote function domain &amp; codomains. For example, from mathematics, we are used to seeing:</p>
+<pre>
+f: R -&gt; N
+</pre>
+<p>this tells us that function &#8220;f&#8221; maps values from the set of real numbers to values of the set of natural numbers.</p>
+<p>In the abstract, this is exactly what <em>concrete</em> types are.  Type systems give us some more powerful ways to express these sets.</p>
+<p>Given these annotations, the compiler can now <em>statically</em> (at compile time) verify that the program is <em>sound</em>. That is, compilation will fail if values (at runtime) will not comply to the constraints imposed by the program.</p>
+<p>Generally speaking, the typechecker can only guarantee that <em>unsound</em> programs do not compile. It cannot guarantee that every sound program <em>will</em> compile.</p>
+<p>With increasing expressiveness in type systems, we can produce more reliable code because it allows us to prove invariants about our program before it even runs (modulo bugs in the types themselves, of course!). Academia is pushing the limits of expressiveness very hard, including value-dependent types!</p>
+<p>Note that all type information is removed at compile time. It is no longer needed. This is called erasure.</p>
+<h3>Types in Scala</h3>
+<p>Scala has a very powerful type system, allowing for very rich expression. Some of its chief features are:</p>
+<ul>
+	<li>parametric polymorphism</li>
+	<li>(local) type inference</li>
+	<li>existential quantification</li>
+	<li>views</li>
+</ul>
+<h3>Parametric polymorphism</h3>
+<p>Polymorphism is used in order to write generic code (for values of different types) without compromising static typing richness.</p>
+<p>For example, without parametric polymorphism, a generic list data structure would always look like this (and indeed it did look like this in Java prior to generics):</p>
+<pre>
+scala&gt; 2 :: 1 :: "bar" :: "foo" :: Nil
+res5: List[Any] = List(2, 1, bar, foo)
+</pre>
+<p>Now we cannot recover any type information about the individual members.</p>
+<pre>
+scala&gt; res5.head
+res6: Any = 2
+</pre>
+<p>And so our application would devolve into a series of casts (&#8220;asInstanceOf[]&#8221;) and we would lack typesafety (because these are all dynamic).</p>
+<p>Polymorphism is achieved through specifying <em>type variables</em>.</p>
+<pre>
+scala&gt; def drop1[A](l: List[A]) = l.tail
+drop1: [A](l: List[A])List[A]
+
+scala&gt; drop1(List(1,2,3))
+res1: List[Int] = List(2, 3)
+</pre>
+<h4>Scala has rank-1 polymorphism</h4>
+<p>Suppose you had some function</p>
+<pre>
+def toList[A](a: A) = List(a)
+</pre>
+<p>which you wished to use generically:</p>
+<pre>
+def foo[A, B](f: A =&gt; List[A], b: B, c: Int) = (f(b), f(c))
+</pre>
+<p>This does not compile, because all type variables have to be fixed at the invocation site.</p>
+<h3>Type inference</h3>
+<p>A traditional objection to static typing is that it has much syntactic overhead. Scala alleviates this by providing <em>type inference</em>.</p>
+<p>The classic method for type inference in functional programming languages is <em>Hindley-Milner</em>, and it was first employed in ML.</p>
+<p>Scala&#8217;s type inference system works a little differently, but it&#8217;s similar in spirit: infer constraints, and attempt to unify a type.</p>
+<p>In Scala, for example, you cannot do the following:</p>
+<pre>
+scala&gt; { x =&gt; x }
+&lt;console&gt;:7: error: missing parameter type
+       { x =&gt; x }
+</pre>
+<p>Whereas in OCaml, you can:</p>
+<pre>
+# fun x -&gt; x;;
+- : 'a -&gt; 'a = &lt;fun&gt;
+</pre>
+<p>In scala all type inference is <em>local</em>.  For example:</p>
+<pre>
+scala&gt; def id[T](x: T) = x
+id: [T](x: T)T
+
+scala&gt; val x = id(322)
+x: Int = 322
+
+scala&gt; val x = id("hey")
+x: java.lang.String = hey
+
+scala&gt; val x = id(Array(1,2,3,4))
+x: Array[Int] = Array(1, 2, 3, 4)
+</pre>
+<p>Types are now preserved, The Scala compiler infers the type parameter for us. Note also how we did not have to specify the return type explicitly.</p>
+<h3>Variance</h3>
+<p>Scala&#8217;s type system has to account for class hierarchies together with polymorphism.  Class hierarchies allow the expression of subtype relationships. A central question that comes up when mixing OO with polymorphism is: if <tt>T&#8217;</tt> is a subclass of <tt>T</tt>, is <tt>Container[T&#8217;]</tt> considered a subclass of <tt>Container[T]</tt>? Variance annotations allow you to express the following relationships between class hierarchies &amp; polymorphic types:</p>
+<table>
+	<tr>
+		<td>covariant</td>
+		<td>&nbsp;&nbsp;C[T&#8217;] is a subclass of C[T]</td>
+	</tr>
+	<tr>
+		<td>contravariant</td>
+		<td>&nbsp;&nbsp;C[T] is a subclass of C[T&#8217;]</td>
+	</tr>
+	<tr>
+		<td>invariant</td>
+		<td>&nbsp;&nbsp;C[T] and C[T&#8217;] are not related</td>
+	</tr>
+</table>
+<p>The subtype relationship really means: for a given type T, if T&#8217; is a subtype, can you substitute it?</p>
+<pre>
+scala&gt; class Covariant[+A]
+defined class Covariant
+
+scala&gt; val cv: Covariant[AnyRef] = new Covariant[String]
+cv: Covariant[AnyRef] = Covariant@4035acf6
+
+scala&gt; val cv: Covariant[String] = new Covariant[AnyRef]
+&lt;console&gt;:6: error: type mismatch;
+ found   : Covariant[AnyRef]
+ required: Covariant[String]
+       val cv: Covariant[String] = new Covariant[AnyRef]
+                                   ^
+</pre>
+
+<pre>
+scala&gt; class Contravariant[-A]
+defined class Contravariant
+
+scala&gt; val cv: Contravariant[String] = new Contravariant[AnyRef]
+cv: Contravariant[AnyRef] = Contravariant@49fa7ba
+
+scala&gt; val fail: Contravariant[AnyRef] = new Contravariant[String]
+&lt;console&gt;:6: error: type mismatch;
+ found   : Contravariant[String]
+ required: Contravariant[AnyRef]
+       val fail: Contravariant[AnyRef] = new Contravariant[String]
+                                     ^
+</pre>
+<p>Contravariance seems strange. When is it used? Somewhat surprising!</p>
+<pre>
+trait Function1 [-T1, +R] extends AnyRef
+</pre>
+<p>If you think about this from the point of view of substitution, it makes a lot of sense. Let&#8217;s first define a simple class hierarchy:</p>
+<pre>
+scala&gt; class A
+defined class A
+
+scala&gt; class B extends A
+defined class B
+
+scala&gt; class C extends B
+defined class C
+
+scala&gt; class D extends C
+defined class D
+</pre>
+
+<pre>
+scala&gt; val f: (B =&gt; C) = ((b: B) =&gt; new C)
+f: (B) =&gt; C = &lt;function1&gt;
+
+scala&gt; val f: (B =&gt; C) = ((a: A) =&gt; new C)
+f: (B) =&gt; C = &lt;function1&gt;
+
+scala&gt; val f: (B =&gt; C) = ((a: A) =&gt; new D)
+f: (B) =&gt; C = &lt;function1&gt;
+
+scala&gt; val f: (B =&gt; C) = ((a: A) =&gt; new C)
+f: (B) =&gt; C = &lt;function1&gt;
+
+scala&gt; val f: (B =&gt; C) = ((c: C) =&gt; new C)
+&lt;console&gt;:8: error: type mismatch;
+ found   : (C) =&gt; C
+ required: (B) =&gt; C
+       val f: (B =&gt; C) = ((c: C) =&gt; new C)
+                                 ^
+                                    ^
+</pre>
+<h3>Bounds</h3>
+<p>Scala allows you to restrict polymorphic variables using <em>bounds</em>. These bounds express subtype relationships.</p>
+<pre>
+scala&gt; class F { def foo = "F" }
+defined class F
+
+scala&gt; class E extends F { override def foo = "E" }
+defined class E
+
+scala&gt; def callFoo[T](foos: Seq[T]) = foos map (_.foo) foreach println
+&lt;console&gt;:8: error: value foo is not a member of type parameter T
+       def callFoo[T](foos: Seq[T]) = foos map (_.foo) foreach println
+
+scala&gt; def callFoo[T &lt;: F](foos: Seq[T]) = foos map (_.foo) foreach println
+callFoo: [T &lt;: F](foos: scala.collection.mutable.Seq[T])Unit
+
+scala&gt; callFoo(Seq(new E, new F))
+E
+F
+</pre>
+<p>Lower type bounds are also supported. They go hand-in-hand with contravariance. Let&#8217;s say we had some class Node:</p>
+<pre>
+scala&gt; class Node[T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+</pre>
+<p>But, we want to make it covariant in T:</p>
+<pre>
+scala&gt; class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+&lt;console&gt;:6: error: covariant type T occurs in contravariant position in type T of value v
+       class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+                                      ^
+</pre>
+<p>Recall that method arguments are contravariant, and so if we perform our substitution trick, using the same classes as before:</p>
+<pre>
+class Node[B](x: B) { def sub(v: B): Node[B] = new Node(v) }
+</pre>
+<p>is <strong>not</strong> a subtype of</p>
+<pre>
+class Node[A](x: A) { def sub(v: A): Node[A] = new Node(v) }
+</pre>
+<p>because A cannot be substituted for B in the argument of &#8220;sub&#8221;. However, we can use lower bounding to enforce correctness.</p>
+<pre>
+scala&gt; class Node[+T](x: T) { def sub[U &gt;: T](v: U): Node[U] = new Node(v) }
+defined class Node
+
+scala&gt; (new Node(new B)).sub(new B)
+res5: Node[B] = Node@4efade06
+
+scala&gt; ((new Node(new B)).sub(new B)).sub(new A)
+res6: Node[A] = Node@1b2b2f7f
+
+scala&gt; ((new Node(new B)).sub(new B)).asInstanceOf[Node[C]]
+res7: Node[C] = Node@6924181b
+
+scala&gt; (((new Node(new B)).sub(new B)).sub(new A)).sub(new C)
+res8: Node[A] = Node@3088890d
+</pre>
+<p>Note also how the type changes with subsequent calls to &#8220;sub&#8221;.</p>
+<h3>Quantification</h3>
+<p>Sometimes you do not care to be able to name a type variable, for example:</p>
+<pre>
+scala&gt; def count[A](l: List[A]) = l.size
+count: [A](List[A])Int
+</pre>
+<p>Instead you can use &#8220;wildcards&#8221;:</p>
+<pre>
+scala&gt; def count(l: List[_]) = l.size
+count: (List[_])Int
+</pre>
+<p>This is shorthand for:</p>
+<pre>
+scala&gt; def count(l: List[T forSome { type T }]) = l.size
+count: (List[T forSome { type T }])Int
+</pre>
+<p>Note that quantification can get tricky:</p>
+<pre>
+scala&gt; def drop1(l: List[_]) = l.tail
+drop1: (List[_])List[Any]
+</pre>
+<p>Suddenly we lost type information! To see what&#8217;s going on, revert to the heavy-handed syntax:</p>
+<pre>
+scala&gt; def drop1(l: List[T forSome { type T }]) = l.tail
+drop1: (List[T forSome { type T }])List[T forSome { type T }]
+</pre>
+<p>We can&#8217;t say anything about T because the type does not allow it.</p>
+<p>You may also apply bounds to wildcard type variables:</p>
+<pre>
+scala&gt; def hashcodes(l: Seq[_ &lt;: AnyRef]) = l map (_.hashCode)
+hashcodes: (Seq[_ &lt;: AnyRef])Seq[Int]
+
+scala&gt; hashcodes(Seq(1,2,3))
+&lt;console&gt;:7: error: type mismatch;
+ found   : Int(1)
+ required: AnyRef
+Note: primitive types are not implicitly converted to AnyRef.
+You can safely force boxing by casting x.asInstanceOf[AnyRef].
+       hashcodes(Seq(1,2,3))
+                     ^
+
+scala&gt; hashcodes(Seq("one", "two", "three"))
+res1: Seq[Int] = List(110182, 115276, 110339486)
+</pre>
+    </div> <!-- /container -->
+
+    <div id="footer">
+      <div class="inner">
+        <div class="container">
+          <p>
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a> and <a href="http://twitter.com/marius" target="_blank">@marius</a>.<br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

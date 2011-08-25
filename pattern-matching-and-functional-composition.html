@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Pattern matching & functional composition</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+
+  </head>
+
+  <body>
+  
+    <div class="topbar">
+      <div class="fill">
+        <div class="container fixed">
+          <h3><a href="index.html">Pattern matching & functional composition</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="collections.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="type-basics.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding-top: 60px;">
+      <p>This lesson covers:</p>
+<ul>
+	<li>Functions (again)
+	<ul>
+		<li>compose</li>
+		<li>andThen</li>
+	</ul></li>
+	<li>PartialFunctions
+	<ul>
+		<li>range and domain</li>
+		<li>composition with orElse</li>
+	</ul></li>
+	<li>Pattern Matching
+	<ul>
+		<li>extractor methods</li>
+	</ul></li>
+	<li>What is a case statement?</li>
+</ul>
+<h3>Functions (again)</h3>
+<p>Let&#8217;s make two helpful functions:</p>
+<pre>
+scala&gt; def addUmm(x: String) = x + " umm"
+addUmm: (x: String)java.lang.String
+
+scala&gt;  def addAhem(x: String) = x + " ahem"
+addAhem: (x: String)java.lang.String
+</pre>
+<h4>Partial Application (again)</h4>
+<p>You can partially apply a function using underscore.</p>
+<pre>
+scala&gt;  def addUmm(x: String) = x + " umm"
+addUmm: (x: String)java.lang.String
+
+scala&gt; addUmm _
+res0: (String) =&gt; java.lang.String = &lt;function1&gt;
+</pre>
+<p>res0 is now a function that takes a String and returns a String.</p>
+<pre>
+scala&gt; res0("hi")
+res1: java.lang.String = hi umm
+</pre>
+<h4>compose</h4>
+<p>compose calls the second function and then the first function.</p>
+<p>compose is f(g(x))</p>
+<pre>
+scala&gt; val ummThenAhem = (addAhem _) compose (addUmm _)
+ummThenAhem: (String) =&gt; java.lang.String = &lt;function1&gt;
+
+scala&gt; ummThenAhem("well")
+res0: java.lang.String = well umm ahem
+</pre>
+<h4>andThen</h4>
+<p>andThen calls the first function and then the second.</p>
+<p>andThen is g(f(x))</p>
+<pre>
+scala&gt; val ahemThenUmm = (addAhem _) andThen (addUmm _)
+ahemThenUmm: (String) =&gt; java.lang.String = &lt;function1&gt;
+
+scala&gt; ahemThenUmm("well")
+res1: java.lang.String = well ahem umm
+</pre>
+<h3>Pattern Matching</h3>
+<h4>Refreshing our memory</h4>
+<p>You can pattern match on values.</p>
+<pre>
+scala&gt; def printNumber(i: Int) = i match {
+     |   case 1 =&gt; println("it's a one!")
+     |   case 2 =&gt; println("it's a two!")
+     |   case _ =&gt; println("it's something else!")
+     | }
+printNumber: (i: Int)Unit
+
+scala&gt; printNumber(1)
+it's a one!
+
+scala&gt; printNumber(2)
+it's a two!
+
+scala&gt; printNumber(3)
+it's something else!
+</pre>
+<p>underscore is the wildcard pattern, it matches anything.</p>
+<p>You can also bind variables in your matches.</p>
+<pre>
+scala&gt; def printNumber(i: Int) = i match {
+     |   case 1 =&gt; println("it's a one!")
+     |   case 2 =&gt; println("it's a two!")
+     |   case m =&gt; println("it's the number: " + m + "!")
+     | }
+printNumber: (i: Int)Unit
+
+scala&gt; printNumber(3)
+it's the number: 3!
+</pre>
+<h4>Extractor methods</h4>
+<p>You can&#8217;t easily pattern match on regular classes like you can on case classes.</p>
+<pre>
+scala&gt; class User(val username: String, val password: String, val userid: Int)
+defined class User
+
+scala&gt; val stevej = new User("stevej", "1234", 150)
+stevej: User = User@4df3e7e8
+
+scala&gt; stevej match {
+     |   case User("stevej", _, _) =&gt; println("it's stevej")
+     | }
+&lt;console&gt;:15: error: not found: value User
+         case User("stevej", _, _) =&gt; println("it's stevej")
+</pre>
+<p>But what if we don&#8217;t want User to be a case class?  How can we make User interact nicely with pattern matching without changing the User class?</p>
+<p>Use the extractor method: unapply.</p>
+<p>Make a companion object with an unapply method.  The unapply should return an Option with a Tuple that matches your class&#8217; constructor.</p>
+<pre>
+object User {
+  def unapply(user: User): Option[(String, String, Int)] =
+    Some((user.username, user.password, user.userid))
+}
+</pre>
+<p>Now it will fit in nicely.</p>
+<pre>
+scala&gt; val stevej = new User("stevej", "1234", 150)
+stevej: User = User@5260bd13
+
+scala&gt; stevej match {
+     |   case User("stevej", _, _) =&gt; println("it's stevej")
+     | }
+it's stevej
+</pre>
+<h3>case statements</h3>
+<h5>So just what are case statements?</h5>
+<p>It&#8217;s a subclass of function called a PartialFunction.</p>
+<h5>What is a collection of multiple case statements?</h5>
+<p>They are multiple PartialFunctions composed together.</p>
+<h3>Understanding PartialFunction</h3>
+<p>A function closes over an entire domain.  In other words, a function defined as (Int) =&gt; String takes any Int and returns a String.</p>
+<p>A Partial Function is only partially closed over a domain.  A Partial Function (Int) =&gt; String might not accept every Int.</p>
+<p>isDefinedAt is a method on PartialFunction that can be used to determine if the PartialFunction will accept a given argument.</p>
+<pre>
+scala&gt; val one: PartialFunction[Int, String] = { case 1 =&gt; "one" }
+one: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; one.isDefinedAt(1)
+res0: Boolean = true
+
+scala&gt; one.isDefinedAt(2)
+res1: Boolean = false
+</pre>
+<p>You can apply a partial function.</p>
+<pre>
+scala&gt; one(1)
+res2: String = one
+</pre>
+<p>PartialFunctions can be composed with something new, called orElse, that reflects whether the PartialFunction is defined over the supplied argument.</p>
+<pre>
+scala&gt; val two: PartialFunction[Int, String] = { case 2 =&gt; "two" }
+two: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; val three: PartialFunction[Int, String] = { case 3 =&gt; "three" }
+three: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; val wildcard: PartialFunction[Int, String] = { case _ =&gt; "something else" }
+wildcard: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; one orElse two orElse three orElse wildcard
+res23: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; res23(5)
+res24: String = something else
+
+scala&gt; res23(3)
+res25: String = three
+
+scala&gt; res23(2)
+res26: String = two
+
+scala&gt; res23(1)
+res27: String = one
+
+scala&gt; res23(0)
+res28: String = something else
+</pre>
+<h4>The mystery of case.</h4>
+<p>Last week we saw something curious. We saw a case statement used where a function is normally used.</p>
+<pre>
+scala&gt; case class PhoneExt(name: String, ext: Int)
+defined class PhoneExt
+
+scala&gt; val extensions = List(PhoneExt("steve", 100), PhoneExt("robey", 200))
+extensions: List[PhoneExt] = List(PhoneExt(steve,100), PhoneExt(robey,200))
+
+scala&gt; extensions.filter { case PhoneExt(name, extension) =&gt; extension &lt; 200 }
+res0: List[PhoneExt] = List(PhoneExt(steve,100))
+</pre>
+<p>Why does this work?</p>
+<p>filter takes a function. In this case a predicate function of (PhoneExt) =&gt; Boolean.</p>
+<p>A PartialFunction is a subtype of Function so filter can also take a PartialFunction!</p>
+    </div> <!-- /container -->
+
+    <div id="footer">
+      <div class="inner">
+        <div class="container">
+          <p>
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a> and <a href="http://twitter.com/marius" target="_blank">@marius</a>.<br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

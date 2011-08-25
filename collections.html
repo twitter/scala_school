@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Collections</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+
+  </head>
+
+  <body>
+  
+    <div class="topbar">
+      <div class="fill">
+        <div class="container fixed">
+          <h3><a href="index.html">Collections</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="basics2.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="pattern-matching-and-functional-composition.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding-top: 60px;">
+      <p>This lesson covers:</p>
+<ul>
+	<li>Lists</li>
+	<li>Maps</li>
+	<li>Sets</li>
+	<li>Seq</li>
+	<li>Tuples</li>
+	<li>functional combinators
+	<ul>
+		<li>map</li>
+		<li>foreach</li>
+		<li>filter</li>
+		<li>zip</li>
+		<li>foldRight and foldLeft</li>
+	</ul></li>
+</ul>
+<h2>Preliminaries</h2>
+<p>Reminders from Lessons 1 &amp; 2: A simpler time.</p>
+<h4>Functions</h4>
+<p>The humble function</p>
+<pre>
+def timesTwo(i: Int): Int = i * 2
+</pre>
+<p>An anonymous function</p>
+<pre>
+(i: Int) =&gt; i * 2
+</pre>
+<p>You can assign an anonymous function to a value, thus giving it a name.</p>
+<pre>
+val timesTwo = (i: Int) =&gt; i * 2
+</pre>
+<p>If your function is made up of many expressions, you can use {} to give yourself some breathing room.</p>
+<pre>
+def timesTwo(i: Int): Int = {
+  println("hello world")
+  i * 2
+}
+</pre>
+<p>This is also true of an anonymous function</p>
+<pre>
+scala&gt; { i: Int =&gt;
+  println("hello world")
+  i * 2
+}
+res0: (Int) =&gt; Int = &lt;function1&gt;
+</pre>
+<p>You will see this syntax often used when passing an anonymous function as an argument.</p>
+<h4>Partial application</h4>
+<p>You can partially apply a function with an underscore, which gives you another function.</p>
+<pre>
+scala&gt; timesTwo _
+res0: (Int) =&gt; Int = &lt;function1&gt;
+</pre>
+<h4>Curried functions</h4>
+<p>Sometimes it makes sense to let people apply some arguments to your<br />
+function now and others later.</p>
+<pre>
+scala&gt; def multiply(m: Int)(n: Int): Int = m * n
+multiply: (m: Int)(n: Int)Int
+</pre>
+<p>You can call it directly</p>
+<pre>
+scala&gt; multiply(2)(3)
+res0: Int = 6
+</pre>
+<p>You can fill in the first parameter and partially applying the second.</p>
+<pre>
+scala&gt; val timesTwo = multiply(2) _
+timesTwo: (Int) =&gt; Int = &lt;function1&gt;
+
+scala&gt; timesTwo(3)
+res1: Int = 6
+</pre>
+<p>This sometimes lead to crazy pieces of code like:</p>
+<pre>
+multiplyThenFilter { i: Int =&gt;
+  i * 2
+} { i: Int =&gt;
+  i &lt; 5
+}
+</pre>
+<p>I promise you get used to this over time.</p>
+<h2>Basic Datastructures</h2>
+<h3>Lists</h3>
+<pre>
+val numbers = List(1, 2, 3, 4)
+numbers: List[Int] = List(1, 2, 3, 4)
+</pre>
+<p>Scala realized you were talking about a List of Ints and so parameterized it.</p>
+<p>You can parameterize it manually if you want.</p>
+<p>List[Int](1, 2, 3, 4)</p>
+<p>You can also build lists with :: by appending elements onto the empty list: Nil.</p>
+<pre>
+scala&gt; val numbers = 1 :: 2 :: 3 :: 4 :: Nil
+numbers: List[Int] = List(1, 2, 3, 4)
+</pre>
+<h3>Maps</h3>
+<p>It can hold basic datatypes.</p>
+<pre>
+Map(1 -&gt; 2)
+Map("foo" -&gt; "bar")
+</pre>
+<p>Nested Maps:</p>
+<pre>
+Map(1 -&gt; Map("foo" -&gt; "bar"))
+</pre>
+<p>You can even hold functions as values:</p>
+<pre>
+Map("timesTwo" -&gt; timesTwo _)
+</pre>
+<h3>Sets</h3>
+<p>Sets have no duplicates</p>
+<pre>
+scala&gt; Set(1, 1, 2)
+res0: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+<h3>Seq</h3>
+<p>Sequences have a defined order, they are Lists under the covers but many APIs will use the more generic Seq as their return type.</p>
+<pre>
+scala&gt; Seq(1, 1, 2)
+res0: Seq[Int] = List(1, 1, 2)
+</pre>
+<h3>Tuple</h3>
+<p>Tuples are used for grouping together simple logical collections of<br />
+items without using a class.</p>
+<pre>
+scala&gt; val hostPort = ("localhost", 80)
+hostPort: (java.lang.String, Int) = (localhost, 80)
+</pre>
+<p>Unlike case classes, they don&#8217;t have named accessors, instead they have accessors that are named by their position (1-based).</p>
+<pre>
+scala&gt; hostPort._1
+res0: java.lang.String = localhost
+
+scala&gt; hostPort._2
+res1: Int = 80
+</pre>
+<p>Tuples fit with pattern matching nicely.</p>
+<pre>
+hostPort match {
+  case ("localhost", port) =&gt; ...
+  case (host, port) =&gt; ...
+}
+</pre>
+<h2>Functional Combinators</h2>
+<p>This fancy name is giving to a standard set of functions that can be applied to Lists and Maps.</p>
+<p>They are called combinators because they are meant to be combined.  the output of one function is often suitable as the input for another.</p>
+<h4>map</h4>
+<p>Evaluates a function over each element in the list, returning a list with the same number of elements.</p>
+<pre>
+scala&gt; numbers.map((i: Int) =&gt; i * 2)
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+<p>or pass in a partially evaluated function</p>
+<pre>
+
+scala&gt; def timesTwo(i: Int): Int = i * 2
+timesTwo: (i: Int)Int
+
+scala&gt; numbers.map(timesTwo _)
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+<h4>foreach</h4>
+<p>foreach is like map but returns nothing. foreach is intended for side-effects only.</p>
+<pre>
+scala&gt; numbers.foreach((i: Int) =&gt; i * 2)
+</pre>
+<p>returns nothing.</p>
+<p>You can try to store the return in a value but it&#8217;ll be of type Unit (i.e. void)</p>
+<pre>
+scala&gt; val doubled = numbers.foreach((i: Int) =&gt; i * 2)
+doubled: Unit = ()
+</pre>
+<h4>filter</h4>
+<p>removes any elements where the function you pass in evaluates to false.  Functions that return a Boolean are often called predicate functions.</p>
+<pre>
+scala&gt; numbers.filter((i: Int) =&gt; i % 2 == 0)
+res0: List[Int] = List(2, 4)
+</pre>
+
+<pre>
+scala&gt; def isEven(i: Int): Boolean = i % 2 == 0
+isEven: (i: Int)Boolean
+
+scala&gt; numbers.filter(isEven _)
+res2: List[Int] = List(2, 4)
+</pre>
+<h4>zip</h4>
+<p>zip aggregates the contents of two lists into a single list of pairs.</p>
+<pre>
+scala&gt; List(1, 2, 3).zip(List("a", "b", "c"))
+res0: List[(Int, java.lang.String)] = List((1,a), (2,b), (3,c))
+</pre>
+<h4>partition</h4>
+<p>partition splits a list based on where it falls with respect to a predicate function.</p>
+<pre>
+scala&gt; List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).partition((i: Int) =&gt; i &gt; 5)
+res0: (List[Int], List[Int]) = (List(6, 7, 8, 9, 10),List(1, 2, 3, 4, 5))
+</pre>
+<h4>find</h4>
+<p>find returns the first element of a collection that matches a predicate function.</p>
+<pre>
+scala&gt; numbers.find((i: Int) =&gt; i &gt; 5)
+res0: Option[Int] = Some(6)
+</pre>
+<h4>drop &amp; dropWhile</h4>
+<p>Drops the first i elements</p>
+<pre>
+scala&gt; numbers.drop(5)
+res0: List[Int] = List(6, 7, 8, 9, 10)
+</pre>
+<p>dropWhile removes elements that don&#8217;t match a predicate function.  Here we can re-implement drop.</p>
+<pre>
+scala&gt; numbers.dropWhile((i: Int) =&gt; i &lt; 6)
+res0: List[Int] = List(6, 7, 8, 9, 10)
+</pre>
+<h4>foldLeft</h4>
+<pre>
+scala&gt; numbers.foldLeft(0)((m: Int, n: Int) =&gt; m + n)
+res0: Int = 55
+</pre>
+<p>0 is the starting value (Remember that numbers is a List[Int]), and m<br />
+acts as an accumulator.</p>
+<p>Seen visually:</p>
+<pre>
+scala&gt; numbers.foldLeft(0) { (m: Int, n: Int) =&gt; println("m: " + m + " n: " + n); m + n }
+m: 0 n: 1
+m: 1 n: 2
+m: 3 n: 3
+m: 6 n: 4
+m: 10 n: 5
+m: 15 n: 6
+m: 21 n: 7
+m: 28 n: 8
+m: 36 n: 9
+m: 45 n: 10
+res0: Int = 55
+</pre>
+<h5>foldRight</h5>
+<p>Is the same as foldLeft except it runs in the opposite direction.</p>
+<pre>
+scala&gt; numbers.foldRight(0) { (m: Int, n: Int) =&gt; println("m: " + m + " n: " + n); m + n }
+m: 10 n: 0
+m: 9 n: 10
+m: 8 n: 19
+m: 7 n: 27
+m: 6 n: 34
+m: 5 n: 40
+m: 4 n: 45
+m: 3 n: 49
+m: 2 n: 52
+m: 1 n: 54
+res0: Int = 55
+</pre>
+<h4>Generalized functional combinators</h4>
+<p>Now we&#8217;ve learned a grab-bag of functions for working with collections.</p>
+<p>What we&#8217;d like is to be able to write our own functional combinators.</p>
+<p>Interestingly, every functional combinator shown above can be written on top of fold.  Let&#8217;s see some examples.</p>
+<pre>
+def ourMap(numbers: List[Int], fn: Int =&gt; Int): List[Int] = {
+  numbers.foldRight(List[Int]()) { (x: Int, xs: List[Int]) =&gt;
+    fn(x) :: xs
+  }
+}
+
+scala&gt; ourMap(numbers, timesTwo _)
+res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
+</pre>
+<p>Why <tt>List[Int]()</tt>? Scala wasn&#8217;t smart enough to realize that you wanted an empty list of Ints to accumulate into.</p>
+<h3>Map?</h3>
+<p>All of the functional combinators shown work on Maps, too.  Maps can be thought of as a list of pairs so the functions you write work on a pair of the keys and values in the Map.</p>
+<pre>
+scala&gt; val extensions = Map("steve" -&gt; 100, "bob" -&gt; 101, "joe" -&gt; 201)
+extensions: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101), (joe,201))
+</pre>
+<p>now filter out every entry who&#8217;s phone extension is lower than 200.</p>
+<pre>
+scala&gt; extensions.filter((namePhone: (String, Int)) =&gt; namePhone._2 &lt; 200)
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101))
+</pre>
+<p>Because it gives you a tuple, you have to pull out the keys and values with their positional accessors. Yuck!</p>
+<p>Lucky us, we can actually use a pattern match to extract the key and value nicely.</p>
+<pre>
+scala&gt; extensions.filter { case (name, extension) =&gt; extension &lt; 200 }
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101))
+</pre>
+<p>Why does this work? Why can you pass in a partial pattern match?</p>
+<p>Stay tuned for next week!</p>
+    </div> <!-- /container -->
+
+    <div id="footer">
+      <div class="inner">
+        <div class="container">
+          <p>
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a> and <a href="http://twitter.com/marius" target="_blank">@marius</a>.<br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Searchbird</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+
+  </head>
+
+  <body>
+  
+    <div class="topbar">
+      <div class="fill">
+        <div class="container fixed">
+          <h3><a href="index.html">Searchbird</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="finagle.html">&laquo;Previous</a></li>
+            
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding-top: 60px;">
+      <p>We&#8217;re going to build a very simple distributed search engine using <a href="http://github.com/twitter/finagle">Finagle</a>. First, create a skeleton project using <a href="https://github.com/twitter/scala-bootstrapper">scala-bootstrapper</a></p>
+<p><code>scala-bootstrapper</code> will create a very simple finagle based scala service that exports an in-memory key-value store. We&#8217;ll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.</p>
+<pre>
+$ mkdir searchbird; cd searchbird
+$ scala-bootstrapper -p searchbird
+$ find . -type f
+./Capfile
+./config/development.scala
+./config/production.scala
+./config/staging.scala
+./config/test.scala
+./Gemfile
+./project/build/SearchbirdProject.scala
+./project/build.properties
+./project/plugins/Plugins.scala
+./run
+./src/main/scala/com/twitter/searchbird/config/SearchbirdServiceConfig.scala
+./src/main/scala/com/twitter/searchbird/Main.scala
+./src/main/scala/com/twitter/searchbird/SearchbirdServiceImpl.scala
+./src/main/thrift/searchbird.thrift
+./src/scripts/console
+./src/scripts/searchbird.sh
+./src/test/scala/com/twitter/searchbird/AbstractSpec.scala
+./src/test/scala/com/twitter/searchbird/SearchbirdServiceSpec.scala
+</pre>
+<h3>Exploring the default bootstrapper project</h3>
+<p>Let&#8217;s first explore the default project <code>scala-bootstrapper</code> creates for us. This is meant as a template. You&#8217;ll end up substituting most of it, but it serves as a convenient scaffold. It defines a simple (but complete) key-value store. Configuration, a thrift interface, stats export and logging are all included.</p>
+<p>Since searchbird is a <a href="http://thrift.apache.org/">thrift</a> service (like most of our services), its external interface is defined in the thrift <span class="caps">IDL</span>.</p>
+<h5>src/main/thrift/searchbird.thrift</h5>
+<pre>
+service SearchbirdService {
+  string get(1: string key) throws(1: SearchbirdException ex)
+  void put(1: string key, 2: string value)
+}
+</pre>
+<p>This is pretty straightforward: our service <code>SearchbirdService</code> exports 2 <span class="caps">RPC</span> methods, <code>get</code> and <code>put</code>. They comprise a simple interface to a key-value store.</p>
+<p>Now run the default service, and explore it through this interface.</p>
+<p>First build the project, and run the service (which is also the default &#8220;main&#8221; method that sbt will run).</p>
+<pre>
+$ sbt
+…
+&gt; update
+…
+&gt; compile
+&gt; run -f config/development.scala
+</pre>
+<p><code>scala-bootstrapper</code> also creates a ruby client (<code>sbt</code> has generated the appropriate ruby sources for us as well).</p>
+<pre>
+$ gem install thrift_client --version '=0.6'
+$ src/scripts/console
+Hint: the client is in the variable `$client`
+No servers specified, using 127.0.0.1:9999
+&gt; $client.put("foo", "bar")
+nil
+&gt; $client.get("foo")
+"bar"
+&gt;
+</pre>
+<p>The server also exports runtime statistics. These are convenient both for inspecting individual servers as well as aggregating into global service statistics (a machine-readable json interface is also provided).</p>
+<pre>
+$ curl localhost:9900/stats.txt
+counters:
+  Searchbird/connects: 2
+  Searchbird/requests: 5
+  Searchbird/success: 5
+  jvm_gc_ConcurrentMarkSweep_cycles: 2
+  jvm_gc_ConcurrentMarkSweep_msec: 102
+  jvm_gc_ParNew_cycles: 9
+  jvm_gc_ParNew_msec: 210
+  jvm_gc_cycles: 11
+  jvm_gc_msec: 312
+gauges:
+  Searchbird/connections: 0
+  Searchbird/pending: 0
+  jvm_fd_count: 147
+  jvm_fd_limit: 10240
+  jvm_heap_committed: 588251136
+  jvm_heap_max: 3220570112
+  jvm_heap_used: 39530208
+  jvm_nonheap_committed: 81481728
+  jvm_nonheap_max: 1124073472
+  jvm_nonheap_used: 69312424
+  jvm_num_cpus: 4
+  jvm_post_gc_CMS_Old_Gen_used: 5970824
+  jvm_post_gc_CMS_Perm_Gen_used: 46407832
+  jvm_post_gc_Par_Eden_Space_used: 0
+  jvm_post_gc_Par_Survivor_Space_used: 0
+  jvm_post_gc_used: 52378656
+  jvm_start_time: 1314124442749
+  jvm_thread_count: 14
+  jvm_thread_daemon_count: 8
+  jvm_thread_peak_count: 14
+  jvm_uptime: 404221
+labels:
+metrics:
+  Searchbird/connection_duration: (average=25115, count=2, maximum=52068, minimum=142, p25=142, p50=142, p75=52068, p90=52068, p95=52068, p99=52068, p999=52068, p9999=52068, sum=50230)
+  Searchbird/connection_received_bytes: (average=84, count=2, maximum=142, minimum=29, p25=29, p50=29, p75=142, p90=142, p95=142, p99=142, p999=142, p9999=142, sum=169)
+  Searchbird/connection_requests: (average=2, count=2, maximum=4, minimum=1, p25=1, p50=1, p75=4, p90=4, p95=4, p99=4, p999=4, p9999=4, sum=5)
+  Searchbird/connection_sent_bytes: (average=61, count=2, maximum=95, minimum=23, p25=23, p50=23, p75=95, p90=95, p95=95, p99=95, p999=95, p9999=95, sum=123)
+  Searchbird/request_latency_ms: (average=20, count=5, maximum=95, minimum=1, p25=1, p50=2, p75=8, p90=95, p95=95, p99=95, p999=95, p9999=95, sum=103)
+</pre>
+<p>In addition to our own service statistics, we are also given some generic <span class="caps">JVM</span> stats that are often useful.</p>
+<h5>…/config/SearchbirdServiceConfig.scala</h5>
+<p>Configurations are simply any scala trait that has a method <code>apply: RuntimeEnvironment =&gt; T</code> for some <code>T</code> we want to create. In this sense, they are &#8220;factories&#8221;. At runtime, a configuration file is evaluated as a script (by using the scala compiler as a library), and is expected to produce such a configuration object. <code>RuntimeEnvironment</code>s are objects queried for various runtime parameters (command line flags, <span class="caps">JVM</span> version, build timestamps, etc.).</p>
+<p>The <code>SearchbirdServiceConfig</code> class specifies such a class. It specifies configuration parameters together with their defaults.</p>
+<pre>
+class SearchbirdServiceConfig extends ServerConfig[SearchbirdServiceServer] {
+  var thriftPort: Int = 9999
+
+  def apply(runtime: RuntimeEnvironment) = new SearchbirdServiceImpl(this)
+}
+</pre>
+<p>In our case, we want to create a <code>SearchbirdServiceServer</code>. This is the server type generated by the thrift code generator<sup class="footnote" id="fnr1"><a href="#fn1">1</a></sup>.</p>
+<h5>…/Main.scala</h5>
+<p>The <code>main</code> function is very simple: it reads the configuration, creates a <code>SearchbirdServiceServer</code> and starts it. <code>RuntimeEnvironment.loadRuntimeConfig</code> performs the configuration evaluation and calls its <code>apply</code> method with itself as an argument<sup class="footnote" id="fnr2"><a href="#fn2">2</a></sup>.</p>
+<pre>
+object Main {
+  def main(args: Array[String]) {
+    val env = RuntimeEnvironment(this, args)
+    val service = env.loadRuntimeConfig[SearchbirdServiceServer]
+    service.start()
+  }
+}
+</pre>
+<h5>…/SearchbirdServiceImpl.scala</h5>
+<p>This is the meat of the service: we extend the <code>SearchbirdServiceServer</code> with our custom implementation. Recall that <code>SearchbirdServiceServer</code> has been created for us by the thrift code generator. It generates a scala method per thrift method. In our example so far, the generated interface is:</p>
+<pre>
+trait SearchbirdService {
+  def put(key: String, value: String): Future[Void]
+  def get(key: String): Future[String]
+}
+</pre>
+<p><code>Future[Value]</code>s are returned instead of the values directly so that their computation may be deferred.</p>
+<p>The default implementation provided by <code>scala-bootstrapper</code> is quite simple:</p>
+<pre>
+class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdServiceServer {
+  val serverName = "Searchbird"
+  val thriftPort = config.thriftPort
+
+  val database = new mutable.HashMap[String, String]()  
+
+  def get(key: String) = {
+    database.get(key) match {
+      case None =&gt;
+        log.debug("get %s: miss", key)
+        Future.exception(new SearchbirdException("No such key"))
+      case Some(value) =&gt;
+        log.debug("get %s: hit", key)
+        Future(value)
+    }
+  }
+
+  def put(key: String, value: String) = {
+    log.debug("put %s", key)
+    database(key) = value
+    Future.void
+  }
+}
+</pre>
+<p>It implements a simple thrift interface to a scala <code>HashMap</code>.</p>
+<h2>A simple search engine</h2>
+<p>Now we&#8217;ll extend our example so far to create a simple search engine. We&#8217;ll then extend it further to become a <em>distributed</em> seach engine consisting of multiple shards so that we can fit a corpus larger what can fit in memory of a single machine. To keep things simple, we&#8217;ll extend our current thrift service minimally in order to support a search operation.</p>
+<h5>src/main/thrift/searchbird.thrift</h5>
+<pre>
+service SearchbirdService {
+  string get(1: string key) throws(1: SearchbirdException ex)
+  void put(1: string key, 2: string value)
+  list&lt;string&gt; search(1: string query)
+}
+</pre>
+<p>We&#8217;ve added a <code>search</code> method that searches the current hashtable, returning the list of keys whose values match the query. The implementation is also straightforward:</p>
+<h5>…/SearchbirdServiceImpl.scala</h5>
+<p>We first add another <code>HashMap</code> to hold the reverse index</p>
+<pre>
+  val forward = new mutable.HashMap[String, String]
+    with mutable.SynchronizedMap[String, String]
+  val reverse = new mutable.HashMap[String, Set[String]]
+    with mutable.SynchronizedMap[String, Set[String]]
+</pre>
+<p>The <code>get</code> method remains the same (it only performs forward lookups), but we need to populate the reverse index on <code>put</code>.</p>
+<pre>
+  def put(key: String, value: String) = {
+    log.debug("put %s", key)
+    
+    forward(key) = value
+
+    // admit only one updater.
+    synchronized {
+      (Set() ++ value.split(" ")) foreach { token =&gt;
+        val current = reverse.get(token) getOrElse Set()
+        reverse(token) = current + key
+      }
+    }
+
+    Future.void
+  }
+</pre>
+<p>This is simple: we tokenize by splitting the value, and then store a reference to the key for each token. This will allow us to perform lookups by the tokens themselves.</p>
+<p>Note that since we do a retrieve-modify-update, we need to synchronize the update even though the underlying <code>HashMap</code> is synchronized. Also, this implementation has a bug: when overwriting keys, we&#8217;re not collecting references to the old value in the reverse index. Fixing this is an excercise for the reader.</p>
+<p>Now to the meat of the search engine: the new <code>search</code> method. It should tokenize its query, look up all of the matching documents and then intersect these lists. This will yield the list of documents that contain all of the tokens in the query. This is also pretty straightforward to express in Scala:</p>
+<pre>
+  def search(query: String) = Future.value {
+    val tokens = query.split(" ")
+    val hits = tokens map { token =&gt; reverse.getOrElse(token, Set()) }
+    val intersected = hits reduceLeftOption { _ &amp; _ } getOrElse Set()
+    intersected.toList
+  }
+</pre>
+<p>A few things are worth calling out in this short piece of code. When constructing the hit list, <code>getOrElse</code> will supply the value in the 2nd parameter if the key (<code>token</code>) is not found. We perform the actual intersection using a left-reduce. The particular flavor, <code>reduceLeftOption</code> will not attempt to perform the reduce if <code>hits</code> is empty, returning instead a <code>None</code>. This allows us to supply a default value instead of experiencing an exception. In fact, this is equivalent to:</p>
+<pre>
+  def search(query: String) = Future.value {
+    val tokens = query.split(" ")
+    val hits = tokens map { token =&gt; reverse.getOrElse(token, Set()) }
+    if (hits.isEmpty)
+      Nil
+    else
+      hits reduceLeft { _ &amp; _ } toList
+  }
+</pre>
+<p>Which to use is mostly a matter of taste, though functional style often eschews conditionals for sensible defaults.</p>
+<p>We can now experiment with our store in using the console.</p>
+<pre>
+$ src/scripts/console
+Hint: the client is in the variable `$client`
+No servers specified, using 127.0.0.1:9999
+&gt; 
+</pre>
+<p>Paste the lecture descriptions in.</p>
+<p><!--
+grep -h '^(desc|title):' ../web/_posts/* | tr A-Z a-z | tr '=''\-+.,:' ' ' | awk '
+/^title/ { title=$2 }
+/^desc/ {
+	d=""
+	for(i = 2; i < NF; i++) { d = d " " $i }
+	print "$client.put(\"" title "\", \"" d "\")"
+}'
+--></p>
+<pre>
+$client.put("basics", " values functions classes methods inheritance try catch finally expression oriented")
+$client.put("basics", " case classes objects packages apply update functions are objects (uniform access principle) pattern")
+$client.put("collections", " lists maps functional combinators (map foreach filter zip")
+$client.put("pattern", " more functions! partialfunctions more pattern")
+$client.put("type", " basic types and type polymorphism type inference variance bounds")
+$client.put("advanced", " advanced types view bounds higher kinded types recursive types structural")
+$client.put("simple", " all about sbt the standard scala build")
+$client.put("more", " tour of the scala collections")
+$client.put("testing", " write tests with specs a bdd testing framework for")
+$client.put("concurrency", " runnable callable threads futures twitter")
+$client.put("java", " java interop using scala from")
+$client.put("searchbird", " building a distributed search engine using")
+</pre>
+<p>We can now perform some searches.</p>
+<pre>
+&gt; $client.search("functions")
+["basics"]
+&gt; $client.search("java")
+["java"]
+&gt; $client.search("java scala")
+["java"]
+&gt; $client.search("functional")
+["collections"]
+&gt; $client.search("sbt")
+["simple"]
+&gt; $client.search("types")
+["type", "advanced"]
+</pre>
+<h2>Distributing our service</h2>
+<p>Our simple in-memory search engine won&#8217;t be able to search corpuses larger than the size of memory on a single machine. We&#8217;ll not venture to remedy this by distributing nodes with a simple sharding scheme.</p>
+<h3>Abstracting</h3>
+<p>To aid our work, we&#8217;ll first introduce another abstraction: an <code>Index</code> in order to decouple the index implementation from the <codec>SearchBirdService</code>. This is a straightforward refactor.</p>
+<h5>…/Index.scala</h5>
+<pre>
+package com.twitter.searchbird
+
+import scala.collection.mutable
+import com.twitter.util._
+import com.twitter.logging.Logger
+
+trait Index {
+  def get(key: String): Future[String]
+  def put(key: String, value: String): Future[Unit]
+  def search(key: String): Future[List[String]]
+}
+
+class ResidentIndex extends Index {
+  val log = Logger.get(getClass)
+
+  val forward = new mutable.HashMap[String, String]
+    with mutable.SynchronizedMap[String, String]
+  val reverse = new mutable.HashMap[String, Set[String]]
+    with mutable.SynchronizedMap[String, Set[String]]
+
+  def get(key: String) = {
+    forward.get(key) match {
+      case None =&gt;
+        log.debug("get %s: miss", key)
+        Future.exception(new SearchbirdException("No such key"))
+      case Some(value) =&gt;
+        log.debug("get %s: hit", key)
+        Future(value)
+    }
+  }
+
+  def put(key: String, value: String) = {
+    log.debug("put %s", key)
+    
+    forward(key) = value
+
+    // admit only one updater.
+    synchronized {
+      (Set() ++ value.split(" ")) foreach { token =&gt;
+        val current = reverse.get(token) getOrElse Set()
+        reverse(token) = current + key
+      }
+    }
+
+    Future.Unit
+  }
+
+  def search(query: String) = Future.value {
+    val tokens = query.split(" ")
+    val hits = tokens map { token =&gt; reverse.getOrElse(token, Set()) }
+    val intersected = hits reduceLeftOption { _ &amp; _ } getOrElse Set()
+    intersected.toList
+  }
+}
+</pre>
+<p>We now convert our thrift service to a simple dispatch mechanism: it provides a thrift interface to any <code>Index</code> instance. The power of this will soon be apparent.</p>
+<h5>…/SearchbirdServiceImpl.scala</h5>
+<pre>
+class SearchbirdServiceImpl(config: SearchbirdServiceConfig, index: Index) extends SearchbirdServiceServer {
+  val serverName = "Searchbird"
+  val thriftPort = config.thriftPort
+
+  def get(key: String) = index.get(key)
+  def put(key: String, value: String) =
+    index.put(key, value) flatMap { _ =&gt; Future.void }
+  def search(query: String) = index.search(query)
+}
+</pre>
+<p>Finally we adjust our configuration class to match the new convention.</p>
+<h5>…/config/SearchbirdServiceConfig.scala</h5>
+<pre>
+class SearchbirdServiceConfig extends ServerConfig[SearchbirdServiceServer] {
+  var thriftPort: Int = 9999
+  def apply(runtime: RuntimeEnvironment) = new SearchbirdServiceImpl(this, new ResidentIndex)
+}
+</pre>
+<p>We&#8217;ll set up our simple distributed system so that there is one distinguished node that coordinates queries its child nodes. In order to achieve this, we&#8217;ll need two new <code>Index</code> types. One represents a remote index, the other is a composite index over several other <code>Index</code> instances. This way we can construct the distributed index by instantiating a composite index the remote indices.</p>
+<p>First we define a <code>CompositeIndex</code>.</p>
+<pre>
+class CompositeIndex(indices: Seq[Index]) extends Index {
+  require(!indices.isEmpty)
+
+  def get(key: String) = {
+    val queries = indices.map { idx =&gt;
+      idx.get(key) map { r =&gt; Some(r) } handle { case e =&gt; None }
+    }
+
+    Future.collect(queries) flatMap { results =&gt;
+      results.find { _.isDefined } map { _.get } match {
+        case Some(v) =&gt; Future.value(v)
+        case None =&gt; Future.exception(new SearchbirdException("No such key"))
+      }
+    }
+  }
+
+  def put(key: String, value: String) =
+    Future.exception(new SearchbirdException("put() not supported by CompositeIndex"))
+
+  def search(query: String) = {
+    val queries = indices.map { _.search(query) rescue { case _=&gt; Future.value(Nil) } }
+    Future.collect(queries) map { results =&gt; (Set() ++ results.flatten) toList }
+  }
+}
+</pre>
+<p>The composite index works over a set of underlying <code>Index</code> instances. Note that the it doesn&#8217;t care how these are actually implemented. This type of composition allows for great flexibility in constructing various querying schemes. We don&#8217;t define a sharding scheme, and so the composite index doesn&#8217;t support <code>put</code> operations. These are instead issued directly to the child nodes. <code>get</code> is implemented by querying all of our child nodes and picking the first succesful result. If there are none, we throw an exception. Note that since the absence of a value is communicated by throwing an exception, we <code>handle</code> this on the <code>Future</code>, converting any exception into a <code>None</code> value. In a real system, we&#8217;d probably have proper error codes for missing values rather than using exceptions. Exceptions are convenient and expedient for prototyping, but compose poorly. In order to distinguish between a real exception and a missing value, I have to examine the exception itself. Rather it is better style to embed this distinction directly in the type of the returned value.</p>
+<p><code>search</code> works in a similar way. Instead of picking the first result, we combine them, ensuring their uniqueness by using a <code>Set</code> construction.</p>
+<p><code>RemoteIndex</code> provides an <code>Index</code> interface over a number of hosts.</p>
+<pre>
+class RemoteIndex(hosts: String) extends Index {
+  val transport = ClientBuilder()
+    .name("remoteIndex")
+    .hosts(hosts)
+    .codec(ThriftClientFramedCodec())
+    .hostConnectionLimit(1)
+    .timeout(500.milliseconds)
+    .build()
+  val client = new SearchbirdServiceClientAdapter(
+      new thrift.SearchbirdService.ServiceToClient(
+        transport, new TBinaryProtocol.Factory))
+
+  def get(key: String) = client.get(key)
+  def put(key: String, value: String) = client.put(key, value) map { _ =&gt; () }
+  def search(query: String) = client.search(query) map { _.toList }
+}
+</pre>
+<p>This constructs a finagle thrift client with some sensible defaults, and just proxies the calls, adjusting the types slightly.</p>
+<h3>Putting it all together</h3>
+<p>We now have all the pieces we need. We&#8217;ll need to adjust the configuration in order to be able to invoke a given node as either a distinguished node or a data shard node. In order to do so, we&#8217;ll enumerate the shards in our system by creating a new config item for it. We&#8217;ll then use command line arguments (recall that the <code>Config</code> has access to these) to start the server up in either mode.</p>
+<pre>
+class SearchbirdServiceConfig extends ServerConfig[SearchbirdServiceServer] {
+  var thriftPort: Int = 9999
+  var shards: Seq[String] = Seq()
+
+  def apply(runtime: RuntimeEnvironment) = {
+    val index = runtime.arguments.get("shard") match {
+      case Some(arg) =&gt;
+        val which = arg.toInt
+        if (which &gt;= shards.size || which &lt; 0)
+          throw new Exception("invalid shard number %d".format(which))
+
+        // override with the shard port
+        val Array(_, port) = shards(which).split(":")
+        thriftPort = port.toInt
+
+        new ResidentIndex
+
+      case None =&gt;
+        require(!shards.isEmpty)
+        val remotes = shards map { new RemoteIndex(_) }
+        new CompositeIndex(remotes)
+    }
+
+    new SearchbirdServiceImpl(this, index)
+  }
+}
+</pre>
+<p>And finally we&#8217;ll adjust the configuration itself:</p>
+<pre>
+new SearchbirdServiceConfig {
+  shards = Seq(
+    "localhost:9000",
+    "localhost:9001",
+    "localhost:9002"
+  )
+  …
+</pre>
+<p>Now if we invoke our server without any arguments, it starts a distinguished node that speaks to all of the given shards. If we specify a shard argument, it starts a server on the port belonging to that shard index.</p>
+<p>Let&#8217;s try it! We&#8217;ll launch 2 shards and 1 distinguished node.</p>
+<pre>
+$ sbt 'run -f config/development.scala -D shard=0'&amp;
+$ sbt 'run -f config/development.scala -D shard=1'&amp;
+$ sbt 'run -f config/development.scala'&amp;
+</pre>
+<p>Then interact with it through the console. First let&#8217;s populate some data in the two shard nodes.</p>
+<pre>
+$ src/scripts/console localhost:9000
+&gt; $client.put("fromShardA", "a value from SHARD_A")
+&gt; $client.put("hello", "world")
+^D
+$ src/scripts/console localhost:9001
+&gt; $client.put("fromShardB", "a value from SHARD_B")
+&gt; $client.put("hello", "world again")
+</pre>
+<p>And now let&#8217;s query our database from the distinguished node.</p>
+<pre>
+$ src/scripts/console
+No servers specified, using 127.0.0.1:9999
+&gt; $client.get("hello")
+"world"
+&gt; $client.get("fromShardC")
+Searchbird::SearchbirdService::Client::ApplicationException: Searchbird::SearchbirdService::Client::ApplicationException
+…
+&gt; $client.get("fromShardA")
+"a value from SHARD_A"
+&gt; $client.search("hello")
+[]
+&gt; $client.search("world")
+["hello"]
+&gt; $client.search("value")
+["fromShardA", "fromShardB"]
+</pre>
+<p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> In <code>target/gen-scala/com/twitter/searchbird/SearchbirdService.scala</code></p>
+<p class="footnote" id="fn2"><a href="#fnr2"><sup>2</sup></a> See Ostrich&#8217;s <span class="caps">README</span>:https://github.com/twitter/ostrich/blob/master/<span class="caps">README</span>.md for more information.</p>
+    </div> <!-- /container -->
+
+    <div id="footer">
+      <div class="inner">
+        <div class="container">
+          <p>
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a> and <a href="http://twitter.com/marius" target="_blank">@marius</a>.<br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
