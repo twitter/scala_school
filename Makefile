@@ -4,5 +4,7 @@ all:
 serve:
 	jekyll --serve --auto web web.out
 
+publish: all
+	./publish.sh web.out
 
-.PHONY: all serve
+.PHONY: all serve publish
