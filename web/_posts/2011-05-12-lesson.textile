@@ -209,22 +209,51 @@ class RequireAuthentication(passbird: Passbird)
 }
 </pre>
 
-Filters compose together with <code>andThen</code>. Providing a <code>Service</code> as an argument to <code>andThen</code> creates a (filtered) <code>Service</code> (types are provided for illustration).
+Filters compose together with <code>andThen</code>. Providing a <code>Service</code> as an argument to <code>andThen</code> creates a (filtered) <code>Service</code> (types provided for illustration).
 
 <pre>
+val authFilter: Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep]
+val timeoutfilter[Req, Rep]: Filter[Req, Rep, Req, Rep]
+val serviceRequiringAuth: Service[AuthHttpReq, HttpRep]
 
-// xxx: provide types
+val authenticateAndTimedOut: Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep] =
+  authFilter andThen timeoutFilter
 
-val filter2 = 
-  filter andThen filter1
-
-val service = 
-  filter2 andThen service
+val authenticatedTimedOutService: Service[HttpReq, HttpRep] =
+  authenticateAndTimedOut andThen serviceRequiringAuth
 </pre>
 
 h2. Builders
 
-Finally, builders put it all together.
+Finally, builders put it all together. A <code>ClientBuilder</code> produces a <code>Service</code> instance given a set of parameters, and a <code>ServerBuilder</code> takes a <code>Service</code> instance and dispatches incoming requests on it. In order to determine the type of <code>Service</code>, we must provide a <code>Codec</code>. Codecs provide the underlying protocol implementation (eg. HTTP, thrift, memcached). Both builders have many parameters, and require a few.
+
+Here's an example <code>ClientBuilder</code> invocation (types provided for illustration):
+
+<pre>
+val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
+  .codec(Http)
+  .hosts("host1.twitter.com:10000,host2.twitter.com:10001,host3.twitter.com:10003")
+  .hostConnectionLimit(1)
+  .tcpConnectTimeout(1.second)
+  .retries(2)
+  .reportTo(new OstrichStatsReceiver)
+  .build()
+</pre>
+
+This builds a client that load balances over the 3 given hosts, establishing at most 1 connection per host, and giving up only after 2 failures. Stats are reported to "ostrich":https://github.com/twitter/ostrich. The following builder options are required (and their presence statically enforced): <code>hosts</code> or <code>cluster</code>, <code>codec</code> and <code>hostConnectionLimit</code>.
+
+<pre>
+val myService: Service[HttpRequest, HttpResponse] = // provided by the user
+ServerBuilder()
+  .codec(Http)
+  .hostConnectionMaxLifeTime(5.minutes)
+  .readTimeout(2.minutes)
+  .name("myHttpServer")
+  .bindTo(new InetSocketAddress(serverPort))
+  .build(myService)
+</pre>
+ 
+This will serve, on port <code>serverPort</code> an HTTP server which dispatches requests to <code>myService</code>. Each connection is allowed to stay alive for up to 5 minutes, and we require a request to be sent within 2 minutes. The required <code>ServerBuilder</code> options are: <code>name</code>, <code>bindTo</code> and <code>codec</code>.
 
 fn1. distinct from <code>java.util.concurrent.Future</code>
 
