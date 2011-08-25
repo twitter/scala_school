@@ -22,6 +22,7 @@
       <div class="fill">
         <div class="container fixed">
           <h3><a href="index.html">Searchbird</a></h3>
+          
           <ul class="nav secondary-nav">
             
               <li><a href="finagle.html">&laquo;Previous</a></li>
@@ -36,6 +37,7 @@
     <div class="container" style="padding-top: 60px;">
       <p>We&#8217;re going to build a very simple distributed search engine using <a href="http://github.com/twitter/finagle">Finagle</a>. First, create a skeleton project using <a href="https://github.com/twitter/scala-bootstrapper">scala-bootstrapper</a></p>
 <p><code>scala-bootstrapper</code> will create a very simple finagle based scala service that exports an in-memory key-value store. We&#8217;ll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.</p>
+<p>A pre-generated <code>scala-bootstrapper</code> project is also available <a href="searchbird.tar.gz">here</a>. It&#8217;s recommended that you use this instead of generating it for yourself as scala-bootstrapper changes and the lesson may not be up to date. Furthermore the packaged version is self contained: it includes both sbt (invoke via <code>./sbt</code>) and</p>
 <pre>
 $ mkdir searchbird; cd searchbird
 $ scala-bootstrapper -p searchbird
