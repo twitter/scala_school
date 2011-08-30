@@ -49,8 +49,12 @@ Scala is not just a nicer Java.  You should learn it with a fresh mind, you will
 
 h2. Start the Interpreter
 
+Start the included <code>sbt console</code>.
+
 <pre>
-$ scala
+$ sbt console
+
+[...]
 
 Welcome to Scala version 2.8.0.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_20).
 Type in expressions to have them evaluated.
@@ -175,6 +179,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 }
 </pre>
 
+
 h3. Overloading methods
 
 <pre>
@@ -184,39 +189,23 @@ class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(b
 </pre>
 
 
+h3. Traits
+
+<code>traits</code> are collections of fields and behaviors that you can extend or mixin to your classes.
+
+<pre>
+trait Car {
+  val brand: String
+}
+</pre>
+
+<pre>
+class BMW extends Calculator {
+  val brand = "BMW"
+}
+</pre>
+
 h3. Expressions
 
 Our BasicCalculator example gave an example of how Scala is expression-oriented.  The value color was bound based on an if/else expression.
 
-h3. try-catch-finally
-
-Exceptions are available in Scala.
-
-<pre>
-try {
-  remoteCalculatorService.add(1, 2)
-} catch {
-  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
-} finally {
-  remoteCalculatorService.close()
-}
-</pre>
-
-trys are also expression-oriented
-
-<pre>
-val result: Int = try {
-  remoteCalculatorService.add(1, 2)
-} catch {
-  case e: ServerIsDownException => {
-    log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
-    0
-  }
-} finally {
-  remoteCalculatorService.close()
-}
-</pre>
-
-This is not an example of excellent programming style, just an example of expressions in action.  Better would be to re-throw.
-
-Finally will be called after any exception has been handled.

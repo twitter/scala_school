@@ -47,7 +47,7 @@ Objects are used to hold single instances of a class. Often used for factories.
 object Timer {
   var count = 0
 
-  def currentCount: Long = {
+  def currentCount(): Long = {
     count += 1
     count
   }
@@ -57,7 +57,7 @@ object Timer {
 How to use
 
 <pre>
-scala> Timer.currentCount
+scala> Timer.currentCount()
 res0: Long = 1
 </pre>
 
@@ -88,7 +88,7 @@ scala> res3.color
 res1: String = Blue
 </pre>
 
-You will often see them used in Twitter code as record types.
+You will often see them used in Twitter code as record types, like more sophisticated structs.
 
 case classes automatically have equality and nice toString methods based on the constructor arguments.
 
@@ -124,17 +124,17 @@ res0: Int = 2
 Let's partially apply it.
 
 <pre>
-scala> addOne _
+scala> addOne(_)
 res1: (Int) => Int = <function1>
 </pre>
 
 Hmm, what is a function1?  A Function1 is simply a trait for a function that takes one argument.
 
 <pre>
-scala> val addOne = new Function1[Int, Int] {
-     |   def apply(x: Int): Int = x + 1
+cala> object addOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
      | }
-addOne: java.lang.Object with (Int) => Int = <function1>
+defined module AddOne
 
 scala> addOne(1)
 res2: Int = 2
@@ -213,6 +213,11 @@ times match {
 
 Notice how we captured the value in the variable 'i'.
 
+The <code>_</code> in the last case statement is a wildcard, it
+ensures that we can handle any statement. Otherwise you will suffer a
+runtime error if you pass in a number that doesn't match. We discuss
+this more later.
+
 case classes are designed to be used with pattern matching.  Let's expand on our bottle example from earlier.
 
 <pre>
@@ -221,10 +226,10 @@ case class Bottle(color: String, ounces: Int)
 val bottle = Bottle("Blue", 20)
 
 bottle match {
-  case Bottle("Blue", ounces) => println("found a Blue bottle")
-  case Bottle(color, 20) => println("found a 20 ounce bottle")
-  case Bottle(color, ounces) => println("found an unknown bottle with color " + color +
-                                        "that can hold " + ounces + "oz")
+  case Bottle("Blue", _) => println("found a Blue bottle")
+  case Bottle(_, 20) => println("found a 20 ounce bottle")
+  case Bottle(ourColor, ourOunces) => println("found an unknown bottle with color " + ourColor +
+                                              "that can hold " + ourOunces + "oz")
 }
 </pre>
 
@@ -243,3 +248,35 @@ Other alternatives for that last match
   case b@Bottle(_, _) => println("found an unknown bottle: " + b)
 </pre>
 
+h3. Exceptions
+
+Exceptions are available in Scala via a try-catch-finally syntax that uses pattern matching.
+
+<pre>
+try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+<code>try</code>s are also expression-oriented
+
+<pre>
+val result: Int = try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => {
+    log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+    0
+  }
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+This is not an example of excellent programming style, just an example of expressions in action.  Better would be to re-throw.
+
+Finally will be called after any exception has been handled.
