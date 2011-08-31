@@ -1,0 +1,284 @@
+Scala School notes. Marius & Steve (Aug 25, 2011)
+
+notes
+
+  - slim searchbird.tar.gz, make available, put on front page
+
+lesson 1:
+
+* cases are introduced too early (in try{}catch{}) (moved to end of lesson 2)
+* bootstrap vs. screen width (not sure how to fix)
+
+lesson 2:
+
+* you can leave out parenthesis (explained in lesson 1)
+* var vs. val (explained in lesson 1)
+* why default case, runtime exceptions (fixed)
+* currentCount should have parens (fixed)
+* introduce traits too early (introduced traits to Lesson 1)
+* remove .equals (fixed)
+* match … Bottle(thisColor, theseOunces) (fixed)
+* don't omit parens for partial application (fixed)
+* java.lang.Object in function (switched to use an object extending Function1)
+* motivate case classes better - structs (fixed)
+* defer case classes until after matching (maybe) (show that it would be painful to do the blue bottle example without case classes) (fixed)
+
+* introduce blocks? (lesson 1)
+* introduce casting
+* module system
+* didn't explain brackets (TODO: should we have a mini-types explanation earlier?)
+
+lesson 3:
+* todo: introduce variable length arguments (Lesson 1)
+* get rid of recap (fixed)
+* introduce tuples (already there)
+* kill Seq (fixed)
+* flatMap (fixed)
+* note that these are combinators -- transformations on collections (fixed)
+* introduce currying (in lesson #1)
+* kill the block in foldLeft (ok, fine. fixed)
+* index vs. value is confusing (where is this?)
+* Map(1 -> 2) looks like special syntax (fixed)
+* find better example for partial application (fixed: add(m)(n))
+* compositional semantics of currying argument lists vs. partial application, vs. …
+
+lesson 4:
+
+* don't use whitespace application
+* move composition all the way up
+* introduce option!
+* show case classes after unapply
+* introduce options together with collections (collections of 1 or 0)
+* PartialFunction != partially applied function! (fixed)
+* introduce whitespace applicaton of methods
+* change wildcard partial function to a total function
+* for partial functions, don’t say ‘closed, say ‘is only defined for certain arguments’
+
+* introduce Option earlier
+
+(Steve’s half took 1.5 hours)
+
+Feedback: can we show more code?  larger examples of matching, for
+example.
+
+Map(1 -> "a") is confusing.  special syntax?  syntactic sugar?
+(Fixed)
+
+Explain types earlier.
+
+Font is too light for a projector.  Important things should be bold.
+Font is too small, border too large.  Great for a screen, bad for a
+projector.  (Toggle a style-sheet?)
+
+Lesson: Types
+
+Q: What do we need for finagle?
+
+Idea: the example functions should be based on searchbird so we can
+later stitch together functions we've already built and understand.
+
+Note from Sam List[Any] example makes you think it'll always resolve
+to Any but it will be most common super-type.
+
+scala> trait F defined trait F
+
+scala> class A extends F defined class A
+
+scala> class B extends F defined class B
+
+scala> List(new A, new B) res55: List[ScalaObject with F] =
+List(A@1bac8b63, B@5cf31ec6)
+
+Feedback: aren't showing how to encode higher-rank polymorphism but
+talk about it.  why do that?
+
+Feedback: should we discuss HM since Scala doesn't do it?  Can we
+explain the ad-hoc rules more easily?
+
+{ x => x } shows {} use but we haven't introduced that yet.
+
+In Types, we use return type inference heavily but nowhere else.
+(should we explain and use return type inference earlier?)
+
+Feedback: AnyRef has made an appearance but we haven't explained it
+yet.
+
+We show trait Function but haven't explained a trait yet.
+
+We use the function value syntax but generally only show partially
+applied functions earlier so is confusing.
+
+val fB: (A => B) = (a: A) => new B(a)
+
+vs
+
+def fB(a: A): B) = new B(a)
+
+
+Feedback: make it non-mathematical, don't use A, B, C, use Animal,
+Cats and Dogs rather than more abstract.
+
+Invariant isn't covered and yet is the default so people will always
+need to understand it.
+
+note: functions are contravariant on their arguments.
+
+this would be clearer as animals, with a pound or cage method?
+
+We often explain things in person that we then explain things in the
+talk.  (need more practice)
+
+wildcard not needed for finagle so skip.
+
+Lesson: Finagle (took 20 minutes to get here)
+
+we need to add flatMap earlier.
+
+Finagle lesson uses Java callback as an example: should switch to
+Scala.
+
+we use for-comprehension syntax but haven't explained that yet.  with
+yield.  in the collections/combinators lesson.
+
+...  looks like an underscore (add spacing)
+
+def Future[A].flatMap(...) is odd looking syntax.  (is for
+illustration).  put it in a trait:
+
+trait Future[A] {
+  def flatMap[B](f: A => Future[B]): Future[B]
+}
+
+Q: "why is it called flatMap?" (haven't described collections or
+for-comprehensions so people don't know the contract)
+
+failures short-circuit sequential composition.
+
+We haven't explained Unit yet.
+
+We use dot-less syntax but haven't explained that yet.
+
+Two uses join methods: one returns Future[Unit], the other doesn't.
+
+`dispatch(request) join userLimit` is confusing and controversial
+because dispatch is always called.
+
+Not stock _or_ combinator.  can write it with flatMap.
+
+handle is flatMap for errors.
+
+error-handling, generally, should be made more clear: the fact that
+it's threaded everywhere should be called out.
+
+Thought: get laser pointers.  (also bring our own VGA/DVI adapters)
+
+use function extension
+
+class Foo extends (A => B) but haven't explained that yet.
+
+Remove Passbird from Finagle example.
+
+Feedback: call out the type-safety of authenticatedTimedOutService in
+text.
+
+Filter brings up the question of "what's blocking?  can I block here?"
+
+
+Lesson: Searchbird (have 25 minutes left)
+
+Need a way to hide the examples we want people to fill out.
+
+sbt transcript
+
+sbt should be ./sbt (to make sure we use our local sbt) skip update,
+don't do that!
+
+don't make people do a gem install of thrift_client.
+
+mine fails.
+
+System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/rubygems/custom_require.rb:31:in
+`gem_original_require': no such file to load -- bundler/setup
+(LoadError)
+	from
+	/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/rubygems/custom_require.rb:31:in
+	`require' from src/scripts/console:5
+
+d'oh.
+
+turn this into a scala client, show people finagle clients.
+
+ServerConfig is hard to explain.
+
+"RuntimeEnvironments has command-line flags, and other process
+information"
+
+Future[Void] is in the trait (we still haven't explained traits)
+
+In the Implementation scala code:
+
+concurrency bug to not sync around the map.
+
+Future(value) should be Future.value(value) // d'oh, value twice
+
+database(key) = value
+
+motivates explaining update syntax sugar (or else not do that in the
+implementation)
+
+forward/reverse hashmaps use mixins.
+
+Why is there Future.void but not Future.unit?
+
+we use a reduceLeftOption and then getOrElse without dots.
+
+Sub-lesson: "Distributing our service" (have 10 minutes left)
+
+we use require(!indices.isEmpty)?
+
+there's an example of finagle clients in here that we can pull out
+into an object for a simple repl-based client.
+
+val Array(_, port) = shards(which).split(":")
+
+haven't explained the deconstruction syntax here.
+
+Idea: thumb drives with the code.
+
+¶
+
+notes from Dave L. re: searchbird lesson
+
+When you add the search method to the thrift IDL, it would be nice to
+highlight just the added line.
+
+"excercise" -> "exercise"
+
+Would be cool to have an "Exercises" section at the end for all the
+go-getters to work through.
+
+Am I having a brain fart, or should these be made consistent (meaning
+use the 2-argument getOrElse in both places)?
+   val current = reverse.get(token) getOrElse Set()
+vs.
+   val hits = tokens map { token => reverse.getOrElse(token, Set()) }
+
+
+More ideas for followup exercises:
+
+- flesh out put() on CompositeIndex to have a scheme for sending put
+requests to specific shards (round-robin? some attribute of the
+document?)
+
+- the search() method performs an intersection of the documents
+matching the terms (an AND query). implement a union (OR query).
+
+- the result set size for search() is unbounded.  add support for a
+default result size, and the ability to paginate through the full
+result set.  think about the expense of this operation on large result
+sets, and how you might optimize the system for this.
+
+That's all for now... I'd love to go through the full set of material,
+but can't get to it tonight.  But I'm really looking forward to
+incorporating this into NHO.  If things go well tomorrow, perhaps I
+can try it out on the current crop of newbies?
