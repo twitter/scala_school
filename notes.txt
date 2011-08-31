@@ -42,7 +42,6 @@ lesson 3:
 * find better example for partial application (fixed: add(m)(n))
 * compositional semantics of currying argument lists vs. partial application, vs. …
 
-
 lesson 4:
 
 * don't use whitespace application
@@ -59,48 +58,55 @@ lesson 4:
 
 (Steve’s half took 1.5 hours)
 
-Feedback: can we show more code? larger examples of matching, for example.
+Feedback: can we show more code?  larger examples of matching, for
+example.
 
-Map(1 -> "a") is confusing. special syntax? syntactic sugar? (Fixed)
+Map(1 -> "a") is confusing.  special syntax?  syntactic sugar?
+(Fixed)
 
 Explain types earlier.
 
-Font is too light for a projector. Important things should be bold. Font is too small, border too large. Great for a screen, bad for a projector. (Toggle a style-sheet?)
+Font is too light for a projector.  Important things should be bold.
+Font is too small, border too large.  Great for a screen, bad for a
+projector.  (Toggle a style-sheet?)
 
 Lesson: Types
 
 Q: What do we need for finagle?
 
-Idea: the example functions should be based on searchbird so we can later stitch together functions we've already built and understand.
+Idea: the example functions should be based on searchbird so we can
+later stitch together functions we've already built and understand.
 
-Note from Sam
-List[Any] example makes you think it'll always resolve to Any but it will be most common super-type.
+Note from Sam List[Any] example makes you think it'll always resolve
+to Any but it will be most common super-type.
 
-scala> trait F
-defined trait F
+scala> trait F defined trait F
 
-scala> class A extends F
-defined class A
+scala> class A extends F defined class A
 
-scala> class B extends F
-defined class B
+scala> class B extends F defined class B
 
-scala> List(new A, new B)
-res55: List[ScalaObject with F] = List(A@1bac8b63, B@5cf31ec6)
+scala> List(new A, new B) res55: List[ScalaObject with F] =
+List(A@1bac8b63, B@5cf31ec6)
 
-Feedback: aren't showing how to encode higher-rank polymorphism but talk about it. why do that?
+Feedback: aren't showing how to encode higher-rank polymorphism but
+talk about it.  why do that?
 
-Feedback: should we discuss HM since Scala doesn't do it? Can we explain the ad-hoc rules more easily?
+Feedback: should we discuss HM since Scala doesn't do it?  Can we
+explain the ad-hoc rules more easily?
 
 { x => x } shows {} use but we haven't introduced that yet.
 
-In Types, we use return type inference heavily but nowhere else. (should we explain and use return type inference earlier?)
+In Types, we use return type inference heavily but nowhere else.
+(should we explain and use return type inference earlier?)
 
-Feedback: AnyRef has made an appearance but we haven't explained it yet.
+Feedback: AnyRef has made an appearance but we haven't explained it
+yet.
 
 We show trait Function but haven't explained a trait yet.
 
-We use the function value syntax but generally only show partially applied functions earlier so is confusing.
+We use the function value syntax but generally only show partially
+applied functions earlier so is confusing.
 
 val fB: (A => B) = (a: A) => new B(a)
 
@@ -109,15 +115,18 @@ vs
 def fB(a: A): B) = new B(a)
 
 
-Feedback: make it non-mathematical, don't use A, B, C, use Animal, Cats and Dogs rather than more abstract.
+Feedback: make it non-mathematical, don't use A, B, C, use Animal,
+Cats and Dogs rather than more abstract.
 
-Invariant isn't covered and yet is the default so people will always need to understand it.
+Invariant isn't covered and yet is the default so people will always
+need to understand it.
 
 note: functions are contravariant on their arguments.
 
 this would be clearer as animals, with a pound or cage method?
 
-We often explain things in person that we then explain things in the talk. (need more practice)
+We often explain things in person that we then explain things in the
+talk.  (need more practice)
 
 wildcard not needed for finagle so skip.
 
@@ -125,21 +134,23 @@ Lesson: Finagle (took 20 minutes to get here)
 
 we need to add flatMap earlier.
 
-Finagle lesson uses Java callback as an example: should switch to Scala.
+Finagle lesson uses Java callback as an example: should switch to
+Scala.
 
-we use for-comprehension syntax but haven't explained that yet. with yield. in the collections/combinators lesson.
+we use for-comprehension syntax but haven't explained that yet.  with
+yield.  in the collections/combinators lesson.
 
-... looks like an underscore (add spacing)
+...  looks like an underscore (add spacing)
 
-def Future[A].flatMap(...) is odd looking syntax. (is for illustration). put it in a trait:
+def Future[A].flatMap(...) is odd looking syntax.  (is for
+illustration).  put it in a trait:
 
 trait Future[A] {
   def flatMap[B](f: A => Future[B]): Future[B]
 }
 
-Q: "why is it called flatMap?" (haven't described collections or for-comprehensions so people don't know the contract)
-
-Write both the for-comprehension _AND_ the flatMap version.
+Q: "why is it called flatMap?" (haven't described collections or
+for-comprehensions so people don't know the contract)
 
 failures short-circuit sequential composition.
 
@@ -149,16 +160,17 @@ We use dot-less syntax but haven't explained that yet.
 
 Two uses join methods: one returns Future[Unit], the other doesn't.
 
-`dispatch(request) join userLimit` is confusing and controversial because dispatch is always called.
+`dispatch(request) join userLimit` is confusing and controversial
+because dispatch is always called.
 
-Not stock _or_ combinator. can write it with flatMap.
+Not stock _or_ combinator.  can write it with flatMap.
 
 handle is flatMap for errors.
 
-error-handling, generally, should be made more clear: the fact that it's threaded everywhere should be called out.
+error-handling, generally, should be made more clear: the fact that
+it's threaded everywhere should be called out.
 
-Thought: get laser pointers. (also bring our own VGA/DVI adapters)
-
+Thought: get laser pointers.  (also bring our own VGA/DVI adapters)
 
 use function extension
 
@@ -166,9 +178,10 @@ class Foo extends (A => B) but haven't explained that yet.
 
 Remove Passbird from Finagle example.
 
-Feedback: call out the type-safety of authenticatedTimedOutService in text.
+Feedback: call out the type-safety of authenticatedTimedOutService in
+text.
 
-Filter brings up the question of "what's blocking? can I block here?"
+Filter brings up the question of "what's blocking?  can I block here?"
 
 
 Lesson: Searchbird (have 25 minutes left)
@@ -177,16 +190,19 @@ Need a way to hide the examples we want people to fill out.
 
 sbt transcript
 
-sbt should be ./sbt (to make sure we use our local sbt)
-skip update, don't do that!
+sbt should be ./sbt (to make sure we use our local sbt) skip update,
+don't do that!
 
 don't make people do a gem install of thrift_client.
 
 mine fails.
 
-System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/rubygems/custom_require.rb:31:in `gem_original_require': no such file to load -- bundler/setup (LoadError)
-	from /System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/rubygems/custom_require.rb:31:in `require'
-	from src/scripts/console:5
+System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/rubygems/custom_require.rb:31:in
+`gem_original_require': no such file to load -- bundler/setup
+(LoadError)
+	from
+	/System/Library/Frameworks/Ruby.framework/Versions/1.8/usr/lib/ruby/1.8/rubygems/custom_require.rb:31:in
+	`require' from src/scripts/console:5
 
 d'oh.
 
@@ -194,7 +210,8 @@ turn this into a scala client, show people finagle clients.
 
 ServerConfig is hard to explain.
 
-"RuntimeEnvironments has command-line flags, and other process information"
+"RuntimeEnvironments has command-line flags, and other process
+information"
 
 Future[Void] is in the trait (we still haven't explained traits)
 
@@ -206,7 +223,8 @@ Future(value) should be Future.value(value) // d'oh, value twice
 
 database(key) = value
 
-motivates explaining update syntax sugar (or else not do that in the implementation)
+motivates explaining update syntax sugar (or else not do that in the
+implementation)
 
 forward/reverse hashmaps use mixins.
 
@@ -218,7 +236,8 @@ Sub-lesson: "Distributing our service" (have 10 minutes left)
 
 we use require(!indices.isEmpty)?
 
-there's an example of finagle clients in here that we can pull out into an object for a simple repl-based client.
+there's an example of finagle clients in here that we can pull out
+into an object for a simple repl-based client.
 
 val Array(_, port) = shards(which).split(":")
 
