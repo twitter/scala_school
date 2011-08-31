@@ -47,7 +47,7 @@ Objects are used to hold single instances of a class. Often used for factories.
 object Timer {
   var count = 0
 
-  def currentCount: Long = {
+  def currentCount(): Long = {
     count += 1
     count
   }
@@ -57,7 +57,7 @@ object Timer {
 How to use
 
 <pre>
-scala> Timer.currentCount
+scala> Timer.currentCount()
 res0: Long = 1
 </pre>
 
@@ -73,68 +73,18 @@ object Bar {
 }
 </pre>
 
-h3. Case Classes
-
-case classes are used to conveniently store data with a class.  You can construct them without using new.
-
-<pre>
-scala> case class Bottle(color: String)
-defined class Bottle
-
-scala> Bottle("Blue")
-res0: Bottle = Bottle(Blue)
-
-scala> res3.color
-res1: String = Blue
-</pre>
-
-You will often see them used in Twitter code as record types.
-
-case classes automatically have equality and nice toString methods based on the constructor arguments.
-
-<pre>
-scala> val blue = Bottle("Blue")
-blue: Bottle = Bottle(Blue)
-
-scala> val blu = Bottle("Blue")
-blu: Bottle = Bottle(Blue)
-
-scala> blue == blu
-res0: Boolean = true
-
-scala> blue.equals(blu)
-res1: Boolean = true
-</pre>
-
-case classes can have methods.
 
 h3. Functions are Objects
 
-In Scala, we talk about object-functional programming often.  What does that mean?
+In Scala, we talk about object-functional programming often.  What does that mean? What is a Function, really?
 
-We saw earlier that giving your class an apply method you can use it like it's a function.  Let's look in the other direction.  Let's define a simple function and see what's under the hood.
-
-<pre>
-def addOne(x: Int) = x + 1
-
-scala> addOne(1)
-res0: Int = 2
-</pre>
-
-Let's partially apply it.
+A Function is a set of traits. Speficially, a function that takes one argument is an instance of a Function1 trait. This trait defines the <code>apply()</code> syntactic sugar we learned earlier, allowing you to call an object like you would a function.
 
 <pre>
-scala> addOne _
-res1: (Int) => Int = <function1>
-</pre>
-
-Hmm, what is a function1?  A Function1 is simply a trait for a function that takes one argument.
-
-<pre>
-scala> val addOne = new Function1[Int, Int] {
-     |   def apply(x: Int): Int = x + 1
+cala> object addOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
      | }
-addOne: java.lang.Object with (Int) => Int = <function1>
+defined module AddOne
 
 scala> addOne(1)
 res2: Int = 2
@@ -145,6 +95,30 @@ There is Function1 through 22.  Why 22?  It's an arbitrary magic number.  I've n
 The syntatic sugar of apply helps unify the duality of object and functional programming.  You can pass classes around and use them as functions and functions are just instances of classes under the covers.
 
 Does this mean that everytime you define a method in your class, you're actually getting an instance of Function*?  No, methods in classes are methods.  methods defined standalone in the repl are Function* instances.
+
+
+Classes can also extend Function and those instances can be called with ().
+
+<pre>
+cala> class AddOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined class AddOne
+
+scala> val plusOne = new AddOne()
+plusOne: AddOne = <function1>
+
+scala> plusOne(1)
+res0: Int = 2
+</pre>
+
+A nice short-hand for <code>extends Function1[Int, Int]</code> is <code>extends (Int => Int)</code>
+
+<pre>
+class AddOne extends (Int => Int) {
+  def apply(m: Int): Int = m + 1
+}
+</pre>
 
 h3. Packages
 
@@ -177,8 +151,8 @@ Notice what the scala repl says when you define this object:
 
 <pre>
 scala> object colorHolder {
-     |   val BLUE = "Blue"
-     |   val RED = "Red"
+     |   val Blue = "Blue"
+     |   val Red = "Red"
      | }
 defined module colorHolder
 </pre>
@@ -213,33 +187,119 @@ times match {
 
 Notice how we captured the value in the variable 'i'.
 
-case classes are designed to be used with pattern matching.  Let's expand on our bottle example from earlier.
+The <code>_</code> in the last case statement is a wildcard, it
+ensures that we can handle any statement. Otherwise you will suffer a
+runtime error if you pass in a number that doesn't match. We discuss
+this more later.
+
+h4. Matching on class members
+
+Remember our calculator from earlier.
+
+Let's classify them according to type.
 
 <pre>
-case class Bottle(color: String, ounces: Int)
+def calcType(calc: Calculator) = calc match {
+  case calc.brand == "hp" && calc.model == "20B" => "financial"
+  case calc.brand == "hp" && calc.model == "48G" => "scientific"
+  case calc.brand == "hp" && calc.model == "30B" => "business"
+  case _ => "unknown"
+}
+</pre>
 
-val bottle = Bottle("Blue", 20)
+Wow, that's painful. Thankfully Scala provides some nice tools specifically for this.
 
-bottle match {
-  case Bottle("Blue", ounces) => println("found a Blue bottle")
-  case Bottle(color, 20) => println("found a 20 ounce bottle")
-  case Bottle(color, ounces) => println("found an unknown bottle with color " + color +
-                                        "that can hold " + ounces + "oz")
+h3. Case Classes
+
+case classes are used to conveniently store and match on the contents of a class. You can construct them without using new.
+
+<pre>
+scala> case class Calculator(brand: String, model: String)
+defined class Calculator
+
+scala> val hp20b = Calculator("hp", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+</pre>
+
+case classes automatically have equality and nice toString methods based on the constructor arguments.
+
+<pre>
+scala> val hp20b = Calculator("hp", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+scala> val hp20B = Calculator("hp", "20b")
+hp20B: Calculator = Calculator(hp,20b)
+
+scala> hp20b == hp20B
+res6: Boolean = true
+</pre>
+
+case classes can have methods just like normal classes.
+
+h6. Case Classes with pattern matching
+
+case classes are designed to be used with pattern matching.  Let's simplify our calculator classifier example from earlier.
+
+<pre>
+val hp20b = Calculator("hp", "20B")
+val hp30b = Calculator("hp", "30B")
+
+def calcType(calc: Calculator) = calc match {
+  case Calculator("hp", "20B") => "financial"
+  case Calculator("hp", "48G") => "scientific"
+  case Calculator("hp", "30B") => "business"
+  case Calculator(ourBrand, ourModel) => "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
 }
 </pre>
 
 Other alternatives for that last match
 
 <pre>
-  case Bottle(_, _) => println("found an unknown bottle: " + bottle)
+  case Calculator(_, _) => "Calculator of unknown type"
 </pre>
-  OR we could simply not care that it's a Bottle
+
+  OR we could simply not specify that it's a Calculator at all.
 
 <pre>
-  case _ => println("found an unknown object: " + bottle)
+  case _ => "Calculator of unknown type"
 </pre>
+
   OR we could re-bind the matched value with another name
+
 <pre>
-  case b@Bottle(_, _) => println("found an unknown bottle: " + b)
+  case c@Calculator(_, _) => "Calculator: %s of unknown type".format(c)
 </pre>
 
+h3. Exceptions
+
+Exceptions are available in Scala via a try-catch-finally syntax that uses pattern matching.
+
+<pre>
+try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+<code>try</code>s are also expression-oriented
+
+<pre>
+val result: Int = try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => {
+    log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+    0
+  }
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+This is not an example of excellent programming style, just an example of try-catch-finally resulting in expressions like most everything else in Scala.
+
+Finally will be called after an exception has been handled and is not part of the expression.

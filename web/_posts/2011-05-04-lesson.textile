@@ -17,36 +17,16 @@ This lesson covers:
 ** extractor methods
 * What is a case statement?
 
-h3. Functions (again)
+h3. Function Composition
 
 Let's make two helpful functions:
 
 <pre>
 scala> def addUmm(x: String) = x + " umm"
-addUmm: (x: String)java.lang.String
+addUmm: (x: String)String
 
 scala>  def addAhem(x: String) = x + " ahem"
-addAhem: (x: String)java.lang.String
-</pre>
-
-
-h4. Partial Application (again)
-
-You can partially apply a function using underscore.
-
-<pre>
-scala>  def addUmm(x: String) = x + " umm"
-addUmm: (x: String)java.lang.String
-
-scala> addUmm _
-res0: (String) => java.lang.String = <function1>
-</pre>
-
-res0 is now a function that takes a String and returns a String.
-
-<pre>
-scala> res0("hi")
-res1: java.lang.String = hi umm
+addAhem: (x: String)String
 </pre>
 
 h4. compose
@@ -56,112 +36,28 @@ compose calls the second function and then the first function.
 compose is f(g(x))
 
 <pre>
-scala> val ummThenAhem = (addAhem _) compose (addUmm _)
-ummThenAhem: (String) => java.lang.String = <function1>
+scala> val ummThenAhem = addAhem(_).compose(addUmm(_))
+ummThenAhem: (String) => String = <function1>
 
 scala> ummThenAhem("well")
-res0: java.lang.String = well umm ahem
+res0: String = well umm ahem
 </pre>
-
 
 h4. andThen
 
 andThen calls the first function and then the second.
 
-andThen is g(f(x))
+andThen is <code>g(f(x))</code>
 
 <pre>
-scala> val ahemThenUmm = (addAhem _) andThen (addUmm _)
-ahemThenUmm: (String) => java.lang.String = <function1>
+scala> val ahemThenUmm = addAhem(_).andThen(addUmm (_))
+ahemThenUmm: (String) => String = <function1>
 
 scala> ahemThenUmm("well")
-res1: java.lang.String = well ahem umm
+res1: String = well ahem umm
 </pre>
 
-
-h3. Pattern Matching
-
-h4. Refreshing our memory
-
-You can pattern match on values.
-
-<pre>
-scala> def printNumber(i: Int) = i match {
-     |   case 1 => println("it's a one!")
-     |   case 2 => println("it's a two!")
-     |   case _ => println("it's something else!")
-     | }
-printNumber: (i: Int)Unit
-
-scala> printNumber(1)
-it's a one!
-
-scala> printNumber(2)
-it's a two!
-
-scala> printNumber(3)
-it's something else!
-</pre>
-
-underscore is the wildcard pattern, it matches anything.
-
-You can also bind variables in your matches.
-
-<pre>
-scala> def printNumber(i: Int) = i match {
-     |   case 1 => println("it's a one!")
-     |   case 2 => println("it's a two!")
-     |   case m => println("it's the number: " + m + "!")
-     | }
-printNumber: (i: Int)Unit
-
-scala> printNumber(3)
-it's the number: 3!
-</pre>
-
-
-h4. Extractor methods
-
-You can't easily pattern match on regular classes like you can on case classes.
-
-<pre>
-scala> class User(val username: String, val password: String, val userid: Int)
-defined class User
-
-scala> val stevej = new User("stevej", "1234", 150)
-stevej: User = User@4df3e7e8
-
-scala> stevej match {
-     |   case User("stevej", _, _) => println("it's stevej")
-     | }
-<console>:15: error: not found: value User
-         case User("stevej", _, _) => println("it's stevej")
-</pre>
-
-But what if we don't want User to be a case class?  How can we make User interact nicely with pattern matching without changing the User class?
-
-Use the extractor method: unapply.
-
-Make a companion object with an unapply method.  The unapply should return an Option with a Tuple that matches your class' constructor.
-
-<pre>
-object User {
-  def unapply(user: User): Option[(String, String, Int)] =
-    Some((user.username, user.password, user.userid))
-}
-</pre>
-
-Now it will fit in nicely.
-
-<pre>
-scala> val stevej = new User("stevej", "1234", 150)
-stevej: User = User@5260bd13
-
-scala> stevej match {
-     |   case User("stevej", _, _) => println("it's stevej")
-     | }
-it's stevej
-</pre>
+h4. Currying vs Partial Application
 
 
 h3. case statements
@@ -177,11 +73,13 @@ They are multiple PartialFunctions composed together.
 
 h3. Understanding PartialFunction
 
-A function closes over an entire domain.  In other words, a function defined as (Int) => String takes any Int and returns a String.
+A function works for every argument of the defined type. In other words, a function defined as (Int) => String takes any Int and returns a String.
 
-A Partial Function is only partially closed over a domain.  A Partial Function (Int) => String might not accept every Int.
+A Partial Function is only defined for certain values of the defined type.  A Partial Function (Int) => String might not accept every Int.
 
-isDefinedAt is a method on PartialFunction that can be used to determine if the PartialFunction will accept a given argument.
+<code>isDefinedAt</code> is a method on PartialFunction that can be used to determine if the PartialFunction will accept a given argument.
+
+__Note__ <code>PartialFunction</code> is unrelated to a partially applied function that we talked about earlier.
 
 <pre>
 scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
@@ -231,7 +129,6 @@ res27: String = one
 scala> res23(0)
 res28: String = something else
 </pre>
-
 
 h4. The mystery of case.
 
