@@ -54,125 +54,46 @@
 	</ul></li>
 	<li>What is a case statement?</li>
 </ul>
-<h3>Functions (again)</h3>
+<h3>Function Composition</h3>
 <p>Let&#8217;s make two helpful functions:</p>
 <pre>
 scala&gt; def addUmm(x: String) = x + " umm"
-addUmm: (x: String)java.lang.String
+addUmm: (x: String)String
 
 scala&gt;  def addAhem(x: String) = x + " ahem"
-addAhem: (x: String)java.lang.String
-</pre>
-<h4>Partial Application (again)</h4>
-<p>You can partially apply a function using underscore.</p>
-<pre>
-scala&gt;  def addUmm(x: String) = x + " umm"
-addUmm: (x: String)java.lang.String
-
-scala&gt; addUmm _
-res0: (String) =&gt; java.lang.String = &lt;function1&gt;
-</pre>
-<p>res0 is now a function that takes a String and returns a String.</p>
-<pre>
-scala&gt; res0("hi")
-res1: java.lang.String = hi umm
+addAhem: (x: String)String
 </pre>
 <h4>compose</h4>
 <p>compose calls the second function and then the first function.</p>
 <p>compose is f(g(x))</p>
 <pre>
-scala&gt; val ummThenAhem = (addAhem _) compose (addUmm _)
-ummThenAhem: (String) =&gt; java.lang.String = &lt;function1&gt;
+scala&gt; val ummThenAhem = addAhem(_).compose(addUmm(_))
+ummThenAhem: (String) =&gt; String = &lt;function1&gt;
 
 scala&gt; ummThenAhem("well")
-res0: java.lang.String = well umm ahem
+res0: String = well umm ahem
 </pre>
 <h4>andThen</h4>
 <p>andThen calls the first function and then the second.</p>
-<p>andThen is g(f(x))</p>
+<p>andThen is <code>g(f(x))</code></p>
 <pre>
-scala&gt; val ahemThenUmm = (addAhem _) andThen (addUmm _)
-ahemThenUmm: (String) =&gt; java.lang.String = &lt;function1&gt;
+scala&gt; val ahemThenUmm = addAhem(_).andThen(addUmm (_))
+ahemThenUmm: (String) =&gt; String = &lt;function1&gt;
 
 scala&gt; ahemThenUmm("well")
-res1: java.lang.String = well ahem umm
+res1: String = well ahem umm
 </pre>
-<h3>Pattern Matching</h3>
-<h4>Refreshing our memory</h4>
-<p>You can pattern match on values.</p>
-<pre>
-scala&gt; def printNumber(i: Int) = i match {
-     |   case 1 =&gt; println("it's a one!")
-     |   case 2 =&gt; println("it's a two!")
-     |   case _ =&gt; println("it's something else!")
-     | }
-printNumber: (i: Int)Unit
-
-scala&gt; printNumber(1)
-it's a one!
-
-scala&gt; printNumber(2)
-it's a two!
-
-scala&gt; printNumber(3)
-it's something else!
-</pre>
-<p>underscore is the wildcard pattern, it matches anything.</p>
-<p>You can also bind variables in your matches.</p>
-<pre>
-scala&gt; def printNumber(i: Int) = i match {
-     |   case 1 =&gt; println("it's a one!")
-     |   case 2 =&gt; println("it's a two!")
-     |   case m =&gt; println("it's the number: " + m + "!")
-     | }
-printNumber: (i: Int)Unit
-
-scala&gt; printNumber(3)
-it's the number: 3!
-</pre>
-<h4>Extractor methods</h4>
-<p>You can&#8217;t easily pattern match on regular classes like you can on case classes.</p>
-<pre>
-scala&gt; class User(val username: String, val password: String, val userid: Int)
-defined class User
-
-scala&gt; val stevej = new User("stevej", "1234", 150)
-stevej: User = User@4df3e7e8
-
-scala&gt; stevej match {
-     |   case User("stevej", _, _) =&gt; println("it's stevej")
-     | }
-&lt;console&gt;:15: error: not found: value User
-         case User("stevej", _, _) =&gt; println("it's stevej")
-</pre>
-<p>But what if we don&#8217;t want User to be a case class?  How can we make User interact nicely with pattern matching without changing the User class?</p>
-<p>Use the extractor method: unapply.</p>
-<p>Make a companion object with an unapply method.  The unapply should return an Option with a Tuple that matches your class&#8217; constructor.</p>
-<pre>
-object User {
-  def unapply(user: User): Option[(String, String, Int)] =
-    Some((user.username, user.password, user.userid))
-}
-</pre>
-<p>Now it will fit in nicely.</p>
-<pre>
-scala&gt; val stevej = new User("stevej", "1234", 150)
-stevej: User = User@5260bd13
-
-scala&gt; stevej match {
-     |   case User("stevej", _, _) =&gt; println("it's stevej")
-     | }
-it's stevej
-</pre>
+<h4>Currying vs Partial Application</h4>
 <h3>case statements</h3>
 <h5>So just what are case statements?</h5>
 <p>It&#8217;s a subclass of function called a PartialFunction.</p>
 <h5>What is a collection of multiple case statements?</h5>
 <p>They are multiple PartialFunctions composed together.</p>
 <h3>Understanding PartialFunction</h3>
-<p>A function closes over an entire domain.  In other words, a function defined as (Int) =&gt; String takes any Int and returns a String.</p>
-<p>A Partial Function is only partially closed over a domain.  A Partial Function (Int) =&gt; String might not accept every Int.</p>
-<p>isDefinedAt is a method on PartialFunction that can be used to determine if the PartialFunction will accept a given argument.</p>
+<p>A function works for every argument of the defined type. In other words, a function defined as (Int) =&gt; String takes any Int and returns a String.</p>
+<p>A Partial Function is only defined for certain values of the defined type.  A Partial Function (Int) =&gt; String might not accept every Int.</p>
+<p><code>isDefinedAt</code> is a method on PartialFunction that can be used to determine if the PartialFunction will accept a given argument.</p>
+<p><i>Note</i> <code>PartialFunction</code> is unrelated to a partially applied function that we talked about earlier.</p>
 <pre>
 scala&gt; val one: PartialFunction[Int, String] = { case 1 =&gt; "one" }
 one: PartialFunction[Int,String] = &lt;function1&gt;
