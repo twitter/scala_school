@@ -37,7 +37,7 @@ h3. Exploring the default bootstrapper project
 
 Let's first explore the default project <code>scala-bootstrapper</code> creates for us. This is meant as a template. You'll end up substituting most of it, but it serves as a convenient scaffold. It defines a simple (but complete) key-value store. Configuration, a thrift interface, stats export and logging are all included.
 
-Since searchbird is a "thrift":http://thrift.apache.org/ service (like most of our services), its external interface is defined in the thrift IDL. 
+Since searchbird is a "thrift":http://thrift.apache.org/ service (like most of our services), its external interface is defined in the thrift IDL.
 
 h5. src/main/thrift/searchbird.thrift
 
@@ -57,24 +57,44 @@ First build the project, and run the service (which is also the default "main" m
 <pre>
 $ sbt
 …
-> update
-…
 > compile
 > run -f config/development.scala
 </pre>
 
-<code>scala-bootstrapper</code> also creates a ruby client (<code>sbt</code> has generated the appropriate ruby sources for us as well).
+We've also written a simple client library that you can run from the <code>sbt console</code>
 
 <pre>
-$ gem install thrift_client --version '=0.6'
-$ src/scripts/console
-Hint: the client is in the variable `$client`
-No servers specified, using 127.0.0.1:9999
-> $client.put("foo", "bar")
-nil
-> $client.get("foo")
-"bar"
->
+$ sbt console
++ exec java -Djava.net.preferIPv4Stack=true -Dhttp.connection.timeout=2 -Dhttp.connection-manager.timeout=2 -Dhttp.socket.timeout=6 -Dcom.sun.management.jmxremote.port=0 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote '-Xmx512m -XX:MaxPermSize=256m' -XX:+AggressiveOpts -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -XX:SurvivorRatio=128 -XX:MaxTenuringThreshold=0 -Xss200M -Xms512M -Xmx2G -ea -server -jar /Users/stevej/bin/sbt-launch-0.7.4.jar console
+[info] Standard project rules 0.12.7 loaded (2011-05-24).
+[info] Building project searchbird 1.0.0-SNAPSHOT against Scala 2.8.1
+[info]    using SearchbirdProject with sbt 0.7.4 and Scala 2.7.7
+[info]
+[info] == copy-resources ==
+[info] == copy-resources ==
+[info]
+[info] == write-build-properties ==
+[info] == write-build-properties ==
+[info]
+[info] == console ==
+[info] Starting scala interpreter...
+[info]
+Welcome to Scala version 2.8.1.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_26).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> import com.twitter.searchbird.Client
+import com.twitter.searchbird.Client
+
+scala> val client = new Client()
+client: com.twitter.searchbird.Client = com.twitter.searchbird.Client@24759265
+
+scala> client.put("marius", "Marius Eriksen")
+res0: ...
+
+scala> client.put("stevej", "Steve Jenson")
+res1: ...
+
 </pre>
 
 The server also exports runtime statistics. These are convenient both for inspecting individual servers as well as aggregating into global service statistics (a machine-readable json interface is also provided).
@@ -174,7 +194,7 @@ class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdS
   val serverName = "Searchbird"
   val thriftPort = config.thriftPort
 
-  val database = new mutable.HashMap[String, String]()  
+  val database = new mutable.HashMap[String, String]()
 
   def get(key: String) = {
     database.get(key) match {
@@ -280,7 +300,7 @@ We can now experiment with our store in using the console.
 $ src/scripts/console
 Hint: the client is in the variable `$client`
 No servers specified, using 127.0.0.1:9999
-> 
+>
 </pre>
 
 Paste the lecture descriptions in.
@@ -296,35 +316,35 @@ grep -h '^(desc|title):' ../web/_posts/* | tr A-Z a-z | tr '=''\-+.,:' ' ' | awk
 -->
 
 <pre>
-$client.put("basics", " values functions classes methods inheritance try catch finally expression oriented")
-$client.put("basics", " case classes objects packages apply update functions are objects (uniform access principle) pattern")
-$client.put("collections", " lists maps functional combinators (map foreach filter zip")
-$client.put("pattern", " more functions! partialfunctions more pattern")
-$client.put("type", " basic types and type polymorphism type inference variance bounds")
-$client.put("advanced", " advanced types view bounds higher kinded types recursive types structural")
-$client.put("simple", " all about sbt the standard scala build")
-$client.put("more", " tour of the scala collections")
-$client.put("testing", " write tests with specs a bdd testing framework for")
-$client.put("concurrency", " runnable callable threads futures twitter")
-$client.put("java", " java interop using scala from")
-$client.put("searchbird", " building a distributed search engine using")
+client.put("basics", " values functions classes methods inheritance try catch finally expression oriented")
+client.put("basics", " case classes objects packages apply update functions are objects (uniform access principle) pattern")
+client.put("collections", " lists maps functional combinators (map foreach filter zip")
+client.put("pattern", " more functions! partialfunctions more pattern")
+client.put("type", " basic types and type polymorphism type inference variance bounds")
+client.put("advanced", " advanced types view bounds higher kinded types recursive types structural")
+client.put("simple", " all about sbt the standard scala build")
+client.put("more", " tour of the scala collections")
+client.put("testing", " write tests with specs a bdd testing framework for")
+client.put("concurrency", " runnable callable threads futures twitter")
+client.put("java", " java interop using scala from")
+client.put("searchbird", " building a distributed search engine using")
 </pre>
 
 We can now perform some searches.
 
 <pre>
-> $client.search("functions")
-["basics"]
-> $client.search("java")
-["java"]
-> $client.search("java scala")
-["java"]
-> $client.search("functional")
-["collections"]
-> $client.search("sbt")
-["simple"]
-> $client.search("types")
-["type", "advanced"]
+> client.search("functions")
+res0: Seq("basics")
+> client.search("java")
+res1: Seq("java")
+> client.search("java scala")
+res2: Seq("java")
+> client.search("functional")
+res3: Seq("collections")
+> client.search("sbt")
+res4: Seq("simple")
+> client.search("types")
+res5: Seq("type", "advanced")
 </pre>
 
 h2. Distributing our service
