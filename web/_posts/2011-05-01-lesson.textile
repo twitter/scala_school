@@ -49,8 +49,12 @@ Scala is not just a nicer Java.  You should learn it with a fresh mind, you will
 
 h2. Start the Interpreter
 
+Start the included <code>sbt console</code>.
+
 <pre>
-$ scala
+$ sbt console
+
+[...]
 
 Welcome to Scala version 2.8.0.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_20).
 Type in expressions to have them evaluated.
@@ -80,6 +84,20 @@ scala> val two = 1 + 1
 two: Int = 2
 </pre>
 
+You cannot change the binding to a val.
+
+h3. Variables
+
+If you need to change the binding, you can use a <code>var</code> instead
+
+<pre>
+scala> var name = "steve"
+name: java.lang.String = steve
+
+scala> name = "marius"
+name: java.lang.String = marius
+</pre>
+
 h3. Functions
 
 You can create functions with def.
@@ -96,6 +114,19 @@ scala> val three = addOne(2)
 three: Int = 3
 </pre>
 
+You can leave off parens on functions with no arguments
+
+<pre>
+scala> def three() = 1 + 2
+three: ()Int
+
+scala> three()
+res2: Int = 3
+
+scala> three
+res3: Int = 3
+</pre>
+
 h3. Anonymous Functions
 
 You can create anonymous functions.
@@ -105,7 +136,7 @@ scala> (x: Int) => x + 1
 res2: (Int) => Int = <function1>
 </pre>
 
-This function adds 1 to an Int.
+This function adds 1 to an Int named x.
 
 <pre>
 scala> res2(1)
@@ -120,6 +151,105 @@ addOne: (Int) => Int = <function1>
 
 scala> addOne(1)
 res4: Int = 2
+</pre>
+
+If your function is made up of many expressions, you can use {} to give yourself some breathing room.
+
+<pre>
+def timesTwo(i: Int): Int = {
+  println("hello world")
+  i * 2
+}
+</pre>
+
+This is also true of an anonymous function
+
+<pre>
+scala> { i: Int =>
+  println("hello world")
+  i * 2
+}
+res0: (Int) => Int = <function1>
+</pre>
+
+You will see this syntax often used when passing an anonymous function as an argument.
+
+h4. Partial application
+
+You can partially apply a function with an underscore, which gives you another function.
+
+<pre>
+scala> def adder2(m: Int, n: Int) = m + n
+adder2: (m: Int,n: Int)Int
+</pre>
+
+<pre>
+scala> val add2 = adder(2, _:Int)
+add2: (Int) => Int = <function1>
+
+scala> add2(3)
+res50: Int = 5
+</pre>
+
+You can partially apply any argument in the argument list, not just the last one.
+
+h4. Curried functions
+
+Sometimes it makes sense to let people apply some arguments to your function now and others later.
+
+Here's an example of a function that lets you build multipliers of two numbers together. At one call site, you'll decide which is the multiplier and at a later call site, you'll choose a multipicand.
+
+<pre>
+scala> def multiply(m: Int)(n: Int): Int = m * n
+multiply: (m: Int)(n: Int)Int
+</pre>
+
+You can call it directly with both arguments.
+
+<pre>
+scala> multiply(2)(3)
+res0: Int = 6
+</pre>
+
+You can fill in the first parameter and partially applying the second.
+
+<pre>
+scala> val timesTwo = multiply(2)(_)
+timesTwo: (Int) => Int = <function1>
+
+scala> timesTwo(3)
+res1: Int = 6
+</pre>
+
+This sometimes lead to crazy pieces of code.
+
+<pre>
+multiplyThenFilter { m: Int =>
+  m * 2
+} { n: Int =>
+  n < 5
+}
+</pre>
+
+I promise you get used to this over time.
+
+You can take any function of multiple arguments and curry it. Let's try with our earlier <pre>adder</pre>
+
+<pre>
+scala> (adder(_, _)).curried
+res1: (Int) => (Int) => Int = <function1>
+</pre>
+
+h3. Variable length arguments
+
+There is a special syntax for methods that can take parameters of a repeated type.
+
+<pre>
+def capitalizeAll(args: String*) = {
+  args.map { arg =>
+    arg.capitalize
+  }
+}
 </pre>
 
 h3. Classes
@@ -167,6 +297,10 @@ class Calculator(brand: String) {
 
 Note the two different styles of comments.
 
+h3. Expressions
+
+Our BasicCalculator example gave an example of how Scala is expression-oriented.  The value color was bound based on an if/else expression. Scala is highly expression-oriented, most things are expressions rather than statements.
+
 h3. Inheritance
 
 <pre>
@@ -174,6 +308,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
   def log(m: Double, base: Double) = math.log(m) / math.log(base)
 }
 </pre>
+
 
 h3. Overloading methods
 
@@ -184,39 +319,38 @@ class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(b
 </pre>
 
 
-h3. Expressions
+h3. Traits
 
-Our BasicCalculator example gave an example of how Scala is expression-oriented.  The value color was bound based on an if/else expression.
-
-h3. try-catch-finally
-
-Exceptions are available in Scala.
+<code>traits</code> are collections of fields and behaviors that you can extend or mixin to your classes.
 
 <pre>
-try {
-  remoteCalculatorService.add(1, 2)
-} catch {
-  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
-} finally {
-  remoteCalculatorService.close()
+trait Car {
+  val brand: String
 }
 </pre>
 
-trys are also expression-oriented
-
 <pre>
-val result: Int = try {
-  remoteCalculatorService.add(1, 2)
-} catch {
-  case e: ServerIsDownException => {
-    log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
-    0
-  }
-} finally {
-  remoteCalculatorService.close()
+class BMW extends Car {
+  val brand = "BMW"
 }
 </pre>
 
-This is not an example of excellent programming style, just an example of expressions in action.  Better would be to re-throw.
+h3. Types
 
-Finally will be called after any exception has been handled.
+Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you'll see a <pre>type parameter</pre> introduced with the square bracket syntax:
+
+You can introduce as many type parameters. Here's an example of a Cache of generic Keys and Values.
+
+<pre>
+trait Cache[K, V] {
+  def get(key: K): V
+  def put(key: K, value: V)
+  def delete(key: K)
+}
+</pre>
+
+Methods can also have type parameters introduced.
+
+<pre>
+def remove[K](key: K)
+</pre>

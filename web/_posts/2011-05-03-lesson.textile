@@ -9,7 +9,6 @@ This lesson covers:
 * Lists
 * Maps
 * Sets
-* Seq
 * Tuples
 * functional combinators
 ** map
@@ -17,145 +16,15 @@ This lesson covers:
 ** filter
 ** zip
 ** foldRight and foldLeft
+** flatMap
 
-
-h2. Preliminaries
-
-Reminders from Lessons 1 & 2: A simpler time.
-
-h4. Functions
-
-The humble function
-
-<pre>
-def timesTwo(i: Int): Int = i * 2
-</pre>
-
-An anonymous function
-
-<pre>
-(i: Int) => i * 2
-</pre>
-
-You can assign an anonymous function to a value, thus giving it a name.
-
-<pre>
-val timesTwo = (i: Int) => i * 2
-</pre>
-
-If your function is made up of many expressions, you can use {} to give yourself some breathing room.
-
-<pre>
-def timesTwo(i: Int): Int = {
-  println("hello world")
-  i * 2
-}
-</pre>
-
-This is also true of an anonymous function
-
-<pre>
-scala> { i: Int =>
-  println("hello world")
-  i * 2
-}
-res0: (Int) => Int = <function1>
-</pre>
-
-You will see this syntax often used when passing an anonymous function as an argument.
-
-
-h4. Partial application
-
-You can partially apply a function with an underscore, which gives you another function.
-
-<pre>
-scala> timesTwo _
-res0: (Int) => Int = <function1>
-</pre>
-
-h4. Curried functions
-
-
-Sometimes it makes sense to let people apply some arguments to your
-function now and others later.
-
-<pre>
-scala> def multiply(m: Int)(n: Int): Int = m * n
-multiply: (m: Int)(n: Int)Int
-</pre>
-
-You can call it directly
-
-<pre>
-scala> multiply(2)(3)
-res0: Int = 6
-</pre>
-
-You can fill in the first parameter and partially applying the second.
-
-<pre>
-scala> val timesTwo = multiply(2) _
-timesTwo: (Int) => Int = <function1>
-
-scala> timesTwo(3)
-res1: Int = 6
-</pre>
-
-
-This sometimes lead to crazy pieces of code like:
-
-<pre>
-multiplyThenFilter { i: Int =>
-  i * 2
-} { i: Int =>
-  i < 5
-}
-</pre>
-
-I promise you get used to this over time.
-
-h2. Basic Datastructures
+   h2. Basic Datastructures
 
 h3. Lists
 
 <pre>
 val numbers = List(1, 2, 3, 4)
 numbers: List[Int] = List(1, 2, 3, 4)
-</pre>
-
-Scala realized you were talking about a List of Ints and so parameterized it.
-
-You can parameterize it manually if you want.
-
-List[Int](1, 2, 3, 4)
-
-You can also build lists with :: by appending elements onto the empty list: Nil.
-
-<pre>
-scala> val numbers = 1 :: 2 :: 3 :: 4 :: Nil
-numbers: List[Int] = List(1, 2, 3, 4)
-</pre>
-
-h3. Maps
-
-It can hold basic datatypes.
-
-<pre>
-Map(1 -> 2)
-Map("foo" -> "bar")
-</pre>
-
-Nested Maps:
-
-<pre>
-Map(1 -> Map("foo" -> "bar"))
-</pre>
-
-You can even hold functions as values:
-
-<pre>
-Map("timesTwo" -> timesTwo _)
 </pre>
 
 h3. Sets
@@ -167,15 +36,6 @@ scala> Set(1, 1, 2)
 res0: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 
-h3. Seq
-
-Sequences have a defined order, they are Lists under the covers but many APIs will use the more generic Seq as their return type.
-
-<pre>
-scala> Seq(1, 1, 2)
-res0: Seq[Int] = List(1, 1, 2)
-</pre>
-
 h3. Tuple
 
 Tuples are used for grouping together simple logical collections of
@@ -183,14 +43,14 @@ items without using a class.
 
 <pre>
 scala> val hostPort = ("localhost", 80)
-hostPort: (java.lang.String, Int) = (localhost, 80)
+hostPort: (String, Int) = (localhost, 80)
 </pre>
 
-Unlike case classes, they don't have named accessors, instead they have accessors that are named by their position (1-based).
+Unlike case classes, they don't have named accessors, instead they have accessors that are named by their position and is 1-based rather than 0-based.
 
 <pre>
 scala> hostPort._1
-res0: java.lang.String = localhost
+res0: String = localhost
 
 scala> hostPort._2
 res1: Int = 80
@@ -205,11 +65,102 @@ hostPort match {
 }
 </pre>
 
+Tuple has some special sauce for simply making Tuples of 2 values: <code>-></code>
+
+<pre>
+scala> 1 -> 2
+res0: (Int, Int) = (1,2)
+</pre>
+
+h3. Maps
+
+It can hold basic datatypes.
+
+<pre>
+Map(1 -> 2)
+Map("foo" -> "bar")
+</pre>
+
+This looks like special syntax but remember back to our discussion of Tuple that <code>-></code> can be use to create Tuples.
+
+Map() also uses that variable argument syntax we learned back in Lesson #1: <code>Map(1 -> "one", 2 -> "two")</code> which expands into <code>Map((1, "one"), (2, "two"))</code> with the first element being the key and the second being the value of the Map.
+
+Maps can themselves contain Maps or even functions as values.
+
+<pre>
+Map(1 -> Map("foo" -> "bar"))
+</pre>
+
+<pre>
+Map("timesTwo" -> timesTwo(_))
+</pre>
+
+h3. Option
+
+<code>Option</code> is a container that may or may not hold something.
+
+The basic interface for Option looks like:
+
+<code>
+trait Option[T] {
+  def isDefined: Boolean
+  def get: T
+  def getOrElse(t: T): T
+}
+</code>
+
+Option itself is generic and has two subclasses: <code>Some[T]</code> or <code>None</code>
+
+Let's look at an example of how Option is used:
+
+<code>Map.get</code> uses <code>Option</code> for it's return type. Option signifies to you that the method might not be able to return what you're asking for and that you should be prepared for that.
+
+<pre>
+scala> val numbers = Map(1 -> "one", 2 -> "two")
+numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
+
+scala> numbers.get(2)
+res0: Option[java.lang.String] = Some(two)
+
+scala> numbers.get(3)
+res1: Option[java.lang.String] = None
+</pre>
+
+So now our data appears trapped in this <code>Option</code>. How do we work with it?
+
+A first instinct might be to do something conditionally based on the <code>isDefined</code> method.
+
+<code>
+// We want to multiply the number by two, otherwise return 0.
+val result = if (res1.isDefined()) {
+  res1.get * 2
+} else {
+  0
+}
+</code>
+
+We would suggest that you use either <code>getOrElse</code> or pattern matching to work with this result.
+
+<code>getOrElse</code> lets you easily define a default value.
+
+<code>
+val result = res1.getOrElse(0) * 2
+</code>
+
+Pattern matching fits naturally with <code>Option</code>.
+
+<code>
+val result = res1 match {
+  case Some(n) => n * 2
+  case None => 0
+}
+</code>
+
 h2. Functional Combinators
 
-This fancy name is giving to a standard set of functions that can be applied to Lists and Maps.
+Combinators are so-called because they are meant to be combined. The output of one function is often suitable as the input for another.
 
-They are called combinators because they are meant to be combined.  the output of one function is often suitable as the input for another.
+The most common use is on the standard data structures.
 
 h4. map
 
@@ -271,7 +222,7 @@ zip aggregates the contents of two lists into a single list of pairs.
 
 <pre>
 scala> List(1, 2, 3).zip(List("a", "b", "c"))
-res0: List[(Int, java.lang.String)] = List((1,a), (2,b), (3,c))
+res0: List[(Int, String)] = List((1,a), (2,b), (3,c))
 </pre>
 
 h4. partition
@@ -340,7 +291,7 @@ h5. foldRight
 Is the same as foldLeft except it runs in the opposite direction.
 
 <pre>
-scala> numbers.foldRight(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
+scala> numbers.foldRight(0)((m: Int, n: Int) => println("m: " + m + " n: " + n); m + n)
 m: 10 n: 0
 m: 9 n: 10
 m: 8 n: 19
@@ -353,6 +304,36 @@ m: 2 n: 52
 m: 1 n: 54
 res0: Int = 55
 </pre>
+
+h5. flatten
+
+flatten collapses one level of nested structure.
+
+<pre>
+scala> List(List(1, 2), List(3, 4)).flatten
+res0: List[Int] = List(1, 2, 3, 4)
+</pre>
+
+h5. flatMap
+
+flatMap is a frequently used combinator that combines mapping and flattening. flatMap takes a function that works on the nested lists and then concatenates the results back together.
+
+<pre>
+scala> val nestedNumbers = List(List(1, 2), List(3, 4))
+nestedNumbers: List[List[Int]] = List(List(1, 2), List(3, 4))
+
+scala> nestedNumbers.flatMap(x: List[Int] => x.map(_ * 2))
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+
+Think of it as short-hand for mapping and then flattening:
+
+<pre>
+scala> nestedNumbers.map(x: List[Int] => x.map(_ * 2)).flatten
+res1: List[Int] = List(2, 4, 6, 8)
+</pre>
+
+that example calling map and then flatten is an example of the "combinator"-like nature of these functions.
 
 
 h4. Generalized functional combinators
@@ -370,7 +351,7 @@ def ourMap(numbers: List[Int], fn: Int => Int): List[Int] = {
   }
 }
 
-scala> ourMap(numbers, timesTwo _)
+scala> ourMap(numbers, timesTwo(_))
 res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
 </pre>
 
@@ -382,14 +363,14 @@ All of the functional combinators shown work on Maps, too.  Maps can be thought 
 
 <pre>
 scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
-extensions: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101), (joe,201))
+extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
 </pre>
 
 now filter out every entry who's phone extension is lower than 200.
 
 <pre>
 scala> extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)
-res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101))
+res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>
 
 Because it gives you a tuple, you have to pull out the keys and values with their positional accessors. Yuck!
@@ -397,8 +378,8 @@ Because it gives you a tuple, you have to pull out the keys and values with thei
 Lucky us, we can actually use a pattern match to extract the key and value nicely.
 
 <pre>
-scala> extensions.filter { case (name, extension) => extension < 200 }
-res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((steve,100), (bob,101))
+scala> extensions.filter(case (name, extension) => extension < 200)
+res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>
 
 Why does this work? Why can you pass in a partial pattern match?
