@@ -1,10 +1,21 @@
-#!/bin/bash
+#!/bin/bash -x
+
+root=$(
+  cd $(dirname $0)
+  /bin/pwd
+)
 
 dir=$1
 out=/tmp/school.$$
 
 trap "rm -fr $out" 0 1 2
-git clone -b gh-pages git@github.com:twitter/scala_school.git $out
+
+git clone $root/.git $out
+cd $out
+git remote set-url origin git@github.com:twitter/scala_school.git
+git fetch
+git co gh-pages
+cd $root
 cp -r $dir/* $out/
 cd $out
 git add .
