@@ -43,6 +43,14 @@ The most important <code>Future</code> combinator is <code>flatMap</code>[2]:
 As an example, let's assume we have methods <code>authenticate: Request -> User</code>, and <code>rateLimit: User -> Boolean</code>, then the following code:
 
 <pre>
+val f = authenticate(request) flatMap { u =>
+  rateLimit(u) map { r => (u, r)
+}
+</pre>
+
+With the help of for-comprehensions, we can write the above as:
+
+<pre>
 val f = for {
   u <- authenticate(request)
   r <- rateLimit(u)
@@ -190,7 +198,7 @@ class TimeoutFilter[Req, Rep](
 This example shows how you might provide authentication (via an authentication service) in order to convert a <code>Service[AuthHttpReq, HttpRep]</code> into <code>Service[HttpReq, HttpRep]</code>.
 
 <pre>
-class RequireAuthentication(passbird: Passbird)
+class RequireAuthentication(authService: AuthService)
   extends Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep]
 {
   def apply(
@@ -201,7 +209,6 @@ class RequireAuthentication(passbird: Passbird)
       case AuthResult(AuthResultCode.OK, Some(passport), _) =>
         service(AuthHttpReq(req, passport))
       case ar: AuthResult =>
-        Trace.record("Passbird authentication failed with " + ar)
         Future.exception(
           new RequestUnauthenticated(ar.resultCode))
     }
