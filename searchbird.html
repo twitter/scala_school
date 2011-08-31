@@ -22,7 +22,6 @@
       <div class="fill">
         <div class="container fixed">
           <h3><a href="index.html">Searchbird</a></h3>
-          
           <ul class="nav secondary-nav">
             
               <li><a href="finagle.html">&laquo;Previous</a></li>
@@ -37,7 +36,6 @@
     <div class="container" style="padding-top: 60px;">
       <p>We&#8217;re going to build a very simple distributed search engine using <a href="http://github.com/twitter/finagle">Finagle</a>. First, create a skeleton project using <a href="https://github.com/twitter/scala-bootstrapper">scala-bootstrapper</a></p>
 <p><code>scala-bootstrapper</code> will create a very simple finagle based scala service that exports an in-memory key-value store. We&#8217;ll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.</p>
-<p>A pre-generated <code>scala-bootstrapper</code> project is also available <a href="searchbird.tar.gz">here</a>. It&#8217;s recommended that you use this instead of generating it for yourself as scala-bootstrapper changes and the lesson may not be up to date. Furthermore the packaged version is self contained: it includes both sbt (invoke via <code>./sbt</code>) and</p>
 <pre>
 $ mkdir searchbird; cd searchbird
 $ scala-bootstrapper -p searchbird
@@ -72,27 +70,47 @@ service SearchbirdService {
 }
 </pre>
 <p>This is pretty straightforward: our service <code>SearchbirdService</code> exports 2 <span class="caps">RPC</span> methods, <code>get</code> and <code>put</code>. They comprise a simple interface to a key-value store.</p>
-<p>Now run the default service, and explore it through this interface.</p>
+<p>Now let&#8217;s run the default service, and explore it through this interface.</p>
 <p>First build the project, and run the service (which is also the default &#8220;main&#8221; method that sbt will run).</p>
 <pre>
 $ sbt
 …
-&gt; update
-…
 &gt; compile
 &gt; run -f config/development.scala
 </pre>
-<p><code>scala-bootstrapper</code> also creates a ruby client (<code>sbt</code> has generated the appropriate ruby sources for us as well).</p>
+<p>We&#8217;ve also written a simple client library that you can run from the <code>sbt console</code></p>
 <pre>
-$ gem install thrift_client --version '=0.6'
-$ src/scripts/console
-Hint: the client is in the variable `$client`
-No servers specified, using 127.0.0.1:9999
-&gt; $client.put("foo", "bar")
-nil
-&gt; $client.get("foo")
-"bar"
-&gt;
+$ sbt console
++ exec java -Djava.net.preferIPv4Stack=true -Dhttp.connection.timeout=2 -Dhttp.connection-manager.timeout=2 -Dhttp.socket.timeout=6 -Dcom.sun.management.jmxremote.port=0 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote '-Xmx512m -XX:MaxPermSize=256m' -XX:+AggressiveOpts -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -XX:SurvivorRatio=128 -XX:MaxTenuringThreshold=0 -Xss200M -Xms512M -Xmx2G -ea -server -jar /Users/stevej/bin/sbt-launch-0.7.4.jar console
+[info] Standard project rules 0.12.7 loaded (2011-05-24).
+[info] Building project searchbird 1.0.0-SNAPSHOT against Scala 2.8.1
+[info]    using SearchbirdProject with sbt 0.7.4 and Scala 2.7.7
+[info]
+[info] == copy-resources ==
+[info] == copy-resources ==
+[info]
+[info] == write-build-properties ==
+[info] == write-build-properties ==
+[info]
+[info] == console ==
+[info] Starting scala interpreter...
+[info]
+Welcome to Scala version 2.8.1.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_26).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala&gt; import com.twitter.searchbird.Client
+import com.twitter.searchbird.Client
+
+scala&gt; val client = new Client()
+client: com.twitter.searchbird.Client = com.twitter.searchbird.Client@24759265
+
+scala&gt; client.put("marius", "Marius Eriksen")
+res0: ...
+
+scala&gt; client.put("stevej", "Steve Jenson")
+res1: ...
+
 </pre>
 <p>The server also exports runtime statistics. These are convenient both for inspecting individual servers as well as aggregating into global service statistics (a machine-readable json interface is also provided).</p>
 <pre>
@@ -175,7 +193,7 @@ class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdS
   val serverName = "Searchbird"
   val thriftPort = config.thriftPort
 
-  val database = new mutable.HashMap[String, String]()  
+  val database = new mutable.HashMap[String, String]()
 
   def get(key: String) = {
     database.get(key) match {
@@ -197,7 +215,7 @@ class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdS
 </pre>
 <p>It implements a simple thrift interface to a scala <code>HashMap</code>.</p>
 <h2>A simple search engine</h2>
-<p>Now we&#8217;ll extend our example so far to create a simple search engine. We&#8217;ll then extend it further to become a <em>distributed</em> seach engine consisting of multiple shards so that we can fit a corpus larger what can fit in memory of a single machine. To keep things simple, we&#8217;ll extend our current thrift service minimally in order to support a search operation.</p>
+<p>Now we&#8217;ll extend our example so far to create a simple search engine. We&#8217;ll then extend it further to become a <em>distributed</em> seach engine consisting of multiple shards so that we can fit a corpus larger than what can fit in memory of a single machine. To keep things simple, we&#8217;ll extend our current thrift service minimally in order to support a search operation.</p>
 <h5>src/main/thrift/searchbird.thrift</h5>
 <pre>
 service SearchbirdService {
@@ -208,7 +226,7 @@ service SearchbirdService {
 </pre>
 <p>We&#8217;ve added a <code>search</code> method that searches the current hashtable, returning the list of keys whose values match the query. The implementation is also straightforward:</p>
 <h5>…/SearchbirdServiceImpl.scala</h5>
-<p>We first add another <code>HashMap</code> to hold the reverse index</p>
+<p>We first add another <code>HashMap</code> to hold the reverse index, giving us maps in both the forward (key to document) and reverse (token to set of documents) directions.</p>
 <pre>
   val forward = new mutable.HashMap[String, String]
     with mutable.SynchronizedMap[String, String]
@@ -261,7 +279,7 @@ service SearchbirdService {
 $ src/scripts/console
 Hint: the client is in the variable `$client`
 No servers specified, using 127.0.0.1:9999
-&gt; 
+&gt;
 </pre>
 <p>Paste the lecture descriptions in.</p>
 <p><!--
@@ -274,33 +292,33 @@ grep -h '^(desc|title):' ../web/_posts/* | tr A-Z a-z | tr '=''\-+.,:' ' ' | awk
 }'
 --></p>
 <pre>
-$client.put("basics", " values functions classes methods inheritance try catch finally expression oriented")
-$client.put("basics", " case classes objects packages apply update functions are objects (uniform access principle) pattern")
-$client.put("collections", " lists maps functional combinators (map foreach filter zip")
-$client.put("pattern", " more functions! partialfunctions more pattern")
-$client.put("type", " basic types and type polymorphism type inference variance bounds")
-$client.put("advanced", " advanced types view bounds higher kinded types recursive types structural")
-$client.put("simple", " all about sbt the standard scala build")
-$client.put("more", " tour of the scala collections")
-$client.put("testing", " write tests with specs a bdd testing framework for")
-$client.put("concurrency", " runnable callable threads futures twitter")
-$client.put("java", " java interop using scala from")
-$client.put("searchbird", " building a distributed search engine using")
+client.put("basics", " values functions classes methods inheritance try catch finally expression oriented")
+client.put("basics", " case classes objects packages apply update functions are objects (uniform access principle) pattern")
+client.put("collections", " lists maps functional combinators (map foreach filter zip")
+client.put("pattern", " more functions! partialfunctions more pattern")
+client.put("type", " basic types and type polymorphism type inference variance bounds")
+client.put("advanced", " advanced types view bounds higher kinded types recursive types structural")
+client.put("simple", " all about sbt the standard scala build")
+client.put("more", " tour of the scala collections")
+client.put("testing", " write tests with specs a bdd testing framework for")
+client.put("concurrency", " runnable callable threads futures twitter")
+client.put("java", " java interop using scala from")
+client.put("searchbird", " building a distributed search engine using")
 </pre>
 <p>We can now perform some searches.</p>
 <pre>
-&gt; $client.search("functions")
-["basics"]
-&gt; $client.search("java")
-["java"]
-&gt; $client.search("java scala")
-["java"]
-&gt; $client.search("functional")
-["collections"]
-&gt; $client.search("sbt")
-["simple"]
-&gt; $client.search("types")
-["type", "advanced"]
+&gt; client.search("functions")
+res0: Seq("basics")
+&gt; client.search("java")
+res1: Seq("java")
+&gt; client.search("java scala")
+res2: Seq("java")
+&gt; client.search("functional")
+res3: Seq("collections")
+&gt; client.search("sbt")
+res4: Seq("simple")
+&gt; client.search("types")
+res5: Seq("type", "advanced")
 </pre>
 <h2>Distributing our service</h2>
 <p>Our simple in-memory search engine won&#8217;t be able to search corpuses larger than the size of memory on a single machine. We&#8217;ll not venture to remedy this by distributing nodes with a simple sharding scheme.</p>
@@ -384,7 +402,7 @@ class SearchbirdServiceConfig extends ServerConfig[SearchbirdServiceServer] {
   def apply(runtime: RuntimeEnvironment) = new SearchbirdServiceImpl(this, new ResidentIndex)
 }
 </pre>
-<p>We&#8217;ll set up our simple distributed system so that there is one distinguished node that coordinates queries its child nodes. In order to achieve this, we&#8217;ll need two new <code>Index</code> types. One represents a remote index, the other is a composite index over several other <code>Index</code> instances. This way we can construct the distributed index by instantiating a composite index the remote indices.</p>
+<p>We&#8217;ll set up our simple distributed system so that there is one distinguished node that coordinates queries to its child nodes. In order to achieve this, we&#8217;ll need two new <code>Index</code> types. One represents a remote index, the other is a composite index over several other <code>Index</code> instances. This way we can construct the distributed index by instantiating a composite index of the remote indices.</p>
 <p>First we define a <code>CompositeIndex</code>.</p>
 <pre>
 class CompositeIndex(indices: Seq[Index]) extends Index {
@@ -412,7 +430,7 @@ class CompositeIndex(indices: Seq[Index]) extends Index {
   }
 }
 </pre>
-<p>The composite index works over a set of underlying <code>Index</code> instances. Note that the it doesn&#8217;t care how these are actually implemented. This type of composition allows for great flexibility in constructing various querying schemes. We don&#8217;t define a sharding scheme, and so the composite index doesn&#8217;t support <code>put</code> operations. These are instead issued directly to the child nodes. <code>get</code> is implemented by querying all of our child nodes and picking the first succesful result. If there are none, we throw an exception. Note that since the absence of a value is communicated by throwing an exception, we <code>handle</code> this on the <code>Future</code>, converting any exception into a <code>None</code> value. In a real system, we&#8217;d probably have proper error codes for missing values rather than using exceptions. Exceptions are convenient and expedient for prototyping, but compose poorly. In order to distinguish between a real exception and a missing value, I have to examine the exception itself. Rather it is better style to embed this distinction directly in the type of the returned value.</p>
+<p>The composite index works over a set of underlying <code>Index</code> instances. Note that it doesn&#8217;t care how these are actually implemented. This type of composition allows for great flexibility in constructing various querying schemes. We don&#8217;t define a sharding scheme, and so the composite index doesn&#8217;t support <code>put</code> operations. These are instead issued directly to the child nodes. <code>get</code> is implemented by querying all of our child nodes and picking the first succesful result. If there are none, we throw an exception. Note that since the absence of a value is communicated by throwing an exception, we <code>handle</code> this on the <code>Future</code>, converting any exception into a <code>None</code> value. In a real system, we&#8217;d probably have proper error codes for missing values rather than using exceptions. Exceptions are convenient and expedient for prototyping, but compose poorly. In order to distinguish between a real exception and a missing value, I have to examine the exception itself. Rather it is better style to embed this distinction directly in the type of the returned value.</p>
 <p><code>search</code> works in a similar way. Instead of picking the first result, we combine them, ensuring their uniqueness by using a <code>Set</code> construction.</p>
 <p><code>RemoteIndex</code> provides an <code>Index</code> interface over a number of hosts.</p>
 <pre>

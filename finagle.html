@@ -22,7 +22,6 @@
       <div class="fill">
         <div class="container fixed">
           <h3><a href="index.html">An introduction to Finagle</a></h3>
-          
           <ul class="nav secondary-nav">
             
               <li><a href="java.html">&laquo;Previous</a></li>
@@ -62,6 +61,12 @@ future onFailure { error =&gt; … }
 </blockquote>
 <p><code>flatMap</code> sequences two features. The method signature tells the story: given the succesful value of the future <code>f</code> must provide the next <code>Future</code>. The result of this operation is another <code>Future</code> that is complete only when both of these futures have completed. If either <code>Future</code> fails, the given <code>Future</code> will also fail. This implicit interleaving of errors allow us to handle errors only in those places where they are semantically significant. <code>flatMap</code> is the standard name for the combinator with these semantics. Scala also has syntactic shorthand to invoke it: the <code>for</code> comprehension.</p>
 <p>As an example, let&#8217;s assume we have methods <code>authenticate: Request -&gt; User</code>, and <code>rateLimit: User -&gt; Boolean</code>, then the following code:</p>
+<pre>
+val f = authenticate(request) flatMap { u =&gt;
+  rateLimit(u) map { r =&gt; (u, r)
+}
+</pre>
+<p>With the help of for-comprehensions, we can write the above as:</p>
 <pre>
 val f = for {
   u &lt;- authenticate(request)
@@ -181,7 +186,7 @@ class TimeoutFilter[Req, Rep](
 </pre>
 <p>This example shows how you might provide authentication (via an authentication service) in order to convert a <code>Service[AuthHttpReq, HttpRep]</code> into <code>Service[HttpReq, HttpRep]</code>.</p>
 <pre>
-class RequireAuthentication(passbird: Passbird)
+class RequireAuthentication(authService: AuthService)
   extends Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep]
 {
   def apply(
@@ -192,7 +197,6 @@ class RequireAuthentication(passbird: Passbird)
       case AuthResult(AuthResultCode.OK, Some(passport), _) =&gt;
         service(AuthHttpReq(req, passport))
       case ar: AuthResult =&gt;
-        Trace.record("Passbird authentication failed with " + ar)
         Future.exception(
           new RequestUnauthenticated(ar.resultCode))
     }
