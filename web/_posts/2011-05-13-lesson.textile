@@ -50,7 +50,7 @@ service SearchbirdService {
 
 This is pretty straightforward: our service <code>SearchbirdService</code> exports 2 RPC methods, <code>get</code> and <code>put</code>. They comprise a simple interface to a key-value store.
 
-Now run the default service, and explore it through this interface.
+Now let's run the default service, and explore it through this interface.
 
 First build the project, and run the service (which is also the default "main" method that sbt will run).
 
@@ -219,7 +219,7 @@ It implements a simple thrift interface to a scala <code>HashMap</code>.
 
 h2. A simple search engine
 
-Now we'll extend our example so far to create a simple search engine. We'll then extend it further to become a <em>distributed</em> seach engine consisting of multiple shards so that we can fit a corpus larger what can fit in memory of a single machine. To keep things simple, we'll extend our current thrift service minimally in order to support a search operation.
+Now we'll extend our example so far to create a simple search engine. We'll then extend it further to become a <em>distributed</em> seach engine consisting of multiple shards so that we can fit a corpus larger than what can fit in memory of a single machine. To keep things simple, we'll extend our current thrift service minimally in order to support a search operation.
 
 h5. src/main/thrift/searchbird.thrift
 
@@ -235,7 +235,7 @@ We've added a <code>search</code> method that searches the current hashtable, re
 
 h5. …/SearchbirdServiceImpl.scala
 
-We first add another <code>HashMap</code> to hold the reverse index
+We first add another <code>HashMap</code> to hold the reverse index, giving us maps in both the forward (key to document) and reverse (token to set of documents) directions.
 
 <pre>
   val forward = new mutable.HashMap[String, String]
@@ -441,7 +441,7 @@ class SearchbirdServiceConfig extends ServerConfig[SearchbirdServiceServer] {
 }
 </pre>
 
-We'll set up our simple distributed system so that there is one distinguished node that coordinates queries its child nodes. In order to achieve this, we'll need two new <code>Index</code> types. One represents a remote index, the other is a composite index over several other <code>Index</code> instances. This way we can construct the distributed index by instantiating a composite index the remote indices.
+We'll set up our simple distributed system so that there is one distinguished node that coordinates queries to its child nodes. In order to achieve this, we'll need two new <code>Index</code> types. One represents a remote index, the other is a composite index over several other <code>Index</code> instances. This way we can construct the distributed index by instantiating a composite index of the remote indices.
 
 First we define a <code>CompositeIndex</code>.
 
@@ -472,7 +472,7 @@ class CompositeIndex(indices: Seq[Index]) extends Index {
 }
 </pre>
 
-The composite index works over a set of underlying <code>Index</code> instances. Note that the it doesn't care how these are actually implemented. This type of composition allows for great flexibility in constructing various querying schemes. We don't define a sharding scheme, and so the composite index doesn't support <code>put</code> operations. These are instead issued directly to the child nodes. <code>get</code> is implemented by querying all of our child nodes and picking the first succesful result. If there are none, we throw an exception. Note that since the absence of a value is communicated by throwing an exception, we <code>handle</code> this on the <code>Future</code>, converting any exception into a <code>None</code> value. In a real system, we'd probably have proper error codes for missing values rather than using exceptions. Exceptions are convenient and expedient for prototyping, but compose poorly. In order to distinguish between a real exception and a missing value, I have to examine the exception itself. Rather it is better style to embed this distinction directly in the type of the returned value.
+The composite index works over a set of underlying <code>Index</code> instances. Note that it doesn't care how these are actually implemented. This type of composition allows for great flexibility in constructing various querying schemes. We don't define a sharding scheme, and so the composite index doesn't support <code>put</code> operations. These are instead issued directly to the child nodes. <code>get</code> is implemented by querying all of our child nodes and picking the first succesful result. If there are none, we throw an exception. Note that since the absence of a value is communicated by throwing an exception, we <code>handle</code> this on the <code>Future</code>, converting any exception into a <code>None</code> value. In a real system, we'd probably have proper error codes for missing values rather than using exceptions. Exceptions are convenient and expedient for prototyping, but compose poorly. In order to distinguish between a real exception and a missing value, I have to examine the exception itself. Rather it is better style to embed this distinction directly in the type of the returned value.
 
 <code>search</code> works in a similar way. Instead of picking the first result, we combine them, ensuring their uniqueness by using a <code>Set</code> construction.
 
