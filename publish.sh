@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash 
 
 root=$(
   cd $(dirname $0)
