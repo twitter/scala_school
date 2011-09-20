@@ -179,7 +179,7 @@ h4. Partial application
 You can partially apply a function with an underscore, which gives you another function.
 
 <pre>
-scala> def adder2(m: Int, n: Int) = m + n
+scala> def adder(m: Int, n: Int) = m + n
 adder2: (m: Int,n: Int)Int
 </pre>
 
