@@ -180,7 +180,7 @@ You can partially apply a function with an underscore, which gives you another f
 
 <pre>
 scala> def adder(m: Int, n: Int) = m + n
-adder2: (m: Int,n: Int)Int
+adder: (m: Int,n: Int)Int
 </pre>
 
 <pre>
