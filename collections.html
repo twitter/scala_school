@@ -274,7 +274,7 @@ res0: List[Int] = List(1, 2, 3, 4)
 scala&gt; val nestedNumbers = List(List(1, 2), List(3, 4))
 nestedNumbers: List[List[Int]] = List(List(1, 2), List(3, 4))
 
-scala&gt; nestedNumbers.flatMap(x: List[Int] =&gt; x.map(_ * 2))
+scala&gt; nestedNumbers.flatMap(x =&gt; x.map(_ * 2))
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 <p>Think of it as short-hand for mapping and then flattening:</p>
