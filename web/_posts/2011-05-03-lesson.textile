@@ -322,7 +322,7 @@ flatMap is a frequently used combinator that combines mapping and flattening. fl
 scala> val nestedNumbers = List(List(1, 2), List(3, 4))
 nestedNumbers: List[List[Int]] = List(List(1, 2), List(3, 4))
 
-scala> nestedNumbers.flatMap(x: List[Int] => x.map(_ * 2))
+scala> nestedNumbers.flatMap(x => x.map(_ * 2))
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
