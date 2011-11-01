@@ -197,7 +197,7 @@ h4. Curried functions
 
 Sometimes it makes sense to let people apply some arguments to your function now and others later.
 
-Here's an example of a function that lets you build multipliers of two numbers together. At one call site, you'll decide which is the multiplier and at a later call site, you'll choose a multipicand.
+Here's an example of a function that lets you build multipliers of two numbers together. At one call site, you'll decide which is the multiplier and at a later call site, you'll choose a multiplicand.
 
 <pre>
 scala> def multiply(m: Int)(n: Int): Int = m * n
