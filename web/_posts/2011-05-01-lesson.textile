@@ -31,7 +31,7 @@ h2. Why Scala?
 * Concise
 ** Type inference
 ** Literal syntax for function creation
-* Java interopability
+* Java interoperability
 ** Can reuse java libraries
 ** Can reuse java tools
 ** No performance penalty
