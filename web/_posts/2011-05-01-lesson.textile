@@ -314,7 +314,7 @@ h3. Overloading methods
 
 <pre>
 class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
-  def log(m: Int) = log(m, math.exp(1))
+  def log(m: Int): Double = log(m, math.exp(1))
 }
 </pre>
 
