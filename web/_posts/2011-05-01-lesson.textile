@@ -337,7 +337,7 @@ class BMW extends Car {
 
 h3. Types
 
-Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you'll see a <pre>type parameter</pre> introduced with the square bracket syntax:
+Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you'll see a type parameter introduced with the square bracket syntax:
 
 You can introduce as many type parameters. Here's an example of a Cache of generic Keys and Values.
 
