@@ -370,8 +370,7 @@ val sl = new scala.collection.mutable.ListBuffer[Int]
 val jl : java.util.List[Int] = sl
 val sl2 : scala.collection.mutable.Buffer[Int] = jl
 assert(sl eq sl2)
-</pre>A
-
+</pre>
 
 Two way conversions:
 
