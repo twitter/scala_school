@@ -101,13 +101,13 @@ h3. Option
 
 The basic interface for Option looks like:
 
-<code>
+<pre>
 trait Option[T] {
   def isDefined: Boolean
   def get: T
   def getOrElse(t: T): T
 }
-</code>
+</pre>
 
 Option itself is generic and has two subclasses: <code>Some[T]</code> or <code>None</code>
 
@@ -130,31 +130,31 @@ So now our data appears trapped in this <code>Option</code>. How do we work with
 
 A first instinct might be to do something conditionally based on the <code>isDefined</code> method.
 
-<code>
+<pre>
 // We want to multiply the number by two, otherwise return 0.
 val result = if (res1.isDefined()) {
   res1.get * 2
 } else {
   0
 }
-</code>
+</pre>
 
 We would suggest that you use either <code>getOrElse</code> or pattern matching to work with this result.
 
 <code>getOrElse</code> lets you easily define a default value.
 
-<code>
+<pre>
 val result = res1.getOrElse(0) * 2
-</code>
+</pre>
 
 Pattern matching fits naturally with <code>Option</code>.
 
-<code>
+<pre>
 val result = res1 match {
   case Some(n) => n * 2
   case None => 0
 }
-</code>
+</pre>
 
 h2. Functional Combinators
 

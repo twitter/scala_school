@@ -143,7 +143,7 @@ Combined, these often result in less code, especially when threading through vie
 
 h3. Higher-kinded types & ad-hoc polymorphism
 
-Scala can abstract over "higher kinded" types. This is analagous to function currying. For example, whereas "unary types" have constructors like this:
+Scala can abstract over "higher kinded" types. This is analogous to function currying. For example, whereas "unary types" have constructors like this:
 
 <pre>
 List[A]

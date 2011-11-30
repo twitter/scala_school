@@ -197,7 +197,7 @@ h4. Curried functions
 
 Sometimes it makes sense to let people apply some arguments to your function now and others later.
 
-Here's an example of a function that lets you build multipliers of two numbers together. At one call site, you'll decide which is the multiplier and at a later call site, you'll choose a multipicand.
+Here's an example of a function that lets you build multipliers of two numbers together. At one call site, you'll decide which is the multiplier and at a later call site, you'll choose a multiplicand.
 
 <pre>
 scala> def multiply(m: Int)(n: Int): Int = m * n
@@ -314,7 +314,7 @@ h3. Overloading methods
 
 <pre>
 class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
-  def log(m: Int) = log(m, math.exp(1))
+  def log(m: Int): Double = log(m, math.exp(1))
 }
 </pre>
 
@@ -337,7 +337,7 @@ class BMW extends Car {
 
 h3. Types
 
-Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you'll see a <pre>type parameter</pre> introduced with the square bracket syntax:
+Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you'll see a type parameter introduced with the square bracket syntax:
 
 You can introduce as many type parameters. Here's an example of a Cache of generic Keys and Values.
 
