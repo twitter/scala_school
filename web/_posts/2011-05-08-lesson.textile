@@ -58,7 +58,7 @@ These are all traits, both the mutable and immutable packages have implementatio
 
 h3. Traversable
 
-All collections can be traversed.  This trait you the standard function combinators written in terms of a foreach that you implement @foreach@.
+All collections can be traversed.  This trait give you the standard function combinators written in terms of a foreach that you implement @foreach@.
 
 h3. Iterable
 
@@ -87,7 +87,7 @@ def head : A
 def tail : Traversable[A]
 </pre>
 
-Here are where the Fuctional Combinators are defined.
+Here are where the Functional Combinators are defined.
 
 <pre>
 def map [B] (f: (A) => B) : CC[B]
