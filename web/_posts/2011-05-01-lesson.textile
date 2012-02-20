@@ -211,7 +211,7 @@ scala> multiply(2)(3)
 res0: Int = 6
 </pre>
 
-You can fill in the first parameter and partially applying the second.
+You can fill in the first parameter and partially apply the second.
 
 <pre>
 scala> val timesTwo = multiply(2)(_)

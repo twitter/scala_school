@@ -18,7 +18,7 @@ This lesson covers:
 ** foldRight and foldLeft
 ** flatMap
 
-   h2. Basic Datastructures
+h2. Basic Datastructures
 
 h3. Lists
 
@@ -38,8 +38,7 @@ res0: scala.collection.immutable.Set[Int] = Set(1, 2)
 
 h3. Tuple
 
-Tuples are used for grouping together simple logical collections of
-items without using a class.
+Tuples are used for grouping together simple logical collections of items without using a class.
 
 <pre>
 scala> val hostPort = ("localhost", 80)
