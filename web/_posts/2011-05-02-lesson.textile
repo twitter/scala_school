@@ -81,7 +81,7 @@ In Scala, we talk about object-functional programming often.  What does that mea
 A Function is a set of traits. Speficially, a function that takes one argument is an instance of a Function1 trait. This trait defines the <code>apply()</code> syntactic sugar we learned earlier, allowing you to call an object like you would a function.
 
 <pre>
-cala> object addOne extends Function1[Int, Int] {
+scala> object addOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
 defined module AddOne
@@ -100,7 +100,7 @@ Does this mean that everytime you define a method in your class, you're actually
 Classes can also extend Function and those instances can be called with ().
 
 <pre>
-cala> class AddOne extends Function1[Int, Int] {
+scala> class AddOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
 defined class AddOne
