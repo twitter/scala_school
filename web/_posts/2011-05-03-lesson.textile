@@ -132,7 +132,7 @@ A first instinct might be to do something conditionally based on the <code>isDef
 
 <code>
 // We want to multiply the number by two, otherwise return 0.
-val result = if (res1.isDefined()) {
+val result = if (res1.isDefined) {
   res1.get * 2
 } else {
   0
