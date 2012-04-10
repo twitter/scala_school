@@ -92,7 +92,7 @@ Map(1 -> Map("foo" -> "bar"))
 </pre>
 
 <pre>
-Map("timesTwo" -> timesTwo(_))
+Map("timesTwo" -> { timesTwo(_) })
 </pre>
 
 h3. Option
