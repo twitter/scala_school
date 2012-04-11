@@ -291,7 +291,7 @@ h5. foldRight
 Is the same as foldLeft except it runs in the opposite direction.
 
 <pre>
-scala> numbers.foldRight(0)((m: Int, n: Int) => println("m: " + m + " n: " + n); m + n)
+scala> numbers.foldRight(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
 m: 10 n: 0
 m: 9 n: 10
 m: 8 n: 19
