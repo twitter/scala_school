@@ -329,7 +329,7 @@ res0: List[Int] = List(2, 4, 6, 8)
 Think of it as short-hand for mapping and then flattening:
 
 <pre>
-scala> nestedNumbers.map(x: List[Int] => x.map(_ * 2)).flatten
+scala> nestedNumbers.map((x: List[Int]) => x.map(_ * 2)).flatten
 res1: List[Int] = List(2, 4, 6, 8)
 </pre>
 
