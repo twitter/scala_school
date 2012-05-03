@@ -2,7 +2,7 @@
 permalink: concurrency.html
 title: Concurrency in Scala
 layout: post
-desc: Runnable, callable, threads, Futures, Twitter Futures
+desc: Runnable, Callable, threads, Futures
 ---
 
 * Runnable
@@ -11,11 +11,9 @@ desc: Runnable, callable, threads, Futures, Twitter Futures
 * Executors
 * ExecutorService
 * Futures
-** Stock Java
-** Our own Futures
 * Solutions
 ** Producer/Consumer
-** Parrallel combinators
+** Parallel combinators
 ** Single-machine MapReduce
 
 
