@@ -14,7 +14,7 @@ git clone $root/.git $out
 cd $out
 git remote set-url origin git@github.com:twitter/scala_school.git
 git fetch
-git co gh-pages
+git checkout gh-pages
 cd $root
 cp -r $dir/* $out/
 cd $out
