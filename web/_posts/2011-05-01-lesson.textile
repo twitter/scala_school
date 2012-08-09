@@ -12,7 +12,6 @@ This lesson covers:
 * classes
 * methods
 * basic inheritance
-* try-catch-finally
 
 h2. About this class
 
@@ -233,7 +232,7 @@ multiplyThenFilter { m: Int =>
 
 I promise you get used to this over time.
 
-You can take any function of multiple arguments and curry it. Let's try with our earlier <pre>adder</pre>
+You can take any function of multiple arguments and curry it. Let's try with our earlier <code>adder</code>
 
 <pre>
 scala> (adder(_, _)).curried
