@@ -23,7 +23,7 @@ h2. Basic Datastructures
 h3. Lists
 
 <pre>
-val numbers = List(1, 2, 3, 4)
+scala> val numbers = List(1, 2, 3, 4)
 numbers: List[Int] = List(1, 2, 3, 4)
 </pre>
 
