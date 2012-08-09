@@ -67,7 +67,7 @@ addAhem: (x: String)String
 <p>compose calls the second function and then the first function.</p>
 <p>compose is f(g(x))</p>
 <pre>
-scala&gt; val ummThenAhem = addAhem(_).compose(addUmm(_))
+scala&gt; val ummThenAhem = addAhem _ compose addUmm _
 ummThenAhem: (String) =&gt; String = &lt;function1&gt;
 
 scala&gt; ummThenAhem("well")
@@ -77,7 +77,7 @@ res0: String = well umm ahem
 <p>andThen calls the first function and then the second.</p>
 <p>andThen is <code>g(f(x))</code></p>
 <pre>
-scala&gt; val ahemThenUmm = addAhem(_).andThen(addUmm (_))
+scala&gt; val ahemThenUmm = addAhem _ andThen addUmm _
 ahemThenUmm: (String) =&gt; String = &lt;function1&gt;
 
 scala&gt; ahemThenUmm("well")

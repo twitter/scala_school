@@ -84,7 +84,6 @@ public static void $init$(com.twitter.interop.MyTrait);
 	<li>Exceptions</li>
 </ul>
 <p>We&#8217;ll construct a simple scala class to show the full range of entities</p>
-
 <pre>
 package com.twitter.interop
 
@@ -157,7 +156,6 @@ getFoo();
 <p>A full list of Scala annotations for supporting Java interop can be found here http://www.scala-lang.org/node/106.</p>
 <h2>Traits</h2>
 <p>How do you get an interface + implementation?  Let&#8217;s take a simple trait definition and look</p>
-
 <pre>
 trait MyTrait {
   def traitName:String
@@ -269,7 +267,6 @@ val cc = new ClosureClass
 cc.printResult { "HI MOM" }
 </pre>
 <p>In Java it&#8217;s not so easy, but it&#8217;s not terrible either.  Let&#8217;s see what ClosureClass actually compiled to:</p>
-
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
 Compiled from "Scalaisms.scala"
@@ -281,7 +278,6 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
 </pre>
 <p>This isn&#8217;t so scary.  &#8220;f: =&gt; T&#8221; translates to &#8220;Function0&#8221;, and &#8220;f: String =&gt; T&#8221; translates to &#8220;Function1&#8221;.  Scala actually defines Function0 through Function22, supporting this stuff up to 22 arguments.  Which really should be enough.</p>
 <p>Now we just need to figure out how to get those things going in Java.  Turns out Scala provides an AbstractFunction0 and an AbstractFunction1 we can pass in like so</p>
-
 <pre>
     @Test public void closureTest() {
         ClosureClass c = new ClosureClass();

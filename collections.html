@@ -52,7 +52,7 @@
 		<li>flatMap</li>
 	</ul></li>
 </ul>
-h2. Basic Datastructures
+<h2>Basic Datastructures</h2>
 <h3>Lists</h3>
 <pre>
 val numbers = List(1, 2, 3, 4)
@@ -65,8 +65,7 @@ scala&gt; Set(1, 1, 2)
 res0: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 <h3>Tuple</h3>
-<p>Tuples are used for grouping together simple logical collections of<br />
-items without using a class.</p>
+<p>Tuples are used for grouping together simple logical collections of items without using a class.</p>
 <pre>
 scala&gt; val hostPort = ("localhost", 80)
 hostPort: (String, Int) = (localhost, 80)
@@ -105,7 +104,7 @@ Map(1 -&gt; Map("foo" -&gt; "bar"))
 </pre>
 
 <pre>
-Map("timesTwo" -&gt; timesTwo(_))
+Map("timesTwo" -&gt; { timesTwo(_) })
 </pre>
 <h3>Option</h3>
 <p><code>Option</code> is a container that may or may not hold something.</p>
@@ -134,7 +133,7 @@ res1: Option[java.lang.String] = None
 <p>A first instinct might be to do something conditionally based on the <code>isDefined</code> method.</p>
 <p><code>
 // We want to multiply the number by two, otherwise return 0.
-val result = if (res1.isDefined()) {
+val result = if (res1.isDefined) {
   res1.get * 2
 } else {
   0
@@ -249,7 +248,7 @@ res0: Int = 55
 <h5>foldRight</h5>
 <p>Is the same as foldLeft except it runs in the opposite direction.</p>
 <pre>
-scala&gt; numbers.foldRight(0)((m: Int, n: Int) =&gt; println("m: " + m + " n: " + n); m + n)
+scala&gt; numbers.foldRight(0) { (m: Int, n: Int) =&gt; println("m: " + m + " n: " + n); m + n }
 m: 10 n: 0
 m: 9 n: 10
 m: 8 n: 19
@@ -279,7 +278,7 @@ res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 <p>Think of it as short-hand for mapping and then flattening:</p>
 <pre>
-scala&gt; nestedNumbers.map(x: List[Int] =&gt; x.map(_ * 2)).flatten
+scala&gt; nestedNumbers.map((x: List[Int]) =&gt; x.map(_ * 2)).flatten
 res1: List[Int] = List(2, 4, 6, 8)
 </pre>
 <p>that example calling map and then flatten is an example of the &#8220;combinator&#8221;-like nature of these functions.</p>
@@ -312,7 +311,7 @@ res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 <p>Because it gives you a tuple, you have to pull out the keys and values with their positional accessors. Yuck!</p>
 <p>Lucky us, we can actually use a pattern match to extract the key and value nicely.</p>
 <pre>
-scala&gt; extensions.filter(case (name, extension) =&gt; extension &lt; 200)
+scala&gt; extensions.filter({case (name, extension) =&gt; extension &lt; 200})
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>
 <p>Why does this work? Why can you pass in a partial pattern match?</p>

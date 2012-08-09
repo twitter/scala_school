@@ -95,7 +95,7 @@ object Bar {
 <p>In Scala, we talk about object-functional programming often.  What does that mean? What is a Function, really?</p>
 <p>A Function is a set of traits. Speficially, a function that takes one argument is an instance of a Function1 trait. This trait defines the <code>apply()</code> syntactic sugar we learned earlier, allowing you to call an object like you would a function.</p>
 <pre>
-cala&gt; object addOne extends Function1[Int, Int] {
+scala&gt; object addOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
 defined module AddOne
@@ -108,7 +108,7 @@ res2: Int = 2
 <p>Does this mean that everytime you define a method in your class, you&#8217;re actually getting an instance of Function*?  No, methods in classes are methods.  methods defined standalone in the repl are Function* instances.</p>
 <p>Classes can also extend Function and those instances can be called with ().</p>
 <pre>
-cala&gt; class AddOne extends Function1[Int, Int] {
+scala&gt; class AddOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
 defined class AddOne
