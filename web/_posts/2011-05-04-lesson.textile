@@ -36,7 +36,7 @@ compose calls the second function and then the first function.
 compose is f(g(x))
 
 <pre>
-scala> val ummThenAhem = addAhem(_).compose(addUmm(_))
+scala> val ummThenAhem = addAhem _ compose addUmm _
 ummThenAhem: (String) => String = <function1>
 
 scala> ummThenAhem("well")
@@ -50,7 +50,7 @@ andThen calls the first function and then the second.
 andThen is <code>g(f(x))</code>
 
 <pre>
-scala> val ahemThenUmm = addAhem(_).andThen(addUmm (_))
+scala> val ahemThenUmm = addAhem _ andThen addUmm _
 ahemThenUmm: (String) => String = <function1>
 
 scala> ahemThenUmm("well")

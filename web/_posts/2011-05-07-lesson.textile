@@ -85,7 +85,7 @@ h2. Adding Some Code
 
 We'll be creating a simple JSON parser for simple tweets.  Add the
 following code to
-src/main/project/com/twitter/sample/SimpleParser.scala
+src/main/scala/com/twitter/sample/SimpleParser.scala
 
 <pre>
 package com.twitter.sample
