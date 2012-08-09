@@ -9,6 +9,7 @@ This lesson covers:
 * apply
 * objects
 * case classes
+* try-catch-finally
 * update
 * Functions are Objects
 * packages
@@ -78,13 +79,13 @@ h3. Functions are Objects
 
 In Scala, we talk about object-functional programming often.  What does that mean? What is a Function, really?
 
-A Function is a set of traits. Speficially, a function that takes one argument is an instance of a Function1 trait. This trait defines the <code>apply()</code> syntactic sugar we learned earlier, allowing you to call an object like you would a function.
+A Function is a set of traits. Specifically, a function that takes one argument is an instance of a Function1 trait. This trait defines the <code>apply()</code> syntactic sugar we learned earlier, allowing you to call an object like you would a function.
 
 <pre>
 scala> object addOne extends Function1[Int, Int] {
      |   def apply(m: Int): Int = m + 1
      | }
-defined module AddOne
+defined module addOne
 
 scala> addOne(1)
 res2: Int = 2
