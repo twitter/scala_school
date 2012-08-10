@@ -200,11 +200,11 @@ class Person(var name: String) {
 }
 </pre>
 
-This program is not safe in a multi-threaded environment.  If two threads have references to the same instance of an Adder and call @add@, you can't predict what @i@ will be at the end of both calls.  It could be 2, it could be 1!
+This program is not safe in a multi-threaded environment.  If two threads have references to the same instance of Person and call @set@, you can't predict what @name@ will be at the end of both calls.
 
-In the Java memory model, each processor is allowed to cache values in it's L1 or L2 cache so two threads running on different processors can each have their own view of data.
+In the Java memory model, each processor is allowed to cache values in its L1 or L2 cache so two threads running on different processors can each have their own view of data.
 
-Let's talk about some of the tools that force threads to keep a consistent view of data.
+Let's talk about some tools that force threads to keep a consistent view of data.
 
 h2. Three tools
 
