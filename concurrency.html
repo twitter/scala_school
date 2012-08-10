@@ -194,9 +194,9 @@ class Person(var name: String) {
   }
 }
 </pre>
-<p>This program is not safe in a multi-threaded environment.  If two threads have references to the same instance of an Adder and call <code>add</code>, you can&#8217;t predict what <code>i</code> will be at the end of both calls.  It could be 2, it could be 1!</p>
-<p>In the Java memory model, each processor is allowed to cache values in it&#8217;s L1 or L2 cache so two threads running on different processors can each have their own view of data.</p>
-<p>Let&#8217;s talk about some of the tools that force threads to keep a consistent view of data.</p>
+<p>This program is not safe in a multi-threaded environment.  If two threads have references to the same instance of Person and call <code>set</code>, you can&#8217;t predict what <code>name</code> will be at the end of both calls.</p>
+<p>In the Java memory model, each processor is allowed to cache values in its L1 or L2 cache so two threads running on different processors can each have their own view of data.</p>
+<p>Let&#8217;s talk about some tools that force threads to keep a consistent view of data.</p>
 <h2>Three tools</h2>
 <h4>synchronization</h4>
 <p>Mutexes provide ownership semantics.  When you enter a mutex, you own it.  The most common way of using a mutex in the <span class="caps">JVM</span> is by synchronizing on something.  In this case, we&#8217;ll synchronize on our userMap.</p>
