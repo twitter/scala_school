@@ -220,18 +220,6 @@ scala> timesTwo(3)
 res1: Int = 6
 </pre>
 
-This sometimes lead to crazy pieces of code.
-
-<pre>
-multiplyThenFilter { m: Int =>
-  m * 2
-} { n: Int =>
-  n < 5
-}
-</pre>
-
-I promise you get used to this over time.
-
 You can take any function of multiple arguments and curry it. Let's try with our earlier <code>adder</code>
 
 <pre>
