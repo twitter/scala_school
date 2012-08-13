@@ -213,7 +213,7 @@ res0: Int = 6
 You can fill in the first parameter and partially apply the second.
 
 <pre>
-scala> val timesTwo = multiply(2)(_)
+scala> val timesTwo = multiply(2) _
 timesTwo: (Int) => Int = <function1>
 
 scala> timesTwo(3)
@@ -235,7 +235,7 @@ I promise you get used to this over time.
 You can take any function of multiple arguments and curry it. Let's try with our earlier <code>adder</code>
 
 <pre>
-scala> (adder(_, _)).curried
+scala> (adder _).curried
 res1: (Int) => (Int) => Int = <function1>
 </pre>
 
