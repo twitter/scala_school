@@ -308,6 +308,8 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 }
 </pre>
 
+*See Also* Effective Scala points out that a <a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">Type alias</a> is better than <code>extends</code> if the subclass isn't actually different from the superclass. A Tour of Scala describes <a href="http://www.scala-lang.org/node/125">Subclassing</a>.
+
 
 h3. Overloading methods
 

@@ -7,9 +7,9 @@ desc: Lists, Maps, functional combinators (map, foreach, filter, zip, folds)
 
 This lesson covers:
 * Lists
-* Maps
 * Sets
 * Tuples
+* Maps
 * functional combinators
 ** map
 ** foreach
@@ -18,7 +18,11 @@ This lesson covers:
 ** foldRight and foldLeft
 ** flatMap
 
-h2. Basic Datastructures
+h2. Basic Data Structures
+
+Scala provides some nice collections.
+
+*See Also* Effective Scala has opinions about how to use <a href="http://twitter.github.com/effectivescala/#Collections">collections</a>. 
 
 h3. Lists
 
