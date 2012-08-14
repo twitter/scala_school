@@ -179,6 +179,20 @@ times match {
 ensures that we can handle any statement. Otherwise you will suffer a<br />
 runtime error if you pass in a number that doesn&#8217;t match. We discuss<br />
 this more later.</p>
+<p><strong>See Also</strong> Effective Scala has an opinion about <a href="http://twitter.github.com/effectivescala/#Formatting-Pattern matching">Pattern matching formatting</a>. A Tour of Scala describes <a href="http://www.scala-lang.org/node/120">Pattern Matching</a></p>
+<h4>Matching on type</h4>
+<p>You can use <code>match</code> to handle values of different types differently.</p>
+<pre>
+def bigger(o: Any): Any = {
+  o match {
+    case i: Int if i &lt; 0 =&gt; i - 1
+    case i: Int =&gt; i + 1
+    case d: Double if d &lt; 0.0 =&gt; d - 0.1
+    case d: Double =&gt; d + 0.1
+    case text: String =&gt; text + "s"
+  }
+}
+</pre>
 <h4>Matching on class members</h4>
 <p>Remember our calculator from earlier.</p>
 <p>Let&#8217;s classify them according to type.</p>

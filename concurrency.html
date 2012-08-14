@@ -50,6 +50,7 @@
 		<li>Single-machine MapReduce</li>
 	</ul></li>
 </ul>
+<p><strong>See Also</strong> Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Concurrency">concurrency</a>.</p>
 <h2>Runnable/Callable</h2>
 <p>Runnable has a single method that returns no value.</p>
 <pre>
@@ -186,6 +187,7 @@ executor.execute(future)
 <pre>
 val blockingResult = future.get()
 </pre>
+<p><strong>See Also</strong> Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Concurrency-Futures">Futures</a>.</p>
 <h2>Thread Safety</h2>
 <pre>
 class Person(var name: String) {

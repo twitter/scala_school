@@ -199,24 +199,15 @@ res0: Int = 6
 </pre>
 <p>You can fill in the first parameter and partially apply the second.</p>
 <pre>
-scala&gt; val timesTwo = multiply(2)(_)
+scala&gt; val timesTwo = multiply(2) _
 timesTwo: (Int) =&gt; Int = &lt;function1&gt;
 
 scala&gt; timesTwo(3)
 res1: Int = 6
 </pre>
-<p>This sometimes lead to crazy pieces of code.</p>
-<pre>
-multiplyThenFilter { m: Int =&gt;
-  m * 2
-} { n: Int =&gt;
-  n &lt; 5
-}
-</pre>
-<p>I promise you get used to this over time.</p>
 <p>You can take any function of multiple arguments and curry it. Let&#8217;s try with our earlier <code>adder</code></p>
 <pre>
-scala&gt; (adder(_, _)).curried
+scala&gt; (adder _).curried
 res1: (Int) =&gt; (Int) =&gt; Int = &lt;function1&gt;
 </pre>
 <h3>Variable length arguments</h3>
@@ -274,6 +265,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
   def log(m: Double, base: Double) = math.log(m) / math.log(base)
 }
 </pre>
+<p><strong>See Also</strong> Effective Scala points out that a <a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">Type alias</a> is better than <code>extends</code> if the subclass isn&#8217;t actually different from the superclass. A Tour of Scala describes <a href="http://www.scala-lang.org/node/125">Subclassing</a>.</p>
 <h3>Overloading methods</h3>
 <pre>
 class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
