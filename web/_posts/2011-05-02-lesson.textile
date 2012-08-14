@@ -6,17 +6,15 @@ desc: Case classes, objects, packages, apply, update, Functions are Objects (uni
 ---
 
 This lesson covers:
-* apply
-* objects
-* case classes
-* try-catch-finally
-* update
-* Functions are Objects
-* packages
-* pattern matching
+* "apply":#apply
+* "objects":#object
+* "Functions are Objects":#fnobj
+* "packages":#package
+* "pattern matching":#match
+* "case classes":#caseclass
+* "try-catch-finally":#exception
 
-
-h3. apply methods
+h2(#apply). apply methods
 
 apply methods give you a nice syntatic sugar for when a class or object has one main use.
 
@@ -40,7 +38,7 @@ res8: Int = 0
 Here our instance object looks like we're calling a method. More on that later!
 
 
-h3. Objects
+h2(#object). Objects
 
 Objects are used to hold single instances of a class. Often used for factories.
 
@@ -75,7 +73,7 @@ object Bar {
 </pre>
 
 
-h3. Functions are Objects
+h2(#fnobj). Functions are Objects
 
 In Scala, we talk about object-functional programming often.  What does that mean? What is a Function, really?
 
@@ -121,7 +119,7 @@ class AddOne extends (Int => Int) {
 }
 </pre>
 
-h3. Packages
+h2(#package). Packages
 
 You can organize your code inside of packages.
 
@@ -160,7 +158,7 @@ defined module colorHolder
 
 This gives you a small hint that the designers of Scala designed objects to be part of Scala's module system.
 
-h3. Pattern Matching
+h2(#match). Pattern Matching
 
 One of the most useful parts of Scala.
 
@@ -188,14 +186,14 @@ times match {
 
 Notice how we captured the value in the variable 'i'.
 
-The <code>_</code> in the last case statement is a wildcard, it
+The <code>_</code> in the last case statement is a wildcard; it
 ensures that we can handle any statement. Otherwise you will suffer a
 runtime error if you pass in a number that doesn't match. We discuss
 this more later.
 
-*See Also* Effective Scala has an opinion about <a href="http://twitter.github.com/effectivescala/#Formatting-Pattern matching">Pattern matching formatting</a>. A Tour of Scala describes <a href="http://www.scala-lang.org/node/120">Pattern Matching</a>
+*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Pattern matching">when to use pattern matching</a> and <a href="http://twitter.github.com/effectivescala/#Formatting-Pattern matching">pattern matching formatting</a>. A Tour of Scala describes <a href="http://www.scala-lang.org/node/120">Pattern Matching</a>
 
-h4. Matching on type
+h3. Matching on type
 
 You can use <code>match</code> to handle values of different types differently.
 
@@ -211,7 +209,7 @@ def bigger(o: Any): Any = {
 }
 </pre>
 
-h4. Matching on class members
+h3. Matching on class members
 
 Remember our calculator from earlier.
 
@@ -228,7 +226,7 @@ def calcType(calc: Calculator) = calc match {
 
 Wow, that's painful. Thankfully Scala provides some nice tools specifically for this.
 
-h3. Case Classes
+h2(#caseclass). Case Classes
 
 case classes are used to conveniently store and match on the contents of a class. You can construct them without using new.
 
@@ -290,7 +288,7 @@ Other alternatives for that last match
   case c@Calculator(_, _) => "Calculator: %s of unknown type".format(c)
 </pre>
 
-h3. Exceptions
+h2(#exception). Exceptions
 
 Exceptions are available in Scala via a try-catch-finally syntax that uses pattern matching.
 

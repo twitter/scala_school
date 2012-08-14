@@ -7,17 +7,16 @@ desc: More functions! PartialFunctions, more Pattern Matching
 
 This lesson covers:
 
-* Functions (again)
+* "Function Composition":#composition
 ** compose
 ** andThen
-* PartialFunctions
+* "Currying vs Partial Application":#curryvspartial
+* "PartialFunctions":#PartialFunction
 ** range and domain
 ** composition with orElse
-* Pattern Matching
-** extractor methods
-* What is a case statement?
+* "What is a case statement?":#case
 
-h3. Function Composition
+h2(#composition). Function Composition
 
 Let's make two helpful functions:
 
@@ -29,7 +28,7 @@ scala>  def addAhem(x: String) = x + " ahem"
 addAhem: (x: String)String
 </pre>
 
-h4. compose
+h3. compose
 
 compose calls the second function and then the first function.
 
@@ -43,7 +42,7 @@ scala> ummThenAhem("well")
 res0: String = well umm ahem
 </pre>
 
-h4. andThen
+h3. andThen
 
 andThen calls the first function and then the second.
 
@@ -57,21 +56,19 @@ scala> ahemThenUmm("well")
 res1: String = well ahem umm
 </pre>
 
-h4. Currying vs Partial Application
-
+h2(#curryvspartial). Currying vs Partial Application
 
 h3. case statements
 
-h5. So just what are case statements?
+h4. So just what are case statements?
 
 It's a subclass of function called a PartialFunction.
 
-h5. What is a collection of multiple case statements?
+h4. What is a collection of multiple case statements?
 
 They are multiple PartialFunctions composed together.
 
-
-h3. Understanding PartialFunction
+h2(#PartialFunction). Understanding PartialFunction
 
 A function works for every argument of the defined type. In other words, a function defined as (Int) => String takes any Int and returns a String.
 
@@ -80,6 +77,8 @@ A Partial Function is only defined for certain values of the defined type.  A Pa
 <code>isDefinedAt</code> is a method on PartialFunction that can be used to determine if the PartialFunction will accept a given argument.
 
 __Note__ <code>PartialFunction</code> is unrelated to a partially applied function that we talked about earlier.
+
+*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.
 
 <pre>
 scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
@@ -130,7 +129,7 @@ scala> res23(0)
 res28: String = something else
 </pre>
 
-h4. The mystery of case.
+h3(#case). The mystery of case.
 
 Last week we saw something curious. We saw a case statement used where a function is normally used.
 
