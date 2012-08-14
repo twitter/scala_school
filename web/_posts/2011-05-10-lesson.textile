@@ -5,20 +5,15 @@ layout: post
 desc: Runnable, Callable, threads, Futures
 ---
 
-* Runnable
-* Callable
-* Threads
-* Executors
-* ExecutorService
-* Futures
-* Solutions
-** Producer/Consumer
-** Parallel combinators
-** Single-machine MapReduce
+* "Runnable/Callable":#runnable
+* "Threads":#Thread
+* "Executors/ExecutorService":#executor
+* "Futures":#Future
+* "Thread Safety Problem":#danger
+* "Example: Search Engine":#example
+* "Solutions":#solutions
 
-*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Concurrency">concurrency</a>.
-
-h2. Runnable/Callable
+h2(#runnable). Runnable/Callable
 
 Runnable has a single method that returns no value.
 
@@ -37,7 +32,7 @@ trait Callable[V] {
 </pre>
 
 
-h2. Threads
+h2(#Thread). Threads
 
 Scala concurrency is built on top of the Java concurrency model.
 
@@ -60,7 +55,7 @@ hello world
 
 When you see a class implementing Runnable, you know it's intended to run in a Thread somewhere by somebody.
 
-h2. Something single-threaded
+h3. Something single-threaded
 
 Here's a code snippet that works but has problems.
 
@@ -112,7 +107,7 @@ to
 but what if you want to reuse threads or have other policies about thread behavior?
 
 
-h2. Executors
+h2(#executor). Executors
 
 With the release of Java 5, it was decided that a more abstract interface to Threads was required.
 
@@ -171,7 +166,7 @@ pool-1-thread-2
 </pre>
 
 
-h2. Futures
+h2(#Future). Futures
 
 A @Future@ represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking @get()@ method on it.  @Executor@s return a @Future@.
 
@@ -191,9 +186,9 @@ Now I need the results so let's block until its done.
 val blockingResult = future.get()
 </pre>
 
-*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Concurrency-Futures">Futures</a>.
+*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .
 
-h2. Thread Safety
+h2(#danger). Thread Safety Problem
 
 <pre>
 class Person(var name: String) {
@@ -209,7 +204,7 @@ In the Java memory model, each processor is allowed to cache values in its L1 or
 
 Let's talk about some tools that force threads to keep a consistent view of data.
 
-h2. Three tools
+h3. Three tools
 
 h4. synchronization
 
@@ -226,8 +221,6 @@ class Person(var name: String) {
   }
 }
 </pre>
-
-
 
 h4. volatile
 
@@ -267,12 +260,12 @@ When you enter synchronized points, access volatile references, or deference Ato
 
 PLEASE CORRECT ME IF I'M WRONG HERE.  This is a complicated subject, I'm sure there will be a lengthy classroom discussion at this point.
 
-h2. Other neat tools from Java 5
+h3. Other neat tools from Java 5
 
 As I mentioned with @AtomicReference@, Java 5 brought many great tools along with it.
 
 
-h2. CountDownLatch
+h4. CountDownLatch
 
 A @CountDownLatch@ is a simple mechanism for multiple threads to communicate with each other.
 
@@ -287,19 +280,19 @@ println("both workers finished!")
 
 Among other things, it's great for unit tests.  Let's say you're doing some async work and want to ensure that functions are completing.  Simply have your functions @countDown@ the latch and @await@ in the test.
 
-h2. AtomicInteger/Long
+h4. AtomicInteger/Long
 
 Since incrementing Ints and Longs is such a common task, @AtomicInteger@ and @AtomicLong@ were added.
 
-h2. AtomicBoolean
+h4. AtomicBoolean
 
 I probably don't have to explain what this would be for.
 
-h2. ReadWriteLocks
+h4. ReadWriteLocks
 
 @ReadWriteLock@ lets you take reader and writer locks.  reader locks only block when a writer lock is taken.
 
-h2. Let's build an unsafe search engine
+h2(#example). Let's build an unsafe search engine
 
 Here's a simple inverted index that isn't thread-safe.  Our inverted index maps parts of a name to a given User.
 
@@ -334,7 +327,7 @@ class InvertedIndex(val userMap: mutable.Map[String, User]) {
 
 I've left out how to get users out of our index for now.  We'll get to that later.
 
-h2. Let's make it safe
+h2(#solutions). Let's make it safe
 
 In our inverted index example above, userMap is not guaranteed to be safe.  Multiple clients could try to add items at the same time and have the same kinds of visibility errors we saw in our first @Person@ example.
 
