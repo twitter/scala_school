@@ -5,7 +5,7 @@ layout: post
 desc: Building a distributed search engine using Finagle
 ---
 
-We're going to build a very simple distributed search engine using "Finagle":http://github.com/twitter/finagle. First, create a skeleton project using "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper
+We're going to build a very simple distributed search engine using "Finagle":http://github.com/twitter/finagle. First, create a skeleton project using "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper.
 
 <code>scala-bootstrapper</code> will create a very simple finagle based scala service that exports an in-memory key-value store. We'll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.
 
@@ -52,7 +52,7 @@ This is pretty straightforward: our service <code>SearchbirdService</code> expor
 
 Now let's run the default service, and explore it through this interface.
 
-First build the project, and run the service (which is also the default "main" method that sbt will run).
+First build the project, and run the service (which is also the default "main" method that sbt will run):
 
 <pre>
 $ sbt
@@ -61,7 +61,7 @@ $ sbt
 > run -f config/development.scala
 </pre>
 
-We've also written a simple client library that you can run from the <code>sbt console</code>
+We've also written a simple client library that you can run from the <code>sbt console</code>:
 
 <pre>
 $ sbt console
@@ -266,7 +266,7 @@ The <code>get</code> method remains the same (it only performs forward lookups),
 
 This is simple: we tokenize by splitting the value, and then store a reference to the key for each token. This will allow us to perform lookups by the tokens themselves.
 
-Note that since we do a retrieve-modify-update, we need to synchronize the update even though the underlying <code>HashMap</code> is synchronized. Also, this implementation has a bug: when overwriting keys, we're not collecting references to the old value in the reverse index. Fixing this is an excercise for the reader.
+Note that since we do a retrieve-modify-update, we need to synchronize the update even though the underlying <code>HashMap</code> is synchronized. Also, this implementation has a bug: when overwriting keys, we're not collecting references to the old value in the reverse index. Fixing this is an exercise for the reader.
 
 Now to the meat of the search engine: the new <code>search</code> method. It should tokenize its query, look up all of the matching documents and then intersect these lists. This will yield the list of documents that contain all of the tokens in the query. This is also pretty straightforward to express in Scala:
 
@@ -279,7 +279,7 @@ Now to the meat of the search engine: the new <code>search</code> method. It sho
   }
 </pre>
 
-A few things are worth calling out in this short piece of code. When constructing the hit list, <code>getOrElse</code> will supply the value in the 2nd parameter if the key (<code>token</code>) is not found. We perform the actual intersection using a left-reduce. The particular flavor, <code>reduceLeftOption</code> will not attempt to perform the reduce if <code>hits</code> is empty, returning instead a <code>None</code>. This allows us to supply a default value instead of experiencing an exception. In fact, this is equivalent to:
+A few things are worth calling out in this short piece of code. When constructing the hit list, <code>getOrElse</code> will supply the value in the 2nd parameter if the key (<code>token</code>) is not found. We perform the actual intersection using a left-reduce. The particular flavor, <code>reduceLeftOption</code>, will not attempt to perform the reduce if <code>hits</code> is empty, returning instead a <code>None</code>. This allows us to supply a default value instead of experiencing an exception. In fact, this is equivalent to:
 
 <pre>
   def search(query: String) = Future.value {
@@ -349,7 +349,7 @@ res5: Seq("type", "advanced")
 
 h2. Distributing our service
 
-Our simple in-memory search engine won't be able to search corpuses larger than the size of memory on a single machine. We'll not venture to remedy this by distributing nodes with a simple sharding scheme.
+Our simple in-memory search engine won't be able to search corpuses larger than the size of memory on a single machine. We'll now venture to remedy this by distributing nodes with a simple sharding scheme.
 
 h3. Abstracting
 
@@ -472,7 +472,7 @@ class CompositeIndex(indices: Seq[Index]) extends Index {
 }
 </pre>
 
-The composite index works over a set of underlying <code>Index</code> instances. Note that it doesn't care how these are actually implemented. This type of composition allows for great flexibility in constructing various querying schemes. We don't define a sharding scheme, and so the composite index doesn't support <code>put</code> operations. These are instead issued directly to the child nodes. <code>get</code> is implemented by querying all of our child nodes and picking the first succesful result. If there are none, we throw an exception. Note that since the absence of a value is communicated by throwing an exception, we <code>handle</code> this on the <code>Future</code>, converting any exception into a <code>None</code> value. In a real system, we'd probably have proper error codes for missing values rather than using exceptions. Exceptions are convenient and expedient for prototyping, but compose poorly. In order to distinguish between a real exception and a missing value, I have to examine the exception itself. Rather it is better style to embed this distinction directly in the type of the returned value.
+The composite index works over a set of underlying <code>Index</code> instances. Note that it doesn't care how these are actually implemented. This type of composition allows for great flexibility in constructing various querying schemes. We don't define a sharding scheme, and so the composite index doesn't support <code>put</code> operations. These are instead issued directly to the child nodes. <code>get</code> is implemented by querying all of our child nodes and picking the first succesful result. If there are none, we throw an exception. Note that since the absence of a value is communicated by throwing an exception, we <code>handle</code> this on the <code>Future</code>, converting any exception into a <code>None</code> value. In a real system, we'd probably have proper error codes for missing values rather than using exceptions. Exceptions are convenient and expedient for prototyping, but compose poorly. In order to distinguish between a real exception and a missing value, I have to examine the exception itself. Rather, it is better style to embed this distinction directly in the type of the returned value.
 
 <code>search</code> works in a similar way. Instead of picking the first result, we combine them, ensuring their uniqueness by using a <code>Set</code> construction.
 
@@ -541,7 +541,7 @@ new SearchbirdServiceConfig {
     "localhost:9001",
     "localhost:9002"
   )
-  …
+  ...
 </pre>
 
 Now if we invoke our server without any arguments, it starts a distinguished node that speaks to all of the given shards. If we specify a shard argument, it starts a server on the port belonging to that shard index.
@@ -586,7 +586,7 @@ Searchbird::SearchbirdService::Client::ApplicationException: Searchbird::Searchb
 ["fromShardA", "fromShardB"]
 </pre>
 
-fn1. In <code>target/gen-scala/com/twitter/searchbird/SearchbirdService.scala</code>
+fn1. In <code>target/gen-scala/com/twitter/searchbird/SearchbirdService.scala</code>.
 
-fn2. See Ostrich's README:https://github.com/twitter/ostrich/blob/master/README.md for more information.
+fn2. See Ostrich's "README":https://github.com/twitter/ostrich/blob/master/README.md for more information.
 
