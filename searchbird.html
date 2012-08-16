@@ -34,7 +34,7 @@
     </div>
 
     <div class="container" style="padding-top: 60px;">
-      <p>We&#8217;re going to build a very simple distributed search engine using <a href="http://github.com/twitter/finagle">Finagle</a>. First, create a skeleton project using <a href="https://github.com/twitter/scala-bootstrapper">scala-bootstrapper</a></p>
+      <p>We&#8217;re going to build a very simple distributed search engine using <a href="http://github.com/twitter/finagle">Finagle</a>. First, create a skeleton project using <a href="https://github.com/twitter/scala-bootstrapper">scala-bootstrapper</a>.</p>
 <p><code>scala-bootstrapper</code> will create a very simple finagle based scala service that exports an in-memory key-value store. We&#8217;ll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.</p>
 <pre>
 $ mkdir searchbird; cd searchbird
@@ -71,14 +71,14 @@ service SearchbirdService {
 </pre>
 <p>This is pretty straightforward: our service <code>SearchbirdService</code> exports 2 <span class="caps">RPC</span> methods, <code>get</code> and <code>put</code>. They comprise a simple interface to a key-value store.</p>
 <p>Now let&#8217;s run the default service, and explore it through this interface.</p>
-<p>First build the project, and run the service (which is also the default &#8220;main&#8221; method that sbt will run).</p>
+<p>First build the project, and run the service (which is also the default &#8220;main&#8221; method that sbt will run):</p>
 <pre>
 $ sbt
 …
 &gt; compile
 &gt; run -f config/development.scala
 </pre>
-<p>We&#8217;ve also written a simple client library that you can run from the <code>sbt console</code></p>
+<p>We&#8217;ve also written a simple client library that you can run from the <code>sbt console</code>:</p>
 <pre>
 $ sbt console
 + exec java -Djava.net.preferIPv4Stack=true -Dhttp.connection.timeout=2 -Dhttp.connection-manager.timeout=2 -Dhttp.socket.timeout=6 -Dcom.sun.management.jmxremote.port=0 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote '-Xmx512m -XX:MaxPermSize=256m' -XX:+AggressiveOpts -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256m -XX:SurvivorRatio=128 -XX:MaxTenuringThreshold=0 -Xss200M -Xms512M -Xmx2G -ea -server -jar /Users/stevej/bin/sbt-launch-0.7.4.jar console
@@ -252,7 +252,7 @@ service SearchbirdService {
   }
 </pre>
 <p>This is simple: we tokenize by splitting the value, and then store a reference to the key for each token. This will allow us to perform lookups by the tokens themselves.</p>
-<p>Note that since we do a retrieve-modify-update, we need to synchronize the update even though the underlying <code>HashMap</code> is synchronized. Also, this implementation has a bug: when overwriting keys, we&#8217;re not collecting references to the old value in the reverse index. Fixing this is an excercise for the reader.</p>
+<p>Note that since we do a retrieve-modify-update, we need to synchronize the update even though the underlying <code>HashMap</code> is synchronized. Also, this implementation has a bug: when overwriting keys, we&#8217;re not collecting references to the old value in the reverse index. Fixing this is an exercise for the reader.</p>
 <p>Now to the meat of the search engine: the new <code>search</code> method. It should tokenize its query, look up all of the matching documents and then intersect these lists. This will yield the list of documents that contain all of the tokens in the query. This is also pretty straightforward to express in Scala:</p>
 <pre>
   def search(query: String) = Future.value {
@@ -262,7 +262,7 @@ service SearchbirdService {
     intersected.toList
   }
 </pre>
-<p>A few things are worth calling out in this short piece of code. When constructing the hit list, <code>getOrElse</code> will supply the value in the 2nd parameter if the key (<code>token</code>) is not found. We perform the actual intersection using a left-reduce. The particular flavor, <code>reduceLeftOption</code> will not attempt to perform the reduce if <code>hits</code> is empty, returning instead a <code>None</code>. This allows us to supply a default value instead of experiencing an exception. In fact, this is equivalent to:</p>
+<p>A few things are worth calling out in this short piece of code. When constructing the hit list, <code>getOrElse</code> will supply the value in the 2nd parameter if the key (<code>token</code>) is not found. We perform the actual intersection using a left-reduce. The particular flavor, <code>reduceLeftOption</code>, will not attempt to perform the reduce if <code>hits</code> is empty, returning instead a <code>None</code>. This allows us to supply a default value instead of experiencing an exception. In fact, this is equivalent to:</p>
 <pre>
   def search(query: String) = Future.value {
     val tokens = query.split(" ")
@@ -321,7 +321,7 @@ res4: Seq("simple")
 res5: Seq("type", "advanced")
 </pre>
 <h2>Distributing our service</h2>
-<p>Our simple in-memory search engine won&#8217;t be able to search corpuses larger than the size of memory on a single machine. We&#8217;ll not venture to remedy this by distributing nodes with a simple sharding scheme.</p>
+<p>Our simple in-memory search engine won&#8217;t be able to search corpuses larger than the size of memory on a single machine. We&#8217;ll now venture to remedy this by distributing nodes with a simple sharding scheme.</p>
 <h3>Abstracting</h3>
 <p>To aid our work, we&#8217;ll first introduce another abstraction: an <code>Index</code> in order to decouple the index implementation from the <codec>SearchBirdService</code>. This is a straightforward refactor.</p>
 <h5>…/Index.scala</h5>
@@ -430,7 +430,7 @@ class CompositeIndex(indices: Seq[Index]) extends Index {
   }
 }
 </pre>
-<p>The composite index works over a set of underlying <code>Index</code> instances. Note that it doesn&#8217;t care how these are actually implemented. This type of composition allows for great flexibility in constructing various querying schemes. We don&#8217;t define a sharding scheme, and so the composite index doesn&#8217;t support <code>put</code> operations. These are instead issued directly to the child nodes. <code>get</code> is implemented by querying all of our child nodes and picking the first succesful result. If there are none, we throw an exception. Note that since the absence of a value is communicated by throwing an exception, we <code>handle</code> this on the <code>Future</code>, converting any exception into a <code>None</code> value. In a real system, we&#8217;d probably have proper error codes for missing values rather than using exceptions. Exceptions are convenient and expedient for prototyping, but compose poorly. In order to distinguish between a real exception and a missing value, I have to examine the exception itself. Rather it is better style to embed this distinction directly in the type of the returned value.</p>
+<p>The composite index works over a set of underlying <code>Index</code> instances. Note that it doesn&#8217;t care how these are actually implemented. This type of composition allows for great flexibility in constructing various querying schemes. We don&#8217;t define a sharding scheme, and so the composite index doesn&#8217;t support <code>put</code> operations. These are instead issued directly to the child nodes. <code>get</code> is implemented by querying all of our child nodes and picking the first succesful result. If there are none, we throw an exception. Note that since the absence of a value is communicated by throwing an exception, we <code>handle</code> this on the <code>Future</code>, converting any exception into a <code>None</code> value. In a real system, we&#8217;d probably have proper error codes for missing values rather than using exceptions. Exceptions are convenient and expedient for prototyping, but compose poorly. In order to distinguish between a real exception and a missing value, I have to examine the exception itself. Rather, it is better style to embed this distinction directly in the type of the returned value.</p>
 <p><code>search</code> works in a similar way. Instead of picking the first result, we combine them, ensuring their uniqueness by using a <code>Set</code> construction.</p>
 <p><code>RemoteIndex</code> provides an <code>Index</code> interface over a number of hosts.</p>
 <pre>
@@ -490,7 +490,7 @@ new SearchbirdServiceConfig {
     "localhost:9001",
     "localhost:9002"
   )
-  …
+  ...
 </pre>
 <p>Now if we invoke our server without any arguments, it starts a distinguished node that speaks to all of the given shards. If we specify a shard argument, it starts a server on the port belonging to that shard index.</p>
 <p>Let&#8217;s try it! We&#8217;ll launch 2 shards and 1 distinguished node.</p>
@@ -527,8 +527,8 @@ Searchbird::SearchbirdService::Client::ApplicationException: Searchbird::Searchb
 &gt; $client.search("value")
 ["fromShardA", "fromShardB"]
 </pre>
-<p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> In <code>target/gen-scala/com/twitter/searchbird/SearchbirdService.scala</code></p>
-<p class="footnote" id="fn2"><a href="#fnr2"><sup>2</sup></a> See Ostrich&#8217;s <span class="caps">README</span>:https://github.com/twitter/ostrich/blob/master/<span class="caps">README</span>.md for more information.</p>
+<p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> In <code>target/gen-scala/com/twitter/searchbird/SearchbirdService.scala</code>.</p>
+<p class="footnote" id="fn2"><a href="#fnr2"><sup>2</sup></a> See Ostrich&#8217;s <a href="https://github.com/twitter/ostrich/blob/master/README.md"><span class="caps">README</span></a> for more information.</p>
     </div> <!-- /container -->
 
     <div id="footer">

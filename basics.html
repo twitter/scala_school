@@ -36,18 +36,20 @@
     <div class="container" style="padding-top: 60px;">
       <p>This lesson covers:</p>
 <ul>
-	<li>values</li>
-	<li>expressions</li>
-	<li>functions</li>
-	<li>classes</li>
-	<li>methods</li>
-	<li>basic inheritance</li>
+	<li><a href="#overview">About this class</a></li>
+	<li><a href="#expressions">expressions</a></li>
+	<li><a href="#val">values</a></li>
+	<li><a href="#functions">functions</a></li>
+	<li><a href="#class">classes</a></li>
+	<li><a href="#extends">basic inheritance</a></li>
+	<li><a href="#trait">traits</a></li>
+	<li><a href="#types">types</a></li>
 </ul>
-<h2>About this class</h2>
+<h2 id="overview">About this class</h2>
 <p>The first few weeks will cover basic syntax and concepts.  Then we&#8217;ll start to open it up with more exercises.</p>
 <p>Some examples will be given as if written in the interpreter, others as if written in a source file.</p>
 <p>Having an interpreter available makes it easy to explore a problem space.</p>
-<h2>Why Scala?</h2>
+<h3>Why Scala?</h3>
 <ul>
 	<li>Expressive
 	<ul>
@@ -66,7 +68,7 @@
 		<li>No performance penalty</li>
 	</ul></li>
 </ul>
-<h2>How Scala?</h2>
+<h3>How Scala?</h3>
 <ul>
 	<li>Compiles to java bytecode</li>
 	<li>Works with any standard <span class="caps">JVM</span>
@@ -75,9 +77,9 @@
 		<li>Scala compiler written by author of Java compiler</li>
 	</ul></li>
 </ul>
-<h2>Think Scala</h2>
+<h3>Think Scala</h3>
 <p>Scala is not just a nicer Java.  You should learn it with a fresh mind, you will get more out of these classes.</p>
-<h2>Start the Interpreter</h2>
+<h3>Start the Interpreter</h3>
 <p>Start the included <code>sbt console</code>.</p>
 <pre>
 $ sbt console
@@ -90,14 +92,14 @@ Type :help for more information.
 
 scala&gt;
 </pre>
-<h2>Expressions</h2>
+<h2 id="expressions">Expressions</h2>
 <pre>
 scala&gt; 1 + 1
 res0: Int = 2
 </pre>
 <p>res0 is an automatically created value name given by the interpreter to the result of your expression.  It has the type Int and contains the Integer 2.</p>
 <p>(Almost) everything in Scala is an expression.</p>
-<h2>Values</h2>
+<h2 id="val">Values</h2>
 <p>You can give the result of an expression a name.</p>
 <pre>
 scala&gt; val two = 1 + 1
@@ -113,7 +115,7 @@ name: java.lang.String = steve
 scala&gt; name = "marius"
 name: java.lang.String = marius
 </pre>
-<h3>Functions</h3>
+<h2 id="functions">Functions</h2>
 <p>You can create functions with def.</p>
 <pre>
 scala&gt; def addOne(m: Int): Int = m + 1
@@ -170,7 +172,7 @@ scala&gt; { i: Int =&gt;
 res0: (Int) =&gt; Int = &lt;function1&gt;
 </pre>
 <p>You will see this syntax often used when passing an anonymous function as an argument.</p>
-<h4>Partial application</h4>
+<h3>Partial application</h3>
 <p>You can partially apply a function with an underscore, which gives you another function.</p>
 <pre>
 scala&gt; def adder(m: Int, n: Int) = m + n
@@ -185,7 +187,7 @@ scala&gt; add2(3)
 res50: Int = 5
 </pre>
 <p>You can partially apply any argument in the argument list, not just the last one.</p>
-<h4>Curried functions</h4>
+<h3>Curried functions</h3>
 <p>Sometimes it makes sense to let people apply some arguments to your function now and others later.</p>
 <p>Here&#8217;s an example of a function that lets you build multipliers of two numbers together. At one call site, you&#8217;ll decide which is the multiplier and at a later call site, you&#8217;ll choose a multipicand.</p>
 <pre>
@@ -219,7 +221,7 @@ def capitalizeAll(args: String*) = {
   }
 }
 </pre>
-<h3>Classes</h3>
+<h2 id="class">Classes</h2>
 <pre>
 scala&gt; class Calculator {
      |   val brand: String = "HP"
@@ -237,7 +239,7 @@ scala&gt; calc.brand
 res2: String = "HP"
 </pre>
 <p>Contained are examples are defining methods with def and fields with val.  methods are just functions that can access the state of the class.</p>
-<h4>Constructor</h4>
+<h3>Constructor</h3>
 <p>Constructors aren&#8217;t special methods, they are the code outside of method definitions in your class.  Let&#8217;s extend our Calculator example to take a constructor argument and use it to initialize internal state.</p>
 <pre>
 class Calculator(brand: String) {
@@ -259,7 +261,7 @@ class Calculator(brand: String) {
 <p>Note the two different styles of comments.</p>
 <h3>Expressions</h3>
 <p>Our BasicCalculator example gave an example of how Scala is expression-oriented.  The value color was bound based on an if/else expression. Scala is highly expression-oriented: most things are expressions rather than statements.</p>
-<h3>Inheritance</h3>
+<h2 id="extends">Inheritance</h2>
 <pre>
 class ScientificCalculator(brand: String) extends Calculator(brand) {
   def log(m: Double, base: Double) = math.log(m) / math.log(base)
@@ -272,7 +274,7 @@ class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(b
   def log(m: Int): Double = log(m, math.exp(1))
 }
 </pre>
-<h3>Traits</h3>
+<h2 id="trait">Traits</h2>
 <p><code>traits</code> are collections of fields and behaviors that you can extend or mixin to your classes.</p>
 <pre>
 trait Car {
@@ -285,7 +287,8 @@ class BMW extends Car {
   val brand = "BMW"
 }
 </pre>
-<h3>Types</h3>
+<p><strong>See Also</strong> Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">trait</a>.</p>
+<h2 id="types">Types</h2>
 <p>Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you&#8217;ll see a <pre>type parameter</pre> introduced with the square bracket syntax:</p>
 <p>You can introduce as many type parameters. Here&#8217;s an example of a Cache of generic Keys and Values.</p>
 <pre>
