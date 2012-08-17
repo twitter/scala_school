@@ -7,12 +7,15 @@ desc: Basic Types and type polymorphism, type inference, variance, bounds, quant
 
 This lesson covers:
 
-* What are types?
-* Parametric Polymorphism
-* Type inference: Hindley-Milner vs. local type inference
-* Variance, bounds & quantification
+* "What are static types?":#background
+* "Types in Scala":#scala
+* "Parametric Polymorphism":#parametricpoly
+* "Type inference: Hindley-Milner vs. local type inference":#inference
+* "Variance":#variance
+* "Bounds":#bounds
+* "Quantification":#quantification
 
-h3. What are static types?  Why are they useful?
+h2(#background). What are static types?  Why are they useful?
 
 According to Pierce: "A type system is a syntactic method for automatically checking the absence of certain erroneous behaviors by classifying program phrases according to the kinds of values they compute."
 
@@ -34,16 +37,16 @@ With increasing expressiveness in type systems, we can produce more reliable cod
 
 Note that all type information is removed at compile time. It is no longer needed. This is called erasure.
 
-h3. Types in Scala
+h2(#scala). Types in Scala
 
-Scala has a very powerful type system, allowing for very rich expression. Some of its chief features are:
+Scala's powerful type system allows for very rich expression. Some of its chief features are:
 
-* parametric polymorphism
-* (local) type inference
-* existential quantification
-* views
+* *parametric polymorphism* roughly, generic programming
+* *(local) type inference* roughly, why you needn't say <code>val i: Int = 12: Int</code>
+* *existential quantification* roughly, defining something _for some_ unnamed type
+* *views* we'll learn these next week; roughly, "castability" of values of one type to another
 
-h3. Parametric polymorphism
+h2(#parametricpoly). Parametric polymorphism
 
 Polymorphism is used in order to write generic code (for values of different types) without compromising static typing richness.
 
@@ -73,9 +76,9 @@ scala> drop1(List(1,2,3))
 res1: List[Int] = List(2, 3)
 </pre>
 
-h4. Scala has rank-1 polymorphism
+h3. Scala has rank-1 polymorphism
 
-Suppose you had some function
+Roughly, this means that there are some type concepts you'd like to express in Scala that are "too generic" for the compiler to understand. Suppose you had some function
 
 <pre>
 def toList[A](a: A) = List(a)
@@ -89,7 +92,7 @@ def foo[A, B](f: A => List[A], b: B, c: Int) = (f(b), f(c))
 
 This does not compile, because all type variables have to be fixed at the invocation site.
 
-h3. Type inference
+h2(#inference). Type inference
 
 A traditional objection to static typing is that it has much syntactic overhead. Scala alleviates this by providing _type inference_.
 
@@ -112,7 +115,7 @@ Whereas in OCaml, you can:
 - : 'a -> 'a = <fun>
 </pre>
 
-In scala all type inference is _local_.  For example:
+In scala all type inference is _local_. Scala considers one expression at a time. For example:
 
 <pre>
 scala> def id[T](x: T) = x
@@ -130,13 +133,14 @@ x: Array[Int] = Array(1, 2, 3, 4)
 
 Types are now preserved, The Scala compiler infers the type parameter for us. Note also how we did not have to specify the return type explicitly.
 
-h3. Variance
+h2(#variance). Variance
 
 Scala's type system has to account for class hierarchies together with polymorphism.  Class hierarchies allow the expression of subtype relationships. A central question that comes up when mixing OO with polymorphism is: if <tt>T'</tt> is a subclass of <tt>T</tt>, is <tt>Container[T']</tt> considered a subclass of <tt>Container[T]</tt>? Variance annotations allow you to express the following relationships between class hierarchies & polymorphic types:
 
-|covariant|&nbsp;&nbsp;C[T'] is a subclass of C[T]|
-|contravariant|&nbsp;&nbsp;C[T] is a subclass of C[T']|
-|invariant|&nbsp;&nbsp;C[T] and C[T'] are not related|
+|                |*Meaning*                     | *Scala notation*|
+|*covariant*     |C[T'] is a subclass of C[T]   | [+T]|
+|*contravariant* |C[T] is a subclass of C[T']   | [-T]|
+|*invariant*     |C[T] and C[T'] are not related| [T]|
 
 The subtype relationship really means: for a given type T, if T' is a subtype, can you substitute it?
 
@@ -214,7 +218,7 @@ scala> val f: (B => C) = ((c: C) => new C)
                                     ^
 </pre>
 
-h3. Bounds
+h2(#bounds). Bounds
 
 Scala allows you to restrict polymorphic variables using _bounds_. These bounds express subtype relationships.
 
@@ -285,7 +289,7 @@ res8: Node[A] = Node@3088890d
 
 Note also how the type changes with subsequent calls to "sub".
 
-h3. Quantification
+h2(#quantification). Quantification
 
 Sometimes you do not care to be able to name a type variable, for example:
 
@@ -342,3 +346,5 @@ You can safely force boxing by casting x.asInstanceOf[AnyRef].
 scala> hashcodes(Seq("one", "two", "three"))
 res1: Seq[Int] = List(110182, 115276, 110339486)
 </pre>
+
+*See Also* <a href="http://www.drmaciver.com/2008/03/existential-types-in-scala/">Existential types in Scala by D. R. MacIver</a>
