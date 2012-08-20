@@ -5,9 +5,17 @@ layout: post
 desc: Building a distributed search engine using Finagle
 ---
 
-We're going to build a very simple distributed search engine using "Finagle":http://github.com/twitter/finagle. First, create a skeleton project using "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper.
+We're going to build a simple distributed search engine using Scala and the previously discussed "Finagle":http://github.com/twitter/finagle framework.
 
-@scala-bootstrapper@ will create a very simple finagle based scala service that exports an in-memory key-value store. We'll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.
+h3. Design goals: the big picture
+
+Broadly, our design goals include _abstraction_ (the ability to use the resulting system without knowing all of its internal detail); _modularity_ (the ability to factor the system into smaller, simpler pieces that can be more easily understood); and _scalability_ (the ability to grow the capacity of the system in a straightforward way).
+
+The system we're going to describe has three pieces: (1) _clients_ that makes requests to (2) _servers_, which send responses to the request; and a (3) _transport_ mechanism that packages up these communications. Normally the client and server would be located on different machines and communicate over a network on a particular numerical "_port_":http://en.wikipedia.org/wiki/Port_(computer_networking), but in this example, they will run on the same machine (and still communicate using ports). In our example, clients and servers will be written in Scala, and the transport will be handled using "Thrift":http://thrift.apache.org/. The primary purpose of this tutorial is to show a simple server and client that can be extended to provide scalable performance. 
+
+h3. Exploring the default bootstrapper project
+
+First, create a skeleton project ("Searchbird") using "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper. This creates a simple "Finagle":http://twitter.github.com/finagle/ -based Scala service that exports an in-memory key-value store. We'll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.
 
 <pre>
 $ mkdir searchbird ; cd searchbird
@@ -36,11 +44,13 @@ writing src/test/scala/com/twitter/searchbird/SearchbirdServiceSpec.scala
 writing TUTORIAL.md
 </pre>
 
-h3. Exploring the default bootstrapper project
-
 Let's first explore the default project @scala-bootstrapper@ creates for us. This is meant as a template. You'll end up substituting most of it, but it serves as a convenient scaffold. It defines a simple (but complete) key-value store. Configuration, a thrift interface, stats export and logging are all included.
 
-Since searchbird is a "thrift":http://thrift.apache.org/ service (like most of our services), its external interface is defined in the thrift IDL.
+Before we look at code, we're going to run a client and server to see how it works. Here's what we're building:
+
+!searchbird-1.svg(Searchbird implementation, revision 1)!
+
+and here is the interface that our service exports. Since the Searchbird service is a "Thrift":http://thrift.apache.org/ service (like most of our services), its external interface is defined in the Thrift IDL ("interface description language").
 
 h5. src/main/thrift/searchbird.thrift
 
@@ -53,9 +63,9 @@ service SearchbirdService {
 
 This is pretty straightforward: our service @SearchbirdService@ exports 2 RPC methods, @get@ and @put@. They comprise a simple interface to a key-value store.
 
-Now let's run the default service, and explore it through this interface.
+Now let's run the default service and a client that connects to this service, and explore them through this interface. Open two windows, one for the server and one for the client. 
 
-First build the project, and run the service (which is also the default "main" method that sbt will run):
+In the first window, start sbt in interactive mode (run @sbt@ from the command line) and then build and run the project from within sbt. This runs the @main@ routine in @Main.scala@. 
 
 <pre>
 $ sbt
@@ -66,33 +76,19 @@ $ sbt
 [info] Running com.twitter.searchbird.Main -f config/development.scala
 </pre>
 
-This service is bound to port 9999 on our local machine. Clients can communicate with this service by connecting to port 9999.
+The configuration file (@development.scala@) instantiates a new service, exposing that service on port 9999 on our local machine. Clients can communicate with this service by connecting to port 9999.
 
-Now we're going to instantiate and run a client from the @sbt console@ (the console starts the Scala interpreter with a classpath that includes the compiled Searchbird sources, among other things). Start the console in another window:
-
-<pre>
-$ sbt console
-...
-[info] Starting scala interpreter...
-[info]
-Welcome to Scala version 2.9.1.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_33).
-Type in expressions to have them evaluated.
-Type :help for more information.
-</pre>
-
-At the <pre>scala></pre> prompt, paste the following:
+Now we're going to instantiate and run a client from the @sbt console@ (the console starts the Scala interpreter with a classpath that includes the compiled Searchbird sources, among other things). The console instantiates a @SearchbirdConsoleClient@ instance (from @SearchbirdConsoleClient.scala@). Start the console in the other window:
 
 <pre>
-import com.twitter.searchbird.SearchbirdService
-import com.twitter.conversions.time._
-import com.twitter.finagle.builder.ClientBuilder
-import com.twitter.finagle.thrift.ThriftClientFramedCodec
-import java.net.InetSocketAddress
-val service = ClientBuilder().hosts(new InetSocketAddress("127.0.0.1", 9999)).codec(ThriftClientFramedCodec()).hostConnectionLimit(1).tcpConnectTimeout(3.seconds).build()
-val client = new SearchbirdService.FinagledClient(service)
+$ ./console 127.0.0.1 9999
+[info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
+'client' is bound to your thrift client.
+
+finagle-client> 
 </pre>
 
-The object @client@ is now connected to port 9999 on our local computer, and can talk to the service that we previously started on that port. So let's send it some requests:
+The client object @client@ is now connected to port 9999 on our local computer, and can talk to the service that we previously started on that port. So let's send it some requests:
 
 <pre>
 scala> client.put("marius", "Marius Eriksen")
@@ -110,7 +106,7 @@ res3: String = Marius Eriksen
 
 (The second @get()@ call resolves the @Future@ that is the return type of @client.get()@ by blocking until the value is ready.) 
 
-The server also exports runtime statistics. These are convenient both for inspecting individual servers as well as aggregating into global service statistics (a machine-readable json interface is also provided).
+The server also exports runtime statistics (the configuration file specifies these can be found at port 9900). These are convenient both for inspecting individual servers as well as aggregating into global service statistics (a machine-readable JSON interface is also provided). Open a third window and check those stats:
 
 <pre>
 $ curl localhost:9900/stats.txt
@@ -156,11 +152,13 @@ metrics:
 
 In addition to our own service statistics, we are also given some generic JVM stats that are often useful.
 
+Now let's look at the code that implements the configuration, the server, and the client. 
+
 h5. .../config/SearchbirdServiceConfig.scala
 
-A configurations is a Scala trait that has a method @apply: RuntimeEnvironment => T@ for some @T@ we want to create. In this sense, configurations are "factories". At runtime, a configuration file is evaluated as a script (by using the scala compiler as a library), and is expected to produce such a configuration object. @RuntimeEnvironment@s are objects queried for various runtime parameters (command-line flags, JVM version, build timestamps, etc.).
+A configuration is a Scala trait that has a method @apply: RuntimeEnvironment => T@ for some @T@ we want to create. In this sense, configurations are "factories". At runtime, a configuration file is evaluated as a script (by using the scala compiler as a library), and is expected to produce such a configuration object. A @RuntimeEnvironment@ is an object queried for various runtime parameters (command-line flags, JVM version, build timestamps, etc.).
 
-The @SearchbirdServiceConfig@ class specifies such a class. It specifies configuration parameters together with their defaults. (Any references to a "tracer" in this tutorial refer to the "Zipkin":https://github.com/twitter/zipkin distributed tracing system, which is not covered here.) 
+The @SearchbirdServiceConfig@ class specifies such a class. It specifies configuration parameters together with their defaults. (Any references to a "tracer" in this tutorial/code refer to the "Zipkin":https://github.com/twitter/zipkin distributed tracing system, which is not covered here and is not important in this tutorial.) 
 
 <pre>
 class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
@@ -171,11 +169,11 @@ class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServe
 }
 </pre>
 
-In our case, we want to create a @SearchbirdService.ThriftServer@. This is the server type generated by the thrift code generator[1].
+In our case, we want to create a @SearchbirdService.ThriftServer@. This is the server type generated by the thrift code generator[1]. 
 
 h5. .../Main.scala
 
-The @main@ function is very simple: it reads the configuration, creates a @SearchbirdService.ThriftServer@ and starts it. @RuntimeEnvironment.loadRuntimeConfig@ performs the configuration evaluation and calls its @apply@ method with itself as an argument[2].
+Typing "run" in the sbt console calls @main@, which configures and instantiates this server. It reads the configuration (specified in @development.scala@ and supplied as an argument to "run"), creates the @SearchbirdService.ThriftServer@, and starts it. @RuntimeEnvironment.loadRuntimeConfig@ performs the configuration evaluation and calls its @apply@ method with itself as an argument[2].
 
 <pre>
 object Main {
@@ -208,9 +206,9 @@ trait SearchbirdService {
 }
 </pre>
 
-@Future[Value]@s are returned instead of the values directly so that their computation may be deferred (finagle's "documentation":finagle.html has more details on @Future@s).
+@Future[Value]@s are returned instead of the values directly so that their computation may be deferred (finagle's "documentation":finagle.html has more details on @Future@). For the purpose of this tutorial, the only thing you need to know about a @Future@ is that you can retrieve its value with @get()@. 
 
-The default implementation provided by @scala-bootstrapper@ is quite simple:
+The default implementation of the key-value store provided by @scala-bootstrapper@ is straightforward: it provides a @database@ data structure and @get@ and @put@ calls that access that data structure. 
 
 <pre>
 class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdService.ThriftServer {
@@ -239,13 +237,15 @@ class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdS
 }
 </pre>
 
-It implements a simple thrift interface to a Scala @HashMap@.
+The result is a simple thrift interface to a Scala @HashMap@.
 
 h2. A simple search engine
 
-Now we'll extend our example so far to create a simple search engine. We'll then extend it further to become a <em>distributed</em> search engine consisting of multiple shards so that we can fit a corpus larger than what can fit in memory of a single machine. 
+Now we'll extend our example so far to create a simple search engine. We'll then extend it further to become a _distributed_ search engine consisting of multiple shards so that we can fit a corpus larger than what can fit in the memory of a single machine. 
 
-To keep things simple, we'll extend our current thrift service minimally in order to support a search operation. The usage model is to @put@ documents into the search engine, where each document contains a series of tokens (words); then we can search on a string of tokens to return all documents that contain all tokens in the set.
+To keep things simple, we'll extend our current thrift service minimally in order to support a search operation. The usage model is to @put@ documents into the search engine, where each document contains a series of tokens (words); then we can search on a string of tokens to return all documents that contain all tokens in the set. The architecture is identical to the previous example but for the addition of a new @search@ call.
+
+!searchbird-2.svg(Searchbird implementation, revision 2)!
 
 To implement such a search engine, make the following changes to the following two files:
 
@@ -263,7 +263,9 @@ We've added a @search@ method that searches the current hashtable, returning the
 
 h5. .../SearchbirdServiceImpl.scala
 
-The current @database@ hashmap holds a forward index that maps a key to a document. We rename it to @forward@ and add a second map for the @reverse@ index (that maps a token to the set of documents that contain that token). So, within @SearchbirdServiceImpl.scala@, replace the @database@ val with:
+Most of our changes take place in this file.
+
+The current @database@ hashmap holds a forward index that maps a key to a document. We rename it to @forward@ and add a second map for the @reverse@ index (that maps a token to the set of documents that contain that token). So, within @SearchbirdServiceImpl.scala@, replace the @database@ definition with:
 
 <pre>
 val forward = new mutable.HashMap[String, String]
@@ -294,7 +296,7 @@ def put(key: String, value: String) = {
 
 *_HELP Why does @Future.void@ not work as a return value? (It doesn't compile.) @Future.void@ was the return value in the previous version of this web page._*
 
-Note that (even though the @HashMap@ is thread-safe) only one thread can update the @reverse@ map at a time to ensure that read-modify-write of a particular map entry is an atomic operation. *_HELP (The code is overly conservative; it locks the entire map rather than locking each individual retrieve-modify-write operation.)_* Also note the use of @Set@ as the data structure; this ensures that if the same token appears twice in a document, it will only be processed by the @foreach@ loop once. 
+Note that (even though the @HashMap@ is thread-safe) only one thread can update the @reverse@ map at a time to ensure that read-modify-write of a particular map entry is an atomic operation. *_HELP (The code is overly conservative; it locks the entire map rather than locking each individual retrieve-modify-write operation.)*_ Also note the use of @Set@ as the data structure; this ensures that if the same token appears twice in a document, it will only be processed by the @foreach@ loop once. 
 
 The implementation still has an issue that is left as an exercise for the reader: when we overwrite a key with a new document, we don't remove any references to the old document in the reverse index.
 
@@ -309,7 +311,7 @@ def search(query: String) = Future.value {
 }
 </pre>
 
-A few things are worth calling out in this short piece of code. When constructing the hit list, if the key (@token@) is not found, @getOrElse@ will supply the value in the 2nd parameter (an empty @Set@). We perform the actual intersection using a left-reduce. The particular flavor, @reduceLeftOption@, will not attempt to perform the reduce if @hits@ is empty, returning instead @None@. This allows us to supply a default value instead of experiencing an exception. In fact, this is equivalent to:
+A few things are worth calling out in this short piece of code. When constructing the hit list, if the key (@token@) is not found, @getOrElse@ will supply the value from its second parameter (in this case, an empty @Set@). We perform the actual intersection using a left-reduce. The particular flavor, @reduceLeftOption@, will not attempt to perform the reduce if @hits@ is empty, returning instead @None@. This allows us to supply a default value instead of experiencing an exception. In fact, this is equivalent to:
 
 <pre>
 def search(query: String) = Future.value {
@@ -321,6 +323,8 @@ def search(query: String) = Future.value {
     hits reduceLeft { _ & _ } toList
 }
 </pre>
+
+*_HELP is the default value Nil or None?_*
 
 Which to use is mostly a matter of taste, though functional style often eschews conditionals for sensible defaults.
 
@@ -345,8 +349,6 @@ $ ./console 127.0.0.1 9999
 
 finagle-client> 
 </pre>
-
-*_HELP @todo console requires arguments, but doesn't appear to use them, see above "no servers specified" text_*
 
 Paste the following lecture descriptions into the console:
 
@@ -397,15 +399,17 @@ res16: Seq[String] = ArrayBuffer(simple)
 res17: Seq[String] = ArrayBuffer(type, advanced)
 </pre>
 
-*_HELP Recall that if the call returns a @Future@, we have to use a blocking @get()@ call to resolve the value contained within that future._*
+*_HELP Recall that if the call returns a @Future@, we have to use a blocking @get()@ call to resolve the value contained within that future. (is this correct?)_*
 
 h2. Distributing our service
 
-On a single machine, our simple in-memory search engine won't be able to search a corpus larger than the size of memory. We'll now venture to remedy this by distributing nodes with a simple sharding scheme.
+On a single machine, our simple in-memory search engine won't be able to search a corpus larger than the size of memory. We'll now venture to remedy this by distributing nodes with a simple sharding scheme. Here's the block diagram:
+
+!searchbird-3.svg(Distributed Searchbird service)!
 
 h3. Abstracting
 
-To aid our work, we'll first introduce another abstraction--an @Index@--in order to decouple the index implementation from the @SearchbirdService@. This is a straightforward refactor. We'll begin by adding an Index file to the build (in @searchbird/src/main/scala/com/twitter/searchbird/Index.scala@):
+To aid our work, we'll first introduce another abstraction--an @Index@--in order to decouple the index implementation from the @SearchbirdService@. This is a straightforward refactor. We'll begin by adding an Index file to the build (create the file @searchbird/src/main/scala/com/twitter/searchbird/Index.scala@):
 
 h5. .../Index.scala
 
@@ -469,7 +473,9 @@ class ResidentIndex extends Index {
 }
 </pre>
 
-We now convert our thrift service to a simple dispatch mechanism: it provides a thrift interface to any @Index@ instance. The power of this will soon be apparent. Replace your @SearchbirdServiceImpl@ class definition with the (much simpler) one below. Note it now takes a second argument, an @Index@.
+We now convert our thrift service to a simple dispatch mechanism: it provides a thrift interface to any @Index@ instance. This is a powerful abstraction, because it separates the implementation of the service from the implementation of the index. The service no longer has to know any details of the underlying index; the index might be local or might be remote or might be a composite of many remote indices, but the service doesn't care, and the implementation of the index might change without the service changing. 
+
+Replace your @SearchbirdServiceImpl@ class definition with the (much simpler) one below (which no longer contains the index implementation detail). Note initializing a server now takes a second argument, an @Index@.
 
 h5. .../SearchbirdServiceImpl.scala
 
@@ -498,7 +504,7 @@ class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServe
 }
 </pre>
 
-We'll set up our simple distributed system so that there is one distinguished node that coordinates queries to its child nodes. In order to achieve this, we'll need two new @Index@ types. One represents a remote index, the other is a composite index over several other @Index@ instances. This way we can construct the distributed index by instantiating a composite index of the remote indices.
+We'll set up our simple distributed system so that there is one distinguished node that coordinates queries to its child nodes. In order to achieve this, we'll need two new @Index@ types. One represents a remote index, the other is a composite index over several other @Index@ instances. This way we can construct the distributed index by instantiating a composite index of the remote indices. Note that both @Index@ types have the same interface, so servers do not need to know whether the index to which they are connected is remote or composite. 
 
 h5. .../Index.scala
 
@@ -533,9 +539,11 @@ class CompositeIndex(indices: Seq[Index]) extends Index {
 
 The composite index works over a set of underlying @Index@ instances. Note that it doesn't care how these are actually implemented. This type of composition allows for great flexibility in constructing various querying schemes. We don't define a sharding scheme, and so the composite index doesn't support @put@ operations. These are instead issued directly to the child nodes. @get@ is implemented by querying all of our child nodes and picking the first successful result. If there are none, we throw an exception. Note that since the absence of a value is communicated by throwing an exception, we @handle@ this on the @Future@, converting any exception into a @None@ value. In a real system, we'd probably have proper error codes for missing values rather than using exceptions. Exceptions are convenient and expedient for prototyping, but compose poorly. In order to distinguish between a real exception and a missing value, I have to examine the exception itself. Rather, it is better style to embed this distinction directly in the type of the returned value.
 
+*_HELP This implementation appears to not give any more scalability than the previous scheme; since the index appears to be completely replicated across all client machines, we can't store a larger amount of data. We'd require a more sophisticated @put()@ scheme that distributed puts to only one index, wouldn't we? Alternately, we could improve throughput by only sending @get()@ requests to one node rather than all nodes._*
+
 @search@ works in a similar way as before. Instead of picking the first result, we combine them, ensuring their uniqueness by using a @Set@ construction.
 
-@RemoteIndex@ provides an @Index@ interface over a number of hosts.
+@RemoteIndex@ provides an @Index@ interface to a remote server. 
 
 <pre>
 class RemoteIndex(hosts: String) extends Index {
@@ -661,6 +669,21 @@ res4: Seq[String] = ArrayBuffer(hello)
 finagle-client> client.search("value").get()
 res5: Seq[String] = ArrayBuffer(fromShardA, fromShardB)
 </pre>
+
+This design has multiple data abstractions that allow a more modular and scalable implementation:
+* The @ResidentIndex@ data structure knows nothing about the network, servers, or clients.
+* The @CompositeIndex@ knows nothing about how its constituent indices are implemented or their underlying data structures; it simply distributes its requests to them. 
+* The same @search@ interface (trait) for servers allows a server to query its local data structure (@ResidentIndex@) or distribute queries to other servers (@CompositeIndex@) without needing to know this distinction, which is hidden from the caller.
+* The @SearchbirdServiceImpl@ and @Index@ are separate modules now, allowing a simple implementation of the service and separating the implementation of the data structure from the service that accesses it. 
+* The design is flexible enough to allow one or many remote indices, located on the local machine or on remote machines. 
+
+*_HELP Are the possible improvements below accurate?_*
+
+Possible improvements to this implementation would include:
+
+* The current implementation sends @put()@ calls to all nodes. Instead, we could use a hash table to send a @put()@ call to only one node and distribute storage across all nodes.
+** Note, however, we lose redundancy with this strategy. How could we maintain some redundancy yet not require full replication? 
+* We aren't doing anything interesting with any failures in the system (we aren't processing any exceptions, for instance). 
 
 fn1. In @target/gen-scala/com/twitter/searchbird/SearchbirdService.scala@.
 
