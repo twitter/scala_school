@@ -84,10 +84,16 @@ def toList[A](a: A) = List(a)
 which you wished to use generically:
 
 <pre>
-def foo[A, B](f: A => List[A], b: B, c: Int) = (f(b), f(c))
+def foo[A, B](f: A => List[A], b: B) = f(b)
 </pre>
 
-This does not compile, because all type variables have to be fixed at the invocation site.
+This does not compile, because all type variables have to be fixed at the invocation site. Even if you "nail down" type <code>B</code>,
+
+<pre>
+def foo[A](f: A => List[A], i: Int) = f(i)
+</pre>
+
+...you get a type mismatch.
 
 h3. Type inference
 
@@ -179,39 +185,34 @@ trait Function1 [-T1, +R] extends AnyRef
 If you think about this from the point of view of substitution, it makes a lot of sense. Let's first define a simple class hierarchy:
 
 <pre>
-scala> class A
-defined class A
+scala> class Animal { val sound = "rustle" }
+defined class Animal
 
-scala> class B extends A
-defined class B
+scala> class Bird extends Animal { override val sound = "call" }
+defined class Bird
 
-scala> class C extends B
-defined class C
-
-scala> class D extends C
-defined class D
+scala> class Chicken extends Bird { override val sound = "cluck" }
+defined class Chicken
 </pre>
 
+Suppose you need a function that takes a <code>Bird</code> param:
+
 <pre>
-scala> val f: (B => C) = ((b: B) => new C)
-f: (B) => C = <function1>
+scala> val getTweet: (Bird => String) = // TODO
+</pre>
 
-scala> val f: (B => C) = ((a: A) => new C)
-f: (B) => C = <function1>
+The standard animal library has a function that does what you want, but it takes an <code>Animal</code> parameter instead.  In most situations, if you say "I need a ___, I have a subclass of ___", you're OK. But function parameters are contravariant. If you need a function that takes a <code>Bird</code> and you have a function that takes an <code>Chicken</code>, that function would choke on a <code>Duck</code>. But a function that takes an <code>Animal</code> is OK:
 
-scala> val f: (B => C) = ((a: A) => new D)
-f: (B) => C = <function1>
+<pre>
+scala> val getTweet: (Bird => String) = ((a: Animal) => a.sound )
+getTweet: Bird => String = <function1>
+</pre>
 
-scala> val f: (B => C) = ((a: A) => new C)
-f: (B) => C = <function1>
+A function's return value type is covariant. If you need a function that returns a <code>Bird</code> but have a function that returns a <code>Chicken</code>, that's great.
 
-scala> val f: (B => C) = ((c: C) => new C)
-<console>:8: error: type mismatch;
- found   : (C) => C
- required: (B) => C
-       val f: (B => C) = ((c: C) => new C)
-                                 ^
-                                    ^
+<pre>
+scala> val hatch: (() => Bird) = (() => new Chicken )
+hatch: () => Bird = <function0>
 </pre>
 
 h3. Bounds
@@ -219,22 +220,16 @@ h3. Bounds
 Scala allows you to restrict polymorphic variables using _bounds_. These bounds express subtype relationships.
 
 <pre>
-scala> class F { def foo = "F" }
-defined class F
+scala> def cacophony[T](things: Seq[T]) = things map (_.sound)
+<console>:7: error: value sound is not a member of type parameter T
+       def cacophony[T](things: Seq[T]) = things map (_.sound)
+                                                        ^
 
-scala> class E extends F { override def foo = "E" }
-defined class E
+scala> def biophony[T <: Animal](things: Seq[T]) = things map (_.sound)
+biophony: [T <: Animal](things: Seq[T])Seq[java.lang.String]
 
-scala> def callFoo[T](foos: Seq[T]) = foos map (_.foo) foreach println
-<console>:8: error: value foo is not a member of type parameter T
-       def callFoo[T](foos: Seq[T]) = foos map (_.foo) foreach println
-
-scala> def callFoo[T <: F](foos: Seq[T]) = foos map (_.foo) foreach println
-callFoo: [T <: F](foos: scala.collection.mutable.Seq[T])Unit
-
-scala> callFoo(Seq(new E, new F))
-E
-F
+scala> biophony(Seq(new Chicken, new Bird))
+res5: Seq[java.lang.String] = List(cluck, call)
 </pre>
 
 Lower type bounds are also supported. They go hand-in-hand with contravariance. Let's say we had some class Node:
@@ -255,32 +250,32 @@ scala> class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
 Recall that method arguments are contravariant, and so if we perform our substitution trick, using the same classes as before:
 
 <pre>
-class Node[B](x: B) { def sub(v: B): Node[B] = new Node(v) }
+class Node[Bird](x: Bird) { def sub(v: Bird): Node[Bird] = new Node(v) }
 </pre>
 
 is *not* a subtype of
 
 <pre>
-class Node[A](x: A) { def sub(v: A): Node[A] = new Node(v) }
+class Node[Animal](x: Animal) { def sub(v: Animal): Node[Animal] = new Node(v) }
 </pre>
 
-because A cannot be substituted for B in the argument of "sub". However, we can use lower bounding to enforce correctness.
+because Animal cannot be substituted for Bird in the argument of "sub". However, we can use lower bounding to enforce correctness.
 
 <pre>
 scala> class Node[+T](x: T) { def sub[U >: T](v: U): Node[U] = new Node(v) }
 defined class Node
 
-scala> (new Node(new B)).sub(new B)
-res5: Node[B] = Node@4efade06
+scala> (new Node(new Bird)).sub(new Bird)
+res5: Node[Bird] = Node@4efade06
 
-scala> ((new Node(new B)).sub(new B)).sub(new A)
-res6: Node[A] = Node@1b2b2f7f
+scala> ((new Node(new Bird)).sub(new Bird)).sub(new Animal)
+res6: Node[Animal] = Node@1b2b2f7f
 
-scala> ((new Node(new B)).sub(new B)).asInstanceOf[Node[C]]
-res7: Node[C] = Node@6924181b
+scala> ((new Node(new Bird)).sub(new Bird)).asInstanceOf[Node[Chicken]]
+res7: Node[Chicken] = Node@6924181b
 
-scala> (((new Node(new B)).sub(new B)).sub(new A)).sub(new C)
-res8: Node[A] = Node@3088890d
+scala> (((new Node(new Bird)).sub(new Bird)).sub(new Animal)).sub(new Chicken)
+res8: Node[Animal] = Node@3088890d
 </pre>
 
 Note also how the type changes with subsequent calls to "sub".
