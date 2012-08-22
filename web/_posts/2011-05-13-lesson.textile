@@ -57,6 +57,7 @@ h5. src/main/thrift/searchbird.thrift
 <pre>
 service SearchbirdService {
   string get(1: string key) throws(1: SearchbirdException ex)
+
   void put(1: string key, 2: string value)
 }
 </pre>
@@ -78,7 +79,7 @@ $ sbt
 
 The configuration file (@development.scala@) instantiates a new service, exposing that service on port 9999 on our local machine. Clients can communicate with this service by connecting to port 9999.
 
-Now we're going to instantiate and run a client from the @sbt console@ (the console starts the Scala interpreter with a classpath that includes the compiled Searchbird sources, among other things). The console instantiates a @SearchbirdConsoleClient@ instance (from @SearchbirdConsoleClient.scala@). Start the console in the other window:
+Now we're going to instantiate and run a client using the provided @console@ shell script, which instantiates a @SearchbirdConsoleClient@ instance (from @SearchbirdConsoleClient.scala@). Run this script in the other window:
 
 <pre>
 $ ./console 127.0.0.1 9999
@@ -222,7 +223,7 @@ class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdS
     database.get(key) match {
       case None =>
         log.debug("get %s: miss", key)
-        Future.exception(new SearchbirdException("No such key"))
+        Future.exception(SearchbirdException("No such key"))
       case Some(value) =>
         log.debug("get %s: hit", key)
         Future(value)
@@ -233,6 +234,10 @@ class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdS
     log.debug("put %s", key)
     database(key) = value
     Future.Unit
+  }
+
+  def shutdown() = {
+    super.shutdown(0.seconds)
   }
 }
 </pre>
@@ -254,7 +259,9 @@ h5. src/main/thrift/searchbird.thrift
 <pre>
 service SearchbirdService {
   string get(1: string key) throws(1: SearchbirdException ex)
+
   void put(1: string key, 2: string value)
+
   list<string> search(1: string query)
 }
 </pre>
@@ -285,7 +292,7 @@ def put(key: String, value: String) = {
   // admit only one updater.
   synchronized {
     (Set() ++ value.split(" ")) foreach { token =>
-      val current = reverse.get(token) getOrElse Set()
+      val current = reverse.getOrElse(token, Set())
       reverse(token) = current + key
     }
   }
@@ -294,9 +301,7 @@ def put(key: String, value: String) = {
 }
 </pre>
 
-*_HELP Why does @Future.void@ not work as a return value? (It doesn't compile.) @Future.void@ was the return value in the previous version of this web page._*
-
-Note that (even though the @HashMap@ is thread-safe) only one thread can update the @reverse@ map at a time to ensure that read-modify-write of a particular map entry is an atomic operation. *_HELP (The code is overly conservative; it locks the entire map rather than locking each individual retrieve-modify-write operation.)*_ Also note the use of @Set@ as the data structure; this ensures that if the same token appears twice in a document, it will only be processed by the @foreach@ loop once. 
+Note that (even though the @HashMap@ is thread-safe) only one thread can update the @reverse@ map at a time to ensure that read-modify-write of a particular map entry is an atomic operation. (The code is overly conservative; it locks the entire map rather than locking each individual retrieve-modify-write operation.) Also note the use of @Set@ as the data structure; this ensures that if the same token appears twice in a document, it will only be processed by the @foreach@ loop once. 
 
 The implementation still has an issue that is left as an exercise for the reader: when we overwrite a key with a new document, we don't remove any references to the old document in the reverse index.
 
@@ -323,8 +328,6 @@ def search(query: String) = Future.value {
     hits reduceLeft { _ & _ } toList
 }
 </pre>
-
-*_HELP is the default value Nil or None?_*
 
 Which to use is mostly a matter of taste, though functional style often eschews conditionals for sensible defaults.
 
@@ -399,7 +402,18 @@ res16: Seq[String] = ArrayBuffer(simple)
 res17: Seq[String] = ArrayBuffer(type, advanced)
 </pre>
 
-*_HELP Recall that if the call returns a @Future@, we have to use a blocking @get()@ call to resolve the value contained within that future. (is this correct?)_*
+Recall that if the call returns a @Future@, we have to use a blocking @get()@ call to resolve the value contained within that future. We can use the @Future.collect@ command to make multiple concurrent requests and wait for all of them to succeed:
+
+<pre>
+> import com.twitter.util.Future
+...
+> Future.collect(Seq(
+    client.search("types"),
+    client.search("sbt"),
+    client.search("functional")
+  )).get()
+res18: Seq[Seq[String]] = ArrayBuffer(ArrayBuffer(type, advanced), ArrayBuffer(simple), ArrayBuffer(collections))
+</pre>
 
 h2. Distributing our service
 
@@ -441,7 +455,7 @@ class ResidentIndex extends Index {
     forward.get(key) match {
       case None =>
         log.debug("get %s: miss", key)
-        Future.exception(new SearchbirdException("No such key"))
+        Future.exception(SearchbirdException("No such key"))
       case Some(value) =>
         log.debug("get %s: hit", key)
         Future(value)
@@ -488,12 +502,16 @@ class SearchbirdServiceImpl(config: SearchbirdServiceConfig, index: Index) exten
   def put(key: String, value: String) =
     index.put(key, value) flatMap { _ => Future.Unit }
   def search(query: String) = index.search(query)
+
+  def shutdown() = {
+    super.shutdown(0.seconds)
+  }
 }
 </pre>
 
-Finally, we adjust our configuration class to match the new @SearchbirdServiceImpl@ index requirement:
-
 h5. .../config/SearchbirdServiceConfig.scala
+
+Update your @apply@ call in @SearchbirdServiceConfig@ accordingly:
 
 <pre>
 class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
@@ -522,13 +540,13 @@ class CompositeIndex(indices: Seq[Index]) extends Index {
     Future.collect(queries) flatMap { results =>
       results.find { _.isDefined } map { _.get } match {
         case Some(v) => Future.value(v)
-        case None => Future.exception(new SearchbirdException("No such key"))
+        case None => Future.exception(SearchbirdException("No such key"))
       }
     }
   }
 
   def put(key: String, value: String) =
-    Future.exception(new SearchbirdException("put() not supported by CompositeIndex"))
+    Future.exception(SearchbirdException("put() not supported by CompositeIndex"))
 
   def search(query: String) = {
     val queries = indices.map { _.search(query) rescue { case _=> Future.value(Nil) } }
@@ -539,7 +557,7 @@ class CompositeIndex(indices: Seq[Index]) extends Index {
 
 The composite index works over a set of underlying @Index@ instances. Note that it doesn't care how these are actually implemented. This type of composition allows for great flexibility in constructing various querying schemes. We don't define a sharding scheme, and so the composite index doesn't support @put@ operations. These are instead issued directly to the child nodes. @get@ is implemented by querying all of our child nodes and picking the first successful result. If there are none, we throw an exception. Note that since the absence of a value is communicated by throwing an exception, we @handle@ this on the @Future@, converting any exception into a @None@ value. In a real system, we'd probably have proper error codes for missing values rather than using exceptions. Exceptions are convenient and expedient for prototyping, but compose poorly. In order to distinguish between a real exception and a missing value, I have to examine the exception itself. Rather, it is better style to embed this distinction directly in the type of the returned value.
 
-*_HELP This implementation appears to not give any more scalability than the previous scheme; since the index appears to be completely replicated across all client machines, we can't store a larger amount of data. We'd require a more sophisticated @put()@ scheme that distributed puts to only one index, wouldn't we? Alternately, we could improve throughput by only sending @get()@ requests to one node rather than all nodes._*
+<!-- *_HELP This implementation appears to not give any more scalability than the previous scheme; since the index appears to be completely replicated across all client machines, we can't store a larger amount of data. We'd require a more sophisticated @put()@ scheme that distributed puts to only one index, wouldn't we? Alternately, we could improve throughput by only sending @get()@ requests to one node rather than all nodes._* -->
 
 @search@ works in a similar way as before. Instead of picking the first result, we combine them, ensuring their uniqueness by using a @Set@ construction.
 
@@ -566,7 +584,7 @@ This constructs a finagle thrift client with some sensible defaults, and just pr
 
 h3. Putting it all together
 
-We now have all the pieces we need. We'll need to adjust the configuration in order to be able to invoke a given node as either a distinguished node or a data shard node. In order to do so, we'll enumerate the shards in our system by creating a new config item for it. We'll then use command line arguments (recall that the @Config@ has access to these) to start the server up in either mode.
+We now have all the pieces we need. We'll need to adjust the configuration in order to be able to invoke a given node as either a distinguished node or a data shard node. In order to do so, we'll enumerate the shards in our system by creating a new config item for it. We also need to add the @Index@ argument to our instantiation of the @SearchbirdServiceImpl@. We'll then use command line arguments (recall that the @Config@ has access to these) to start the server up in either mode.
 
 h5. .../config/SearchbirdServiceConfig.scala
 
@@ -611,10 +629,10 @@ new SearchbirdServiceConfig {
     "localhost:9001",
     "localhost:9002"
   )
-}
+  ...
 </pre>
 
-*_HELP Comment out the setting for @admin.httpPort@ (we don't want several services running on the same machine, all of which are trying to open up the same port):_*
+Comment out the setting for @admin.httpPort@ (we don't want several services running on the same machine, all of which are trying to open up the same port):
 
 <pre>
   // admin.httpPort = 9900
@@ -622,28 +640,41 @@ new SearchbirdServiceConfig {
 
 Now if we invoke our server without any arguments, it starts a distinguished node that speaks to all of the given shards. If we specify a shard argument, it starts a server on the port belonging to that shard index.
 
-Let's try it! We'll launch 3 services: 2 shards and 1 distinguished node.
+Let's try it! We'll launch 3 services: 2 shards and 1 distinguished node. First compile the changes:
 
 <pre>
-$ sbt 'run -f config/development.scala -D shard=0'&
-$ sbt 'run -f config/development.scala -D shard=1'&
-$ sbt 'run -f config/development.scala'&
+$ sbt
+> compile
+...
+> exit
 </pre>
+
+Then launch 3 servers:
+
+<pre>
+$ sbt 'run -f config/development.scala -D shard=0'
+$ sbt 'run -f config/development.scala -D shard=1'
+$ sbt 'run -f config/development.scala'
+</pre>
+
+You can either run these in 3 different windows or (in the same window) start each one in turn, wait for it to start up, control-z to suspend it, and @bg@ to put it running in the background. 
 
 Then we'll interact with them through the console. First, let's populate some data in the two shard nodes. Running from the searchbird directory:
 
 <pre>
 $ ./console localhost 9000
+...
 > client.put("fromShardA", "a value from SHARD_A")
 > client.put("hello", "world")
 </pre>
 <pre>
 $ ./console localhost 9001
+...
 > client.put("fromShardB", "a value from SHARD_B")
 > client.put("hello", "world again")
 </pre>
 
-And now let's query our database from the distinguished node (port 9999): 
+You can exit these console sessions once you complete them.  Now query our database from the distinguished node (port 9999): 
 
 <pre>
 $ ./console localhost 9999
@@ -654,7 +685,7 @@ finagle-client> client.get("hello").get()
 res0: String = world
 
 finagle-client> client.get("fromShardC").get()
-com.twitter.searchbird.SearchbirdException
+SearchbirdException(No such key)
 ...
 
 finagle-client> client.get("fromShardA").get()
@@ -677,7 +708,7 @@ This design has multiple data abstractions that allow a more modular and scalabl
 * The @SearchbirdServiceImpl@ and @Index@ are separate modules now, allowing a simple implementation of the service and separating the implementation of the data structure from the service that accesses it. 
 * The design is flexible enough to allow one or many remote indices, located on the local machine or on remote machines. 
 
-*_HELP Are the possible improvements below accurate?_*
+<!-- *_HELP Are the possible improvements below accurate?_* -->
 
 Possible improvements to this implementation would include:
 
