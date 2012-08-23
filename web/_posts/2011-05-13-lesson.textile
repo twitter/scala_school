@@ -9,7 +9,7 @@ We're going to build a simple distributed search engine using Scala and the prev
 
 h3. Design goals: the big picture
 
-Broadly, our design goals include _abstraction_ (the ability to use the resulting system without knowing all of its internal detail); _modularity_ (the ability to factor the system into smaller, simpler pieces that can be more easily understood); and _scalability_ (the ability to grow the capacity of the system in a straightforward way).
+Broadly, our design goals include _abstraction_ (the ability to use the resulting system without knowing all of its internal detail); _modularity_ (the ability to factor the system into smaller, simpler pieces that can be more easily understood and/or replaced with other pieces); and _scalability_ (the ability to grow the capacity of the system in a straightforward way).
 
 The system we're going to describe has three pieces: (1) _clients_ that makes requests to (2) _servers_, which send responses to the request; and a (3) _transport_ mechanism that packages up these communications. Normally the client and server would be located on different machines and communicate over a network on a particular numerical "_port_":http://en.wikipedia.org/wiki/Port_(computer_networking), but in this example, they will run on the same machine (and still communicate using ports). In our example, clients and servers will be written in Scala, and the transport will be handled using "Thrift":http://thrift.apache.org/. The primary purpose of this tutorial is to show a simple server and client that can be extended to provide scalable performance. 
 
@@ -160,7 +160,7 @@ h5. .../config/SearchbirdServiceConfig.scala
 
 A configuration is a Scala trait that has a method @apply: RuntimeEnvironment => T@ for some @T@ we want to create. In this sense, configurations are "factories". At runtime, a configuration file is evaluated as a script (by using the scala compiler as a library), and is expected to produce such a configuration object. A @RuntimeEnvironment@ is an object queried for various runtime parameters (command-line flags, JVM version, build timestamps, etc.).
 
-The @SearchbirdServiceConfig@ class specifies such a class. It specifies configuration parameters together with their defaults. (Any references to a "tracer" in this tutorial/code refer to the "Zipkin":https://github.com/twitter/zipkin distributed tracing system, which is not covered here and is not important in this tutorial.) 
+The @SearchbirdServiceConfig@ class specifies such a class. It specifies configuration parameters together with their defaults. (Finagle supports a generic tracing system that we can ignore for the purposes of this tutorial; the "Zipkin":https://github.com/twitter/zipkin distributed tracing system is a collector/aggregator of such traces.) 
 
 <pre>
 class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
@@ -290,9 +290,9 @@ def put(key: String, value: String) = {
   
   forward(key) = value
 
-  // admit only one updater.
+  // serialize updaters
   synchronized {
-    (Set() ++ value.split(" ")) foreach { token =>
+    value.split(" ").toSet foreach { token =>
       val current = reverse.getOrElse(token, Set())
       reverse(token) = current + key
     }
