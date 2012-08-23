@@ -38,20 +38,23 @@
     <div class="container" style="padding-top: 60px;">
       <p>This lesson covers:</p>
 <ul>
-	<li><a href="#composition">Function Composition</a>
+	<li>Functions (again)
 	<ul>
 		<li>compose</li>
 		<li>andThen</li>
 	</ul></li>
-	<li><a href="#curryvspartial">Currying vs Partial Application</a></li>
-	<li><a href="#PartialFunction">PartialFunctions</a>
+	<li>PartialFunctions
 	<ul>
 		<li>range and domain</li>
 		<li>composition with orElse</li>
 	</ul></li>
-	<li><a href="#case">What is a case statement?</a></li>
+	<li>Pattern Matching
+	<ul>
+		<li>extractor methods</li>
+	</ul></li>
+	<li>What is a case statement?</li>
 </ul>
-<h2 id="composition">Function Composition</h2>
+<h3>Function Composition</h3>
 <p>Let&#8217;s make two helpful functions:</p>
 <pre>
 scala&gt; def addUmm(x: String) = x + " umm"
@@ -60,7 +63,7 @@ addUmm: (x: String)String
 scala&gt;  def addAhem(x: String) = x + " ahem"
 addAhem: (x: String)String
 </pre>
-<h3>compose</h3>
+<h4>compose</h4>
 <p>compose calls the second function and then the first function.</p>
 <p>compose is f(g(x))</p>
 <pre>
@@ -70,7 +73,7 @@ ummThenAhem: (String) =&gt; String = &lt;function1&gt;
 scala&gt; ummThenAhem("well")
 res0: String = well umm ahem
 </pre>
-<h3>andThen</h3>
+<h4>andThen</h4>
 <p>andThen calls the first function and then the second.</p>
 <p>andThen is <code>g(f(x))</code></p>
 <pre>
@@ -80,18 +83,17 @@ ahemThenUmm: (String) =&gt; String = &lt;function1&gt;
 scala&gt; ahemThenUmm("well")
 res1: String = well ahem umm
 </pre>
-<h2 id="curryvspartial">Currying vs Partial Application</h2>
+<h4>Currying vs Partial Application</h4>
 <h3>case statements</h3>
-<h4>So just what are case statements?</h4>
+<h5>So just what are case statements?</h5>
 <p>It&#8217;s a subclass of function called a PartialFunction.</p>
-<h4>What is a collection of multiple case statements?</h4>
+<h5>What is a collection of multiple case statements?</h5>
 <p>They are multiple PartialFunctions composed together.</p>
-<h2 id="PartialFunction">Understanding PartialFunction</h2>
+<h3>Understanding PartialFunction</h3>
 <p>A function works for every argument of the defined type. In other words, a function defined as (Int) =&gt; String takes any Int and returns a String.</p>
 <p>A Partial Function is only defined for certain values of the defined type.  A Partial Function (Int) =&gt; String might not accept every Int.</p>
 <p><code>isDefinedAt</code> is a method on PartialFunction that can be used to determine if the PartialFunction will accept a given argument.</p>
 <p><i>Note</i> <code>PartialFunction</code> is unrelated to a partially applied function that we talked about earlier.</p>
-<p><strong>See Also</strong> Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.</p>
 <pre>
 scala&gt; val one: PartialFunction[Int, String] = { case 1 =&gt; "one" }
 one: PartialFunction[Int,String] = &lt;function1&gt;
@@ -136,7 +138,7 @@ res27: String = one
 scala&gt; res23(0)
 res28: String = something else
 </pre>
-<h3 id="case">The mystery of case.</h3>
+<h4>The mystery of case.</h4>
 <p>Last week we saw something curious. We saw a case statement used where a function is normally used.</p>
 <pre>
 scala&gt; case class PhoneExt(name: String, ext: Int)
