@@ -5,25 +5,26 @@ layout: post
 desc: Write tests with Specs, a BDD testing framework for Scala
 ---
 
-This lesson covers testing with Specs, a BDD Framework for Scala.
+This lesson covers testing with Specs, a Behavior-Driven Design (BDD) Framework for Scala.
 
-* Contexts
+* "extends Specification":#example
 ** nested examples
-* Setup
+* "Execution Model":#scope
+* "Setup and TearDown":#setup
 ** doFirst
 ** doBefore
 ** doAfter
-* Matchers
+* "Matchers":#matchers
 ** mustEqual
 ** contains
 ** sameSize?
 ** Write your own
-* Mocks
-* Spies
-* How does this work?
-** What if we don't like the implicits?
+* "Mocks":#mocks
+* "Spies":#spies
+* "run in sbt":#sbt
 
-h2. extends Specifcation
+
+h2(#example). extends Specifcation
 
 Let's just jump in.
 
@@ -42,9 +43,6 @@ object ArithmeticSpec extends Specification {
 }
 </pre>
 
-h2. Let's break this down
-
-
 *Arithmetic* is the *System Under Specification*
 
 *add* is a context.
@@ -55,8 +53,7 @@ h2. Let's break this down
 
 @1 mustEqual 1@ is a common placeholder *expectation* before you start writing real tests.  All examples should have at least one expectation.
 
-
-h2. Duplication
+h3. Duplication
 
 Notice how two tests both have @add@ in their name?  We can get rid of that by *nesting* expectations.
 
@@ -77,7 +74,7 @@ object ArithmeticSpec extends Specification {
 }
 </pre>
 
-h2. Execution Model
+h2(#scope). Execution Model
 
 <pre>
 object ExecSpec extends Specification {
@@ -94,7 +91,7 @@ object ExecSpec extends Specification {
 }
 </pre>
 
-h2. Setup
+h2(#setup). Setup, Teardown
 
 h3. doBefore & doAfter
 
@@ -122,13 +119,9 @@ h3. doFirst & doLast
 }
 </pre>
 
-h2. Matchers
+h2(#matchers). Matchers
 
-You have data, you want to make sure it's right.
-
-Let's tour the most commonly used matchers.
-
-"Matchers Guide":http://code.google.com/p/specs/wiki/MatchersGuide
+You have data, you want to make sure it's right. Let's tour the most commonly used matchers. (See Also "Matchers Guide":http://code.google.com/p/specs/wiki/MatchersGuide)
 
 h3. mustEqual
 
@@ -217,10 +210,12 @@ a must throwA(new Exception) like {
 
 h3. Write your own Matchers
 
-h4. As a val
 <pre>
 import org.specs.matcher.Matcher
 </pre>
+
+h4. As a val
+
 <pre>
 "A matcher" should {
   "be created as a val" in {
@@ -246,7 +241,7 @@ case class beEven(b: Int) extends Matcher[Int]() {
 
 Using a case class makes it more shareable.
 
-h3. Mocks
+h2(#mocks). Mocks
 
 <pre>
 import org.specs.Specification
@@ -269,8 +264,9 @@ object MockExampleSpec extends Specification with Mockito {
 }
 </pre>
 
+*See Also* "Using Mockito":http://code.google.com/p/specs/wiki/UsingMockito
 
-h3. Spies
+h2(#spies). Spies
 
 Spies can also be used in order to do some "partial mocking" of real objects:
 
@@ -303,7 +299,7 @@ doReturn("one").when(spiedList).get(0)
 </pre>
 
 
-h3. Run individual specs in sbt
+h2(#sbt). Run individual specs in sbt
 
 
 <pre>
@@ -317,5 +313,4 @@ Will run just that spec.
 > ~ test-only com.twitter.yourservice.UserSpec
 </pre>
 
-Will run that test in a loop, with each file modification triggering a
-test run.
+Will run that test in a loop, with each file modification triggering a test run.
