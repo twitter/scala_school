@@ -75,7 +75,7 @@ Methods may ask for some kinds of specific "evidence" for a type without setting
 |A <%< B|A must be viewable as B|
 
 <pre>
-scala> class Container[A](value: A) { def addIt(implicit evidence: A <:< Int) = 123 + value }
+scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
 defined class Container
 
 scala> (new Container(123)).addIt
