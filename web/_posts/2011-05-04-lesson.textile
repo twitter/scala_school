@@ -30,9 +30,7 @@ addAhem: (x: String)String
 
 h3. compose
 
-compose calls the second function and then the first function.
-
-compose is f(g(x))
+<code>compose</code> makes a new function that composes other functions <code>f(g(x))</code>
 
 <pre>
 scala> val ummThenAhem = addAhem _ compose addUmm _
@@ -44,9 +42,7 @@ res0: String = well umm ahem
 
 h3. andThen
 
-andThen calls the first function and then the second.
-
-andThen is <code>g(f(x))</code>
+<code>andThen</code> is like <code>compose</code>, but calls the first function and then the second, <code>g(f(x))</code>
 
 <pre>
 scala> val ahemThenUmm = addAhem _ andThen addUmm _
