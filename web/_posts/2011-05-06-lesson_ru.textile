@@ -1,0 +1,381 @@
+---
+permalink: advanced-types.html
+title: Дополнительные типы
+layout: post
+desc: Дополнительные типы, видимое ограничение, типы высшего порядка, рекурсивные типы, структурные типы
+---
+
+В этом уроке вы узнаете:
+
+* Видимое ограничение ("Классы-типы")
+* Типы высшего порядка и специальный полиморфизм
+* F-ограниченный полиморфизм / рекурсивные типы
+* Структурные типы
+* Абстрактные типы членов
+* Тип чисток и манифесты
+* Пример: Finagle
+
+h3. Видимое ограничение ("Классы-типы")
+
+*Неявные* функции в Scala позволяют использовать приложению функции по требованию, когда это может помочь при выводе типа, например:
+
+<pre>
+scala> implicit def strToInt(x: String) = x.toInt
+strToInt: (x: String)Int
+
+scala> "123"
+res0: java.lang.String = 123
+
+scala> val y: Int = "123"
+y: Int = 123
+
+scala> math.max("123", 111)
+res1: Int = 123
+</pre>
+
+Видимое ограничение, подобно ограничению типа, требует функцию, которая существует для данного типа, например:
+
+<pre>
+scala> class Container[A <% Int] { def addIt(x: A) = 123 + x }
+defined class Container
+</pre>
+
+Это говорит, что *A* должен быть "видимым" как *Int*.  Давайте попробуем.
+
+<pre>
+scala> (new Container[String]).addIt("123")
+res11: Int = 246
+
+scala> (new Container[Int]).addIt(123) 
+res12: Int = 246
+
+scala> (new Container[Float]).addIt(123.2F)
+<console>:8: error: could not find implicit value for evidence parameter of type (Float) => Int
+       (new Container[Float]).addIt(123.2)
+        ^
+</pre>
+
+h3. Другие ограничения типов
+
+Методы могут запросить конкретные "доказательства" для типа, а именно:
+
+|A =:= B|A должен быть равен B|
+|A <:< B|A должен быть подтипом B|
+|A <%< B|A должен выглядеть как B|
+
+<pre>
+scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
+defined class Container
+
+scala> (new Container(123)).addIt
+res11: Int = 246
+
+scala> (new Container("123")).addIt
+<console>:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
+</pre>
+
+Кроме того, учитывая наше предыдущее неявное значение, мы можем ослабить ограничение для видимости:
+
+<pre>
+scala> class Container[A](value: A) { def addIt(implicit evidence: A <%< Int) = 123 + value }
+defined class Container
+
+scala> (new Container("123")).addIt
+res15: Int = 246
+</pre>
+
+h4. Обобщенное программирование с помощью видов
+
+В стандартной библиотеке Scala, виды в основном используются для реализации обобщенных функций коллекций. Например, функция "min" (*Seq[]*), использует эту технику:
+
+<pre>
+def min[B >: A](implicit cmp: Ordering[B]): A = {
+  if (isEmpty)
+    throw new UnsupportedOperationException("empty.min")
+
+  reduceLeft((x, y) => if (cmp.lteq(x, y)) x else y)
+}
+</pre>
+
+Основными преимуществами этого являются:
+
+* Элементам коллекции не требуется реализовывать *Ordered*, хотя *Ordered* по-прежнему использует статическую проверку типов.
+* Вы можете определить свой собственный порядок сортировки без необходимости использовать дополнительную библиотеку:  
+
+<pre>
+scala> List(1,2,3,4).min
+res0: Int = 1
+
+scala> List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b compare a })
+res3: Int = 4
+</pre>
+
+Небольшое замечание, есть виды в стандартной библиотеке, которые переводят *Ordered* в *Ordering* (и наоборот).
+
+<pre>
+trait LowPriorityOrderingImplicits {
+  implicit def ordered[A <: Ordered[A]]: Ordering[A] = new Ordering[A] {
+    def compare(x: A, y: A) = x.compare(y)
+  }
+}
+</pre>
+
+h4. Ограничения контекста и implicitly[]
+
+В Scala 2.8 введена сокращенная для передачи и доступа с использованием неявных аргументов.
+
+<pre>
+scala> def foo[A](implicit x: Ordered[A]) {}
+foo: [A](implicit x: Ordered[A])Unit
+
+scala> def foo[A : Ordered] {}                        
+foo: [A](implicit evidence$1: Ordered[A])Unit
+</pre>
+
+Неявные значения могут быть доступны через *implicitly*
+
+<pre>
+scala> implicitly[Ordering[Int]]
+res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
+</pre>
+
+В совокупности это часто приводит к меньшему количеству кода, особенно при передаче с использованием видов.
+
+h3. Типы высшего порядка и специальный полиморфизм
+
+Scala может абстрагировать типы "высшего порядка". Это похоже на каррирование функции. Например, в то время как "унарные типы" имеют конструкторы вроде этого:
+
+<pre>
+List[A]
+</pre>
+
+То есть мы должны удовлетворять определенному "уровню" типовых переменных с целью получения конкретных типов (подобно тому, как uncurried функция должна применяться к только одному списку аргументов, при вызове), типам высшего порядка требуется больше:
+
+<pre>
+scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala> new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+res23: java.lang.Object with Container[List] = $anon$1@7c8e3f75
+
+scala> res23.put("hey")
+res24: List[java.lang.String] = List(hey)
+
+scala> res23.put(123)  
+res25: List[Int] = List(123)
+</pre>
+
+Заметьте, что *Container* является полиморфным в параметрическом типе ("тип контейнер").
+
+Если мы объединим использование конейнеров с неявными выражениями, мы получим "специальный" полиморфизм: возможность писать обобщенные контейнеры поверх контейнеров.
+
+<pre>
+scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala> implicit val listContainer = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+
+scala> implicit val optionContainer = new Container[Some] { def put[A](x: A) = Some(x); def get[A](m: Some[A]) = m.get }
+
+scala> def tupleize[M[_]: Container, A, B](fst: M[A], snd: M[B]) = {
+     | val c = implicitly[Container[M]]                             
+     | c.put(c.get(fst), c.get(snd))
+     | }
+tupleize: [M[_],A,B](fst: M[A],snd: M[B])(implicit evidence$1: Container[M])M[(A, B)]
+
+scala> tupleize(Some(1), Some(2))
+res33: Some[(Int, Int)] = Some((1,2))
+
+scala> tupleize(List(1), List(2))
+res34: List[(Int, Int)] = List((1,2))
+</pre>
+
+h3. F-ограниченный полиморфизм
+
+Часто, если необходим доступ к конкретному подклассу в (обобщенном) трейте. Напрмер, представьте себе некоторый трейт, который является обобщенным, но может быть сравним с конкретным подклассом данного трейта.
+
+<pre>
+trait Container extends Ordered[Container]
+</pre>
+
+Тем не менее, сейчас требуется сравнение
+
+<pre>
+def compare(that: Container): Int
+</pre>
+
+И поэтому мы не можем получить доступ к конкретному подтипу, например:
+
+<pre>
+class MyContainer extends Container {
+  def compare(that: MyContainer): Int
+}
+</pre>
+
+не скомпилируется, так как мы определяем Ordered для *Container*, а не конкретный подтип.
+
+Чтобы это согласовать, мы используем F-ограниченный полиморфизм.
+
+<pre>
+trait Container[A <: Container[A]] extends Ordered[A]
+</pre>
+
+Странный тип! Но заметьте, как Ordered параметризован с помощью *A*, который сам по себе является *Container[A]*
+
+Поэтому сейчас
+
+<pre>
+class MyContainer extends Container[MyContainer] { 
+  def compare(that: MyContainer) = 0 
+}
+</pre>
+
+Они сейчас упорядочены:
+
+<pre>
+scala> List(new MyContainer, new MyContainer, new MyContainer)
+res3: List[MyContainer] = List(MyContainer@30f02a6d, MyContainer@67717334, MyContainer@49428ffa)
+
+scala> List(new MyContainer, new MyContainer, new MyContainer).min
+res4: MyContainer = MyContainer@33dfeb30
+</pre>
+
+Учитывая, что все они являются подтипами *Container[_]*, мы можем определить другой подкласс и создать смешанный список *Container[_]*:
+
+<pre>
+scala> class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
+defined class YourContainer
+
+scala> List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)                   
+res2: List[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]] 
+  = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
+</pre>
+
+Обратите внимание, как результирующий тип в настоящее время ограничен снизу *YourContainer с MyContainer*. Это работа вывода типов. Интересно, что этому типу не требуется дополнительного смысла, он только обеспечивает логическую нижнюю границу для единого типа списка. Что произойдет, если мы попытаемся использовать *Ordered* сейчас?
+
+<pre>
+(new MyContainer, new MyContainer, new MyContainer, new YourContainer).min
+<console>:9: error: could not find implicit value for parameter cmp:
+  Ordering[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]]
+</pre>
+
+*Ordered[]* не существует для единого типа. Слишком плохо.
+
+h3. Структурные типы
+
+Scala имеет поддержку *структурных типов* -- необходимость типа выражается интерфейсом _structure_ вместо конкретного типа.
+
+<pre>
+scala> def foo(x: { def get: Int }) = 123 + x.get
+foo: (x: AnyRef{def get: Int})Int
+
+scala> foo(new { def get = 10 })                 
+res0: Int = 133
+</pre>
+
+Это может быть полезно во многих ситуациях, но реализация использует отражения, так что обращайте внимание на производительность.
+
+h3. Абстрактные типы членов
+
+В трейте, вы можете оставить тип членов абстрактным.
+
+<pre>
+scala> trait Foo { type A; val x: A; def getX: A = x }
+defined trait Foo
+
+scala> (new Foo { type A = Int; val x = 123 }).getX   
+res3: Int = 123
+
+scala> (new Foo { type A = String; val x = "hey" }).getX
+res4: java.lang.String = hey
+</pre>
+
+Это часто полезный трюк, когда делается внедрение зависимостей, например.
+
+Вы можете обратиться к абстрактному типу переменной, используя хеш-оператор:
+
+<pre>
+scala> trait Foo[M[_]] { type t[A] = M[A] }
+defined trait Foo
+
+scala> val x: Foo[List]#t[Int] = List(1)
+x: List[Int] = List(1)
+</pre>
+
+
+h3. Тип чисток и манифесты
+
+Как вы знаете, информация о типе теряется во время компиляции благодаря _erasure_. Одна из особенностей Scala - *Manifests*, позволяющая выборочно восстановить информацию о типе. Манифесты предоставляются в качестве неявного значения, генерируемый компилятором по мере необходимости.
+
+<pre>
+scala> class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
+
+scala> (new MakeFoo[String]).make 
+res10: String = 
+</pre>
+
+h3. Пример: Finagle
+
+Смотрите: https://github.com/twitter/finagle
+
+<pre>
+trait Service[-Req, +Rep] extends (Req => Future[Rep])
+
+trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
+  extends ((ReqIn, Service[ReqOut, RepIn]) => Future[RepOut])
+{
+  def andThen[Req2, Rep2](next: Filter[ReqOut, RepIn, Req2, Rep2]) =
+    new Filter[ReqIn, RepOut, Req2, Rep2] {
+      def apply(request: ReqIn, service: Service[Req2, Rep2]) = {
+        Filter.this.apply(request, new Service[ReqOut, RepIn] {
+          def apply(request: ReqOut): Future[RepIn] = next(request, service)
+          override def release() = service.release()
+          override def isAvailable = service.isAvailable
+        })
+      }
+    }
+    
+  def andThen(service: Service[ReqOut, RepIn]) = new Service[ReqIn, RepOut] {
+    private[this] val refcounted = new RefcountedService(service)
+
+    def apply(request: ReqIn) = Filter.this.apply(request, refcounted)
+    override def release() = refcounted.release()
+    override def isAvailable = refcounted.isAvailable
+  }    
+}
+</pre>
+
+Можно определить запросы с помощью filter.
+
+<pre>
+trait RequestWithCredentials extends Request {
+  def credentials: Credentials
+}
+
+class CredentialsFilter(credentialsParser: CredentialsParser)
+  extends Filter[Request, Response, RequestWithCredentials, Response]
+{
+  def apply(request: Request, service: Service[RequestWithCredentials, Response]): Future[Response] = {
+    val requestWithCredentials = new RequestWrapper with RequestWithCredentials {
+      val underlying = request
+      val credentials = credentialsParser(request) getOrElse NullCredentials
+    }
+
+    service(requestWithCredentials)
+  }
+}
+</pre>
+
+Обратите внимание, как основной сервис требует определения запроса, и что это проверяется статически. Фильтры можно рассматривать как преобразователи.
+
+Множество фильтров могут быть объединены вместе:
+
+<pre>
+val upFilter =
+  logTransaction     andThen
+  handleExceptions   andThen
+  extractCredentials andThen
+  homeUser           andThen
+  authenticate       andThen
+  route
+</pre>
+
+Пишите безовапсный код!
