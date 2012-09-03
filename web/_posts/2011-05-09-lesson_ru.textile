@@ -1,32 +1,32 @@
 ---
 permalink: specs.html
-title: Testing with specs
+title: Тестирование с помощью specs
 layout: post
-desc: Write tests with Specs, a BDD testing framework for Scala
+desc: Написание тестов с помощью Specs, Scala BDD фреймфорк для тестирования
 ---
 
-This lesson covers testing with Specs, a Behavior-Driven Design (BDD) Framework for Scala.
+В этом уроке вы узнаете о тестировании с помощью Specs, Scala фреймворк для Разработки, основанная на функционировании.
 
-* "extends Specification":#example
-** nested examples
-* "Execution Model":#scope
-* "Setup and TearDown":#setup
+* "расширяем Спецификацию":#example
+** вложенные примеры
+* "Модель Выполнения":#scope
+* "Установка и Распаковка":#setup
 ** doFirst
 ** doBefore
 ** doAfter
-* "Matchers":#matchers
+* "Конструкции сравнения":#matchers
 ** mustEqual
 ** contains
 ** sameSize?
-** Write your own
-* "Mocks":#mocks
-* "Spies":#spies
-* "run in sbt":#sbt
+** пишем свою конструкцию
+* "Подделки(Mocks)":#mocks
+* "Шпионы(Spies)":#spies
+* "Запуск в sbt":#sbt
 
 
-h2(#example). extends Specifcation
+h2(#example). Расширяем Спецификацию
 
-Let's just jump in.
+Давайте сразу посмотрим код.
 
 <pre>
 import org.specs._
@@ -43,19 +43,19 @@ object ArithmeticSpec extends Specification {
 }
 </pre>
 
-*Arithmetic* is the *System Under Specification*
+*Arithmetic* означает, что *System Under Specification*(Система имеет спецификацию)
 
-*add* is a context.
+*add* - это контекст.
 
-*add two numbers* and *add three numbers* are examples.
+*add two numbers* и *add three numbers* - это примеры.
 
-@mustEqual@ indicates an *expectation*
+@mustEqual@ отражает наше *ожидание*
 
-@1 mustEqual 1@ is a common placeholder *expectation* before you start writing real tests.  All examples should have at least one expectation.
+@1 mustEqual 1@ является общим заменителем *ожидания*, прежде чем мы начнем писать реальные тесты. Все примеры должны иметь по крайней мере одно ожидание.
 
-h3. Duplication
+h3. Повторяемость
 
-Notice how two tests both have @add@ in their name?  We can get rid of that by *nesting* expectations.
+Заметили, что оба теста содержат @add@ в своем имени? Мы избавиться от этого благодаря *вложенным* ожиданиям.
 
 <pre>
 import org.specs._
@@ -74,7 +74,7 @@ object ArithmeticSpec extends Specification {
 }
 </pre>
 
-h2(#scope). Execution Model
+h2(#scope). Модель выполнения
 
 <pre>
 object ExecSpec extends Specification {
@@ -91,24 +91,24 @@ object ExecSpec extends Specification {
 }
 </pre>
 
-h2(#setup). Setup, Teardown
+h2(#setup). Установка, Распаковка
 
-h3. doBefore & doAfter
+h3. doBefore и doAfter
 
 <pre>
 "my system" should {
-  doBefore { resetTheSystem() /** user-defined reset function */ }
+  doBefore { resetTheSystem() /** определенная пользователем функция сброса */ }
   "mess up the system" in {...}
   "and again" in {...}
   doAfter { cleanThingsUp() }
 }
 </pre>
 
-*NOTE* @doBefore@/@doAfter@ are only run on leaf examples.
+*ЗАМЕЧАНИЕ* @doBefore@/@doAfter@ будут работать только с черновыми примерами.
 
-h3. doFirst & doLast
+h3. doFirst и doLast
 
-@doFirst@/@doLast@ is for single-time setup. (need example, I don't use this)
+@doFirst@/@doLast@ предназначены во время установки (нужен пример, я не использую их)
 
 <pre>
 "Foo" should {
@@ -119,13 +119,13 @@ h3. doFirst & doLast
 }
 </pre>
 
-h2(#matchers). Matchers
+h2(#matchers). Конструкции сравнения
 
-You have data, you want to make sure it's right. Let's tour the most commonly used matchers. (See Also "Matchers Guide":http://code.google.com/p/specs/wiki/MatchersGuide)
+У вас есть данные, и вы хотите убедиться, что они верные. Давайте рассмотрим наиболее часто используемые конструкции сравнения. (Смотрите также "Matchers Guide":http://code.google.com/p/specs/wiki/MatchersGuide)
 
 h3. mustEqual
 
-We've seen several examples of mustEqual already.
+Вы уже видели несколько примеров с mustEqual.
 
 <pre>
 1 mustEqual 1
@@ -133,9 +133,9 @@ We've seen several examples of mustEqual already.
 "a" mustEqual "a"
 </pre>
 
-Reference equality, value equality.
+Равенство ссылок, равенство значений.
 
-h3. elements in a Sequence
+h3. элементы в Sequence
 
 <pre>
 val numbers = List(1, 2, 3)
@@ -150,7 +150,7 @@ List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4),
 </pre>
 
 
-h3. Items in a Map
+h3. Записи в Map
 
 <pre>
 map must haveKey(k)
@@ -160,7 +160,7 @@ map must haveValue(v)
 map must notHaveValue(v)
 </pre>
 
-h3. Numbers
+h3. Числа
 
 <pre>
 a must beGreaterThan(b)
@@ -173,7 +173,7 @@ a must beCloseTo(b, delta)
 </pre>
 
 
-h3. Options
+h3. Опции
 
 <pre>
 a must beNone
@@ -191,15 +191,15 @@ h3. throwA
 a must throwA[WhateverException]
 </pre>
 
-This is shorter than a try catch with a fail in the body.
+Записиь короче чем try catch с его попыткой выброса исключения в теле блока.
 
-You can also expect a specific message
+Вы можете выдать специальное сообщение
 
 <pre>
 a must throwA(WhateverException("message"))
 </pre>
 
-You can also match on the exception:
+Вы можете также поймать определенное исключение:
 
 <pre>
 a must throwA(new Exception) like {
@@ -208,13 +208,13 @@ a must throwA(new Exception) like {
 </pre>
 
 
-h3. Write your own Matchers
+h3. Пишем свои условные конструкции
 
 <pre>
 import org.specs.matcher.Matcher
 </pre>
 
-h4. As a val
+h4. Подобно val
 
 <pre>
 "A matcher" should {
@@ -229,9 +229,9 @@ h4. As a val
 }
 </pre>
 
-The contract is to return a tuple containing whether the expectation is true, and a message for when it is and isn't true.
+Контракт вернет кортеж, содержащий запись о том верно ожидание или нет, и сообщение когда оно верно или наоборот.
 
-h4. As a case class
+h4. Подобно case классу
 
 <pre>
 case class beEven(b: Int) extends Matcher[Int]() {
@@ -239,9 +239,9 @@ case class beEven(b: Int) extends Matcher[Int]() {
 }
 </pre>
 
-Using a case class makes it more shareable.
+Использования case класс вы делаете его менее специализированным.
 
-h2(#mocks). Mocks
+h2(#mocks). Подделки(Mocks)
 
 <pre>
 import org.specs.Specification
@@ -264,53 +264,53 @@ object MockExampleSpec extends Specification with Mockito {
 }
 </pre>
 
-*See Also* "Using Mockito":http://code.google.com/p/specs/wiki/UsingMockito
+*Смотрите также "Использование Mockito":http://code.google.com/p/specs/wiki/UsingMockito
 
-h2(#spies). Spies
+h2(#spies). Шпионы(Spies)
 
-Spies can also be used in order to do some "partial mocking" of real objects:
+Шпионы могут также быть использованы для того, чтобы сделать некоторую «частичную подделку" реальных объектов:
 
 <pre>
 val list = new LinkedList[String]
 val spiedList = spy(list)
 
-// methods can be stubbed on a spy
+// методы могут выдать ошибку при использовании шпиона
 spiedList.size returns 100
 
-// other methods can also be used
+// другие методы также могут быть использованы
 spiedList.add("one")
 spiedList.add("two")
 
-// and verification can happen on a spy
+// и проверка может происходить с помощью шпиона
 there was one(spiedList).add("one")
 </pre>
 
-However, working with spies can be tricky:
+Однако, работа со шпионами может быть сложной:
 
 <pre>
-// if the list is empty, this will throws an IndexOutOfBoundsException
+// если список пуст, то бросается исключение IndexOutOfBoundsException
 spiedList.get(0) returns "one"
 </pre>
 
-@doReturn@ must be used in that case:
+@doReturn@ должен быть исопльзован в этом случае:
 
 <pre>
 doReturn("one").when(spiedList).get(0)
 </pre>
 
 
-h2(#sbt). Run individual specs in sbt
+h2(#sbt). Запуск индивидальных спеков(тестов) в sbt
 
 
 <pre>
 > test-only com.twitter.yourservice.UserSpec
 </pre>
 
-Will run just that spec.
+Запустится только данный спек.
 
 
 <pre>
 > ~ test-only com.twitter.yourservice.UserSpec
 </pre>
 
-Will run that test in a loop, with each file modification triggering a test run.
+Будет запускаться тест в цикле, с каждой модификацией файла будет срабатывать триггер и будет запускаться тест.
