@@ -143,13 +143,9 @@ Combined, these often result in less code, especially when threading through vie
 
 h3. Higher-kinded types & ad-hoc polymorphism
 
-Scala can abstract over "higher kinded" types. This is analagous to function currying. For example, whereas "unary types" have constructors like this:
+Scala can abstract over "higher kinded" types. For example, suppose that you needed to use several types of containers for several types of data. You might define a <code>Container</code> interface that might be implemented by means of several container types: an <code>Option</code>, a <code>List</code>, etc. You want to define an interface for using values in these containers without nailing down the values' type.
 
-<pre>
-List[A]
-</pre>
-
-Meaning we have to satisfy one "level" of type variables in order to produce a concrete types (just like an uncurried function needs to be supplied by only one argument list to be invoked), a higher-kinded type needs more:
+This is analagous to function currying. For example, whereas "unary types" have constructors like <code>List[A]</code>, meaning we have to satisfy one "level" of type variables in order to produce a concrete types (just like an uncurried function needs to be supplied by only one argument list to be invoked), a higher-kinded type needs more.
 
 <pre>
 scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
@@ -160,7 +156,7 @@ res23: java.lang.Object with Container[List] = $anon$1@7c8e3f75
 scala> res23.put("hey")
 res24: List[java.lang.String] = List(hey)
 
-scala> res23.put(123)  
+scala> res23.put(123)
 res25: List[Int] = List(123)
 </pre>
 
@@ -212,7 +208,7 @@ class MyContainer extends Container {
 
 fails to compile, since we are specifying Ordered for *Container*, not the particular subtype.
 
-To reconcile this, we use F-bounded polymorphism.
+To reconcile this, we instead use F-bounded polymorphism.
 
 <pre>
 trait Container[A <: Container[A]] extends Ordered[A]
