@@ -236,53 +236,24 @@ scala> biophony(Seq(new Chicken, new Bird))
 res5: Seq[java.lang.String] = List(cluck, call)
 </pre>
 
-Lower type bounds are also supported. They go hand-in-hand with contravariance. Let's say we had some class Node:
+Lower type bounds are also supported; they come in handy with contravariance and clever covariance. <code>List[+T]</code> is covariant; a list of Birds is a list of Animals. <code>List</code> defines an operator <code>::(elem T)</code> that returns a new <code>List</code> with <code>elem</code> prepended. The new <code>List</code> has the same type as the original:
 
 <pre>
-scala> class Node[T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+scala> val flock = List(new Bird, new Bird)
+flock: List[Bird] = List(Bird@7e1ec70e, Bird@169ea8d2)
+
+scala> new Chicken :: flock
+res53: List[Bird] = List(Chicken@56fbda05, Bird@7e1ec70e, Bird@169ea8d2)
 </pre>
 
-But, we want to make it covariant in T:
+<code>List</code> _also_ defines <code>::[B >: T](x: B)</code> which returns a <code>List[B]</code>. Notice the <code>B >: T</code>. That specifies type <code>B</code> as a superclass of <code>T</code>. That lets us do the right thing when prepending an <code>Animal</code> to a <code>List[Bird]</code>:
 
 <pre>
-scala> class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
-<console>:6: error: covariant type T occurs in contravariant position in type T of value v
-       class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
-                                      ^
+scala> new Animal :: flock
+res59: List[Animal] = List(Animal@11f8d3a8, Bird@7e1ec70e, Bird@169ea8d2)
 </pre>
 
-Recall that method arguments are contravariant, and so if we perform our substitution trick, using the same classes as before:
-
-<pre>
-class Node[Bird](x: Bird) { def sub(v: Bird): Node[Bird] = new Node(v) }
-</pre>
-
-is *not* a subtype of
-
-<pre>
-class Node[Animal](x: Animal) { def sub(v: Animal): Node[Animal] = new Node(v) }
-</pre>
-
-because Animal cannot be substituted for Bird in the argument of "sub". However, we can use lower bounding to enforce correctness.
-
-<pre>
-scala> class Node[+T](x: T) { def sub[U >: T](v: U): Node[U] = new Node(v) }
-defined class Node
-
-scala> (new Node(new Bird)).sub(new Bird)
-res5: Node[Bird] = Node@4efade06
-
-scala> ((new Node(new Bird)).sub(new Bird)).sub(new Animal)
-res6: Node[Animal] = Node@1b2b2f7f
-
-scala> ((new Node(new Bird)).sub(new Bird)).asInstanceOf[Node[Chicken]]
-res7: Node[Chicken] = Node@6924181b
-
-scala> (((new Node(new Bird)).sub(new Bird)).sub(new Animal)).sub(new Chicken)
-res8: Node[Animal] = Node@3088890d
-</pre>
-
-Note also how the type changes with subsequent calls to "sub".
+Note that the return type is <code>Animal</code>.
 
 h2(#quantification). Quantification
 
