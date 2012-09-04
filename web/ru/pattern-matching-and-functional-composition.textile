@@ -1,0 +1,147 @@
+---
+prev: collections.textile
+next: type-basics.textile
+title: Сопоставление с образцом и функкциональная композиция
+layout: post
+---
+
+В этом уроке вы узнаете:
+
+* "Объединение функций":#composition
+** compose
+** andThen
+* "Каррирование и Частичный вызов функций":#curryvspartial
+* "PartialFunction":#PartialFunction
+** range и domain
+** композиция с помощью orElse
+* "Что же такое case утверждения?":#case
+
+h2(#composition). Объединение функций
+
+Давайте создадим две полезные функции:
+
+<pre>
+scala> def addUmm(x: String) = x + " umm"
+addUmm: (x: String)String
+
+scala>  def addAhem(x: String) = x + " ahem"
+addAhem: (x: String)String
+</pre>
+
+h3. compose
+
+<code>compose</code> создает новую функцию, которая является объединением других функций <code>f(g(x))</code>
+
+<pre>
+scala> val ummThenAhem = addAhem _ compose addUmm _
+ummThenAhem: (String) => String = <function1>
+
+scala> ummThenAhem("well")
+res0: String = well umm ahem
+</pre>
+
+h3. andThen
+
+<code>andThen</code> похожа на  <code>compose</code>, но сначала вызывается первая функция, затем вторая <code>g(f(x))</code>
+
+<pre>
+scala> val ahemThenUmm = addAhem _ andThen addUmm _
+ahemThenUmm: (String) => String = <function1>
+
+scala> ahemThenUmm("well")
+res1: String = well ahem umm
+</pre>
+
+h2(#curryvspartial). Каррирование и Частичный вызов функций
+
+h3. case утверждения
+
+h4. Что же такое case утверждения?
+
+Это подкласс функций, который называется PartialFunction.
+
+h4. Что представляет собой сов��купность множества case утверждений?
+
+Это множество объединений PartialFunctions вместе.
+
+h2(#PartialFunction). Понимание PartialFunction
+
+Функция работает для каждого аргумента определенного типа. Другими словами, функция объявляется как (Int) => String, принимающая любой Int и возвращающая строку.
+
+Частичная функция определена только для определенных значений определенного типа. Частичные функции (Int) => String не может принимать любой Int.
+
+<code>isDefinedAt</code> это метод PartialFunction, который может использоваться, чтобы определить, будет ли PartialFunction принимать данный аргумент.
+
+__Заметьте__ <code>PartialFunction</code> не связана с частично вызываемыми функциями, о которых мы говорили ранее.
+
+*Смотрите также:* В Effective Scala описывается <a href="http://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Частичные функции">PartialFunction</a>.
+
+<pre>
+scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
+one: PartialFunction[Int,String] = <function1>
+
+scala> one.isDefinedAt(1)
+res0: Boolean = true
+
+scala> one.isDefinedAt(2)
+res1: Boolean = false
+</pre>
+
+Вы можете использовать частичную функцию.
+
+<pre>
+scala> one(1)
+res2: String = one
+</pre>
+
+PartialFunctions может быть объединена с чем-то новым, называемым OrElse, который показывает, определен ли PartialFunction с передаваемым аргументом.
+
+<pre>
+scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
+two: PartialFunction[Int,String] = <function1>
+
+scala> val three: PartialFunction[Int, String] = { case 3 => "three" }
+three: PartialFunction[Int,String] = <function1>
+
+scala> val wildcard: PartialFunction[Int, String] = { case _ => "something else" }
+wildcard: PartialFunction[Int,String] = <function1>
+
+scala> one orElse two orElse three orElse wildcard
+res23: PartialFunction[Int,String] = <function1>
+
+scala> res23(5)
+res24: String = something else
+
+scala> res23(3)
+res25: String = three
+
+scala> res23(2)
+res26: String = two
+
+scala> res23(1)
+res27: String = one
+
+scala> res23(0)
+res28: String = something else
+</pre>
+
+h3(#case). Тайна о case.
+
+На прошлой неделе мы увидели нечто любопытное. Мы видели case утверждение там, где обычно использовалась функция.
+
+<pre>
+scala> case class PhoneExt(name: String, ext: Int)
+defined class PhoneExt
+
+scala> val extensions = List(PhoneExt("steve", 100), PhoneExt("robey", 200))
+extensions: List[PhoneExt] = List(PhoneExt(steve,100), PhoneExt(robey,200))
+
+scala> extensions.filter { case PhoneExt(name, extension) => extension < 200 }
+res0: List[PhoneExt] = List(PhoneExt(steve,100))
+</pre>
+
+Почему это работает?
+
+filter принимает функцию. В этом случае используется функция-предикат (PhoneExt) => Boolean.
+
+PartialFunction - это подтип Function, поэтому filter может принимать PartialFunction в качестве аргумента!

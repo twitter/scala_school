@@ -1,0 +1,320 @@
+---
+prev: basics.textile
+next: collections.textile
+title: Основы языка. Продолжение
+layout: post
+---
+
+В этом уроке вы узнаете:
+* "Метод apply":#apply
+* "Объекты":#object
+* "Функции, тоже являются Объектами":#fnobj
+* "Пакеты":#package
+* "Сопоставление с образцом":#match
+* "Case классы":#caseclass
+* "try-catch-finally":#exception
+
+h2(#apply). Метод apply
+
+Метод apply - это синтаксический сахар, который применяется для класса или объекта с единственной целью.
+
+<pre>
+object FooMaker {
+  def apply() = new Foo
+}
+
+scala> class Bar {
+     |   def apply() = 0
+     | }
+defined class Bar
+
+scala> val bar = new Bar
+bar: Bar = Bar@47711479
+
+scala> bar()
+res8: Int = 0
+</pre>
+
+Здесь наш экземпляр объекта выглядит так, будто мы просто вызываем метод, но это не так. Подробнее об этом позже!
+
+h2(#object). Объекты
+
+Объекты используются для хранения одного экземпляра класса. Чаще всего они используются с фабриками объектов.
+
+<pre>
+object Timer {
+  var count = 0
+
+  def currentCount(): Long = {
+    count += 1
+    count
+  }
+}
+</pre>
+
+Как можно это использовать?
+
+<pre>
+scala> Timer.currentCount()
+res0: Long = 1
+</pre>
+
+Классы и Объекты могут иметь похожие имена. В этом случае Объект называется 'Объект-спутник'(Companion Object).  Чаще всего мы будем использовать ОБъекты-спутники с Фабриками объектов.
+
+Далее пре��ставлен простой пример, который показывает, как можно использовать Объект-спутник, для того чтобы исключить необходимость в использовании ключевого слова 'new' для создания экземпляра объекта.
+
+<pre>
+class Bar(foo: String)
+
+object Bar {
+  def apply(foo: String) = new Bar(foo)
+}
+</pre>
+
+
+h2(#fnobj). Функции, тоже являются Объектами
+
+В Scala, мы часто говорим об объектно-функциональном стиле. Что это значит? Чем на самом деле является Функция?
+
+Функция - это набор трейтов. В частности, функция, которая принимает один аргумент является экземпляром трейта Function1. Этот трейт определяет метод <code>apply()</code>, который является синтаксическим сахаром, о нем мы узнали ранее, он позволяет вам вызывать объект, словно он является функцией.
+
+<pre>
+scala> object addOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined module addOne
+
+scala> addOne(1)
+res2: Int = 2
+</pre>
+
+Существует функция с 22 аргументами.  Почему с 22? Это произвольное магическое число. Я никогда не нуждался в функции с более чем 22 аргументами.
+
+Синтаксический сахар метода apply объединяет двойственность объектного и функционального стилей программирования. Вы можете передавать классы и использовать их в качестве функций, кроме этого функции могут быть просто экземплярами классов.
+
+Означает ли это, что каждый раз, когда вы определяете метод в своем классе, вы фактически получаете экземпляр Function*? Нет, методы в классах - это просто методы. Методы-одиночки, определенные в REPL будут экземплярами Function*.
+
+Классы могут расширять Function* и в этих случаях они могут быть вызваны при помощи ().
+
+<pre>
+scala> class AddOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined class AddOne
+
+scala> val plusOne = new AddOne()
+plusOne: AddOne = <function1>
+
+scala> plusOne(1)
+res0: Int = 2
+</pre>
+
+Запись <code>extends Function1[Int, Int]</code> мы можем переписать, используя <code>extends (Int => Int)</code>
+
+<pre>
+class AddOne extends (Int => Int) {
+  def apply(m: Int): Int = m + 1
+}
+</pre>
+
+h2(#package). Пакеты
+
+Вы можете организовывать ваш код, используя пакеты.
+
+<pre>
+package com.twitter.example
+</pre>
+
+В верхней части файла объявляется все, что будет в этом пакете.
+
+Значения и функции не могут быть объявлены за пределами класса или объекта. Объекты представляют собой полезный инструмент для организации статических функций.
+
+<pre>
+package com.twitter.example
+
+object colorHolder {
+  val BLUE = "Blue"
+  val RED = "Red"
+}
+</pre>
+
+После этого у вас есть доступ к членам пакета напрямую
+
+<pre>
+println("the color is: " + com.twitter.example.colorHolder.BLUE)
+</pre>
+
+Обратите внимание, что Scala REPL говорит вам когда вы объявляе��е объект:
+
+<pre>
+scala> object colorHolder {
+     |   val Blue = "Blue"
+     |   val Red = "Red"
+     | }
+defined module colorHolder
+</pre>
+
+Это дает вам небольшую подсказку, которую разработчики Scala используют для проектирования объектов, которые станут частью модульной системы Scala.
+
+h2(#match). Сопоставление с образцом
+
+Одна из самых часто используемых возможностей Scala.
+
+Сопоставление значений
+
+<pre>
+val times = 1
+
+times match {
+  case 1 => "one"
+  case 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+Сопоставление с использованием условий
+
+<pre>
+times match {
+  case i if i == 1 => "one"
+  case i if i == 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+Заметьте, как мы пытаемся поймать значение переменной 'i'.
+
+Используемый знак <code>_</code> в последнем утверждении - это спецсимвол, он
+гарантирует, что мы сможем отловить любое значение. В противном случае вы можете получить
+ошибку времени выполнения, если вы попадаете в утверждение, которого не существует. Мы обсудим
+это чуть позже.
+
+*Смотрите также:* В Effective Scala описывеатся <a href="http://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Сопоставление с образцом">когда использовать соспоставление с образцом </a> и <a href="http://twitter.github.com/effectivescala/index-ru.html#Форматирование-Сравнение с образцом">правила форматирования сос��оставления с образцом</a>. В "Туре по Scala" также описывается <a href="http://www.scala-lang.org/node/120">Сопоставление с образцом</a>
+
+h3. Сопоставление типов
+
+Вы можете использовать <code>match</code>, чтобы управлять значениями типов различными способами.
+
+<pre>
+def bigger(o: Any): Any = {
+  o match {
+    case i: Int if i < 0 => i - 1
+    case i: Int => i + 1
+    case d: Double if d < 0.0 => d - 0.1
+    case d: Double => d + 0.1
+    case text: String => text + "s"
+  }
+}
+</pre>
+
+h3. Сопоставление методов класса
+
+Вспомните про наш калькулятор, который мы рассматривали ранее.
+
+Давайте проведем классификацию по типам.
+
+<pre>
+def calcType(calc: Calculator) = calc match {
+  case calc.brand == "hp" && calc.model == "20B" => "financial"
+  case calc.brand == "hp" && calc.model == "48G" => "scientific"
+  case calc.brand == "hp" && calc.model == "30B" => "business"
+  case _ => "unknown"
+}
+</pre>
+
+Ничего себе, как-то все слишком сложно. К счастью, Scala предоставляет некоторые полезные инструменты специально для этого случая.
+
+h2(#caseclass). Case Классы
+
+Case классы используются для удобного хранения и поиска соответствий по содержимому класса. Вы можете создавать их без использования 'new'.
+
+<pre>
+scala> case class Calculator(brand: String, model: String)
+defined class Calculator
+
+scala> val hp20b = Calculator("hp", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+</pre>
+
+У case классов есть метод ToString, работающий автоматически, и который опирается на аргументы конструктора.
+
+<pre>
+scala> val hp20b = Calculator("hp", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+scala> val hp20B = Calculator("hp", "20b")
+hp20B: Calculator = Calculator(hp,20b)
+
+scala> hp20b == hp20B
+res6: Boolean = true
+</pre>
+
+case классы могут иметь методы, как и обычные классы.
+
+h6. Case Классы и сопоставление с образцом
+
+case классы предназначены для использования вместе с сопоставлением с образцом. Давайте упростим наш классификатор из примера с калькулятором.
+
+<pre>
+val hp20b = Calculator("hp", "20B")
+val hp30b = Calculator("hp", "30B")
+
+def calcType(calc: Calculator) = calc match {
+  case Calculator("hp", "20B") => "financial"
+  case Calculator("hp", "48G") => "scientific"
+  case Calculator("hp", "30B") => "business"
+  case Calculator(ourBrand, ourModel) => "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
+}
+</pre>
+
+А это другой способ для последнего сопоставления
+
+<pre>
+  case Calculator(_, _) => "Calculator of unknown type"
+</pre>
+
+мы можем не объявлять, что это Calculator совсем.
+
+<pre>
+  case _ => "Calculator of unknown type"
+</pre>
+
+Или мы можем связать найденное значение с другим именем
+
+<pre>
+  case c@Calculator(_, _) => "Calculator: %s of unknown type".format(c)
+</pre>
+
+h2(#exception). Исключения
+
+Исключения доступны в Scala при использовании синтаксиса try-catch-finally, который исопользует сопоставление с образцом.
+
+<pre>
+try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+<code>try</code> то��е ориентирован на выражения
+
+<pre>
+val result: Int = try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => {
+    log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+    0
+  }
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+Этот код не является примером прекрасного стиля программирования, а просто пример того, как try-catch-finally вычисляет выражения, подобно всему остальному в Scala.
+
+Finally будет вызван после того, как исключение будет обработано.

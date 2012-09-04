@@ -1,0 +1,617 @@
+---
+prev: advanced-types.textile
+next: coll2.textile
+title: Simple Build Tool
+layout: post
+---
+
+В этом уроке вы узнаете о SBT! Отдельные разделы включают:
+* создание sbt проекта
+* основные комманды
+* sbt консоль
+* продолжительное выполнение команд
+* настройка вашего проекта
+* настройка команд
+* краткий курс по исходникам sbt (если будет время)
+
+h2. Немного о SBT
+
+SBT - это современный инструмент для сборки приложений. Хотя он написан на Scala и предоставляет множество удобных возможностей Scala, но он может использоваться и как инструмент для сборки общего назначения.
+
+h2. Почему именно SBT?
+
+* Достойные средства управления зависимостями
+** Ivy для управления зависимостями
+** Модель Only-update-on-request
+* Полная поддержка языка Scala для создания задач
+* Продолжительное выполнение комманд
+* Запуск REPL в контексте проекта
+
+h2. Давайте начнем
+
+* Загрузите jar-файл :http://code.google.com/p/simple-build-tool/downloads/list
+* Создайте sbt шелл-скрипт, который вызывает jar, например
+
+<pre>
+java -Xmx512M -jar sbt-launch.jar "$@"
+</pre>
+
+* уедитесь, что скрипт является исполняемым и находится в указанном вами пути
+* запустите sbt, чтобы создать ваш проект
+
+<pre>
+[local ~/projects]$ sbt
+Project does not exist, create new project? (y/N/s) y
+Name: sample
+Organization: com.twitter
+Version [1.0]: 1.0-SNAPSHOT
+Scala version [2.7.7]: 2.8.1
+sbt version [0.7.4]:      
+Getting Scala 2.7.7 ...
+:: retrieving :: org.scala-tools.sbt#boot-scala
+	confs: [default]
+	2 artifacts copied, 0 already retrieved (9911kB/221ms)
+Getting org.scala-tools.sbt sbt_2.7.7 0.7.4 ...
+:: retrieving :: org.scala-tools.sbt#boot-app
+	confs: [default]
+	15 artifacts copied, 0 already retrieved (4096kB/167ms)
+[success] Successfully initialized directory structure.
+Getting Scala 2.8.1 ...
+:: retrieving :: org.scala-tools.sbt#boot-scala
+	confs: [default]
+	2 artifacts copied, 0 already retrieved (15118kB/386ms)
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
+> 
+</pre>
+
+Заметьте, что это хорошая практика начинать работу со SNAPSHOT версией вашего проекта.
+
+h2. Структура проекта
+
+* project - файлы проекта
+** project/build/<yourproject>.scala - основной файл проекта
+** project/build.properties - настройки проекта, sbt и scala версии
+* src/main - код вашего приложения находится здесь, во вложенной директории, которая носит название по имени используемого языка (например, src/main/scala, src/main/java)
+* src/main/resources - набор статических файлов, которые вы хотите добавить к вашему jar-файлу
+  (например, конфигурация логгирования)
+* src/test - также как src/main, но  только для тестов
+* lib_managed - jar файлы от которых зависит ваш проект. Обычно здесь находятся различные обновления sbt
+* target - содержит сгенерированные объекты (например, сгенерированный thrift
+ код, файлы классов, jar файлы)
+
+h2. Добавление кода
+
+Мы будем создавать простой парсер JSON для простых твитов. Добавьте 
+следующий код в
+src/main/scala/com/twitter/sample/SimpleParser.scala
+
+<pre>
+package com.twitter.sample
+
+case class SimpleParsed(id: Long, text: String)
+
+class SimpleParser {
+
+  val tweetRegex = "\"id\":(.*),\"text\":\"(.*)\"".r
+
+  def parse(str: String) = {
+    tweetRegex.findFirstMatchIn(str) match {
+      case Some(m) => {
+        val id = str.substring(m.start(1), m.end(1)).toInt
+        val text = str.substring(m.start(2), m.end(2))
+        Some(SimpleParsed(id, text))
+      }
+      case _ => None
+    }
+  }
+}
+</pre>
+
+Этот код уродлив и содержит много ошибок, но должен скомпилироваться.
+
+h2. Тестирование в Консоли
+
+SBT может использоваться как скрипт командной строки или как консоль для сборки. Мы будем использовать его в основном как консоль для сборки, но большинство комманд могут быть использованы в качестве аргументов при передаче их в SBT, например
+
+<pre>
+sbt test
+</pre>
+Заметьте, что если команда принимает аргументы, то вы должны заключить в кавычки внутренний путь аргумента, например
+<pre>
+sbt 'test-only com.twitter.sample.SampleSpec'
+</pre>
+
+Это странный способ.
+
+В любом случае, начните работу с вашим кодом, запустив sbt
+
+<pre>
+[local ~/projects/sbt-sample]$ sbt
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
+> 
+</pre>
+
+SBT позволяет вам запустить Scala REPL со всеми вашими зависимостями. 
+Перед запуском консоли, сначала компилируется исходный код вашего проекта,
+предоставляя нам быстрый способ прогнать тест нашего парсера.
+
+<pre>
+> console
+[info] 
+[info] == compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling main sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 3 classes.
+[info] == compile ==
+[info] 
+[info] == copy-test-resources ==
+[info] == copy-test-resources ==
+[info] 
+[info] == test-compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling test sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 0 classes.
+[info] == test-compile ==
+[info] 
+[info] == copy-resources ==
+[info] == copy-resources ==
+[info] 
+[info] == console ==
+[info] Starting scala interpreter...
+[info] 
+Welcome to Scala version 2.8.1.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_22).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> 
+</pre>
+
+Наш код скомпилировался, и мы попадаем в обычный Scala REPL. Мы создадим новый парсер, тестовый твит, и убедимся, что все "работает"
+
+<pre>
+scala> import com.twitter.sample._            
+import com.twitter.sample._
+
+scala> val tweet = """{"id":1,"text":"foo"}"""
+tweet: java.lang.String = {"id":1,"text":"foo"}
+
+scala> val parser = new SimpleParser          
+parser: com.twitter.sample.SimpleParser = com.twitter.sample.SimpleParser@71060c3e
+
+scala> parser.parse(tweet)                    
+res0: Option[com.twitter.sample.SimpleParsed] = Some(SimpleParsed(1,"foo"}))
+
+scala> 
+</pre>
+
+h2. Добавление зависимостей
+
+Наш простой парсер работает с небольшим набором входных данных, но мы хотим добавить тесты и "разрушить" программу. Первым шагом будет добавление специальной библиотеки тестов и настоящий JSON парсер в наш проект. Чтобы сделать это, нам нужно выйти за рамки стандартного SBT проекта и создать свой.
+
+SBT считает Scala файлы в директории project/build, как файлы описания проекта. Добавьте следующее в файл project/build/SampleProject.scala
+
+<pre>
+import sbt._
+
+class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
+  val jackson = "org.codehaus.jackson" % "jackson-core-asl" % "1.6.1"
+  val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
+}
+</pre> 
+
+Описание проекта - это SBT класс. В нашем случае, мы расширяем стандартный DefaultProject SBT.
+
+Вы о��ъявляете зависимости с помощью val. SBT использует отражение, чтобы найти все val зависимости в вашем проекте и построить дерево зависимостей во время сборки. Синтаксис может показаться новым, но он эквивалентен тому, что используется в Maven
+
+<pre>
+<dependency>
+  <groupId>org.codehaus.jackson</groupId>
+  <artifactId>jackson-core-asl</artifactId>
+  <version>1.6.1</version>
+</dependency>
+<dependency>
+  <groupId>org.scala-tools.testing</groupId>
+  <artifactId>specs_2.8.0</artifactId>
+  <version>1.6.5</version>
+  <scope>test</scope>
+</dependency>
+</pre>
+
+Теперь мы можем получить все зависимости вашего проекта. В командной строке (не в sbt консоли), наберите sbt update
+
+<pre>
+[local ~/projects/sbt-sample]$ sbt update
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using SampleProject with sbt 0.7.4 and Scala 2.7.7
+[info] 
+[info] == update ==
+[info] :: retrieving :: com.twitter#sample_2.8.1 [sync]
+[info] 	confs: [compile, runtime, test, provided, system, optional, sources, javadoc]
+[info] 	1 artifacts copied, 0 already retrieved (2785kB/71ms)
+[info] == update ==
+[success] Successful.
+[info] 
+[info] Total time: 1 s, completed Nov 24, 2010 8:47:26 AM
+[info] 
+[info] Total session time: 2 s, completed Nov 24, 2010 8:47:26 AM
+[success] Build completed successfully.
+</pre>
+
+Вы увидете, что sbt загрузит все необходимые библиотеки. Теперь у вас появилась директория lib_managed, а lib_managed/scala_2.8.1/test будет содержать specs_2.8.0-1.6.5.jar
+
+h2. Добавление тестов
+
+Теперь, когда была добавлена тестовая библиотека, добавьте следующий код в
+src/test/scala/com/twitter/sample/SimpleParserSpec.scala
+
+<pre>
+package com.twitter.sample
+
+import org.specs._
+
+object SimpleParserSpec extends Specification {
+  "SimpleParser" should {
+    val parser = new SimpleParser()
+    "work with basic tweet" in {
+      val tweet = """{"id":1,"text":"foo"}"""
+      parser.parse(tweet) match {
+        case Some(parsed) => {
+          parsed.text must be_==("foo")
+          parsed.id must be_==(1)
+        }
+        case _ => fail("didn't parse tweet")
+      }
+    }
+  }
+}
+</pre>
+
+Запустите тест, набрав в sbt консоли 
+
+<pre>
+> test
+[info] 
+[info] == compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling main sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 3 classes.
+[info] == compile ==
+[info] 
+[info] == test-compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling test sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 10 classes.
+[info] == test-compile ==
+[info] 
+[info] == copy-test-resources ==
+[info] == copy-test-resources ==
+[info] 
+[info] == copy-resources ==
+[info] == copy-resources ==
+[info] 
+[info] == test-start ==
+[info] == test-start ==
+[info] 
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] SimpleParserSpec
+[info] SimpleParser should
+[info]   + work with basic tweet
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] 
+[info] == test-complete ==
+[info] == test-complete ==
+[info] 
+[info] == test-finish ==
+[info] Passed: : Total 1, Failed 0, Errors 0, Passed 1, Skipped 0
+[info]  
+[info] All tests PASSED.
+[info] == test-finish ==
+[info] 
+[info] == test-cleanup ==
+[info] == test-cleanup ==
+[info] 
+[info] == test ==
+[info] == test ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 8:54:45 AM
+> 
+</pre>
+
+Наш тест работает! Теперь можем добавить еще кода. Одной из прекрасных вещей SBT является возможностть запускать условые действия. До запуска какого-то действия, стартует цикл, который запускает событие, как только происходит изменение в исходниках. Давайте запустим ~test и посмотрим, что произойдет.
+
+<pre>
+[info] == test ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 8:55:50 AM
+1. Waiting for source changes... (press enter to interrupt)
+</pre>
+
+Теперь давайте добавим следующий набор тестов
+
+<pre>
+    "reject a non-JSON tweet" in {
+      val tweet = """"id":1,"text":"foo""""
+      parser.parse(tweet) match {
+        case Some(parsed) => fail("didn't reject a non-JSON tweet")
+        case e => e must be_==(None)
+      }
+    }
+
+    "ignore nested content" in {
+      val tweet = """{"id":1,"text":"foo","nested":{"id":2}}"""
+      parser.parse(tweet) match {
+        case Some(parsed) => {
+          parsed.text must be_==("foo")
+          parsed.id must be_==(1)
+        }
+        case _ => fail("didn't parse tweet")
+      }
+    }
+
+    "fail on partial content" in {
+      val tweet = """{"id":1}"""
+      parser.parse(tweet) match {
+        case Some(parsed) => fail("didn't reject a partial tweet")
+        case e => e must be_==(None)
+      }
+    }
+</pre>
+
+После того как мы сохраним наш файл, SBT определит наши изменения, запустит тесты и проинформирует нас, если парсер работает некорректно
+
+<pre>
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] SimpleParserSpec
+[info] SimpleParser should
+[info]   + work with basic tweet
+[info]   x reject a non-JSON tweet
+[info]     didn't reject a non-JSON tweet (Specification.scala:43)
+[info]   x ignore nested content
+[info]     'foo","nested":{"id' is not equal to 'foo' (SimpleParserSpec.scala:31)
+[info]   + fail on partial content
+</pre>
+
+Теперь дав��йте перепишем наш JSON парсер, чтобы он больше соответсвовал действительности
+
+<pre>
+package com.twitter.sample
+
+import org.codehaus.jackson._
+import org.codehaus.jackson.JsonToken._
+
+case class SimpleParsed(id: Long, text: String)
+
+class SimpleParser {
+
+  val parserFactory = new JsonFactory()
+
+  def parse(str: String) = {
+    val parser = parserFactory.createJsonParser(str)
+    if (parser.nextToken() == START_OBJECT) {
+      var token = parser.nextToken()
+      var textOpt:Option[String] = None
+      var idOpt:Option[Long] = None
+      while(token != null) {
+        if (token == FIELD_NAME) {
+          parser.getCurrentName() match {
+            case "text" => {
+              parser.nextToken()
+              textOpt = Some(parser.getText())
+            }
+            case "id" => {
+              parser.nextToken()
+              idOpt = Some(parser.getLongValue())
+            }
+            case _ => // noop
+          }
+        }
+        token = parser.nextToken()
+      }
+      if (textOpt.isDefined && idOpt.isDefined) {
+        Some(SimpleParsed(idOpt.get, textOpt.get))
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+  }
+}
+</pre>
+
+Получили простой JSON парсер. Когда мы сохраним изменения, SBT перекомпилирует наш код и запустит наши тесты. Получилось намного лучше!
+
+<pre>
+info] SimpleParser should
+[info]   + work with basic tweet
+[info]   + reject a non-JSON tweet
+[info]   x ignore nested content
+[info]     '2' is not equal to '1' (SimpleParserSpec.scala:32)
+[info]   + fail on partial content
+[info] == com.twitter.sample.SimpleParserSpec ==
+</pre>
+
+Нам нужно проверить наши вложенные объекты. Давайте добавим немного ужасных 
+условий в наш цикл чтения.
+
+<pre>
+  def parse(str: String) = {
+    val parser = parserFactory.createJsonParser(str)
+    var nested = 0
+    if (parser.nextToken() == START_OBJECT) {
+      var token = parser.nextToken()
+      var textOpt:Option[String] = None
+      var idOpt:Option[Long] = None
+      while(token != null) {
+        if (token == FIELD_NAME && nested == 0) {
+          parser.getCurrentName() match {
+            case "text" => {
+              parser.nextToken()
+              textOpt = Some(parser.getText())
+            }
+            case "id" => {
+              parser.nextToken()
+              idOpt = Some(parser.getLongValue())
+            }
+            case _ => // noop
+          }
+        } else if (token == START_OBJECT) {
+          nested += 1
+        } else if (token == END_OBJECT) {
+          nested -= 1
+        }
+        token = parser.nextToken()
+      }
+      if (textOpt.isDefined && idOpt.isDefined) {
+        Some(SimpleParsed(idOpt.get, textOpt.get))
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+  }
+</pre>
+
+И... все работает!
+
+h2. Создание пакетов и публи��ация
+
+С этого момента мы можем запустить команду создания пакета, чтобы сгенерировать jar файл. Тем не менее, нам может быть захочется поделиться нашим jar файлом с другими командами. Делать это мы будем с помощью StandardProject, который дает нам большое преимущество.
+
+Первым шагом будет включение StandardProject как SBT плагина. Плагины - это способ добавить зависимость в вашу сборку, а не в проект. Эти зависимости располагаются в project/plugins/Plugins.scala. Добавьте следующие строки в файл Plugins.scala.
+
+<pre>
+import sbt._
+
+class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
+  val twitterMaven = "twitter.com" at "http://maven.twttr.com/"
+  val defaultProject = "com.twitter" % "standard-project" % "0.7.14"
+}
+</pre>
+
+Заметьте, что мы определяем специальный maven репозиторий, также как и зависимости. Это происходит потому, что стандартная библиотека проекта не является стандартным sbt репозиторием. 
+
+Мы также обновим наше описание проекта, расширив StandardProject, включая ветку в SVN, и определим репозиторий для публикации. Измените  SampleProject.scala на следующее
+
+<pre>
+import sbt._
+import com.twitter.sbt._
+
+class SampleProject(info: ProjectInfo) extends StandardProject(info) with SubversionPublisher {
+  val jackson = "org.codehaus.jackson" % "jackson-core-asl" % "1.6.1"
+  val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
+
+  override def subversionRepository = Some("http://svn.local.twitter.com/maven/")
+}
+</pre>
+
+Теперь, если мы попробуем опубликовать сборку мы получим сдедующее
+
+<pre>
+[info] == deliver ==
+IvySvn Build-Version: null
+IvySvn Build-DateTime: null
+[info] :: delivering :: com.twitter#sample;1.0-SNAPSHOT :: 1.0-SNAPSHOT :: release :: Wed Nov 24 10:26:45 PST 2010
+[info] 	delivering ivy file to /Users/mmcbride/projects/sbt-sample/target/ivy-1.0-SNAPSHOT.xml
+[info] == deliver ==
+[info] 
+[info] == make-pom ==
+[info] Wrote /Users/mmcbride/projects/sbt-sample/target/sample-1.0-SNAPSHOT.pom
+[info] == make-pom ==
+[info] 
+[info] == publish ==
+[info] :: publishing :: com.twitter#sample
+[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
+[info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
+[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
+[info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
+[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
+[info] 	published ivy to com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
+[info] Binary diff deleting com/twitter/sample/1.0-SNAPSHOT
+[info] Commit finished r977 by 'mmcbride' at Wed Nov 24 10:26:47 PST 2010
+[info] Copying from com/twitter/sample/.upload to com/twitter/sample/1.0-SNAPSHOT
+[info] Binary diff finished : r978 by 'mmcbride' at Wed Nov 24 10:26:47 PST 2010
+[info] == publish ==
+[success] Successful.
+[info] 
+[info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
+</pre>
+
+и (спустя некоторое время), если мы зайдем на binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ , то увидем наш опубликованный jar файл.
+
+h2. Добавление задач
+
+Задачи - это Scala функции. Простейший способ добавить задачу, нужно влючить val в ваше описание проекта, используя метод task, например
+
+<pre>
+lazy val print = task {log.info("a test action"); None}
+</pre>
+
+Если вам нужны зависимости и описание, то их вы можете добавить так
+
+<pre>
+lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
+</pre>
+
+Если мы перезагрузим наш проект и наберем команду print мы увидим следующее
+
+<pre>
+> print
+[info] 
+[info] == print ==
+[info] a test action
+[info] == print ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 11:05:12 AM
+> 
+</pre>
+
+Итак, все работает. Если объявляете задачу в одном проекте, то все работает прекрасно. Но если вы определяете задачу как плагин, то это будет непрактично. Я хочу, чтобы было так
+
+<pre>
+lazy val print = printAction
+def printAction = printTask.dependsOn(compile) describedAs("prints a line after compile")
+def printTask = task {log.info("a test action"); None}
+</pre>
+
+Это позволяет пользователям переопределить саму задачу, зависимости и/или описание задачи или действия. Большинство SBT проектов следуют этому образцу. В качестве примера, мы можем изменить встроенные задачи пакета для печати текущего времени, выполните следующие действия
+
+<pre>
+lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
+override def packageAction = super.packageAction.dependsOn(printTimestamp)
+</pre>
+
+Есть много прим��ров в StandardProject по настройке стандартных значений SBT и добавлению пользовательских задач.
+
+h2. Краткий справочник
+
+h3. Популярные команды
+
+* actions - отображает все действия доступные для этого проекта
+* update - загружает зависимости
+* compile - компилирует исходники
+* test - запускает тесты
+* package - создает jar файл для публикации
+* publish-local - устанавливает собранный jar в ваш локальный ivy кэш
+* publish - отправляет ваш jar в удаленный репозиторий (если заранее установлены настройки)
+
+h3. Еще несколько полезных команд
+
+* test-failed - запускает любой тест, который не прошел проверку
+* test-quick - запускает любой тест, который не прошел проверку и/или имеет обновленные зависимости
+* clean-cache - очищает весь sbt кэш. Похожа на sbt clean
+* clean-lib - удаляет все из lib_managed
+
+h3. Project Layout
+
+TBD

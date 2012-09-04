@@ -2,53 +2,78 @@ permalink: none
 lessons:
   - 
     title: Basics
+    title_ru: Основы
     url: basics.html
     desc: Values, functions, classes, methods, inheritance, try-catch-finally. Expression-oriented programming
+    desc_ru: Переменные, функции, классы, методы, наследование, try-catch-finally. Программирование ориентированное на выражения
   -
     title: Basics continued
+    title_ru: Основы языка. Продолжение
     url: basics2.html
     desc: Case classes, objects, packages, apply, update, Functions are Objects (uniform access principle), pattern matching.
+    desc_ru: Case классы, объекты, пакеты, apply, update, Функции как Объекты (единый принцип доступа), сопоставление с образцом.
   -
     title: Collections
+    title_ru: Коллекции
     url: collections.html
     desc: Lists, Maps, functional combinators (map, foreach, filter, zip, folds)
+    desc_ru: Списки, Карты, функциональные комбинаторы (map, foreach, filter, zip, folds)
   -
     title: Pattern matching & functional composition
+    title_ru: Сопоставление с образцом и функкциональная композиция
     url: pattern-matching-and-functional-composition.html
     desc: More functions! PartialFunctions, more Pattern Matching
+    desc_ru: Еще больше функций! Частичные функции, еще больше сопоставления с образцом
   -
     title: Type & polymorphism basics
+    title_ru: Основы типов и полиморфизма
     url: type-basics.html
     desc: Basic Types and type polymorphism, type inference, variance, bounds, quantification
+    desc_ru: Основные типы и полиморфизм типов, вывод типов, изменчивость, пределы, квантификация
   -
     title: Advanced types
+    title_ru: Дополнительные типы
     url: advanced-types.html
     desc: Advanced Types, view bounds, higher-kinded types, recursive types, structural types
+    desc_ru: Дополнительные типы, видимое ограничение, типы высшего порядка, рекурсивные типы, структурные типы
   -
     title: Simple Build Tool
+    title_ru: Simple Build Tool
     url: sbt.html
     desc: All about SBT, the standard Scala build tool
+    desc_ru: Все о SBT, Стандартное средство сборки приложений для Scala
   -
     title: More collections
+    title_ru: Подробнее о коллекциях
     url: coll2.html
     desc: Tour of the Scala Collections library
+    desc_ru: Рассказ о библиотеке коллекций Scala
   -
     title: Testing with specs
+    title_ru: Тестирование с помощью specs
     url: specs.html
-    desc: Write tests with Specs, a BDD testing framework for Scala
+    desc_ru: Написание тестов с помощью Specs, Scala BDD фреймфорк для тестирования
   -
     title: Concurrency in Scala
+    title_ru: Параллельность в Scala
     url: concurrency.html
     desc: Runnable, Callable, threads, Futures
+    desc_ru: Runnable, Callable, потоки, Futures
   -
     title: Java + Scala
+    title_ru: Java + Scala
     url: java.html
     desc: 'Java interop: Using Scala from Java'
+    desc_ru:  'Java совместимость: Использование Scala из Java'
   -
     title: An introduction to Finagle
+    title_ru: Введение в Finagle
     url: finagle.html
     desc: 'Finagle primitives: Future, Service, Filter, Builder'
+    desc_ru: 'Finagle примитивы: Future, Service, Filter, Builder'
   -
     title: Searchbird
+    title_ru: Searchbird
     url: searchbird.html
     desc: Building a distributed search engine using Finagle
+    desc_ru: Создание распределенного поискового движка, используя Finagle
