@@ -108,7 +108,7 @@ h3. doBefore и doAfter
 
 h3. doFirst и doLast
 
-@doFirst@/@doLast@ предназначены во время установки (нужен пример, я не использую их)
+@doFirst@/@doLast@ предназначены во время установки (здесь нужен пример, я не использую их)
 
 <pre>
 "Foo" should {
@@ -191,7 +191,7 @@ h3. throwA
 a must throwA[WhateverException]
 </pre>
 
-Записиь короче чем try catch с его попыткой выброса исключения в теле блока.
+Запись короче чем try catch с его попыткой выброса исключения в теле блока.
 
 Вы можете выдать специальное сообщение
 
@@ -239,7 +239,7 @@ case class beEven(b: Int) extends Matcher[Int]() {
 }
 </pre>
 
-Использования case класс вы делаете его менее специализированным.
+Используя case класс, вы делаете его менее специализированным.
 
 h2(#mocks). Подделки(Mocks)
 
@@ -264,11 +264,11 @@ object MockExampleSpec extends Specification with Mockito {
 }
 </pre>
 
-*Смотрите также "Использование Mockito":http://code.google.com/p/specs/wiki/UsingMockito
+*Смотрите также:* "Использование Mockito":http://code.google.com/p/specs/wiki/UsingMockito
 
 h2(#spies). Шпионы(Spies)
 
-Шпионы могут также быть использованы для того, чтобы сделать некоторую «частичную подделку" реальных объектов:
+Шпионы могут также быть использованы для того, чтобы сделать некоторую "частичную подделку" реальных объектов:
 
 <pre>
 val list = new LinkedList[String]

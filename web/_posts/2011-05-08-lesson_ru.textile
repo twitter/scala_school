@@ -5,15 +5,15 @@ layout: post
 desc: Рассказ о библиотеке коллекций Scala
 ---
 
-Scala предоставляет прекрасный набор коллекций. Также доступно некоторое количество абстракций для типов коллекций. Это позволяет вам писать код, который может работать с коллекцией <code>Foo</code> без необходимости беспокоится о том является коллекция <code>List</code>, <code>Set</code>, или что-то еще.
+Scala предоставляет прекрасный набор коллекций. Также доступно некоторое количество абстракций для типов коллекций. Это позволяет вам писать код, который может работать с коллекцией <code>Foo</code> без необходимости беспокоится о том является коллекция <code>List</code>, <code>Set</code>, или чем-то еще.
 
 "Эта страница":http://www.decodified.com/scala/collections-api.xml предлагает отличный способ следить за стандартными реализациями и ссылками на все документы scaladoc.
 
-* "Основы":#basics Collection types you'll use all the time
-* "Иерархия":#hierarchy Collection abstractions
+* "Основы":#basics Коллекция типов, которые вы будете использовать все время
+* "Иерархия":#hierarchy Абстракция коллекций
 * "Методы":#methods
 * "Mutable":#mutable
-* "Java коллекции":#java just work
+* "Java коллекции":#java 
 
 h2(#basics). Основы
 
@@ -33,7 +33,7 @@ scala> 1 :: 2 :: 3 :: Nil
 res1: List[Int] = List(1, 2, 3)
 </pre>
 
-*Смотрите также* "API документация":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
+*Смотрите также:* "API документация":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
 
 h3. Set
 
@@ -44,7 +44,7 @@ scala> Set(1, 1, 2)
 res2: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 
-*Смотрите также* "API документация":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*Смотрите также:* "API документация":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
 h3. Seq
 
@@ -57,7 +57,7 @@ res3: Seq[Int] = List(1, 1, 2)
 
 (Заметьте, что возвращается список. <code>Seq</code> - это трейт; List - это отличная реализация Seq. Существует фабричный объект <code>Seq</code>, который, как вы здесь увидите, создаает списки.)
 
-*Смотрите также* "API документация":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*Смотрите также:* "API документация":http://www.scala-lang.org/api/current/scala/collection/Seq.html
 
 h3. Map
 
@@ -68,7 +68,7 @@ scala> Map('a' -> 1, 'b' -> 2)
 res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 </pre>
 
-*Смотрите также* "API документация":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*Смотрите также:* "API документация":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
 h2(#hierarchy). Иерархия
 
@@ -76,39 +76,39 @@ h2(#hierarchy). Иерархия
 
 h3. Обход элементов(Traversable)
 
-Все коллекции имеют возможность обхода. Этот трейт определят стандарт функциональных комбинаторов. Эти комбинаторы написаны в терминах @foreach@, который коллекции могут реализовать.
+Все коллекции имеют возможность обхода. Этот трейт определят стандарт функциональных комбинаторов. Эти комбинаторы написаны используя @foreach@, и который коллекции могут реализовать.
 
-*Смотрите также* "API документация":#http://www.scala-lang.org/api/current/scala/collection/Traversable.html
+*Смотрите также:* "API документация":#http://www.scala-lang.org/api/current/scala/collection/Traversable.html
 
 h3. Итерирование(Iterable)
 
 Имеющийся метод @iterator()@ позволяет вам итерировать элементы.
 
-*Смотрите также* "API документация":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
+*Смотрите также:* "API документация":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
 
 h3. Seq
 
 Последовательность упорядоченных элементов.
 
-*Смотрите также* "API документация":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*Смотрите также:* "API документация":http://www.scala-lang.org/api/current/scala/collection/Seq.html
 
 h3. Set
 
 Коллекция не повторяющихся элементов.
 
-*Смотрите также* "API документация":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*Смотрите также:* "API документация":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
 h3. Map
 
 Коллекция пар ключ-значение.
 
-*Смотрите также* "API документация":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*Смотрите также:* "API документация":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
 h2(#methods). Методы
 
 h3. Traversable
 
-Все методы ниже доступны для обхода. Аргументы и возвращаемые типы не всегда будет выглядеть так, потому что подклассы могут быть свободно переопределены.
+Все методы, показанные ниже, доступны для обхода. Аргументы и возвращаемые типы не всегда будет выглядеть так, потому что подклассы могут быть свободно переопределены.
 
 <pre>
 def head : A
@@ -141,7 +141,7 @@ def filter (p: (A) => Boolean) : Traversable[A]
 
 возвращает коллекцию со всеми элементами, удовлетворяющих функции-предикату
 
-Разбиение:
+Разбивка:
 
 <code>
 def partition (p: (A) ⇒ Boolean) : (Traversable[A], Traversable[A])
@@ -195,7 +195,7 @@ def hasNext(): Boolean
 def next(): A
 </pre>
 
-Похоже на Java. Вы не будет часто видеть итераторы в программе на Scala, у вас больше шансов увидеть функциональные комбинаторы или for-выражения.
+Похоже на Java. Вы не будет часто видеть итераторы в программе на Scala, у вас больше шансов увидеть функциональные комбинаторы или расширенный for.
 
 h3. Set
 
@@ -223,7 +223,7 @@ scala> Map(("a", 2), ("b", 2))
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,2), (b,2))
 </pre>
 
-h6. Отклонение
+h6. Отступление
 
 Что это за знак <code>-></code>? Это не какой-то специальный синтаксис, это метод, который возвращает кортеж.
 
@@ -252,7 +252,7 @@ h3. Общедоступные классы
 
 *HashSet и HashMap* Взгляните, самые часто используемые формы этих коллекций. "HashSet API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "HashMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
 
-*TreeMap* - это подкласс SortedMap, дает вам упорядоченный доступ. "TreeMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
+*TreeMap* - это подкласс SortedMap, дает вам упорядоченный доступ к элементам. "TreeMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
 
 *Vector* Быстрая случайная выборка и быстрое обновление. "Vector API":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html
 
@@ -261,7 +261,7 @@ scala> IndexedSeq(1, 2, 3)
 res0: IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 
-*Range* Упорядоченная последовательность целых чисел, отделенных с определенным шагом. Вы будете часто видеть их там, где до этого использовались циклы. "Range API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
+*Range* Упорядоченная последовательность целых чисел, отделенных определенным интервалом. Вы будете часто видеть их там, где до этого использовались циклы. "Range API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
 
 <pre>
 scala> for (i <- 1 to 3) { println(i) }
@@ -279,7 +279,7 @@ res0: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3)
 
 h3. Стандартные значения 
 
-Используя методы apply в трейтах, вы получаете экземпляр стандартной реализации. Например, Iterable(1, 2) возвратит List как стандартну реализацию метода apply.
+Используя методы apply в трейтах, вы получаете экземпляр стандартной реализации. Например, Iterable(1, 2) возвратит List как стандартную реализацию метода apply.
 
 <pre>
 scala> Iterable(1, 2)
@@ -326,7 +326,7 @@ immutable
 
 Scala позволяет нам быть прагматичными, она призывает к неизменности значений, но не наказывает нас, если мы нуждаемся в изменчивости. Это очень похоже на var против val. Мы всегда начинаем с val и обращаемся к var, когда это требуется.
 
-Мы начинаем с immutable версий коллекций, но переход на mutable, если необходима производительность. Использование immutable коллекций означает, что вы случайно не измените состояние в нескольких потоках.
+Мы начинаем с immutable версий коллекций, но переходим на mutable, если нужно. Использование immutable коллекций означает, что вы случайно не измените состояние в нескольких потоках.
  
 h2(#mutable). Mutable
 
