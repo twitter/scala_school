@@ -36,33 +36,31 @@
     </div>
 
     <div class="container" style="padding-top: 60px;">
-      <p>This lesson covers testing with Specs, a <span class="caps">BDD</span> Framework for Scala.</p>
+      <p>This lesson covers testing with Specs, a Behavior-Driven Design (<span class="caps">BDD</span>) Framework for Scala.</p>
 <ul>
-	<li>Contexts
+	<li><a href="#example">extends Specification</a>
 	<ul>
 		<li>nested examples</li>
 	</ul></li>
-	<li>Setup
+	<li><a href="#scope">Execution Model</a></li>
+	<li><a href="#setup">Setup and TearDown</a>
 	<ul>
 		<li>doFirst</li>
 		<li>doBefore</li>
 		<li>doAfter</li>
 	</ul></li>
-	<li>Matchers
+	<li><a href="#matchers">Matchers</a>
 	<ul>
 		<li>mustEqual</li>
 		<li>contains</li>
 		<li>sameSize?</li>
 		<li>Write your own</li>
 	</ul></li>
-	<li>Mocks</li>
-	<li>Spies</li>
-	<li>How does this work?
-	<ul>
-		<li>What if we don&#8217;t like the implicits?</li>
-	</ul></li>
+	<li><a href="#mocks">Mocks</a></li>
+	<li><a href="#spies">Spies</a></li>
+	<li><a href="#sbt">run in sbt</a></li>
 </ul>
-<h2>extends Specifcation</h2>
+<h2 id="example">extends Specifcation</h2>
 <p>Let&#8217;s just jump in.</p>
 <pre>
 import org.specs._
@@ -78,13 +76,12 @@ object ArithmeticSpec extends Specification {
   }
 }
 </pre>
-<h2>Let&#8217;s break this down</h2>
 <p><strong>Arithmetic</strong> is the <strong>System Under Specification</strong></p>
 <p><strong>add</strong> is a context.</p>
 <p><strong>add two numbers</strong> and <strong>add three numbers</strong> are examples.</p>
 <p><code>mustEqual</code> indicates an <strong>expectation</strong></p>
 <p><code>1 mustEqual 1</code> is a common placeholder <strong>expectation</strong> before you start writing real tests.  All examples should have at least one expectation.</p>
-<h2>Duplication</h2>
+<h3>Duplication</h3>
 <p>Notice how two tests both have <code>add</code> in their name?  We can get rid of that by <strong>nesting</strong> expectations.</p>
 <pre>
 import org.specs._
@@ -102,7 +99,7 @@ object ArithmeticSpec extends Specification {
   }
 }
 </pre>
-<h2>Execution Model</h2>
+<h2 id="scope">Execution Model</h2>
 <pre>
 object ExecSpec extends Specification {
   "Mutations are isolated" should {
@@ -117,7 +114,7 @@ object ExecSpec extends Specification {
   }
 }
 </pre>
-<h2>Setup</h2>
+<h2 id="setup">Setup, Teardown</h2>
 <h3>doBefore &amp; doAfter</h3>
 <pre>
 "my system" should {
@@ -138,10 +135,8 @@ object ExecSpec extends Specification {
   doLast { closeTheCurtains() }
 }
 </pre>
-<h2>Matchers</h2>
-<p>You have data, you want to make sure it&#8217;s right.</p>
-<p>Let&#8217;s tour the most commonly used matchers.</p>
-<p><a href="http://code.google.com/p/specs/wiki/MatchersGuide">Matchers Guide</a></p>
+<h2 id="matchers">Matchers</h2>
+<p>You have data, you want to make sure it&#8217;s right. Let&#8217;s tour the most commonly used matchers. (See Also <a href="http://code.google.com/p/specs/wiki/MatchersGuide">Matchers Guide</a>)</p>
 <h3>mustEqual</h3>
 <p>We&#8217;ve seen several examples of mustEqual already.</p>
 <pre>
@@ -206,22 +201,22 @@ a must throwA(new Exception) like {
 }
 </pre>
 <h3>Write your own Matchers</h3>
-<h4>As a val<br />
-<pre><br />
-import org.specs.matcher.Matcher<br />
-</pre><br />
-<pre><br />
-&#8220;A matcher&#8221; should {<br />
-  &#8220;be created as a val&#8221; in {<br />
-    val beEven = new Matcher[Int] {<br />
-      def apply(n: =&gt; Int) = {<br />
-        (n % 2 == 0, &#8220;%d is even&#8221;.format(n), &#8220;%d is odd&#8221;.format(n))<br />
-      }<br />
-    }<br />
-    2 must beEven<br />
-  }<br />
-}<br />
-</pre></h4>
+<pre>
+import org.specs.matcher.Matcher
+</pre>
+<h4>As a val</h4>
+<pre>
+"A matcher" should {
+  "be created as a val" in {
+    val beEven = new Matcher[Int] {
+      def apply(n: =&gt; Int) = {
+        (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
+      }
+    }
+    2 must beEven
+  }
+}
+</pre>
 <p>The contract is to return a tuple containing whether the expectation is true, and a message for when it is and isn&#8217;t true.</p>
 <h4>As a case class</h4>
 <pre>
@@ -230,7 +225,7 @@ case class beEven(b: Int) extends Matcher[Int]() {
 }
 </pre>
 <p>Using a case class makes it more shareable.</p>
-<h3>Mocks</h3>
+<h2 id="mocks">Mocks</h2>
 <pre>
 import org.specs.Specification
 import org.specs.mock.Mockito
@@ -251,7 +246,8 @@ object MockExampleSpec extends Specification with Mockito {
   there was no(m).get(1)
 }
 </pre>
-<h3>Spies</h3>
+<p><strong>See Also</strong> <a href="http://code.google.com/p/specs/wiki/UsingMockito">Using Mockito</a></p>
+<h2 id="spies">Spies</h2>
 <p>Spies can also be used in order to do some &#8220;partial mocking&#8221; of real objects:</p>
 <pre>
 val list = new LinkedList[String]
@@ -276,7 +272,7 @@ spiedList.get(0) returns "one"
 <pre>
 doReturn("one").when(spiedList).get(0)
 </pre>
-<h3>Run individual specs in sbt</h3>
+<h2 id="sbt">Run individual specs in sbt</h2>
 <pre>
 &gt; test-only com.twitter.yourservice.UserSpec
 </pre>
@@ -284,8 +280,7 @@ doReturn("one").when(spiedList).get(0)
 <pre>
 &gt; ~ test-only com.twitter.yourservice.UserSpec
 </pre>
-<p>Will run that test in a loop, with each file modification triggering a<br />
-test run.</p>
+<p>Will run that test in a loop, with each file modification triggering a test run.</p>
     </div> <!-- /container -->
 
     <div id="footer">

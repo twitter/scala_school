@@ -38,16 +38,15 @@
     <div class="container" style="padding-top: 60px;">
       <p>This lesson covers:</p>
 <ul>
-	<li>apply</li>
-	<li>objects</li>
-	<li>case classes</li>
-	<li>try-catch-finally</li>
-	<li>update</li>
-	<li>Functions are Objects</li>
-	<li>packages</li>
-	<li>pattern matching</li>
+	<li><a href="#apply">apply</a></li>
+	<li><a href="#object">objects</a></li>
+	<li><a href="#fnobj">Functions are Objects</a></li>
+	<li><a href="#package">packages</a></li>
+	<li><a href="#match">pattern matching</a></li>
+	<li><a href="#caseclass">case classes</a></li>
+	<li><a href="#exception">try-catch-finally</a></li>
 </ul>
-<h3>apply methods</h3>
+<h2 id="apply">apply methods</h2>
 <p>apply methods give you a nice syntatic sugar for when a class or object has one main use.</p>
 <pre>
 object FooMaker {
@@ -66,7 +65,7 @@ scala&gt; bar()
 res8: Int = 0
 </pre>
 <p>Here our instance object looks like we&#8217;re calling a method. More on that later!</p>
-<h3>Objects</h3>
+<h2 id="object">Objects</h2>
 <p>Objects are used to hold single instances of a class. Often used for factories.</p>
 <pre>
 object Timer {
@@ -92,7 +91,7 @@ object Bar {
   def apply(foo: String) = new Bar(foo)
 }
 </pre>
-<h3>Functions are Objects</h3>
+<h2 id="fnobj">Functions are Objects</h2>
 <p>In Scala, we talk about object-functional programming often.  What does that mean? What is a Function, really?</p>
 <p>A Function is a set of traits. Specifically, a function that takes one argument is an instance of a Function1 trait. This trait defines the <code>apply()</code> syntactic sugar we learned earlier, allowing you to call an object like you would a function.</p>
 <pre>
@@ -126,7 +125,7 @@ class AddOne extends (Int =&gt; Int) {
   def apply(m: Int): Int = m + 1
 }
 </pre>
-<h3>Packages</h3>
+<h2 id="package">Packages</h2>
 <p>You can organize your code inside of packages.</p>
 <pre>
 package com.twitter.example
@@ -154,7 +153,7 @@ scala&gt; object colorHolder {
 defined module colorHolder
 </pre>
 <p>This gives you a small hint that the designers of Scala designed objects to be part of Scala&#8217;s module system.</p>
-<h3>Pattern Matching</h3>
+<h2 id="match">Pattern Matching</h2>
 <p>One of the most useful parts of Scala.</p>
 <p>Matching on values</p>
 <pre>
@@ -175,12 +174,12 @@ times match {
 }
 </pre>
 <p>Notice how we captured the value in the variable &#8216;i&#8217;.</p>
-<p>The <code>_</code> in the last case statement is a wildcard, it<br />
+<p>The <code>_</code> in the last case statement is a wildcard; it<br />
 ensures that we can handle any statement. Otherwise you will suffer a<br />
 runtime error if you pass in a number that doesn&#8217;t match. We discuss<br />
 this more later.</p>
-<p><strong>See Also</strong> Effective Scala has an opinion about <a href="http://twitter.github.com/effectivescala/#Formatting-Pattern matching">Pattern matching formatting</a>. A Tour of Scala describes <a href="http://www.scala-lang.org/node/120">Pattern Matching</a></p>
-<h4>Matching on type</h4>
+<p><strong>See Also</strong> Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Pattern matching">when to use pattern matching</a> and <a href="http://twitter.github.com/effectivescala/#Formatting-Pattern matching">pattern matching formatting</a>. A Tour of Scala describes <a href="http://www.scala-lang.org/node/120">Pattern Matching</a></p>
+<h3>Matching on type</h3>
 <p>You can use <code>match</code> to handle values of different types differently.</p>
 <pre>
 def bigger(o: Any): Any = {
@@ -193,7 +192,7 @@ def bigger(o: Any): Any = {
   }
 }
 </pre>
-<h4>Matching on class members</h4>
+<h3>Matching on class members</h3>
 <p>Remember our calculator from earlier.</p>
 <p>Let&#8217;s classify them according to type.</p>
 <pre>
@@ -205,7 +204,7 @@ def calcType(calc: Calculator) = calc match {
 }
 </pre>
 <p>Wow, that&#8217;s painful. Thankfully Scala provides some nice tools specifically for this.</p>
-<h3>Case Classes</h3>
+<h2 id="caseclass">Case Classes</h2>
 <p>case classes are used to conveniently store and match on the contents of a class. You can construct them without using new.</p>
 <pre>
 scala&gt; case class Calculator(brand: String, model: String)
@@ -254,7 +253,7 @@ OR we could re-bind the matched value with another name
 <pre>
   case c@Calculator(_, _) =&gt; "Calculator: %s of unknown type".format(c)
 </pre>
-<h3>Exceptions</h3>
+<h2 id="exception">Exceptions</h2>
 <p>Exceptions are available in Scala via a try-catch-finally syntax that uses pattern matching.</p>
 <pre>
 try {
