@@ -7,17 +7,20 @@ desc: Advanced Types, view bounds, higher-kinded types, recursive types, structu
 
 This lesson covers:
 
-* View bounds ("type classes")
-* Higher kinded types & ad-hoc polymorphism
-* F-bounded polymorphism / recursive types
-* Structural types
-* Abstract types members
-* Type erasures & manifests
-* Case study: Finagle
+* "View bounds":#viewbounds ("type classes")
+* "Other Type Bounds":#otherbounds
+* "Higher kinded types & ad-hoc polymorphism":#higher
+* "F-bounded polymorphism / recursive types":#fbounded
+* "Structural types":#structural
+* "Abstract types members":#abstractmem
+* "Type erasures & manifests":#manifest
+* "Case study: Finagle":#finagle
 
-h3. View bounds ("type classes")
+h2(#viewbounds). View bounds ("type classes")
 
-*Implicit* functions in scala allow for on-demand function application when this can help satisfy type inference. eg.:
+Sometimes you don't need to specify that one type is equal/sub/super another, just that you could fake it with conversions. A view bound specifies a type that can be "viewed as" another. This makes sense for an operation that needs to "read" an object but doesn't modify the object.
+
+*Implicit* functions allow automatic conversion. More precisely, they allow on-demand function application when this can help satisfy type inference. e.g.:
 
 <pre>
 scala> implicit def strToInt(x: String) = x.toInt
@@ -33,7 +36,7 @@ scala> math.max("123", 111)
 res1: Int = 123
 </pre>
 
-view bounds, like type bounds demand such a function exists for the given type.  eg.
+view bounds, like type bounds demand such a function exists for the given type.  You specify a type bound with <code><%</code> e.g.,
 
 <pre>
 scala> class Container[A <% Int] { def addIt(x: A) = 123 + x }
@@ -55,9 +58,17 @@ scala> (new Container[Float]).addIt(123.2F)
         ^
 </pre>
 
-h3. Other type bounds
+h2(#otherbounds). Other type bounds
 
-Methods may ask for specific "evidence" for a type, namely:
+Methods can enforce more complex type bounds via implicit parameters. For example, <code>List</code> supports <code>sum</code> on numeric contents but not on others. Alas, Scala's numeric types don't all share a superclass, so we can't just say <code>T <: Number</code>. Instead, to make this work, Scala's math library <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/">defines an implicit <code>Numeric[T]</code> for the appropriate types T</a>.  Then in <code>List</code>'s definition uses it:
+
+<pre>
+sum[B >: A](implicit num: Numeric[B]): B
+</pre>
+
+If you invoke <code>List(1,2).sum()</code>, you don't need to pass a _num_ parameter; it's set implicitly. But if you invoke <code>List("whoop").sum()</code>, it complains that it couldn't set <code>num</code>.
+
+Methods may ask for some kinds of specific "evidence" for a type without setting up strange objects as with <code>Numeric</code>. Instead, you can use of these type-relation operators:
 
 |A =:= B|A must be equal to B|
 |A <:< B|A must be a subtype of B|
@@ -84,7 +95,7 @@ scala> (new Container("123")).addIt
 res15: Int = 246
 </pre>
 
-h4. Generic programming with views
+h3. Generic programming with views
 
 In the Scala standard library, views are primarily used to implement generic functions over collections.  For example, the "min" function (on *Seq[]*), uses this technique:
 
@@ -96,7 +107,7 @@ def min[B >: A](implicit cmp: Ordering[B]): A = {
   reduceLeft((x, y) => if (cmp.lteq(x, y)) x else y)
 }
 </pre>
-  
+
 The main advantages of this are:
 
 * Items in the collections aren't required to implement *Ordered*, but *Ordered* uses are still statically type checked.
@@ -141,7 +152,7 @@ res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
 
 Combined, these often result in less code, especially when threading through views.
 
-h3. Higher-kinded types & ad-hoc polymorphism
+h2(#higher). Higher-kinded types & ad-hoc polymorphism
 
 Scala can abstract over "higher kinded" types. For example, suppose that you needed to use several types of containers for several types of data. You might define a <code>Container</code> interface that might be implemented by means of several container types: an <code>Option</code>, a <code>List</code>, etc. You want to define an interface for using values in these containers without nailing down the values' type.
 
@@ -184,7 +195,7 @@ scala> tupleize(List(1), List(2))
 res34: List[(Int, Int)] = List((1,2))
 </pre>
 
-h3. F-bounded polymorphism
+h2(#fbounded). F-bounded polymorphism
 
 Often it's necessary to access a concrete subclass in a (generic) trait. For example, imagine you had some trait that is generic, but can be compared to a particular subclass of that trait.
 
@@ -255,7 +266,7 @@ Note how the resulting type is now lower-bound by *YourContainer with MyContaine
 
 No *Ordered[]* exists for the unified type. Too bad.
 
-h3. Structural types
+h2(#structural). Structural types
 
 Scala has support for *structural types* -- type requirements are expressed by interface _structure_ instead of a concrete type.
 
@@ -269,7 +280,7 @@ res0: Int = 133
 
 This can be quite nice in many situations, but the implementation uses reflection, so be performance-aware!
 
-h3. Abstract type members
+h2(#abstractmem). Abstract type members
 
 In a trait, you can leave type members abstract.
 
@@ -297,18 +308,18 @@ x: List[Int] = List(1)
 </pre>
 
 
-h3. Type erasures & manifests
+h2(#manifest). Type erasures & manifests
 
 As we know, type information is lost at compile time due to _erasure_. Scala features *Manifests*, allowing us to selectively recover type information. Manifests are provided as an implicit value, generated by the compiler as needed.
 
 <pre>
 scala> class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
 
-scala> (new MakeFoo[String]).make 
-res10: String = 
+scala> (new MakeFoo[String]).make
+res10: String = ""
 </pre>
 
-h3. Case study: Finagle
+h2(#finagle). Case study: Finagle
 
 See: https://github.com/twitter/finagle
 
@@ -339,7 +350,7 @@ trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
 }
 </pre>
 
-An may authenticate requests with a filter.
+A service may authenticate requests with a filter.
 
 <pre>
 trait RequestWithCredentials extends Request {
