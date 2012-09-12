@@ -16,7 +16,7 @@ This lesson covers:
 
 h2(#apply). apply methods
 
-apply methods give you a nice syntatic sugar for when a class or object has one main use.
+apply methods give you a nice syntaсtic sugar for when a class or object has one main use.
 
 <pre>
 object FooMaker {

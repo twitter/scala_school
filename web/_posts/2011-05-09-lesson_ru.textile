@@ -1,0 +1,316 @@
+---
+permalink: specs.html
+title: Тестирование с помощью specs
+layout: post
+desc: Написание тестов с помощью Specs, Scala BDD фреймфорк для тестирования
+---
+
+В этом уроке вы узнаете о тестировании с помощью Specs, Scala фреймворк для Разработки, основанная на функционировании.
+
+* "расширяем Спецификацию":#example
+** вложенные примеры
+* "Модель Выполнения":#scope
+* "Установка и Распаковка":#setup
+** doFirst
+** doBefore
+** doAfter
+* "Конструкции сравнения":#matchers
+** mustEqual
+** contains
+** sameSize?
+** пишем свою конструкцию
+* "Подделки(Mocks)":#mocks
+* "Шпионы(Spies)":#spies
+* "Запуск в sbt":#sbt
+
+
+h2(#example). Расширяем Спецификацию
+
+Давайте сразу посмотрим код.
+
+<pre>
+import org.specs._
+
+object ArithmeticSpec extends Specification {
+  "Arithmetic" should {
+    "add two numbers" in {
+      1 + 1 mustEqual 2
+    }
+    "add three numbers" in {
+      1 + 1 + 1 mustEqual 3
+    }
+  }
+}
+</pre>
+
+*Arithmetic* означает, что *System Under Specification*(Система имеет спецификацию)
+
+*add* - это контекст.
+
+*add two numbers* и *add three numbers* - это примеры.
+
+@mustEqual@ отражает наше *ожидание*
+
+@1 mustEqual 1@ является общим заменителем *ожидания*, прежде чем мы начнем писать реальные тесты. Все примеры должны иметь по крайней мере одно ожидание.
+
+h3. Повторяемость
+
+Заметили, что оба теста содержат @add@ в своем имени? Мы избавиться от этого благодаря *вложенным* ожиданиям.
+
+<pre>
+import org.specs._
+
+object ArithmeticSpec extends Specification {
+  "Arithmetic" should {
+    "add" in {
+      "two numbers" in {
+        1 + 1 mustEqual 2
+      }
+      "three numbers" in {
+        1 + 1 + 1 mustEqual 3
+      }
+    }
+  }
+}
+</pre>
+
+h2(#scope). Модель выполнения
+
+<pre>
+object ExecSpec extends Specification {
+  "Mutations are isolated" should {
+    var x = 0
+    "x equals 1 if we set it." in {
+      x = 1
+      x mustEqual 1
+    }
+    "x is the default value if we don't change it" in {
+      x mustEqual 0
+    }
+  }
+}
+</pre>
+
+h2(#setup). Установка, Распаковка
+
+h3. doBefore и doAfter
+
+<pre>
+"my system" should {
+  doBefore { resetTheSystem() /** определенная пользователем функция сброса */ }
+  "mess up the system" in {...}
+  "and again" in {...}
+  doAfter { cleanThingsUp() }
+}
+</pre>
+
+*ЗАМЕЧАНИЕ* @doBefore@/@doAfter@ будут работать только с черновыми примерами.
+
+h3. doFirst и doLast
+
+@doFirst@/@doLast@ предназначены во время установки (здесь нужен пример, я не использую их)
+
+<pre>
+"Foo" should {
+  doFirst { openTheCurtains() }
+  "test stateless methods" in {...}
+  "test other stateless methods" in {...}
+  doLast { closeTheCurtains() }
+}
+</pre>
+
+h2(#matchers). Конструкции сравнения
+
+У вас есть данные, и вы хотите убедиться, что они верные. Давайте рассмотрим наиболее часто используемые конструкции сравнения. (Смотрите также "Matchers Guide":http://code.google.com/p/specs/wiki/MatchersGuide)
+
+h3. mustEqual
+
+Вы уже видели несколько примеров с mustEqual.
+
+<pre>
+1 mustEqual 1
+
+"a" mustEqual "a"
+</pre>
+
+Равенство ссылок, равенство значений.
+
+h3. элементы в Sequence
+
+<pre>
+val numbers = List(1, 2, 3)
+
+numbers must contain(1)
+numbers must not contain(4)
+
+numbers must containAll(List(1, 2, 3))
+numbers must containInOrder(List(1, 2, 3))
+
+List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4), 2, 3), 1))
+</pre>
+
+
+h3. Записи в Map
+
+<pre>
+map must haveKey(k)
+map must notHaveKey(k)
+
+map must haveValue(v)
+map must notHaveValue(v)
+</pre>
+
+h3. Числа
+
+<pre>
+a must beGreaterThan(b)
+a must beGreaterThanOrEqualTo(b)
+
+a must beLessThan(b)
+a must beLessThanOrEqualTo(b)
+
+a must beCloseTo(b, delta)
+</pre>
+
+
+h3. Опции
+
+<pre>
+a must beNone
+
+a must beSome[Type]
+
+a must beSomething
+
+a must beSome(value)
+</pre>
+
+h3. throwA
+
+<pre>
+a must throwA[WhateverException]
+</pre>
+
+Запись короче чем try catch с его попыткой выброса исключения в теле блока.
+
+Вы можете выдать специальное сообщение
+
+<pre>
+a must throwA(WhateverException("message"))
+</pre>
+
+Вы можете также поймать определенное исключение:
+
+<pre>
+a must throwA(new Exception) like {
+  case Exception(m) => m.startsWith("bad")
+}
+</pre>
+
+
+h3. Пишем свои условные конструкции
+
+<pre>
+import org.specs.matcher.Matcher
+</pre>
+
+h4. Подобно val
+
+<pre>
+"A matcher" should {
+  "be created as a val" in {
+    val beEven = new Matcher[Int] {
+      def apply(n: => Int) = {
+        (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
+      }
+    }
+    2 must beEven
+  }
+}
+</pre>
+
+Контракт вернет кортеж, содержащий запись о том верно ожидание или нет, и сообщение когда оно верно или наоборот.
+
+h4. Подобно case классу
+
+<pre>
+case class beEven(b: Int) extends Matcher[Int]() {
+  def apply(n: => Int) =  (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
+}
+</pre>
+
+Используя case класс, вы делаете его менее специализированным.
+
+h2(#mocks). Подделки(Mocks)
+
+<pre>
+import org.specs.Specification
+import org.specs.mock.Mockito
+
+class Foo[T] {
+  def get(i: Int): T
+}
+
+object MockExampleSpec extends Specification with Mockito {
+  val m = mock[Foo[String]]
+
+  m.get(0) returns "one"
+
+  m.get(0)
+
+  there was one(m).get(0)
+
+  there was no(m).get(1)
+}
+</pre>
+
+*Смотрите также:* "Использование Mockito":http://code.google.com/p/specs/wiki/UsingMockito
+
+h2(#spies). Шпионы(Spies)
+
+Шпионы могут также быть использованы для того, чтобы сделать некоторую "частичную подделку" реальных объектов:
+
+<pre>
+val list = new LinkedList[String]
+val spiedList = spy(list)
+
+// методы могут выдать ошибку при использовании шпиона
+spiedList.size returns 100
+
+// другие методы также могут быть использованы
+spiedList.add("one")
+spiedList.add("two")
+
+// и проверка может происходить с помощью шпиона
+there was one(spiedList).add("one")
+</pre>
+
+Однако, работа со шпионами может быть сложной:
+
+<pre>
+// если список пуст, то бросается исключение IndexOutOfBoundsException
+spiedList.get(0) returns "one"
+</pre>
+
+@doReturn@ должен быть исопльзован в этом случае:
+
+<pre>
+doReturn("one").when(spiedList).get(0)
+</pre>
+
+
+h2(#sbt). Запуск индивидальных спеков(тестов) в sbt
+
+
+<pre>
+> test-only com.twitter.yourservice.UserSpec
+</pre>
+
+Запустится только данный спек.
+
+
+<pre>
+> ~ test-only com.twitter.yourservice.UserSpec
+</pre>
+
+Будет запускаться тест в цикле, с каждой модификацией файла будет срабатывать триггер и будет запускаться тест.
