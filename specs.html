@@ -273,10 +273,12 @@ spiedList.get(0) returns "one"
 doReturn("one").when(spiedList).get(0)
 </pre>
 <h2 id="sbt">Run individual specs in sbt</h2>
+
 <pre>
 &gt; test-only com.twitter.yourservice.UserSpec
 </pre>
 <p>Will run just that spec.</p>
+
 <pre>
 &gt; ~ test-only com.twitter.yourservice.UserSpec
 </pre>

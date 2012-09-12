@@ -38,7 +38,7 @@
     <div class="container" style="padding-top: 60px;">
       <p><a href="https://github.com/twitter/finagle">Finagle</a> is Twitter&#8217;s <span class="caps">RPC</span> system. <a href="http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html">This</a> blog post explains its motivations and core design tenets, the <a href="https://github.com/twitter/finagle/blob/master/README.md">finagle <span class="caps">README</span></a> contains more detailed documentation. Finagle aims to make it easy to build robust clients and servers.</p>
 <h2>Futures</h2>
-<p>Finagle uses <code>com.twitter.util.Future</code><sup class="footnote" id="fnr1"><a href="#fn1">1</a></sup> to express delayed operations. Futures are highly expressive and composable, allowing for the succinct expression of concurrent and sequential operations with great clarity. Futures are a handle for a value not yet available, with methods to register callbacks to be invoked when the value becomes available. They invert the &#8220;traditional&#8221; model of asynchronous computing which typically expose APIs similar to this:</p>
+<p>Finagle uses <code>com.twitter.util.Future</code><sup class="footnote"><a href="#fn1">1</a></sup> to express delayed operations. Futures are highly expressive and composable, allowing for the succinct expression of concurrent and sequential operations with great clarity. Futures are a handle for a value not yet available, with methods to register callbacks to be invoked when the value becomes available. They invert the &#8220;traditional&#8221; model of asynchronous computing which typically expose APIs similar to this:</p>
 <pre>
 Callback&lt;R&gt; cb = new Callback&lt;R&gt;() {
   void onComplete(R result) { … }
@@ -55,7 +55,7 @@ future onFailure { error =&gt; … }
 </pre>
 <p>Futures themselves have combinators similar to those we&#8217;ve encountered before in the various collections APIs. Combinators work by exploiting a uniform <span class="caps">API</span>, wrapping some underlying <code>Future</code> with new behavior without modifying that underlying <code>Future</code>.</p>
 <h3>Sequential composition</h3>
-<p>The most important <code>Future</code> combinator is <code>flatMap</code><sup class="footnote" id="fnr2"><a href="#fn2">2</a></sup>:</p>
+<p>The most important <code>Future</code> combinator is <code>flatMap</code><sup class="footnote"><a href="#fn2">2</a></sup>:</p>
 <blockquote>
 <p><code>def Future[A].flatMap[B](f: A =&gt; Future[B]): Future[B]</code></p>
 </blockquote>
@@ -241,8 +241,8 @@ ServerBuilder()
 </pre>
 
 <p>This will serve, on port <code>serverPort</code> an <span class="caps">HTTP</span> server which dispatches requests to <code>myService</code>. Each connection is allowed to stay alive for up to 5 minutes, and we require a request to be sent within 2 minutes. The required <code>ServerBuilder</code> options are: <code>name</code>, <code>bindTo</code> and <code>codec</code>.</p>
-<p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> distinct from <code>java.util.concurrent.Future</code></p>
-<p class="footnote" id="fn2"><a href="#fnr2"><sup>2</sup></a> this is equivalent to a monadic bind</p>
+<p class="footnote" id="fn1"><sup>1</sup> distinct from <code>java.util.concurrent.Future</code></p>
+<p class="footnote" id="fn2"><sup>2</sup> this is equivalent to a monadic bind</p>
     </div> <!-- /container -->
 
     <div id="footer">

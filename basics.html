@@ -289,8 +289,7 @@ class BMW extends Car {
 </pre>
 <p><strong>See Also</strong> Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">trait</a>.</p>
 <h2 id="types">Types</h2>
-<p>Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you&#8217;ll see a <pre>type parameter</pre> introduced with the square bracket syntax:</p>
-<p>You can introduce as many type parameters. Here&#8217;s an example of a Cache of generic Keys and Values.</p>
+<p>Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you&#8217;ll see a type parameter introduced with the square bracket syntax. Here&#8217;s an example of a Cache of generic Keys and Values.</p>
 <pre>
 trait Cache[K, V] {
   def get(key: K): V

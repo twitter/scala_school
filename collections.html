@@ -64,18 +64,18 @@
 <h1>Basic Data Structures</h1>
 <p>Scala provides some nice collections.</p>
 <p><strong>See Also</strong> Effective Scala has opinions about how to use <a href="http://twitter.github.com/effectivescala/#Collections">collections</a>.</p>
-<h2 id="Lists">Lists</h2>
+<p>h2(#Lists). Lists</p>
 <pre>
 scala&gt; val numbers = List(1, 2, 3, 4)
 numbers: List[Int] = List(1, 2, 3, 4)
 </pre>
-<h2 id="Sets">Sets</h2>
+<p>h2(#Sets). Sets</p>
 <p>Sets have no duplicates</p>
 <pre>
 scala&gt; Set(1, 1, 2)
 res0: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
-<h2 id="Tuple">Tuple</h2>
+<p>h2(#Tuple). Tuple</p>
 <p>A tuple groups together simple logical collections of items without using a class.</p>
 <pre>
 scala&gt; val hostPort = ("localhost", 80)
@@ -102,7 +102,7 @@ scala&gt; 1 -&gt; 2
 res0: (Int, Int) = (1,2)
 </pre>
 <p><strong>See Also</strong> Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">destructuring bindings</a> (&#8220;unpacking&#8221; a tuple).</p>
-<h2 id="Maps">Maps</h2>
+<p>h2(#Maps). Maps</p>
 <p>It can hold basic datatypes.</p>
 <pre>
 Map(1 -&gt; 2)
@@ -118,7 +118,7 @@ Map(1 -&gt; Map("foo" -&gt; "bar"))
 <pre>
 Map("timesTwo" -&gt; { timesTwo(_) })
 </pre>
-<h2 id="Option">Option</h2>
+<p>h2(#Option). Option</p>
 <p><code>Option</code> is a container that may or may not hold something.</p>
 <p>The basic interface for Option looks like:</p>
 <p><code>
@@ -280,7 +280,7 @@ res0: Int = 55
 scala&gt; List(List(1, 2), List(3, 4)).flatten
 res0: List[Int] = List(1, 2, 3, 4)
 </pre>
-<h2 id="flatMap">flatMap</h2>
+<p>h2(#flatMap). flatMap</p>
 <p>flatMap is a frequently used combinator that combines mapping and flattening. flatMap takes a function that works on the nested lists and then concatenates the results back together.</p>
 <pre>
 scala&gt; val nestedNumbers = List(List(1, 2), List(3, 4))
@@ -311,7 +311,7 @@ scala&gt; ourMap(numbers, timesTwo(_))
 res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
 </pre>
 <p>Why <tt>List[Int]()</tt>? Scala wasn&#8217;t smart enough to realize that you wanted an empty list of Ints to accumulate into.</p>
-<h2 id="vsMap">Map?</h2>
+<p>h2(#vsMap). Map?</p>
 <p>All of the functional combinators shown work on Maps, too.  Maps can be thought of as a list of pairs so the functions you write work on a pair of the keys and values in the Map.</p>
 <pre>
 scala&gt; val extensions = Map("steve" -&gt; 100, "bob" -&gt; 101, "joe" -&gt; 201)
