@@ -12,6 +12,7 @@ This lesson covers:
 ** "Sets":#Sets
 ** "Tuple":#Tuple
 ** "Maps":#Maps
+** "Options":#Option
 * Functional Combinators
 ** "map":#map
 ** "foreach":#foreach
@@ -143,14 +144,14 @@ Now our data appears trapped in this <code>Option</code>. How do we work with it
 
 A first instinct might be to do something conditionally based on the <code>isDefined</code> method.
 
-<code>
+<pre>
 // We want to multiply the number by two, otherwise return 0.
 val result = if (res1.isDefined) {
   res1.get * 2
 } else {
   0
 }
-</code>
+</pre>
 
 We would suggest that you use either <code>getOrElse</code> or pattern matching to work with this result.
 
@@ -171,7 +172,7 @@ val result = res1 match {
 
 *See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>.
 
-h1. Functional Combinators
+h1(#combinators). Functional Combinators
 
 Combinators are so-called because they are meant to be combined. The output of one function is often suitable as the input for another.
 
