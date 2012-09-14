@@ -7,30 +7,84 @@ desc: 'Finagle primitives: Future, Service, Filter, Builder'
 
 "Finagle":https://github.com/twitter/finagle is Twitter's RPC system. "This":http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html blog post explains its motivations and core design tenets, the "finagle README":https://github.com/twitter/finagle/blob/master/README.md contains more detailed documentation. Finagle aims to make it easy to build robust clients and servers.
 
-h2. Futures
+* "REPL":#repl
+* "Futures":#Future: "Sequential composition":#futsequential, "Concurrent composition":#futconcurrent
+* "Service":#Service
+* "Filters":#Filter
+* "Builders":#Builder
 
-Finagle uses <code>com.twitter.util.Future</code>[1] to express delayed operations. Futures are highly expressive and composable, allowing for the succinct expression of concurrent and sequential operations with great clarity. Futures are a handle for a value not yet available, with methods to register callbacks to be invoked when the value becomes available. They invert the "traditional" model of asynchronous computing which typically expose APIs similar to this:
+h2(#repl). Finagle-Friendly REPL
+
+We're about to discuss some code that's not part of standard Scala. If you like to use the REPL to learn, you might wonder how to get a Scala REPL that knows about code not "built in" to Scala. One way to create such a thing uses the <a href="http://maven.apache.org/">Maven</a> (<tt>mvn</tt>) build tool. If you install that tool and assuming that you've cloned/downloaded <a href="https://github.com/twitter/finagle">Finagle</a>, you can
 
 <pre>
-Callback<R> cb = new Callback<R>() {
-  void onComplete(R result) { … }
-  void onFailure(Throwable error) { … }
+$ cd finagle
+$ mvn -pl :finagle-native scala:console
+   ...lots of build output...
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> import com.twitter.util.{Future,Promise}
+import com.twitter.util.{Future, Promise}
+
+scala>
+</pre>
+
+h2(#Future). Futures
+
+Finagle uses <code>com.twitter.util.Future</code>[1] to express delayed operations. Futures are highly expressive and composable, allowing for the succinct expression of concurrent and sequential operations with great clarity. A Future is a handle for a value not yet available. A Future has methods to register callbacks to invoke when the value becomes available.
+
+If you've used other asynchronous APIs, you perhaps cringed when you saw the word "callbacks" just now. You might associate them with illegible code flows, functions hidden far away from the place where they're invoked. But Futures can take advantage of Scala's first-class functions to present a more-readable code flow. You can define define a simpler handler function in the place where it's invoked:
+
+<pre>
+val future = dispatch(req) // returns immediately, but future is "empty"
+future onSuccess { // when the future gets "filled"...
+  ...do awesome things with future.get()...
 }
-
-dispatch(req, cb);
 </pre>
 
-Here, the <code>Callback.onComplete</code> is invoked when the result of the <code>dispatch</code> operation is available, and <code>Callback.onFailure</code> if the operation fails. With futures, we instead invert this control flow:
+You can play with Futures in the REPL. This is a bad way to learn how you'll use them in real code, but can help with understanding the API. When you use the REPL, Promise is a handy class. It's a concrete subclass of the abstract Future class. You can use it to create a Future that has no value yet.
 
 <pre>
-val future = dispatch(req)
-future onSuccess { value => … }
-future onFailure { error => … }
+scala> import com.twitter.util.{Future,Promise}
+import com.twitter.util.{Future, Promise}
+
+scala> val f6 = Future.value(6) // create already-resolved future
+f6: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@c63a8af
+
+scala> f6.get()
+res0: Int = 6
+
+scala> val fex = Future.exception(new Exception) // create resolved sad future
+fex: com.twitter.util.Future[Nothing] = com.twitter.util.ConstFuture@38ddab20
+
+scala> fex.get()
+java.lang.Exception
+  ... stack trace ...
+
+scala> val pr7 = new Promise[Int] // create unresolved future
+pr7: com.twitter.util.Promise[Int] = Promise@1994943491(...)
+
+scala> pr7.get()
+  ...console hangs, waiting for future to resolve...
+Ctrl-C
+Execution interrupted by signal.
+
+scala> pr7.setValue(7)
+
+scala> pr7.get()
+res1: Int = 7
+
+scala>
 </pre>
 
-Futures themselves have combinators similar to those we've encountered before in the various collections APIs. Combinators work by exploiting a uniform API, wrapping some underlying <code>Future</code> with new behavior without modifying that underlying <code>Future</code>.
+<a name="futsequential">&nbsp;</a>
 
 h3. Sequential composition
+
+Futures have combinators <a href="collections.html#combinators">similar to those in the collections APIs</a> (e.g., map, flatMap). A collection-combinator, you recall, lets you express things like "I have a List of integers and a <tt>square</tt> function: map that to the List of the squares of my integers." A Future-combinator lets you express things like "I have a Future hypothetical-integer and a <tt>square</tt> function: map that to the Future square of my hypothetical-integer."
+
+If you're defining an asynchronous API, an request value comes in and your API gives back a response wrapped in a Future. Thus, these combinators that turn inputs and functions into Functions are darned useful.
 
 The most important <code>Future</code> combinator is <code>flatMap</code>[2]:
 
@@ -38,30 +92,103 @@ The most important <code>Future</code> combinator is <code>flatMap</code>[2]:
 <code>def Future[A].flatMap[B](f: A => Future[B]): Future[B]</code>
 </blockquote>
 
-<code>flatMap</code> sequences two features. The method signature tells the story: given the succesful value of the future <code>f</code> must provide the next <code>Future</code>. The result of this operation is another <code>Future</code> that is complete only when both of these futures have completed. If either <code>Future</code> fails, the given <code>Future</code> will also fail. This implicit interleaving of errors allow us to handle errors only in those places where they are semantically significant. <code>flatMap</code> is the standard name for the combinator with these semantics. Scala also has syntactic shorthand to invoke it: the <code>for</code> comprehension.
+<code>flatMap</code> sequences two futures. The method signature tells the story: given the succesful value of a future, the function <code>f</code> provides the next <code>Future</code>. The result of this operation is another <code>Future</code> that is complete only when both of these futures have completed. If either <code>Future</code> fails, the given <code>Future</code> will also fail. This implicit interleaving of errors allow us to handle errors only in those places where they are semantically significant. <code>flatMap</code> is the standard name for the combinator with these semantics.
 
-As an example, let's assume we have methods <code>authenticate: Request -> User</code>, and <code>rateLimit: User -> Boolean</code>, then the following code:
+If you have a Future and you want apply an asynchronous API to its value, use <tt>flatMap</tt>. For example, suppose you have a Future[User] and need a Future[Boolean] indicating whether the enclosed User has been banned. There is an API to determine whether a User has been banned, but it is asynchronous. You can use flatMap:
 
 <pre>
-val f = authenticate(request) flatMap { u =>
-  rateLimit(u) map { r => (u, r)
-}
+scala> import com.twitter.util.{Future,Promise}
+import com.twitter.util.{Future, Promise}
+
+scala> class User(n: String) { val name = n }
+defined class User
+
+scala> def isBanned(u: User) = { Future.value(false) }
+isBanned: (u: User)com.twitter.util.Future[Boolean]
+
+scala> val pru = new Promise[User]
+pru: com.twitter.util.Promise[User] = Promise@897588993(...)
+
+scala> val futBan = pru flatMap isBanned // apply isBanned to future
+futBan: com.twitter.util.Future[Boolean] = Promise@1733189548(...)
+
+scala> futBan.get()
+  ...REPL hangs, futBan not resolved yet...
+Ctrl-C
+Execution interrupted by signal.
+
+scala> pru.setValue(new User("prudence"))
+
+scala> futBan.get()
+res45: Boolean = false
+
+scala>
 </pre>
 
-With the help of for-comprehensions, we can write the above as:
+Similarly, to apply a <em>synchronous</em> function to a Future, use <tt>map</tt>. For example, suppose you have a Future[RawCredentials] and need a Future[Credentials]. You have a synchronous <code>normalize</code> function that converts from RawCredentials to Credentials. You can use <code>map</code>:
 
 <pre>
-val f = for {
-  u <- authenticate(request)
-  r <- rateLimit(u)
-} yield (u, r)
+scala> class RawCredentials(u: String, pw: String) {
+     |   val username = u
+     |   val password = pw
+     | }
+defined class RawCredentials
+
+scala> class Credentials(u: String, pw: String) {
+     |   val username = u
+     |   val password = pw
+     | }
+defined class Credentials
+
+scala> def normalize(raw: RawCredentials) = {
+     |   new Credentials(raw.username.toLowerCase(), raw.password)
+     | }
+normalize: (raw: RawCredentials)Credentials
+
+scala> val praw = new Promise[RawCredentials]
+praw: com.twitter.util.Promise[RawCredentials] = Promise@1341283926(...)
+
+scala> val fcred = praw map normalize // apply normalize to future
+fcred: com.twitter.util.Future[Credentials] = Promise@1309582018(...)
+
+scala> fcred.get()
+   ...REPL hangs, fcred doesn't have a value yet...
+Ctrl-C
+Execution interrupted by signal.
+
+scala> praw.setValue(new RawCredentials("Florence", "nightingale"))
+
+scala> fcred.get().username
+res48: String = florence
+
+scala>
+</pre>
+
+Scala has syntactic shorthand to invoke flatMap: the <code>for</code> comprehension. Suppose you want to authenticate a login request via an asynchronous API and then check to see whether the user is banned via another asynchronous API. With the help of for-comprehensions, we can write this as:
+
+<pre>
+scala> def authenticate(req: LoginRequest) = {
+     |   // TODO: we should check the password
+     |   Future.value(new User(req.username))
+     | }
+authenticate: (req: LoginRequest)com.twitter.util.Future[User]
+
+scala> val f = for {
+     |  u <- authenticate(request)
+     |  b <- isBanned(u)
+     | } yield (u, b)
+f: com.twitter.util.Future[(User, Boolean)] = Promise@35785606(...)
+
+scala>
 </pre>
 
 produces a future <code>f: Future[(User, Boolean)]</code> that provides both the user object and and a boolean indicating whether that user has been rate limited. Note how sequential composition is required here: <code>rateLimit</code> takes as an argument the output of <code>authenticate</code>
 
+<a name="futconcurrent">&nbsp;</a>
+
 h3. Concurrent composition
 
-There are also a number of concurrent combinators. Generally these convert a sequence of <code>Future</code> into a <code>Future</code> of sequence, in slightly different ways:
+<code>Future</code> provides some concurrent combinators. Generally these convert a sequence of <code>Future</code> into a <code>Future</code> of sequence, in slightly different ways:
 
 <pre>
 object Future {
@@ -72,13 +199,64 @@ object Future {
 }
 </pre>
 
-<code>collect</code> is the most straightforward one: given a set of <code>Future</code>s of the same type, we are given a <code>Future</code> of a sequence of values of that type. This future is complete when all of the underlying futures have completed, or when any of them have failed.
+<code>collect</code> takes a set of <code>Future</code>s of the same type, and yields a <code>Future</code> of a sequence of values of that type. This future is complete when all of the underlying futures have completed, or when any of them have failed.
 
-<code>join</code> takes a sequence of <code>Future</code>s whose types may be mixed, yielding a <code>Future[Unit]</code> that is completely when all of the underlying futures are (or fails if any of them do). This is useful for indicating the completion of a set of heterogeneous operations.
+<pre>
+scala> val f2 = Future.value(2)
+f2: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@13ecdec0
 
-<code>select</code> returns a <code>Future</code> that is complete when the first of the given <code>Future</code>s complete, together with the remaining uncompleted futures.
+scala> val f3 = Future.value(3)
+f3: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@263bb672
 
-In combination, this allows for powerful and concise expression of operations typical of network services. This hypothetical code performs rate limiting (in order to maintain a local rate limit cache) concurrently with dispatching a request on behalf of the user to the backend:
+scala> val f23 = Future.collect(Seq(f2, f3))
+f23: com.twitter.util.Future[Seq[Int]] = Promise@635209178(...)
+
+scala> f23.get() sum
+res82: Int = 5
+
+</pre>
+
+<code>join</code> takes a sequence of <code>Future</code>s whose types may be mixed, yielding a <code>Future[Unit]</code> that is complete when all of the underlying futures are (or fails if any of them do). This is useful for indicating the completion of a set of heterogeneous operations.
+
+<pre>
+scala> val ready = Future.join(Seq(f2, f3))
+ready: com.twitter.util.Future[Unit] = Promise@699347471(...)
+
+scala> ready.get() // doesn't ret value, but I know my futures are done
+
+scala>
+</pre>
+
+<code>select</code> returns a <code>Future</code> that is complete when the first of the given <code>Future</code>s complete. It returns that <code>Future</code> together with a Seq containing the remaining uncompleted Futures.
+
+<pre>
+scala> val pr7 = new Promise[Int] // unresolved future
+pr7: com.twitter.util.Promise[Int] = Promise@1608532943(...)
+
+scala> val sel = Future.select(Seq(f2, pr7)) // select from 2 futs, one resolved
+sel: com.twitter.util.Future[...] = Promise@1003382737(...)
+
+scala> val(complete, stragglers) = sel.get()
+complete: com.twitter.util.Try[Int] = Return(2)
+stragglers: Seq[...] = List(...)
+
+scala> complete.get()
+res110: Int = 2
+
+scala> stragglers(0).get() // our list of not-yet-finished futures has one item
+  ...get() hangs the REPL because this straggling future is not finished...
+Ctrl-C
+Execution interrupted by signal.
+
+scala> pr7.setValue(7)
+
+scala> stragglers(0).get()
+res113: Int = 7
+
+scala>
+</pre>
+
+These combinators express operations typical of network services. This hypothetical code performs rate limiting (in order to maintain a local rate limit cache) concurrently with dispatching a request on behalf of the user to the backend:
 
 <pre>
 def serve(request: Request): Future[Response] = {
@@ -87,10 +265,10 @@ def serve(request: Request): Future[Response] = {
       user    <- auth(request)
       limited <- isLimit(user)
     } yield (user, limited)
-  
-  val done = 
+
+  val done =
     dispatch(request) join userLimit
-  
+
   done flatMap { case (rep, (usr, lim)) =>
     if (lim) {
       updateLocalRateLimitCache(usr)
@@ -102,11 +280,15 @@ def serve(request: Request): Future[Response] = {
 }
 </pre>
 
-This hypothetical example combines both sequential and concurrent composition. Also note how there is no explicit error handling other than converting a rate limiting reply to an exception. If any future fails here, it is automatically propagated to the returned <code>Future</code>.
+This hypothetical example combines sequential and concurrent composition. Also note how there is no explicit error handling other than converting a rate limiting reply to an exception. If any future fails here, it is automatically propagated to the returned <code>Future</code>.
 
-h2. Service
+h2(#Service). Service
 
-A <code>Service</code> is a function <code>Req => Future[Rep]</code> for some request and reply types. <code>Service</code> is used by both clients and servers: servers implement <code>Service</code> and clients use builders to create one used for querying.
+A Finagle <code>Service</code> is a function <code>Req => Future[Rep]</code> for some request and reply types. Both clients and servers use <code>Service</code>: a server uses an implementation of a <code>Service</code>.
+
+A client uses a builder to create a Service used for querying.
+
+A server connects a service to an access point, e.g., a network port listening for HTTP connections.
 
 <blockquote>
 <code>abstract class Service[-Req, +Rep] extends (Req => Future[Rep])</code>
@@ -115,9 +297,23 @@ A <code>Service</code> is a function <code>Req => Future[Rep]</code> for some re
 A simple HTTP client might do:
 
 <pre>
-service: Service[HttpRequest, HttpResponse]
+import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpRequest, HttpResponse, HttpVersion, HttpMethod}
+import com.twitter.finagle.Service
+import com.twitter.finagle.builder.ClientBuilder
+import com.twitter.finagle.http.Http
 
-val f = service(HttpRequest("/", HTTP_1_1))
+// Don't worry, we discuss this magic "ClientBuilder" later
+val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
+  .codec(Http())
+  .hosts("twitter.com:80")
+  .hostConnectionLimit(1)
+  .build()
+
+val req = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/")
+
+val f = client(req) // Client, send the request
+
+// Handle the response:
 f onSuccess { res =>
   println("got response", res)
 } onFailure { exc =>
@@ -125,28 +321,41 @@ f onSuccess { res =>
 }
 </pre>
 
-Servers implement <code>Service</code>:
+A server uses an implementation of a <code>Service</code>:
 
 <pre>
-class MyServer 
-  extends Service[HttpRequest, HttpResponse]
-{
+import com.twitter.finagle.Service
+import com.twitter.finagle.http.Http
+import com.twitter.util.Future
+import org.jboss.netty.handler.codec.http.{DefaultHttpResponse, HttpVersion, HttpResponseStatus, HttpRequest, HttpResponse}
+import java.net.{SocketAddress, InetSocketAddress}
+import com.twitter.finagle.builder.{Server, ServerBuilder}
+import com.twitter.finagle.builder.ServerBuilder
+
+// Define our service: OK response for root, 404 for other paths
+val rootService = new Service[HttpRequest, HttpResponse] {
   def apply(request: HttpRequest) = {
-    request.path match {
-      case "/" => 
-        Future.value(HttpResponse("root"))
-      case _ => 
-        Future.value(HttpResponse("default"))
+    val r = request.getUri match {
+      case "/" => new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
+      case _ => new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND)
     }
+    Future.value(r)
   }
 }
+
+// Serve our service on a port
+val address: SocketAddress = new InetSocketAddress(10000)
+val server: Server = ServerBuilder()
+  .codec(Http())
+  .bindTo(address)
+  .name("HttpServer")
+  .build(rootService)
 </pre>
 
-Combining them is easy. A simple proxy might look like this:
+You can combine them. A simple proxy might look like this:
 
 <pre>
-class MyServer(client: Service[..])
-  extends Service[HttpRequest, HttpResponse]
+class MyService(client: Service[..]) extends Service[HttpRequest, HttpResponse]
 {
   def apply(request: HttpRequest) = {
     client(rewriteReq(request)) map { res =>
@@ -158,9 +367,9 @@ class MyServer(client: Service[..])
 
 where <code>rewriteReq</code> and <code>rewriteRes</code> can provide protocol translation, for example.
 
-h2. Filters
+h2(#Filter). Filters
 
-Filters are service transformers. They are useful both for providing functionality that's <em>service generic</em> as well as factoring a given service into distinct phases.
+Filters transform services. They can provide <em>service generic</em> functionality. For example, you might have several services that you wish to support rate limiting; you can write one rate-limiting filter and apply it to all your services. Filters are also good for decomposing a service into distinct phases.
 
 <pre>
 abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
@@ -230,7 +439,7 @@ val authenticatedTimedOutService: Service[HttpReq, HttpRep] =
   authenticateAndTimedOut andThen serviceRequiringAuth
 </pre>
 
-h2. Builders
+h2(#Builder). Builders
 
 Finally, builders put it all together. A <code>ClientBuilder</code> produces a <code>Service</code> instance given a set of parameters, and a <code>ServerBuilder</code> takes a <code>Service</code> instance and dispatches incoming requests on it. In order to determine the type of <code>Service</code>, we must provide a <code>Codec</code>. Codecs provide the underlying protocol implementation (eg. HTTP, thrift, memcached). Both builders have many parameters, and require a few.
 
@@ -259,7 +468,7 @@ ServerBuilder()
   .bindTo(new InetSocketAddress(serverPort))
   .build(myService)
 </pre>
- 
+
 This will serve, on port <code>serverPort</code> an HTTP server which dispatches requests to <code>myService</code>. Each connection is allowed to stay alive for up to 5 minutes, and we require a request to be sent within 2 minutes. The required <code>ServerBuilder</code> options are: <code>name</code>, <code>bindTo</code> and <code>codec</code>.
 
 fn1. distinct from <code>java.util.concurrent.Future</code>
