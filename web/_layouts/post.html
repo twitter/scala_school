@@ -23,11 +23,11 @@
         <div class="container fixed">
           <h3><a href="index.html">{{ page.title }}</a></h3>
           <ul class="nav secondary-nav">
-            {% if page.previous.url %}
-              <li><a href="{{ page.previous.url }}">&laquo;Previous</a></li>
+            {% if page.prev %}
+              <li><a href="{{ page.prev | replace:'.textile','.html' }}">&laquo;Previous</a></li>
             {% endif %}
-            {% if page.next.url %}
-              <li><a href="{{ page.next.url }}">Next&raquo;</a></li>
+            {% if page.next %}
+              <li><a href="{{ page.next | replace:'.textile','.html'  }}">Next&raquo;</a></li>
             {% endif %}
           </ul>
 

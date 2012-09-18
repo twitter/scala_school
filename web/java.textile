@@ -1,8 +1,8 @@
 ---
-permalink: java.html
+prev: concurrency.textile
+next: finagle.textile
 title: Java + Scala
 layout: post
-desc: 'Java interop: Using Scala from Java'
 ---
 
 This lesson covers Java interoperability.

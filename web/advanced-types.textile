@@ -1,8 +1,8 @@
 ---
-permalink: advanced-types.html
+prev: type-basics.textile
+next: sbt.textile
 title: Advanced types
 layout: post
-desc: Advanced Types, view bounds, higher-kinded types, recursive types, structural types
 ---
 
 This lesson covers:

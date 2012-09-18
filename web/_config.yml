@@ -1,1 +1,54 @@
 permalink: none
+lessons:
+  - 
+    title: Basics
+    url: basics.html
+    desc: Values, functions, classes, methods, inheritance, try-catch-finally. Expression-oriented programming
+  -
+    title: Basics continued
+    url: basics2.html
+    desc: Case classes, objects, packages, apply, update, Functions are Objects (uniform access principle), pattern matching.
+  -
+    title: Collections
+    url: collections.html
+    desc: Lists, Maps, functional combinators (map, foreach, filter, zip, folds)
+  -
+    title: Pattern matching & functional composition
+    url: pattern-matching-and-functional-composition.html
+    desc: More functions! PartialFunctions, more Pattern Matching
+  -
+    title: Type & polymorphism basics
+    url: type-basics.html
+    desc: Basic Types and type polymorphism, type inference, variance, bounds, quantification
+  -
+    title: Advanced types
+    url: advanced-types.html
+    desc: Advanced Types, view bounds, higher-kinded types, recursive types, structural types
+  -
+    title: Simple Build Tool
+    url: sbt.html
+    desc: All about SBT, the standard Scala build tool
+  -
+    title: More collections
+    url: coll2.html
+    desc: Tour of the Scala Collections library
+  -
+    title: Testing with specs
+    url: specs.html
+    desc: Write tests with Specs, a BDD testing framework for Scala
+  -
+    title: Concurrency in Scala
+    url: concurrency.html
+    desc: Runnable, Callable, threads, Futures
+  -
+    title: Java + Scala
+    url: java.html
+    desc: 'Java interop: Using Scala from Java'
+  -
+    title: An introduction to Finagle
+    url: finagle.html
+    desc: 'Finagle primitives: Future, Service, Filter, Builder'
+  -
+    title: Searchbird
+    url: searchbird.html
+    desc: Building a distributed search engine using Finagle

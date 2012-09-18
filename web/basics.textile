@@ -1,8 +1,7 @@
 ---
-permalink: basics.html
-title: Basics
 layout: post
-desc: Values, functions, classes, methods, inheritance, try-catch-finally. Expression-oriented programming
+title: Basics
+next: basics2.textile
 ---
 
 This lesson covers:

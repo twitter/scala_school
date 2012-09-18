@@ -1,8 +1,8 @@
 ---
-permalink: coll2.html
+prev: sbt.textile
+next: specs.textile
 title: More collections
 layout: post
-desc: Tour of the Scala Collections library
 ---
 
 Scala provides a nice set of collection implementations. It also provides some abstractions for collection types. This allows you to write code that can work with a collection of <code>Foo</code>s without worrying whether that collection is a <code>List</code>, <code>Set</code>, or what-have-you.

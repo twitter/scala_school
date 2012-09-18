@@ -1,8 +1,7 @@
 ---
-permalink: searchbird.html
+prev: finagle.textile
 title: Searchbird
 layout: post
-desc: Building a distributed search engine using Finagle
 ---
 
 We're going to build a simple distributed search engine using Scala and the previously discussed "Finagle":http://github.com/twitter/finagle framework.

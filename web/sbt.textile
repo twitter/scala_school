@@ -1,8 +1,8 @@
 ---
-permalink: sbt.html
+prev: advanced-types.textile
+next: coll2.textile
 title: Simple Build Tool
 layout: post
-desc: All about SBT, the standard Scala build tool
 ---
 
 This lesson covers SBT! Specific topics include:

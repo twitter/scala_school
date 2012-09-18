@@ -1,8 +1,8 @@
 ---
-permalink: basics2.html
+prev: basics.textile
+next: collections.textile
 title: Basics continued
 layout: post
-desc: Case classes, objects, packages, apply, update, Functions are Objects (uniform access principle), pattern matching.
 ---
 
 This lesson covers:

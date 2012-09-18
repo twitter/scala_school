@@ -1,8 +1,8 @@
 ---
-permalink: collections.html
+prev: basics2.textile
+next: pattern-matching-and-functional-composition.textile
 title: Collections
 layout: post
-desc: Lists, Maps, functional combinators (map, foreach, filter, zip, folds)
 ---
 
 This lesson covers:

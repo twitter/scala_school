@@ -1,8 +1,8 @@
 ---
-permalink: concurrency.html
+prev: specs.textile
+next: java.textile
 title: Concurrency in Scala
 layout: post
-desc: Runnable, Callable, threads, Futures
 ---
 
 * "Runnable/Callable":#runnable

@@ -1,8 +1,8 @@
 ---
-permalink: finagle.html
+prev: java.textile
+next: searchbird.textile
 title: An introduction to Finagle
 layout: post
-desc: 'Finagle primitives: Future, Service, Filter, Builder'
 ---
 
 "Finagle":https://github.com/twitter/finagle is Twitter's RPC system. "This":http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html blog post explains its motivations and core design tenets, the "finagle README":https://github.com/twitter/finagle/blob/master/README.md contains more detailed documentation. Finagle aims to make it easy to build robust clients and servers.

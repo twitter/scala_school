@@ -31,9 +31,9 @@ title: Scala School
         <div class="span8">
           <h2>Lessons</h2>
             <dl>
-              {% for post in site.posts reversed %}
-                <dt><a href="{{ post.url }}">{{ post.title }}</a></dt>
-                <dd>{{ post.desc }}</dd>
+              {% for lesson in site.lessons %}
+                <dt><a href="{{ lesson.url }}">{{ lesson.title }}</a></dt>
+                <dd>{{ lesson.desc }}</dd>
               {% endfor %}
             </dl>
        </div>

@@ -1,8 +1,8 @@
 ---
-permalink: specs.html
+prev: coll2.textile
+next: concurrency.textile
 title: Testing with specs
 layout: post
-desc: Write tests with Specs, a BDD testing framework for Scala
 ---
 
 This lesson covers testing with Specs, a Behavior-Driven Design (BDD) Framework for Scala.
