@@ -36,40 +36,40 @@
     </div>
 
     <div class="container" style="padding-top: 60px;">
-      <p>This lesson covers <span class="caps">SBT</span>! Specific topics include:</p>
+      <p>В этом уроке вы узнаете о <span class="caps">SBT</span>! Отдельные разделы включают:</p>
 <ul>
-	<li>creating an sbt project</li>
-	<li>basic commands</li>
-	<li>the sbt console</li>
-	<li>continuous command execution</li>
-	<li>customizing your project</li>
-	<li>custom commands</li>
-	<li>quick tour of sbt source (if time)</li>
+	<li>создание sbt проекта</li>
+	<li>основные комманды</li>
+	<li>sbt консоль</li>
+	<li>продолжительное выполнение команд</li>
+	<li>настройка вашего проекта</li>
+	<li>настройка команд</li>
+	<li>краткий курс по исходникам sbt (если будет время)</li>
 </ul>
-<h2>About <span class="caps">SBT</span></h2>
-<p><span class="caps">SBT</span> is a modern build tool. While it is written in Scala and provides many Scala conveniences, it is a general purpose build tool.</p>
-<h2>Why <span class="caps">SBT</span>?</h2>
+<h2>Немного о <span class="caps">SBT</span></h2>
+<p><span class="caps">SBT</span> &#8211; это современный инструмент для сборки приложений. Хотя он написан на Scala и предоставляет множество удобных возможностей Scala, но он может использоваться и как инструмент для сборки общего назначения.</p>
+<h2>Почему именно <span class="caps">SBT</span>?</h2>
 <ul>
-	<li>Sane(ish) dependency management
+	<li>Достойные средства управления зависимостями
 	<ul>
-		<li>Ivy for dependency management</li>
-		<li>Only-update-on-request model</li>
+		<li>Ivy для управления зависимостями</li>
+		<li>Модель Only-update-on-request</li>
 	</ul></li>
-	<li>Full Scala language support for creating tasks</li>
-	<li>Continuous command execution</li>
-	<li>Launch <span class="caps">REPL</span> in project context</li>
+	<li>Полная поддержка языка Scala для создания задач</li>
+	<li>Продолжительное выполнение комманд</li>
+	<li>Запуск <span class="caps">REPL</span> в контексте проекта</li>
 </ul>
-<h2>Getting Started</h2>
+<h2>Давайте начнем</h2>
 <ul>
-	<li>Download the jar:http://code.google.com/p/simple-build-tool/downloads/list</li>
-	<li>Create an sbt shell script that calls the jar, e.g.</li>
+	<li>Загрузите jar-файл :http://code.google.com/p/simple-build-tool/downloads/list</li>
+	<li>Создайте sbt шелл-скрипт, который вызывает jar, например</li>
 </ul>
 <pre>
 java -Xmx512M -jar sbt-launch.jar "$@"
 </pre>
 <ul>
-	<li>make sure it&#8217;s executable and in your path</li>
-	<li>run sbt to create your project</li>
+	<li>уедитесь, что скрипт является исполняемым и находится в указанном вами пути</li>
+	<li>запустите sbt, чтобы создать ваш проект</li>
 </ul>
 <pre>
 [local ~/projects]$ sbt
@@ -96,26 +96,25 @@ Getting Scala 2.8.1 ...
 [info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
 &gt; 
 </pre>
-<p>Note that it&#8217;s good form to start out with a <span class="caps">SNAPSHOT</span> version of your project.</p>
-<h2>Project Layout</h2>
+<p>Заметьте, что это хорошая практика начинать работу со <span class="caps">SNAPSHOT</span> версией вашего проекта.</p>
+<h2>Структура проекта</h2>
 <ul>
-	<li>project &#8211; project definition files
+	<li>project &#8211; файлы проекта
 	<ul>
-		<li>project/build/<yourproject>.scala &#8211; the main project definition file</li>
-		<li>project/build.properties &#8211; project, sbt and scala version definitions</li>
+		<li>project/build/<yourproject>.scala &#8211; основной файл проекта</li>
+		<li>project/build.properties &#8211; настройки проекта, sbt и scala версии</li>
 	</ul></li>
-	<li>src/main &#8211; your app code goes here, in a subdirectory indicating the<br />
-code&#8217;s language (e.g. src/main/scala, src/main/java)</li>
-	<li>src/main/resources &#8211; static files you want added to your jar<br />
-  (e.g. logging config)</li>
-	<li>src/test &#8211; like src/main, but for tests</li>
-	<li>lib_managed &#8211; the jar files your project depends on. Populated by sbt update</li>
-	<li>target &#8211; the destination for generated stuff (e.g. generated thrift<br />
-  code, class files, jars)</li>
+	<li>src/main &#8211; код вашего приложения находится здесь, во вложенной директории, которая носит название по имени используемого языка (например, src/main/scala, src/main/java)</li>
+	<li>src/main/resources &#8211; набор статических файлов, которые вы хотите добавить к вашему jar-файлу<br />
+  (например, конфигурация логгирования)</li>
+	<li>src/test &#8211; также как src/main, но  только для тестов</li>
+	<li>lib_managed &#8211; jar файлы от которых зависит ваш проект. Обычно здесь находятся различные обновления sbt</li>
+	<li>target &#8211; содержит сгенерированные объекты (например, сгенерированный thrift<br />
+ код, файлы классов, jar файлы)</li>
 </ul>
-<h2>Adding Some Code</h2>
-<p>We&#8217;ll be creating a simple <span class="caps">JSON</span> parser for simple tweets.  Add the<br />
-following code to<br />
+<h2>Добавление кода</h2>
+<p>Мы будем создавать простой парсер <span class="caps">JSON</span> для простых твитов. Добавьте <br />
+следующий код в<br />
 src/main/scala/com/twitter/sample/SimpleParser.scala</p>
 <pre>
 package com.twitter.sample
@@ -138,28 +137,27 @@ class SimpleParser {
   }
 }
 </pre>
-<p>This is ugly and buggy, but should compile.</p>
-<h2>Testing in the Console</h2>
-<p><span class="caps">SBT</span> can be used both as a command line script and as a build console.  We&#8217;ll be primarily using it as a build console, but most commands can be run standalone by passing the command as an argument to <span class="caps">SBT</span>, e.g.</p>
+<p>Этот код уродлив и содержит много ошибок, но должен скомпилироваться.</p>
+<h2>Тестирование в Консоли</h2>
+<p><span class="caps">SBT</span> может использоваться как скрипт командной строки или как консоль для сборки. Мы будем использовать его в основном как консоль для сборки, но большинство комманд могут быть использованы в качестве аргументов при передаче их в <span class="caps">SBT</span>, например</p>
 <pre>
 sbt test
 </pre>
-<p>Note that if a command takes arguments, you need to quote the entire<br />
-argument path, e.g.<br />
+<p>Заметьте, что если команда принимает аргументы, то вы должны заключить в кавычки внутренний путь аргумента, например<br />
 <pre><br />
 sbt &#8216;test-only com.twitter.sample.SampleSpec&#8217;<br />
-</pre><br />
-It&#8217;s weird that way.</p>
-<p>Anyway. To start working with our code, launch sbt</p>
+</pre></p>
+<p>Это странный способ.</p>
+<p>В любом случае, начните работу с вашим кодом, запустив sbt</p>
 <pre>
 [local ~/projects/sbt-sample]$ sbt
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
 [info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
 &gt; 
 </pre>
-<p><span class="caps">SBT</span> allows you to start a Scala <span class="caps">REPL</span> with all your project<br />
-dependencies loaded. It compiles your project source before launching<br />
-the console, providing us a quick way to bench test our parser.</p>
+<p><span class="caps">SBT</span> позволяет вам запустить Scala <span class="caps">REPL</span> со всеми вашими зависимостями. <br />
+Перед запуском консоли, сначала компилируется исходный код вашего проекта,<br />
+предоставляя нам быстрый способ прогнать тест нашего парсера.</p>
 <pre>
 &gt; console
 [info] 
@@ -192,7 +190,7 @@ Type :help for more information.
 
 scala&gt; 
 </pre>
-<p>Our code has compiled, and we&#8217;re provide the typical Scala prompt.  We&#8217;ll create a new parser, an exemplar tweet, and ensure it &#8220;works&#8221;</p>
+<p>Наш код скомпилировался, и мы попадаем в обычный Scala <span class="caps">REPL</span>. Мы создадим новый парсер, тестовый твит, и убедимся, что все &#8220;работает&#8221;</p>
 <pre>
 scala&gt; import com.twitter.sample._            
 import com.twitter.sample._
@@ -208,9 +206,9 @@ res0: Option[com.twitter.sample.SimpleParsed] = Some(SimpleParsed(1,"foo"}))
 
 scala&gt; 
 </pre>
-<h2>Adding Dependencies</h2>
-<p>Our simple parser works for this very small set of inputs, but we want to add tests and break it.  The first step is adding the specs test library and a real <span class="caps">JSON</span> parser to our project.  To do this we have to go beyond the default <span class="caps">SBT</span> project layout and create a project.</p>
-<p><span class="caps">SBT</span> considers Scala files in the project/build directory to be project definitions.  Add the following to project/build/SampleProject.scala</p>
+<h2>Добавление зависимостей</h2>
+<p>Наш простой парсер работает с небольшим набором входных данных, но мы хотим добавить тесты и &#8220;разрушить&#8221; программу. Первым шагом будет добавление специальной библиотеки тестов и настоящий <span class="caps">JSON</span> парсер в наш проект. Чтобы сделать это, нам нужно выйти за рамки стандартного <span class="caps">SBT</span> проекта и создать свой.</p>
+<p><span class="caps">SBT</span> считает Scala файлы в директории project/build, как файлы описания проекта. Добавьте следующее в файл project/build/SampleProject.scala</p>
 <pre>
 import sbt._
 
@@ -219,8 +217,8 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
   val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
 }
 </pre>
-<p>A project definition is an <span class="caps">SBT</span> class.  In our case we extend SBT&#8217;s DefaultProject.</p>
-<p>You declare dependencies by specifing a val that is a dependency.  <span class="caps">SBT</span> uses reflection to scan all the dependency vals in your project and build up a dependency tree at build time.  The syntax here may be new, but this is equivalent to the maven dependency</p>
+<p>Описание проекта &#8211; это <span class="caps">SBT</span> класс. В нашем случае, мы расширяем стандартный DefaultProject <span class="caps">SBT</span>.</p>
+<p>Вы о��ъявляете зависимости с помощью val. <span class="caps">SBT</span> использует отражение, чтобы найти все val зависимости в вашем проекте и построить дерево зависимостей во время сборки. Синтаксис может показаться новым, но он эквивалентен тому, что используется в Maven</p>
 <pre>
 &lt;dependency&gt;
   &lt;groupId&gt;org.codehaus.jackson&lt;/groupId&gt;
@@ -234,7 +232,7 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
   &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;
 </pre>
-<p>Now we can pull down dependencies for our project.  From the command line (not the sbt console), run sbt update</p>
+<p>Теперь мы можем получить все зависимости вашего проекта. В командной строке (не в sbt консоли), наберите sbt update</p>
 <pre>
 [local ~/projects/sbt-sample]$ sbt update
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
@@ -252,9 +250,9 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 [info] Total session time: 2 s, completed Nov 24, 2010 8:47:26 AM
 [success] Build completed successfully.
 </pre>
-<p>You&#8217;ll see that sbt retrieved the specs library.  You&#8217;ll now also have a lib_managed directory, and lib_managed/scala_2.8.1/test will have specs_2.8.0-1.6.5.jar</p>
-<h2>Adding Tests</h2>
-<p>Now that we have a test library added, put the following code in<br />
+<p>Вы увидете, что sbt загрузит все необходимые библиотеки. Теперь у вас появилась директория lib_managed, а lib_managed/scala_2.8.1/test будет содержать specs_2.8.0-1.6.5.jar</p>
+<h2>Добавление тестов</h2>
+<p>Теперь, когда была добавлена тестовая библиотека, добавьте следующий код в<br />
 src/test/scala/com/twitter/sample/SimpleParserSpec.scala</p>
 <pre>
 package com.twitter.sample
@@ -277,7 +275,7 @@ object SimpleParserSpec extends Specification {
   }
 }
 </pre>
-<p>In the sbt console, run test</p>
+<p>Запустите тест, набрав в sbt консоли</p>
 <pre>
 &gt; test
 [info] 
@@ -329,7 +327,7 @@ object SimpleParserSpec extends Specification {
 [info] Total time: 0 s, completed Nov 24, 2010 8:54:45 AM
 &gt; 
 </pre>
-<p>Our test works!  Now we can add more.  One of the nice things <span class="caps">SBT</span> provides is a way to run triggered actions.  Prefacing an action with a tilde starts up a loop that runs the action any time source files change.  Lets run ~test and see what happens.</p>
+<p>Наш тест работает! Теперь можем добавить еще кода. Одной из прекрасных вещей <span class="caps">SBT</span> является возможностть запускать условые действия. До запуска какого-то действия, стартует цикл, который запускает событие, как только происходит изменение в исходниках. Давайте запустим ~test и посмотрим, что произойдет.</p>
 <pre>
 [info] == test ==
 [success] Successful.
@@ -337,7 +335,7 @@ object SimpleParserSpec extends Specification {
 [info] Total time: 0 s, completed Nov 24, 2010 8:55:50 AM
 1. Waiting for source changes... (press enter to interrupt)
 </pre>
-<p>Now let&#8217;s add the following test cases</p>
+<p>Теперь давайте добавим следующий набор тестов</p>
 <pre>
     "reject a non-JSON tweet" in {
       val tweet = """"id":1,"text":"foo""""
@@ -366,7 +364,7 @@ object SimpleParserSpec extends Specification {
       }
     }
 </pre>
-<p>After we save our file, <span class="caps">SBT</span> detects our changes, runs tests, and informs us our parser is lame</p>
+<p>После того как мы сохраним наш файл, <span class="caps">SBT</span> определит наши изменения, запустит тесты и проинформирует нас, если парсер работает некорректно</p>
 <pre>
 [info] == com.twitter.sample.SimpleParserSpec ==
 [info] SimpleParserSpec
@@ -378,7 +376,7 @@ object SimpleParserSpec extends Specification {
 [info]     'foo","nested":{"id' is not equal to 'foo' (SimpleParserSpec.scala:31)
 [info]   + fail on partial content
 </pre>
-<p>So let&#8217;s rework our <span class="caps">JSON</span> parser to be real</p>
+<p>Теперь дав��йте перепишем наш <span class="caps">JSON</span> парсер, чтобы он больше соответсвовал действительности</p>
 <pre>
 package com.twitter.sample
 
@@ -424,7 +422,7 @@ class SimpleParser {
   }
 }
 </pre>
-<p>This is a simple Jackson parser.  When we save, <span class="caps">SBT</span> recompiles our code and reruns our tests.  Getting better!</p>
+<p>Получили простой <span class="caps">JSON</span> парсер. Когда мы сохраним изменения, <span class="caps">SBT</span> перекомпилирует наш код и запустит наши тесты. Получилось намного лучше!</p>
 <pre>
 info] SimpleParser should
 [info]   + work with basic tweet
@@ -434,8 +432,8 @@ info] SimpleParser should
 [info]   + fail on partial content
 [info] == com.twitter.sample.SimpleParserSpec ==
 </pre>
-<p>Uhoh.  We need to check for nested objects.  Let&#8217;s add some ugly<br />
-guards to our token reading loop.</p>
+<p>Нам нужно проверить наши вложенные объекты. Давайте добавим немного ужасных <br />
+условий в наш цикл чтения.</p>
 <pre>
   def parse(str: String) = {
     val parser = parserFactory.createJsonParser(str)
@@ -474,10 +472,10 @@ guards to our token reading loop.</p>
     }
   }
 </pre>
-<p>And&#8230; it works!</p>
-<h2>Packaging and Publishing</h2>
-<p>At this point we can run the package command to generate a jar file.  However we may want to share our jar with other teams.  To do this we&#8217;ll build on StandardProject, which gives us a big head start.</p>
-<p>The first step is include StandardProject as an <span class="caps">SBT</span> plugin.  Plugins are a way to introduce dependencies to your build, rather than your project.  These dependencies are defined in project/plugins/Plugins.scala.  Add the following to the Plugins.scala file.</p>
+<p>И&#8230; все работает!</p>
+<h2>Создание пакетов и публи��ация</h2>
+<p>С этого момента мы можем запустить команду создания пакета, чтобы сгенерировать jar файл. Тем не менее, нам может быть захочется поделиться нашим jar файлом с другими командами. Делать это мы будем с помощью StandardProject, который дает нам большое преимущество.</p>
+<p>Первым шагом будет включение StandardProject как <span class="caps">SBT</span> плагина. Плагины &#8211; это способ добавить зависимость в вашу сборку, а не в проект. Эти зависимости располагаются в project/plugins/Plugins.scala. Добавьте следующие строки в файл Plugins.scala.</p>
 <pre>
 import sbt._
 
@@ -486,8 +484,8 @@ class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
   val defaultProject = "com.twitter" % "standard-project" % "0.7.14"
 }
 </pre>
-<p>Note that we&#8217;ve specified a maven repository as well as a dependency.  That&#8217;s because the standard project library is hosted by us, which isn&#8217;t one of the default repos sbt checks.</p>
-<p>We&#8217;ll also update our project definition to extend StandardProject, include an <span class="caps">SVN</span> publishing trait, and define the repository we wish to publish to.  Alter SampleProject.scala to the following</p>
+<p>Заметьте, что мы определяем специальный maven репозиторий, также как и зависимости. Это происходит потому, что стандартная библиотека проекта не является стандартным sbt репозиторием.</p>
+<p>Мы также обновим наше описание проекта, расширив StandardProject, включая ветку в <span class="caps">SVN</span>, и определим репозиторий для публикации. Измените  SampleProject.scala на следующее</p>
 <pre>
 import sbt._
 import com.twitter.sbt._
@@ -499,7 +497,7 @@ class SampleProject(info: ProjectInfo) extends StandardProject(info) with Subver
   override def subversionRepository = Some("http://svn.local.twitter.com/maven/")
 }
 </pre>
-<p>Now if we run the publish action we&#8217;ll see the following</p>
+<p>Теперь, если мы попробуем опубликовать сборку мы получим сдедующее</p>
 <pre>
 [info] == deliver ==
 IvySvn Build-Version: null
@@ -529,17 +527,17 @@ IvySvn Build-DateTime: null
 [info] 
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
-<p>And (after some time), we can go to binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-<span class="caps">SNAPSHOT</span>/ to see our published jar.</p>
-<h2>Adding Tasks</h2>
-<p>Tasks are Scala functions.  The simplest way to add a task is to include a val in your project definition using the task method, e.g.</p>
+<p>и (спустя некоторое время), если мы зайдем на binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-<span class="caps">SNAPSHOT</span>/ , то увидем наш опубликованный jar файл.</p>
+<h2>Добавление задач</h2>
+<p>Задачи &#8211; это Scala функции. Простейший способ добавить задачу, нужно влючить val в ваше описание проекта, используя метод task, например</p>
 <pre>
 lazy val print = task {log.info("a test action"); None}
 </pre>
-<p>If you want dependencies and a description you can add them like this</p>
+<p>Если вам нужны зависимости и описание, то их вы можете добавить так</p>
 <pre>
 lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
 </pre>
-<p>If we reload our project and run the print action we&#8217;ll see the following</p>
+<p>Если мы перезагрузим наш проект и наберем команду print мы увидим следующее</p>
 <pre>
 &gt; print
 [info] 
@@ -551,35 +549,35 @@ lazy val print = task {log.info("a test action"); None}.dependsOn(compile) descr
 [info] Total time: 0 s, completed Nov 24, 2010 11:05:12 AM
 &gt; 
 </pre>
-<p>So it works.  If you&#8217;re defining a task in a single project this works just fine.  However if you&#8217;re defining this in a plugin it&#8217;s fairly inflexible.  I may want to</p>
+<p>Итак, все работает. Если объявляете задачу в одном проекте, то все работает прекрасно. Но если вы определяете задачу как плагин, то это будет непрактично. Я хочу, чтобы было так</p>
 <pre>
 lazy val print = printAction
 def printAction = printTask.dependsOn(compile) describedAs("prints a line after compile")
 def printTask = task {log.info("a test action"); None}
 </pre>
-<p>This allows consumers to override the task itself, the dependencies and/or description of the task, or the action.  Most built in <span class="caps">SBT</span> actions follow this pattern.  As an example, we can modify the builtin package task to print the current timestamp by doing the following</p>
+<p>Это позволяет пользователям переопределить саму задачу, зависимости и/или описание задачи или действия. Большинство <span class="caps">SBT</span> проектов следуют этому образцу. В качестве примера, мы можем изменить встроенные задачи пакета для печати текущего времени, выполните следующие действия</p>
 <pre>
 lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
 override def packageAction = super.packageAction.dependsOn(printTimestamp)
 </pre>
-<p>There are many examples in StandardProject of tweaking <span class="caps">SBT</span> defaults and adding custom tasks.</p>
-<h2>Quick Reference</h2>
-<h3>Common Commands</h3>
+<p>Есть много прим��ров в StandardProject по настройке стандартных значений <span class="caps">SBT</span> и добавлению пользовательских задач.</p>
+<h2>Краткий справочник</h2>
+<h3>Популярные команды</h3>
 <ul>
-	<li>actions &#8211; show actions available for this project</li>
-	<li>update &#8211; downloads dependencies</li>
-	<li>compile &#8211; compiles source</li>
-	<li>test &#8211; runs tests</li>
-	<li>package &#8211; creates a publishable jar file</li>
-	<li>publish-local &#8211; installs the built jar in your local ivy cache</li>
-	<li>publish &#8211; pushes your jar to a remote repo (if configured)</li>
+	<li>actions &#8211; отображает все действия доступные для этого проекта</li>
+	<li>update &#8211; загружает зависимости</li>
+	<li>compile &#8211; компилирует исходники</li>
+	<li>test &#8211; запускает тесты</li>
+	<li>package &#8211; создает jar файл для публикации</li>
+	<li>publish-local &#8211; устанавливает собранный jar в ваш локальный ivy кэш</li>
+	<li>publish &#8211; отправляет ваш jar в удаленный репозиторий (если заранее установлены настройки)</li>
 </ul>
-<h3>Moar Commands</h3>
+<h3>Еще несколько полезных команд</h3>
 <ul>
-	<li>test-failed &#8211; run any specs that failed</li>
-	<li>test-quick &#8211; run any specs that failed and/or had dependencies updated</li>
-	<li>clean-cache &#8211; remove all sorts of sbt cached stuff.  Like clean for sbt</li>
-	<li>clean-lib &#8211; remove everything in lib_managed</li>
+	<li>test-failed &#8211; запускает любой тест, который не прошел проверку</li>
+	<li>test-quick &#8211; запускает любой тест, который не прошел проверку и/или имеет обновленные зависимости</li>
+	<li>clean-cache &#8211; очищает весь sbt кэш. Похожа на sbt clean</li>
+	<li>clean-lib &#8211; удаляет все из lib_managed</li>
 </ul>
 <h3>Project Layout</h3>
 <p><span class="caps">TBD</span></p>

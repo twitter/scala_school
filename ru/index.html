@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala Школа</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/bootstrap-1.1.0.min.css">
+
+    <style>
+    h2 { padding-top: 0px; }
+    </style>
+
+  </head>
+
+  <body>
+    <div class="container">
+
+            <div class="hero-unit">
+        <h1>Scala Школа!</h1>
+        <p>Из &empty; к Распределенному Сервису</p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span8">
+          <p><b>Other Languages:</b> <a href="/index.html">English</a></p>
+          <h2>Об этих уроках</h2>
+          <p>Scala школа начиналась как серия лекций в компании Twitter, для того чтобы подготовить опытных инженеров к тому, чтобы стать продуктивными <a href="http://www.scala-lang.org/">Scala</a> программистами. Scala является относительно новым языком, но опирается на многие привычные понятия. Таким образом, эти лекции предполагают, что читатели знакомы с основными понятиями, а лекции помогут показать, как эти понятия могут использоваться в Scala. Мы считаем это эффективным способом подготовки новых инженеров в короткие сроки. Существуют дополнительные материалы, которые сопровождают эти лекции. Мы считаем, что они будут к месту.
+          </p>
+
+          <h2>Как будут проходить уроки?</h2>
+          <p>Мы считаем, что лучше всего подойти к изучению Scala не так, будто это улучшенная Java, а словно это новый язык. Опыт работы с Java не требуется. Основное внимание будет уделяться интерпретатору и объектно-ориентированному и функциональному стилю, а также стилю программирования, который используется в нашей компании. Акцент будет сделан на удобство сопровождения, доходчивость, и использование системы типов.</p>
+          <p>Для большинства уроков не требует никакого программного обеспечения, кроме REPL(англ. read-eval-print-loop; рус. интерактивная среда программирования - прим. переводчика) Scala. Читателю предлагается выполнять задания вместе с нами, и не останавливаться на достигнутом! Считайте эти уроки отправной точкой для изучения языка.</p>
+
+          <h2>Дополнительные материалы</h2>
+          <p>Хотите знать больше?
+          <ul>
+          <li><strong><a href="http://twitter.github.com/effectivescala/">Effective Scala</a></strong> Набор "лучших практик" для языка Scala от компании Twitter. Их будет полезно изучить, чтобы знать основные концепции, используемые в коде приложений компании Twitter.</li>
+          <li><strong><a href="http://www.scala-lang.org/node/197">Официальная документация scala-lang.org</a></strong> Ссылки на обучающие статьи, руководства, API, книги, ...</li>
+          <li><strong><a href="http://www.scala-lang.org/api/">Документация по API языка Scala</a></strong></li>
+          </ul>
+
+        </div>
+        <div class="span6">
+          <h2>Уроки</h2>
+            <dl>
+              
+                <dt><a href="basics.html">Основы</a></dt>
+                <dd>Переменные, функции, классы, методы, наследование, try-catch-finally. Программирование ориентированное на выражения</dd>
+              
+                <dt><a href="basics2.html">Основы языка. Продолжение</a></dt>
+                <dd>Case классы, объекты, пакеты, apply, update, Функции как Объекты (единый принцип доступа), сопоставление с образцом.</dd>
+              
+                <dt><a href="collections.html">Коллекции</a></dt>
+                <dd>Списки, Карты, функциональные комбинаторы (map, foreach, filter, zip, folds)</dd>
+              
+                <dt><a href="pattern-matching-and-functional-composition.html">Сопоставление с образцом и функкциональная композиция</a></dt>
+                <dd>Еще больше функций! Частичные функции, еще больше сопоставления с образцом</dd>
+              
+                <dt><a href="type-basics.html">Основы типов и полиморфизма</a></dt>
+                <dd>Основные типы и полиморфизм типов, вывод типов, изменчивость, пределы, квантификация</dd>
+              
+                <dt><a href="advanced-types.html">Дополнительные типы</a></dt>
+                <dd>Дополнительные типы, видимое ограничение, типы высшего порядка, рекурсивные типы, структурные типы</dd>
+              
+                <dt><a href="sbt.html">Simple Build Tool</a></dt>
+                <dd>Все о SBT, Стандартное средство сборки приложений для Scala</dd>
+              
+                <dt><a href="coll2.html">Подробнее о коллекциях</a></dt>
+                <dd>Рассказ о библиотеке коллекций Scala</dd>
+              
+                <dt><a href="specs.html">Тестирование с помощью specs</a></dt>
+                <dd>Написание тестов с помощью Specs, Scala BDD фреймфорк для тестирования</dd>
+              
+                <dt><a href="concurrency.html">Параллельность в Scala</a></dt>
+                <dd>Runnable, Callable, потоки, Futures</dd>
+              
+                <dt><a href="java.html">Java + Scala</a></dt>
+                <dd>Java совместимость: Использование Scala из Java</dd>
+              
+                <dt><a href="finagle.html">Введение в Finagle</a></dt>
+                <dd>Finagle примитивы: Future, Service, Filter, Builder</dd>
+              
+                <dt><a href="searchbird.html">Searchbird</a></dt>
+                <dd>Создание распределенного поискового движка, используя Finagle</dd>
+              
+            </dl>
+       </div>
+      </div>
+    </div> <!-- /container -->
+  </body>
+</html>
+
+
+    </div> <!-- /container -->
+    
+    <div id="footer">
+      <div class="inner">
+        <div class="container">
+          <p>
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a> and <a href="http://twitter.com/marius" target="_blank">@marius</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>; Russian translation by <a href="https://github.com/appigram">appigram</a><br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+
+  </body>
+</html>

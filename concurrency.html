@@ -12,7 +12,7 @@
     <![endif]-->
 
     <!-- Le styles -->
-    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="/bootstrap-1.1.0.min.css">
 
   </head>
 
@@ -58,7 +58,7 @@ trait Callable[V] {
   def call(): V
 }
 </pre>
-<p>h2(#Thread). Threads</p>
+<h2 id="Thread">Threads</h2>
 <p>Scala concurrency is built on top of the Java concurrency model.</p>
 <p>On Sun JVMs, with a IO-heavy workload, we can run tens of thousands of threads on a single machine.</p>
 <p>A Thread takes a Runnable.  You have to call <code>start</code> on a Thread in order for it to run the Runnable.</p>
@@ -167,7 +167,7 @@ pool-1-thread-1
 $ nc localhost 2020
 pool-1-thread-2
 </pre>
-<p>h2(#Future). Futures</p>
+<h2 id="Future">Futures</h2>
 <p>A <code>Future</code> represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking <code>get()</code> method on it.  @Executor@s return a <code>Future</code>.</p>
 <p>A <code>FutureTask</code> is a Runnable and is designed to be run by an <code>Executor</code></p>
 <pre>
@@ -309,7 +309,6 @@ def add(user: User) {
 <h2>SynchronizedMap</h2>
 <p>We can mixin synchronization with a mutable HashMap using the SynchronizedMap trait.</p>
 <p>We can extend our existing InvertedIndex to give users an easy way to build the synchronized index.</p>
-
 <pre>
 import scala.collection.mutable.SynchronizedMap
 

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Сопоставление с образцом и функкциональная композиция</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/bootstrap-1.1.0.min.css">
+
+  </head>
+
+  <body>
+  
+    <div class="topbar">
+      <div class="fill">
+        <div class="container fixed">
+          <h3><a href="index.html">Сопоставление с образцом и функкциональная композиция</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="collections.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="type-basics.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding-top: 60px;">
+      <p>В этом уроке вы узнаете:</p>
+<ul>
+	<li><a href="#composition">Объединение функций</a>
+	<ul>
+		<li>compose</li>
+		<li>andThen</li>
+	</ul></li>
+	<li><a href="#curryvspartial">Каррирование и Частичный вызов функций</a></li>
+	<li><a href="#PartialFunction">PartialFunction</a>
+	<ul>
+		<li>range и domain</li>
+		<li>композиция с помощью orElse</li>
+	</ul></li>
+	<li><a href="#case">Что же такое case утверждения?</a></li>
+</ul>
+<h2 id="composition">Объединение функций</h2>
+<p>Давайте создадим две полезные функции:</p>
+<pre>
+scala&gt; def addUmm(x: String) = x + " umm"
+addUmm: (x: String)String
+
+scala&gt;  def addAhem(x: String) = x + " ahem"
+addAhem: (x: String)String
+</pre>
+<h3>compose</h3>
+<p><code>compose</code> создает новую функцию, которая является объединением других функций <code>f(g(x))</code></p>
+<pre>
+scala&gt; val ummThenAhem = addAhem _ compose addUmm _
+ummThenAhem: (String) =&gt; String = &lt;function1&gt;
+
+scala&gt; ummThenAhem("well")
+res0: String = well umm ahem
+</pre>
+<h3>andThen</h3>
+<p><code>andThen</code> похожа на  <code>compose</code>, но сначала вызывается первая функция, затем вторая <code>g(f(x))</code></p>
+<pre>
+scala&gt; val ahemThenUmm = addAhem _ andThen addUmm _
+ahemThenUmm: (String) =&gt; String = &lt;function1&gt;
+
+scala&gt; ahemThenUmm("well")
+res1: String = well ahem umm
+</pre>
+<h2 id="curryvspartial">Каррирование и Частичный вызов функций</h2>
+<h3>case утверждения</h3>
+<h4>Что же такое case утверждения?</h4>
+<p>Это подкласс функций, который называется PartialFunction.</p>
+<h4>Что представляет собой сов��купность множества case утверждений?</h4>
+<p>Это множество объединений PartialFunctions вместе.</p>
+<h2 id="PartialFunction">Понимание PartialFunction</h2>
+<p>Функция работает для каждого аргумента определенного типа. Другими словами, функция объявляется как (Int) =&gt; String, принимающая любой Int и возвращающая строку.</p>
+<p>Частичная функция определена только для определенных значений определенного типа. Частичные функции (Int) =&gt; String не может принимать любой Int.</p>
+<p><code>isDefinedAt</code> это метод PartialFunction, который может использоваться, чтобы определить, будет ли PartialFunction принимать данный аргумент.</p>
+<p><i>Заметьте</i> <code>PartialFunction</code> не связана с частично вызываемыми функциями, о которых мы говорили ранее.</p>
+<p><strong>Смотрите также:</strong> В Effective Scala описывается <a href="http://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Частичные функции">PartialFunction</a>.</p>
+<pre>
+scala&gt; val one: PartialFunction[Int, String] = { case 1 =&gt; "one" }
+one: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; one.isDefinedAt(1)
+res0: Boolean = true
+
+scala&gt; one.isDefinedAt(2)
+res1: Boolean = false
+</pre>
+<p>Вы можете использовать частичную функцию.</p>
+<pre>
+scala&gt; one(1)
+res2: String = one
+</pre>
+<p>PartialFunctions может быть объединена с чем-то новым, называемым OrElse, который показывает, определен ли PartialFunction с передаваемым аргументом.</p>
+<pre>
+scala&gt; val two: PartialFunction[Int, String] = { case 2 =&gt; "two" }
+two: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; val three: PartialFunction[Int, String] = { case 3 =&gt; "three" }
+three: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; val wildcard: PartialFunction[Int, String] = { case _ =&gt; "something else" }
+wildcard: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; one orElse two orElse three orElse wildcard
+res23: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; res23(5)
+res24: String = something else
+
+scala&gt; res23(3)
+res25: String = three
+
+scala&gt; res23(2)
+res26: String = two
+
+scala&gt; res23(1)
+res27: String = one
+
+scala&gt; res23(0)
+res28: String = something else
+</pre>
+<h3 id="case">Тайна о case.</h3>
+<p>На прошлой неделе мы увидели нечто любопытное. Мы видели case утверждение там, где обычно использовалась функция.</p>
+<pre>
+scala&gt; case class PhoneExt(name: String, ext: Int)
+defined class PhoneExt
+
+scala&gt; val extensions = List(PhoneExt("steve", 100), PhoneExt("robey", 200))
+extensions: List[PhoneExt] = List(PhoneExt(steve,100), PhoneExt(robey,200))
+
+scala&gt; extensions.filter { case PhoneExt(name, extension) =&gt; extension &lt; 200 }
+res0: List[PhoneExt] = List(PhoneExt(steve,100))
+</pre>
+<p>Почему это работает?</p>
+<p>filter принимает функцию. В этом случае используется функция-предикат (PhoneExt) =&gt; Boolean.</p>
+<p>PartialFunction &#8211; это подтип Function, поэтому filter может принимать PartialFunction в качестве аргумента!</p>
+    </div> <!-- /container -->
+
+    <div id="footer">
+      <div class="inner">
+        <div class="container">
+          <p>
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a> and <a href="http://twitter.com/marius" target="_blank">@marius</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a><br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>

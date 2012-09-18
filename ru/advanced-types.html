@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Дополнительные типы</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="/bootstrap-1.1.0.min.css">
+
+  </head>
+
+  <body>
+  
+    <div class="topbar">
+      <div class="fill">
+        <div class="container fixed">
+          <h3><a href="index.html">Дополнительные типы</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="type-basics.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="sbt.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding-top: 60px;">
+      <p>В этом уроке вы узнаете:</p>
+<ul>
+	<li>Видимое ограничение (&#8220;Классы-типы&#8221;)</li>
+	<li>Типы высшего порядка и специальный полиморфизм</li>
+	<li>F-ограниченный полиморфизм / рекурсивные типы</li>
+	<li>Структурные типы</li>
+	<li>Абстрактные типы членов</li>
+	<li>Тип чисток и манифесты</li>
+	<li>Пример: Finagle</li>
+</ul>
+<h3>Видимое ограничение (&#8220;Классы-типы&#8221;)</h3>
+<p><strong>Неявные</strong> функции в Scala позволяют использовать функции по требованию, когда это может помочь при выводе типа, например:</p>
+<pre>
+scala&gt; implicit def strToInt(x: String) = x.toInt
+strToInt: (x: String)Int
+
+scala&gt; "123"
+res0: java.lang.String = 123
+
+scala&gt; val y: Int = "123"
+y: Int = 123
+
+scala&gt; math.max("123", 111)
+res1: Int = 123
+</pre>
+<p>Видимое ограничение, подобно ограничению типа, требует функцию, которая существует для данного типа, например:</p>
+<pre>
+scala&gt; class Container[A &lt;% Int] { def addIt(x: A) = 123 + x }
+defined class Container
+</pre>
+<p>Это говорит, что <strong>A</strong> должен быть &#8220;видим&#8221; подобно <strong>Int</strong>.  Давайте попробуем.</p>
+<pre>
+scala&gt; (new Container[String]).addIt("123")
+res11: Int = 246
+
+scala&gt; (new Container[Int]).addIt(123) 
+res12: Int = 246
+
+scala&gt; (new Container[Float]).addIt(123.2F)
+&lt;console&gt;:8: error: could not find implicit value for evidence parameter of type (Float) =&gt; Int
+       (new Container[Float]).addIt(123.2)
+        ^
+</pre>
+<h3>Другие ограничения типов</h3>
+<p>Мет��ды могут запросить конкретные &#8220;доказательства&#8221; для типа, а именно:</p>
+<table>
+	<tr>
+		<td>A =:= B</td>
+		<td>A должен быть равен B</td>
+	</tr>
+	<tr>
+		<td>A &lt;:&lt; B</td>
+		<td>A должен быть подтипом B</td>
+	</tr>
+	<tr>
+		<td>A &lt;%&lt; B</td>
+		<td>A должен выглядеть как B</td>
+	</tr>
+</table>
+<pre>
+scala&gt; class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
+defined class Container
+
+scala&gt; (new Container(123)).addIt
+res11: Int = 246
+
+scala&gt; (new Container("123")).addIt
+&lt;console&gt;:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
+</pre>
+<p>Кроме того, учитывая наше предыдущее неявное значение, мы можем ослабить ограничение для видимости:</p>
+<pre>
+scala&gt; class Container[A](value: A) { def addIt(implicit evidence: A &lt;%&lt; Int) = 123 + value }
+defined class Container
+
+scala&gt; (new Container("123")).addIt
+res15: Int = 246
+</pre>
+<h4>Обобщенное программирован��е с помощью видов</h4>
+<p>В стандартной библиотеке Scala, виды в основном используются для реализации обобщенных функций коллекций. Например, функция &#8220;min&#8221; (<strong>Seq[]</strong>), использует эту технику:</p>
+<pre>
+def min[B &gt;: A](implicit cmp: Ordering[B]): A = {
+  if (isEmpty)
+    throw new UnsupportedOperationException("empty.min")
+
+  reduceLeft((x, y) =&gt; if (cmp.lteq(x, y)) x else y)
+}
+</pre>
+<p>Основными преимуществами этого являются:</p>
+<ul>
+	<li>Элементам коллекции не требуется реализовывать <strong>Ordered</strong>, хотя <strong>Ordered</strong> по-прежнему использует статическую проверку типов.</li>
+	<li>Вы можете определить свой собственный порядок сортировки без необходимости использовать дополнительную библиотеку:</li>
+</ul>
+<pre>
+scala&gt; List(1,2,3,4).min
+res0: Int = 1
+
+scala&gt; List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b compare a })
+res3: Int = 4
+</pre>
+<p>Небольшое замечание, есть виды в стандартной библиотеке, которые переводят <strong>Ordered</strong> в <strong>Ordering</strong> (и наоборот).</p>
+<pre>
+trait LowPriorityOrderingImplicits {
+  implicit def ordered[A &lt;: Ordered[A]]: Ordering[A] = new Ordering[A] {
+    def compare(x: A, y: A) = x.compare(y)
+  }
+}
+</pre>
+<h4>Ограничения контекста и implicitly[]</h4>
+<p>В Scala 2.8 введена сокращенная форма для передачи и для доступа с использованием неявных аргументов.</p>
+<pre>
+scala&gt; def foo[A](implicit x: Ordered[A]) {}
+foo: [A](implicit x: Ordered[A])Unit
+
+scala&gt; def foo[A : Ordered] {}                        
+foo: [A](implicit evidence$1: Ordered[A])Unit
+</pre>
+<p>Неявные значения могут быть дос��упны через <strong>implicitly</strong></p>
+<pre>
+scala&gt; implicitly[Ordering[Int]]
+res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
+</pre>
+<p>В совокупности это часто приводит к меньшему количеству кода, особенно при передаче с использованием видов.</p>
+<h3>Типы высшего порядка и специальный полиморфизм</h3>
+<p>Scala может абстрагировать типы &#8220;высшего порядка&#8221;. Это похоже на каррирование функции. Например, в то время как &#8220;унарные типы&#8221; имеют конструкторы вроде этого:</p>
+<pre>
+List[A]
+</pre>
+<p>То есть мы должны удовлетворять определенному &#8220;уровню&#8221; типовых переменных с целью получения конкретных типов (подобно тому, как uncurried функция должна примен��ться только к одному списку аргументов, при вызове), типам высшего порядка требуется больше:</p>
+<pre>
+scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala&gt; new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+res23: java.lang.Object with Container[List] = $anon$1@7c8e3f75
+
+scala&gt; res23.put("hey")
+res24: List[java.lang.String] = List(hey)
+
+scala&gt; res23.put(123)  
+res25: List[Int] = List(123)
+</pre>
+<p>Заметьте, что <strong>Container</strong> является полиморфным в параметрическом типе (&#8220;тип контейнер&#8221;).</p>
+<p>Если мы объединим использование конейнеров с неявными выражениями, мы получим &#8220;специальный&#8221; полиморфизм: возможность писать обобщенные контейнеры поверх контейнеров.</p>
+<pre>
+scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala&gt; implicit val listContainer = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+
+scala&gt; implicit val optionContainer = new Container[Some] { def put[A](x: A) = Some(x); def get[A](m: Some[A]) = m.get }
+
+scala&gt; def tupleize[M[_]: Container, A, B](fst: M[A], snd: M[B]) = {
+     | val c = implicitly[Container[M]]                             
+     | c.put(c.get(fst), c.get(snd))
+     | }
+tupleize: [M[_],A,B](fst: M[A],snd: M[B])(implicit evidence$1: Container[M])M[(A, B)]
+
+scala&gt; tupleize(Some(1), Some(2))
+res33: Some[(Int, Int)] = Some((1,2))
+
+scala&gt; tupleize(List(1), List(2))
+res34: List[(Int, Int)] = List((1,2))
+</pre>
+<h3>F-ограниченный полиморфизм</h3>
+<p>Часто необходим доступ к конкретному подклассу в (обобщенном) трейте. Например, представьте себе некоторый трейт, который являе��ся обобщенным, но может быть сравним с конкретным подклассом данного трейта.</p>
+<pre>
+trait Container extends Ordered[Container]
+</pre>
+<p>Тем не менее, сейчас требуется сравнение</p>
+<pre>
+def compare(that: Container): Int
+</pre>
+<p>И поэтому мы не можем получить доступ к конкретному подтипу, например:</p>
+<pre>
+class MyContainer extends Container {
+  def compare(that: MyContainer): Int
+}
+</pre>
+<p>код не скомпилируется, так как мы определяем Ordered для <strong>Container</strong>, а не конкретный подтип.</p>
+<p>Чтобы это согласовать, мы используем F-ограниченный полиморфизм.</p>
+<pre>
+trait Container[A &lt;: Container[A]] extends Ordered[A]
+</pre>
+<p>Странный тип! Но заметьте, как Ordered параметризован с помощью <strong>A</strong>, который сам по себе является <strong>Container[A]</strong></p>
+<p>Поэтому сейчас</p>
+<pre>
+class MyContainer extends Container[MyContainer] { 
+  def compare(that: MyContainer) = 0 
+}
+</pre>
+<p>Они сейчас упорядочены:</p>
+<pre>
+scala&gt; List(new MyContainer, new MyContainer, new MyContainer)
+res3: List[MyContainer] = List(MyContainer@30f02a6d, MyContainer@67717334, MyContainer@49428ffa)
+
+scala&gt; List(new MyContainer, new MyContainer, new MyContainer).min
+res4: MyContainer = MyContainer@33dfeb30
+</pre>
+<p>Учитывая, что все они являются подтипами <strong>Container[_]</strong>, мы можем определить другой подкласс и создать смешанный список <strong>Container[_]</strong>:</p>
+<pre>
+scala&gt; class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
+defined class YourContainer
+
+scala&gt; List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)                   
+res2: List[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &gt;: YourContainer with MyContainer &lt;: ScalaObject]]] 
+  = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
+</pre>
+<p>Обратите внимание, как результирующий тип в настоящее время ограничен снизу <strong>YourContainer с MyContainer</strong>. Это работа системы вывода типов. Интересно, что этот тип не имеет дополнительного смысла, он только обеспечивает логическую нижнюю границу для списка. Что произойдет, если мы попытаемся использовать <strong>Ordered</strong> сейчас?</p>
+<pre>
+(new MyContainer, new MyContainer, new MyContainer, new YourContainer).min
+&lt;console&gt;:9: error: could not find implicit value for parameter cmp:
+  Ordering[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &gt;: YourContainer with MyContainer &lt;: ScalaObject]]]
+</pre>
+<p><strong>Ordered[]</strong> не существует для единого типа. Это слишком плохо.</p>
+<h3>Структурные типы</h3>
+<p>Scala имеет поддержку <strong>структурных типов</strong> &#8212; тип выражается интерфейсом <em>structure</em> вместо конкретного типа.</p>
+<pre>
+scala&gt; def foo(x: { def get: Int }) = 123 + x.get
+foo: (x: AnyRef{def get: Int})Int
+
+scala&gt; foo(new { def get = 10 })                 
+res0: Int = 133
+</pre>
+<p>Это может быть полезно во многих ситуациях, но реализация использует отражения, так что обращайте внимание на производительность.</p>
+<h3>Абстрактные типы членов</h3>
+<p>В трейте, вы можете оставить тип членов абстрактным.</p>
+<pre>
+scala&gt; trait Foo { type A; val x: A; def getX: A = x }
+defined trait Foo
+
+scala&gt; (new Foo { type A = Int; val x = 123 }).getX   
+res3: Int = 123
+
+scala&gt; (new Foo { type A = String; val x = "hey" }).getX
+res4: java.lang.String = hey
+</pre>
+<p>Часто это полезный трюк, когда делается внедрение зависимостей, например.</p>
+<p>Вы можете обратиться к абстрактному типу переменной, используя хеш-оператор:</p>
+<pre>
+scala&gt; trait Foo[M[_]] { type t[A] = M[A] }
+defined trait Foo
+
+scala&gt; val x: Foo[List]#t[Int] = List(1)
+x: List[Int] = List(1)
+</pre>
+<h3>Тип очистки и манифесты</h3>
+<p>Как вы знаете, информация о типе теряется во время компиляции благодаря <em>очистке</em>. Одна из особенностей Scala &#8211; это <strong>Манифесты</strong>, которые позволяют выборочно восстановить информацию о типе. Манифесты предоставляются в качестве неявного значения, ко��орое генерируется компилятором по мере необходимости.</p>
+<pre>
+scala&gt; class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
+
+scala&gt; (new MakeFoo[String]).make 
+res10: String = 
+</pre>
+<h3>Пример: Finagle</h3>
+<p>Смотрите: https://github.com/twitter/finagle</p>
+<pre>
+trait Service[-Req, +Rep] extends (Req =&gt; Future[Rep])
+
+trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
+  extends ((ReqIn, Service[ReqOut, RepIn]) =&gt; Future[RepOut])
+{
+  def andThen[Req2, Rep2](next: Filter[ReqOut, RepIn, Req2, Rep2]) =
+    new Filter[ReqIn, RepOut, Req2, Rep2] {
+      def apply(request: ReqIn, service: Service[Req2, Rep2]) = {
+        Filter.this.apply(request, new Service[ReqOut, RepIn] {
+          def apply(request: ReqOut): Future[RepIn] = next(request, service)
+          override def release() = service.release()
+          override def isAvailable = service.isAvailable
+        })
+      }
+    }
+    
+  def andThen(service: Service[ReqOut, RepIn]) = new Service[ReqIn, RepOut] {
+    private[this] val refcounted = new RefcountedService(service)
+
+    def apply(request: ReqIn) = Filter.this.apply(request, refcounted)
+    override def release() = refcounted.release()
+    override def isAvailable = refcounted.isAvailable
+  }    
+}
+</pre>
+<p>Можно определить запросы с помощью filter.</p>
+<pre>
+trait RequestWithCredentials extends Request {
+  def credentials: Credentials
+}
+
+class CredentialsFilter(credentialsParser: CredentialsParser)
+  extends Filter[Request, Response, RequestWithCredentials, Response]
+{
+  def apply(request: Request, service: Service[RequestWithCredentials, Response]): Future[Response] = {
+    val requestWithCredentials = new RequestWrapper with RequestWithCredentials {
+      val underlying = request
+      val credentials = credentialsParser(request) getOrElse NullCredentials
+    }
+
+    service(requestWithCredentials)
+  }
+}
+</pre>
+<p>Обратите внимание, как основной сервис требует определения запроса, и что это проверяется статически. Фильтры можно рассматривать как преобразователи.</p>
+<p>Множество фильтров могут быть объединены вместе:</p>
+<pre>
+val upFilter =
+  logTransaction     andThen
+  handleExceptions   andThen
+  extractCredentials andThen
+  homeUser           andThen
+  authenticate       andThen
+  route
+</pre>
+<p>Пишите безопасный код!</p>
+    </div> <!-- /container -->
+
+    <div id="footer">
+      <div class="inner">
+        <div class="container">
+          <p>
+            Built at <a href="http://twitter.com/twitter" target="_blank">@twitter</a> by <a href="http://twitter.com/stevej" target="_blank">@stevej</a> and <a href="http://twitter.com/marius" target="_blank">@marius</a> with much help from <a href="http://twitter.com/evanm" target="_blank">@evanm</a>, <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>, <a href="http://twitter.com/kevino" target="_blank">@kevino</a>, <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>, <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>, <a href="http://twitter.com/wickman" target="_blank">@wickman</a> and <a href="http://twitter.com/mccv" target="_blank">@mccv</a><br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
