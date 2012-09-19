@@ -171,7 +171,7 @@ val result = res1 match {
 
 *See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>.
 
-h1. Functional Combinators
+h1(#combinators). Functional Combinators
 
 Combinators are so-called because they are meant to be combined. The output of one function is often suitable as the input for another.
 
