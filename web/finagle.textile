@@ -49,7 +49,7 @@ For example to, write code that dispatches a request and then "handles" the resp
 <pre>
 val future = dispatch(req) // returns immediately, but future is "empty"
 future onSuccess { // when the future gets "filled"...
-  ...do awesome things with future.get()...
+  case reply => println(reply) // ...use the value it contains
 }
 </pre>
 
@@ -102,7 +102,7 @@ The most important <code>Future</code> combinator is <code>flatMap</code>[2]:
 <code>def Future[A].flatMap[B](f: A => Future[B]): Future[B]</code>
 </blockquote>
 
-<code>flatMap</code> sequences two futures. That is, it defines a Future as the result of applying an asynchronous function to another Future. The method signature tells the story: given the succesful value of a future, the function <code>f</code> provides the next <code>Future</code>. The result of this operation is another <code>Future</code> that is complete only when both of these futures have completed. If either <code>Future</code> fails, the given <code>Future</code> will also fail. This implicit interleaving of errors allow us to handle errors only in those places where they are semantically significant. <code>flatMap</code> is the standard name for the combinator with these semantics.
+<code>flatMap</code> sequences two futures. That is, it takes a Future and an asynchronous function and returns a Future. The method signature tells the story: given the successful value of a future, the function <code>f</code> provides the next <code>Future</code>. <code>flatMap</code> automatically calls <code>f</code> if/when the input <code>Future</code> completes successfully. The result of this operation is another <code>Future</code> that is complete only when both of these futures have completed. If either <code>Future</code> fails, the given <code>Future</code> will also fail. This implicit interleaving of errors allow us to handle errors only in those places where they are semantically significant. <code>flatMap</code> is the standard name for the combinator with these semantics.
 
 If you have a Future and you want apply an asynchronous API to its value, use <tt>flatMap</tt>. For example, suppose you have a Future[User] and need a Future[Boolean] indicating whether the enclosed User has been banned. There is an <code>isBanned</code> API to determine whether a User has been banned, but it is asynchronous. You can use flatMap:
 
@@ -200,7 +200,7 @@ h3. Concurrent composition
 
 You might want to fetch data from more than one service at once. For example, if you're writing a web service that shows content and ads, it might fetch content from one service and ads from another. But how do you tell your code to wait for both replies? This could get tricky if you had to write it yourself, but instead you can use concurrent combinators.
 
-<code>Future</code> provides some concurrent combinators. Generally, these convert a sequence of <code>Future</code> into a <code>Future</code> of sequence in slightly different ways:
+<code>Future</code> provides some concurrent combinators. Generally, these convert a sequence of <code>Future</code> into a <code>Future</code> of sequence in slightly different ways. This is nice because it lets you (essentially) package several Futures into a single Future.
 
 <pre>
 object Future {
@@ -314,7 +314,7 @@ This hypothetical example combines sequential and concurrent composition. Also n
 
 h2(#Service). Service
 
-A Finagle <code>Service</code> represents a service that handles remote proceduce calls, taking requests and giving back replies. It represents the service's "logic," not the network "plumbing" (but works well with other things that configure that plumbing). A Service is a function <code>Req => Future[Rep]</code> for some request and reply types.
+A Finagle <code>Service</code> represents a service that handles remote procedure calls, taking requests and giving back replies. It represents the service's "logic," not the network "plumbing" (but works well with other things that configure that plumbing). A Service is a function <code>Req => Future[Rep]</code> for some request and reply types.
 
 <blockquote>
 <code>abstract class Service[-Req, +Rep] extends (Req => Future[Rep])</code>
@@ -327,7 +327,7 @@ We define both clients and servers in terms of Services.
 A Finagle client "imports" a Service from the network. Conceptually, a Finagle client has two parts:
 
 <ul>
-<li>A function to <em>use</em> the Service: dispatch a <code>Req</code> and handle a <code>Rep</code>
+<li>A function to <em>use</em> the Service: dispatch a <code>Req</code> and handle a <code>Future[Rep]</code>
 <li>Configuration of how to dispatch requests; e.g., as HTTP requests to port 80 of <code>api.twitter.com</code>
 </ul>
 
@@ -407,7 +407,9 @@ val server: Server = ServerBuilder()
 
 h2(#Filter). Filters
 
-You can combine servers and clients. A simple proxy might look like this:
+Filters transform services. They can provide <em>service generic</em> functionality. For example, you might have several services that should support rate limiting; you can write one rate-limiting filter and apply it to all your services. Filters are also good for decomposing a service into distinct phases.
+
+A simple proxy might look like this:
 
 <pre>
 class MyService(client: Service[..]) extends Service[HttpRequest, HttpResponse]
@@ -421,8 +423,6 @@ class MyService(client: Service[..]) extends Service[HttpRequest, HttpResponse]
 </pre>
 
 where <code>rewriteReq</code> and <code>rewriteRes</code> can provide protocol translation, for example.
-
-Filters transform services. They can provide <em>service generic</em> functionality. For example, you might have several services that should support rate limiting; you can write one rate-limiting filter and apply it to all your services. Filters are also good for decomposing a service into distinct phases.
 
 <pre>
 abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
