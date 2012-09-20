@@ -284,9 +284,9 @@ def isRateLimited(u: User): Future[Boolean] = {
 // Notice how you can swap this implementation out now with something that might
 // implement a different, more restrictive policy.
 
-// Check the cache to find out if user is rate-limited. We find out right
-// away by checking local cache. But we return a Future anyhow in case we
-// need to use a slower system later.
+// Check the cache to find out if user is rate-limited. This cache
+// implementation is just a Map, and can return a value right way. But we
+// return a Future anyhow in case we need to use a slower implementation later.
 def isLimitedByCache(u: User): Future[Boolean] =  Future.value(limitCache(u))
 
 // Update the cache
@@ -314,7 +314,7 @@ This hypothetical example combines sequential and concurrent composition. Also n
 
 h2(#Service). Service
 
-A Finagle <code>Service</code> represents a service that handles remote procedure calls, taking requests and giving back replies. It represents the service's "logic," not the network "plumbing" (but works well with other things that configure that plumbing). A Service is a function <code>Req => Future[Rep]</code> for some request and reply types.
+A Finagle <code>Service</code> represents a service that handles RPCs, taking requests and giving back replies. It represents the service's "logic," not the network "plumbing" (but works well with other things that configure that plumbing). A Service is a function <code>Req => Future[Rep]</code> for some request and reply types.
 
 <blockquote>
 <code>abstract class Service[-Req, +Rep] extends (Req => Future[Rep])</code>
