@@ -173,7 +173,7 @@ val result = res1 match {
 
 h1(#combinators). Functional Combinators
 
-Combinators are so-called because they are meant to be combined. The output of one function is often suitable as the input for another.
+Combinators are, roughly, functions that take other functions as parameters and are are meant to be combined. The output of one function is often suitable as the input for another.
 
 The most common use is on the standard data structures.
 
