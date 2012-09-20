@@ -44,7 +44,7 @@ As an example, let's assume we have methods <code>authenticate: Request -> User<
 
 <pre>
 val f = authenticate(request) flatMap { u =>
-  rateLimit(u) map { r => (u, r)
+  rateLimit(u) map { r => (u, r) }
 }
 </pre>
 
