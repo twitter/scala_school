@@ -643,20 +643,22 @@ val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
   .build()
 </pre>
 
-This builds a client that load balances over the 3 given hosts, establishing at most 1 connection per host, and giving up only after 2 failures. Stats are reported to "ostrich":https://github.com/twitter/ostrich. The following builder options are required (and their presence statically enforced): <code>hosts</code> or <code>cluster</code>, <code>codec</code> and <code>hostConnectionLimit</code>.
+This builds a client that load balances over the three given hosts, establishing at most one connection per host, and giving up only after two failures. Stats are reported to "ostrich":https://github.com/twitter/ostrich. The following builder options are required (and their presence statically enforced): <code>hosts</code> or <code>cluster</code>, <code>codec</code> and <code>hostConnectionLimit</code>.
+
+Similarly, you can use a <code>ServerBuilder</code> to make your service "listen" for incoming requests:
 
 <pre>
-val myService: Service[HttpRequest, HttpResponse] = // provided by the user
-ServerBuilder()
-  .codec(Http)
-  .hostConnectionMaxLifeTime(5.minutes)
-  .readTimeout(2.minutes)
-  .name("myHttpServer")
-  .bindTo(new InetSocketAddress(serverPort))
-  .build(myService)
+val service = new ParrotServerService.Service(parrotServer, new TBinaryProtocol.Factory()) // construct instance of your Finagle service
+val  server = ServerBuilder()
+  .bindTo(new InetSocketAddress(port))
+  .codec(ThriftServerFramedCodec())
+  .name("parrot thrift server")
+//  .hostConnectionMaxLifeTime(5.minutes)
+//  .readTimeout(2.minutes)
+  .build(service)
 </pre>
 
-This will serve, on port <code>serverPort</code> an HTTP server which dispatches requests to <code>myService</code>. Each connection is allowed to stay alive for up to 5 minutes, and we require a request to be sent within 2 minutes. The required <code>ServerBuilder</code> options are: <code>name</code>, <code>bindTo</code> and <code>codec</code>.
+This will serve, on port <var>port</var>, a Thrift server which dispatches requests to <var>service</var>. If we un-comment the <code>hostConnectionMaxLifeTime</code> line, each connection would be allowed to stay alive for up to 5 minutes. If we un-comment the <code>readTimeout</code> line, then we require a request to be sent within 2 minutes. The required <code>ServerBuilder</code> options are: <code>name</code>, <code>bindTo</code> and <code>codec</code>.
 
 fn1. Careful, there are other "Future" classes out there. Don't confuse <code>twitter.com.util.Future</code> with <code>scala.actor.Future</code> or <code>java.util.concurrent.Future</code>!
 
