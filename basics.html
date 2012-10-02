@@ -274,6 +274,27 @@ class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(b
   def log(m: Int): Double = log(m, math.exp(1))
 }
 </pre>
+<h3>Abstract Classes</h3>
+<p>You can define an <em>abstract class</em>, a class that defines some methods but does not implement them. Instead, subclasses that extend the abstract class define these methods. You can&#8217;t create an instance of an abstract class.</p>
+<pre>
+scala&gt; abstract class Shape {
+     |   def getArea():Int    // subclass should define this
+     | }
+defined class Shape
+
+scala&gt; class Circle(r: Int) extends Shape {
+     |   def getArea():Int = { r * r * 3 }
+     | }
+defined class Circle
+
+scala&gt; val s = new Shape
+&lt;console&gt;:8: error: class Shape is abstract; cannot be instantiated
+       val s = new Shape
+               ^
+
+scala&gt; val c = new Circle(2)
+c: Circle = Circle@65c0035b
+</pre>
 <h2 id="trait">Traits</h2>
 <p><code>traits</code> are collections of fields and behaviors that you can extend or mixin to your classes.</p>
 <pre>
@@ -287,7 +308,19 @@ class BMW extends Car {
   val brand = "BMW"
 }
 </pre>
+<p>One class can extend several traits using the <code>with</code> keyword:</p>
+<pre>
+class BMW extends Car with Shiny {
+  val brand = "BMW"
+  val shineRefraction = 12
+}
+</pre>
 <p><strong>See Also</strong> Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">trait</a>.</p>
+<p><strong>When do you want a Trait instead of an Abstract Class?</strong> If you want to define an interface-like type, you might find it difficult to choose between a trait or an abstract class. Either one lets you define a type with some behavior, asking extenders to define some other behavior. Some rules of thumb:</p>
+<ul>
+<li>Favor using traits. It&#8217;s handy that a class can extend several traits; a class can extend only one class.<br />
+<li>If you need a constructor parameter, use an abstract class. Abstract class constructors can take paramaters; trait constructors can&#8217;t. For example, you can&#8217;t say <code>trait t(i: Int) {}</code>; the <code>i</code> parameter is illegal.</ul>
+<p>You are not the first person to ask this question. See fuller answers at <a href="http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes">stackoverflow:Scala traits vs abstract classes</a>, <a href="http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait">Difference between Abstract Class and Trait</a>, and <a href="http://www.artima.com/pins1ed/traits.html#12.7">Programming in Scala: To trait, or not to trait?</a></p>
 <h2 id="types">Types</h2>
 <p>Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you&#8217;ll see a type parameter introduced with the square bracket syntax. Here&#8217;s an example of a Cache of generic Keys and Values.</p>
 <pre>
