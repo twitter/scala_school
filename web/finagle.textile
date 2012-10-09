@@ -648,14 +648,16 @@ This builds a client that load balances over the three given hosts, establishing
 Similarly, you can use a <code>ServerBuilder</code> to make your service "listen" for incoming requests:
 
 <pre>
-val service = new ParrotServerService.Service(parrotServer, new TBinaryProtocol.Factory()) // construct instance of your Finagle service
+val service = new MyService(...) // construct instance of your Finagle service
+var filter = new MyFilter(...) // and maybe some filters
+var filteredServce = filter andThen service
 val  server = ServerBuilder()
   .bindTo(new InetSocketAddress(port))
   .codec(ThriftServerFramedCodec())
-  .name("parrot thrift server")
+  .name("my filtered service")
 //  .hostConnectionMaxLifeTime(5.minutes)
 //  .readTimeout(2.minutes)
-  .build(service)
+  .build(filteredService)
 </pre>
 
 This will serve, on port <var>port</var>, a Thrift server which dispatches requests to <var>service</var>. If we un-comment the <code>hostConnectionMaxLifeTime</code> line, each connection would be allowed to stay alive for up to 5 minutes. If we un-comment the <code>readTimeout</code> line, then we require a request to be sent within 2 minutes. The required <code>ServerBuilder</code> options are: <code>name</code>, <code>bindTo</code> and <code>codec</code>.
