@@ -576,14 +576,16 @@ val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
 <p>This builds a client that load balances over the three given hosts, establishing at most one connection per host, and giving up only after two failures. Stats are reported to <a href="https://github.com/twitter/ostrich">ostrich</a>. The following builder options are required (and their presence statically enforced): <code>hosts</code> or <code>cluster</code>, <code>codec</code> and <code>hostConnectionLimit</code>.</p>
 <p>Similarly, you can use a <code>ServerBuilder</code> to make your service &#8220;listen&#8221; for incoming requests:</p>
 <pre>
-val service = new ParrotServerService.Service(parrotServer, new TBinaryProtocol.Factory()) // construct instance of your Finagle service
+val service = new MyService(...) // construct instance of your Finagle service
+var filter = new MyFilter(...) // and maybe some filters
+var filteredServce = filter andThen service
 val  server = ServerBuilder()
   .bindTo(new InetSocketAddress(port))
   .codec(ThriftServerFramedCodec())
-  .name("parrot thrift server")
+  .name("my filtered service")
 //  .hostConnectionMaxLifeTime(5.minutes)
 //  .readTimeout(2.minutes)
-  .build(service)
+  .build(filteredService)
 </pre>
 <p>This will serve, on port <var>port</var>, a Thrift server which dispatches requests to <var>service</var>. If we un-comment the <code>hostConnectionMaxLifeTime</code> line, each connection would be allowed to stay alive for up to 5 minutes. If we un-comment the <code>readTimeout</code> line, then we require a request to be sent within 2 minutes. The required <code>ServerBuilder</code> options are: <code>name</code>, <code>bindTo</code> and <code>codec</code>.</p>
 <p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> Careful, there are other &#8220;Future&#8221; classes out there. Don&#8217;t confuse <code>twitter.com.util.Future</code> with <code>scala.actor.Future</code> or <code>java.util.concurrent.Future</code>!</p>
