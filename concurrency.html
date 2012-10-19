@@ -168,7 +168,7 @@ $ nc localhost 2020
 pool-1-thread-2
 </pre>
 <h2 id="Future">Futures</h2>
-<p>A <code>Future</code> represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking <code>get()</code> method on it.  @Executor@s return a <code>Future</code>.</p>
+<p>A <code>Future</code> represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking <code>get()</code> method on it.  An <code>Executor</code> returns a <code>Future</code>. If you use the Finagle <span class="caps">RPC</span> system, you use <code>Future</code> instances to hold results that might not have arrived yet.</p>
 <p>A <code>FutureTask</code> is a Runnable and is designed to be run by an <code>Executor</code></p>
 <pre>
 val future = new FutureTask[String](new Callable[String]() {
@@ -181,7 +181,7 @@ executor.execute(future)
 <pre>
 val blockingResult = future.get()
 </pre>
-<p><strong>See Also</strong> Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .</p>
+<p><strong>See Also</strong> <a href="finagle.html">Scala School&#8217;s Finagle page</a> has plenty of examples of using <code>Future</code>s, including some nice ways to combine them. Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .</p>
 <h2 id="danger">Thread Safety Problem</h2>
 <pre>
 class Person(var name: String) {
