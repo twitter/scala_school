@@ -168,7 +168,7 @@ pool-1-thread-2
 
 h2(#Future). Futures
 
-A @Future@ represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking @get()@ method on it.  @Executor@s return a @Future@.
+A @Future@ represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking @get()@ method on it.  An @Executor@ returns a @Future@. If you use the Finagle RPC system, you use @Future@ instances to hold results that might not have arrived yet.
 
 A @FutureTask@ is a Runnable and is designed to be run by an @Executor@
 
@@ -186,7 +186,7 @@ Now I need the results so let's block until its done.
 val blockingResult = future.get()
 </pre>
 
-*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .
+*See Also* <a href="finagle.html">Scala School's Finagle page</a> has plenty of examples of using <code>Future</code>s, including some nice ways to combine them. Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .
 
 h2(#danger). Thread Safety Problem
 
