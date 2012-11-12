@@ -106,7 +106,7 @@ three: PartialFunction[Int,String] = <function1>
 scala> val wildcard: PartialFunction[Int, String] = { case _ => "something else" }
 wildcard: PartialFunction[Int,String] = <function1>
 
-scala> one orElse two orElse three orElse wildcard
+scala> val res23 = one orElse two orElse three orElse wildcard
 res23: PartialFunction[Int,String] = <function1>
 
 scala> res23(5)
