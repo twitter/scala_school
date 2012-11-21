@@ -14,6 +14,7 @@ layout: post
 * "Server Example":#server
 * "Filters":#Filter
 * "Builders":#Builder
+* "Don't Block":#DontBlock (unless you do it the right way)
 
 h2(#repl). Finagle-Friendly REPL
 
@@ -538,6 +539,8 @@ val server: Server = ServerBuilder()
   .build(rootService)
 </pre>
 
+Though we won't use it in these examples, the `name` is handy for profiling and debugging.
+
 h2(#Filter). Filters
 
 Filters transform services. They can provide <em>service generic</em> functionality. For example, you might have several services that should support rate limiting; you can write one rate-limiting filter and apply it to all your services. Filters are also good for decomposing a service into distinct phases.
@@ -577,14 +580,22 @@ Here's how you might write a filter that provides a service timeout mechanism.
 
 <pre>
 class TimeoutFilter[Req, Rep](
-    timeout: Duration, timer: util.Timer)
+  timeout: Duration,
+  exception: RequestTimeoutException,
+  timer: Timer)
   extends Filter[Req, Rep, Req, Rep]
 {
-  def apply(
-    request: Req, service: Service[Req, Rep]
-  ): Future[Rep] = {
-    service(request).timeout(timer, timeout) {
-      Throw(new TimedoutRequestException)
+  def this(timeout: Duration, timer: Timer) =
+    this(timeout, new IndividualRequestTimeoutException(timeout), timer)
+
+  def apply(request: Req, service: Service[Req, Rep]): Future[Rep] = {
+    val res = service(request)
+
+    res.within(timer, timeout) rescue {
+      case _: java.util.concurrent.TimeoutException =>
+        res.cancel()
+        Trace.record(TimeoutFilter.TimeoutAnnotation)
+        Future.exception(exception)
     }
   }
 }
@@ -661,6 +672,13 @@ val  server = ServerBuilder()
 </pre>
 
 This will serve, on port <var>port</var>, a Thrift server which dispatches requests to <var>service</var>. If we un-comment the <code>hostConnectionMaxLifeTime</code> line, each connection would be allowed to stay alive for up to 5 minutes. If we un-comment the <code>readTimeout</code> line, then we require a request to be sent within 2 minutes. The required <code>ServerBuilder</code> options are: <code>name</code>, <code>bindTo</code> and <code>codec</code>.
+
+h2(#DontBlock). Don't Block (unless you do it the right way)
+
+Finagle automatically juggles threads to keep your service running smoothly. However, if your service blocks, it can block all Finagle threads.
+
+* If your code calls a blocking operation (e.g., reads a file), use a <a href="https://github.com/twitter/finagle#Using%20Future%20Pools">Future Pool</a> to wrap the blocking code. This places the blocking operation in its own thread.
+* If your code uses sequential composition of Futures, don't worry that it's "blocking" on those Futures.
 
 fn1. Careful, there are other "Future" classes out there. Don't confuse <code>twitter.com.util.Future</code> with <code>scala.actor.Future</code> or <code>java.util.concurrent.Future</code>!
 
