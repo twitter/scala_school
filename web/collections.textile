@@ -265,7 +265,7 @@ scala> numbers.drop(5)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
 
-<code>dropWhile</code> removes the first elements that don't match a predicate function. For example, if we <code>dropWhile</code> odd numbers from our list of numbers, <code>1</code> gets dropped (but not <code>3</code> which is "shielded" by <code>2</code>).
+<code>dropWhile</code> removes the first elements that match a predicate function. For example, if we <code>dropWhile</code> odd numbers from our list of numbers, <code>1</code> gets dropped (but not <code>3</code> which is "shielded" by <code>2</code>).
 
 <pre>
 scala> numbers.dropWhile(_ % 2 != 0)
