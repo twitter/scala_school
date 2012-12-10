@@ -171,13 +171,13 @@ res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
 <pre>
 scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
 
-scala&gt; new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
-res23: java.lang.Object with Container[List] = $anon$1@7c8e3f75
+scala&gt; val container = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+container: java.lang.Object with Container[List] = $anon$1@7c8e3f75
 
-scala&gt; res23.put("hey")
+scala&gt; container.put("hey")
 res24: List[java.lang.String] = List(hey)
 
-scala&gt; res23.put(123)
+scala&gt; container.put(123)
 res25: List[Int] = List(123)
 </pre>
 <p>Note that <strong>Container</strong> is polymorphic in a parameterized type (&#8220;container type&#8221;).</p>

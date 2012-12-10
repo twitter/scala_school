@@ -356,8 +356,8 @@ class FileRecordProducer(path: String) extends UserMaker {
 import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
 
 // Concrete producer
-class Producer[T](path: String, queue: BlockingQueue[T]) implements Runnable {
-  public void run() {
+class Producer[T](path: String, queue: BlockingQueue[T]) extends Runnable {
+  def run() {
     Source.fromFile(path, "utf-8").getLines.foreach { line =&gt;
       queue.put(line)
     }
@@ -365,8 +365,8 @@ class Producer[T](path: String, queue: BlockingQueue[T]) implements Runnable {
 }
 
 // Abstract consumer
-abstract class Consumer[T](queue: BlockingQueue[T]) implements Runnable {
-  public void run() {
+abstract class Consumer[T](queue: BlockingQueue[T]) extends Runnable {
+  def run() {
     while (true) {
       val item = queue.take()
       consume(item)
