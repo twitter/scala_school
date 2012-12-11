@@ -214,7 +214,7 @@ object Future {
 }
 </pre>
 
-<code>collect</code> takes a set of <code>Future</code>s of the same type, and yields a <code>Future</code> of a sequence of values of that type. This future is complete when all of the underlying futures have completed or when any of them have failed.
+<code>collect</code> takes a set of <code>Future</code>s of the same type, and yields a <code>Future</code> of a sequence of values of that type. This future is complete when all of the underlying futures have completed or when any of them have failed. The returned sequence's order corresponds to the order of the passed-in sequence.
 
 <pre>
 scala> val f2 = Future.value(2)
@@ -245,7 +245,7 @@ scala> ready.get() // doesn't ret value, but I know my futures are done
 scala>
 </pre>
 
-<code>select</code> returns a <code>Future</code> that is complete when the first of the given <code>Future</code>s complete. It returns that <code>Future</code> together with a Seq containing the remaining uncompleted Futures.
+<code>select</code> returns a <code>Future</code> that is complete when the first of the given <code>Future</code>s complete. It returns that <code>Future</code> together with a Seq containing the remaining uncompleted Futures. (It doesn't do anything to cancel the remaining Futures. If you want to wait for more responses, you can; if you want to ignore the remaining responses, you can.)
 
 <pre>
 scala> val pr7 = new Promise[Int] // unresolved future
@@ -539,7 +539,7 @@ val server: Server = ServerBuilder()
   .build(rootService)
 </pre>
 
-Though we won't use it in these examples, the `name` is handy for profiling and debugging.
+Though we won't use it in these examples, the mandatory `name` is useful for profiling and debugging.
 
 h2(#Filter). Filters
 
@@ -677,7 +677,7 @@ h2(#DontBlock). Don't Block (unless you do it the right way)
 
 Finagle automatically juggles threads to keep your service running smoothly. However, if your service blocks, it can block all Finagle threads.
 
-* If your code calls a blocking operation (e.g., reads a file), use a <a href="https://github.com/twitter/finagle#Using%20Future%20Pools">Future Pool</a> to wrap the blocking code. This places the blocking operation in its own thread.
+* If your code calls a blocking operation (<code>apply</code> or <code>get</code>), use a <a href="https://github.com/twitter/finagle#Using%20Future%20Pools">Future Pool</a> to wrap the blocking code. This runs the blocking operation in its own thread pool, giving you a Future for the completion (or failure) of that operation which you can compose with other Futures.
 * If your code uses sequential composition of Futures, don't worry that it's "blocking" on those Futures.
 
 fn1. Careful, there are other "Future" classes out there. Don't confuse <code>twitter.com.util.Future</code> with <code>scala.actor.Future</code> or <code>java.util.concurrent.Future</code>!
