@@ -45,6 +45,7 @@
 	<li><a href="#server">Server Example</a></li>
 	<li><a href="#Filter">Filters</a></li>
 	<li><a href="#Builder">Builders</a></li>
+	<li><a href="#DontBlock">Don&#8217;t Block</a> (unless you do it the right way)</li>
 </ul>
 <h2 id="repl">Finagle-Friendly <span class="caps">REPL</span></h2>
 <p>We&#8217;re about to discuss some code that&#8217;s not part of standard Scala. If you like to use the <span class="caps">REPL</span> to learn, you might wonder how to get a Scala <span class="caps">REPL</span> that knows about Twitter&#8217;s Finagle and things it depends on.</p>
@@ -52,7 +53,7 @@
 <p>If you have the Finagle source code in a directory named <code>finagle</code>, you can get a console via</p>
 <pre>
 $ cd finagle
-$ ./sbt "project finagle-core" console
+$ ./sbt "project finagle-http" console
  ...build output...
 scala&gt;
 </pre>
@@ -210,7 +211,7 @@ object Future {
   def select(fs: Seq[Future[A]]) : Future[(Try[A], Seq[Future[A]])]
 }
 </pre>
-<p><code>collect</code> takes a set of <code>Future</code>s of the same type, and yields a <code>Future</code> of a sequence of values of that type. This future is complete when all of the underlying futures have completed or when any of them have failed.</p>
+<p><code>collect</code> takes a set of <code>Future</code>s of the same type, and yields a <code>Future</code> of a sequence of values of that type. This future is complete when all of the underlying futures have completed or when any of them have failed. The returned sequence&#8217;s order corresponds to the order of the passed-in sequence.</p>
 <pre>
 scala&gt; val f2 = Future.value(2)
 f2: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@13ecdec0
@@ -237,7 +238,7 @@ scala&gt; ready.get() // doesn't ret value, but I know my futures are done
 
 scala&gt;
 </pre>
-<p><code>select</code> returns a <code>Future</code> that is complete when the first of the given <code>Future</code>s complete. It returns that <code>Future</code> together with a Seq containing the remaining uncompleted Futures.</p>
+<p><code>select</code> returns a <code>Future</code> that is complete when the first of the given <code>Future</code>s complete. It returns that <code>Future</code> together with a Seq containing the remaining uncompleted Futures. (It doesn&#8217;t do anything to cancel the remaining Futures. If you want to wait for more responses, you can; if you want to ignore the remaining responses, you can.)</p>
 <pre>
 scala&gt; val pr7 = new Promise[Int] // unresolved future
 pr7: com.twitter.util.Promise[Int] = Promise@1608532943(...)
@@ -487,6 +488,7 @@ val server: Server = ServerBuilder()
   .name("HttpServer")
   .build(rootService)
 </pre>
+<p>Though we won&#8217;t use it in these examples, the mandatory `name` is useful for profiling and debugging.</p>
 <h2 id="Filter">Filters</h2>
 <p>Filters transform services. They can provide <em>service generic</em> functionality. For example, you might have several services that should support rate limiting; you can write one rate-limiting filter and apply it to all your services. Filters are also good for decomposing a service into distinct phases.</p>
 <p>A simple proxy might look like this:</p>
@@ -517,14 +519,22 @@ abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
 <p>Here&#8217;s how you might write a filter that provides a service timeout mechanism.</p>
 <pre>
 class TimeoutFilter[Req, Rep](
-    timeout: Duration, timer: util.Timer)
+  timeout: Duration,
+  exception: RequestTimeoutException,
+  timer: Timer)
   extends Filter[Req, Rep, Req, Rep]
 {
-  def apply(
-    request: Req, service: Service[Req, Rep]
-  ): Future[Rep] = {
-    service(request).timeout(timer, timeout) {
-      Throw(new TimedoutRequestException)
+  def this(timeout: Duration, timer: Timer) =
+    this(timeout, new IndividualRequestTimeoutException(timeout), timer)
+
+  def apply(request: Req, service: Service[Req, Rep]): Future[Rep] = {
+    val res = service(request)
+
+    res.within(timer, timeout) rescue {
+      case _: java.util.concurrent.TimeoutException =&gt;
+        res.cancel()
+        Trace.record(TimeoutFilter.TimeoutAnnotation)
+        Future.exception(exception)
     }
   }
 }
@@ -588,6 +598,12 @@ val  server = ServerBuilder()
   .build(filteredService)
 </pre>
 <p>This will serve, on port <var>port</var>, a Thrift server which dispatches requests to <var>service</var>. If we un-comment the <code>hostConnectionMaxLifeTime</code> line, each connection would be allowed to stay alive for up to 5 minutes. If we un-comment the <code>readTimeout</code> line, then we require a request to be sent within 2 minutes. The required <code>ServerBuilder</code> options are: <code>name</code>, <code>bindTo</code> and <code>codec</code>.</p>
+<h2 id="DontBlock">Don&#8217;t Block (unless you do it the right way)</h2>
+<p>Finagle automatically juggles threads to keep your service running smoothly. However, if your service blocks, it can block all Finagle threads.</p>
+<ul>
+	<li>If your code calls a blocking operation (<code>apply</code> or <code>get</code>), use a <a href="https://github.com/twitter/finagle#Using%20Future%20Pools">Future Pool</a> to wrap the blocking code. This runs the blocking operation in its own thread pool, giving you a Future for the completion (or failure) of that operation which you can compose with other Futures.</li>
+	<li>If your code uses sequential composition of Futures, don&#8217;t worry that it&#8217;s &#8220;blocking&#8221; on those Futures.</li>
+</ul>
 <p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> Careful, there are other &#8220;Future&#8221; classes out there. Don&#8217;t confuse <code>twitter.com.util.Future</code> with <code>scala.actor.Future</code> or <code>java.util.concurrent.Future</code>!</p>
 <p class="footnote" id="fn2"><a href="#fnr2"><sup>2</sup></a> If you study type systems and/or category theory, you&#8217;ll be glad to learn that <code>flatMap</code> is equivalent to a monadic bind.</p>
     </div> <!-- /container -->
