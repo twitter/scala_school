@@ -26,7 +26,7 @@ If you have the Finagle source code in a directory named <code>finagle</code>, y
 
 <pre>
 $ cd finagle
-$ ./sbt "project finagle-core" console
+$ ./sbt "project finagle-http" console
  ...build output...
 scala>
 </pre>
