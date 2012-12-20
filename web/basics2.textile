@@ -16,12 +16,19 @@ This lesson covers:
 
 h2(#apply). apply methods
 
-apply methods give you a nice syntatic sugar for when a class or object has one main use.
+apply methods give you a nice syntactic sugar for when a class or object has one main use.
 
 <pre>
+class Foo {}
+	
 object FooMaker {
   def apply() = new Foo
 }
+</pre>
+
+or
+
+<pre>
 
 scala> class Bar {
      |   def apply() = 0
