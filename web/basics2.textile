@@ -19,17 +19,21 @@ h2(#apply). apply methods
 apply methods give you a nice syntactic sugar for when a class or object has one main use.
 
 <pre>
-class Foo {}
-	
-object FooMaker {
-  def apply() = new Foo
-}
+scala> class Foo {}
+defined class Foo
+
+scala> object FooMaker {
+     |   def apply() = new Foo
+     | }
+defined module FooMaker
+
+scala> val newFoo = FooMaker()
+newFoo: Foo = Foo@5b83f762
 </pre>
 
 or
 
 <pre>
-
 scala> class Bar {
      |   def apply() = 0
      | }
@@ -43,7 +47,6 @@ res8: Int = 0
 </pre>
 
 Here our instance object looks like we're calling a method. More on that later!
-
 
 h2(#object). Objects
 
@@ -98,10 +101,9 @@ res2: Int = 2
 
 There is Function1 through 22.  Why 22?  It's an arbitrary magic number.  I've never needed a function with more than 22 arguments so it seems to work out.
 
-The syntatic sugar of apply helps unify the duality of object and functional programming.  You can pass classes around and use them as functions and functions are just instances of classes under the covers.
+The syntactic sugar of apply helps unify the duality of object and functional programming.  You can pass classes around and use them as functions and functions are just instances of classes under the covers.
 
 Does this mean that everytime you define a method in your class, you're actually getting an instance of Function*?  No, methods in classes are methods.  methods defined standalone in the repl are Function* instances.
-
 
 Classes can also extend Function and those instances can be called with ().
 
