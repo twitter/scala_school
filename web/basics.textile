@@ -176,7 +176,7 @@ You will see this syntax often used when passing an anonymous function as an arg
 
 h3. Partial application
 
-You can partially apply a function with an underscore, which gives you another function.
+You can partially apply a function with an underscore, which gives you another function. Scala uses the underscore to mean different things in different contexts, but you can usually think of it as an unnamed magical wildcard. In the context of `{ _ + 2 }` it means an unnamed parameter. You can use it like so:
 
 <pre>
 scala> def adder(m: Int, n: Int) = m + n
@@ -230,7 +230,7 @@ res1: (Int) => (Int) => Int = <function1>
 
 h3. Variable length arguments
 
-There is a special syntax for methods that can take parameters of a repeated type.
+There is a special syntax for methods that can take parameters of a repeated type. To apply String's `capitalize` function to several strings, you might write:
 
 <pre>
 def capitalizeAll(args: String*) = {
@@ -238,6 +238,9 @@ def capitalizeAll(args: String*) = {
     arg.capitalize
   }
 }
+
+scala> capitalizeAll("rarity", "applejack")
+res2: Seq[String] = ArrayBuffer(Rarity, Applejack)
 </pre>
 
 h2(#class). Classes
@@ -284,6 +287,16 @@ class Calculator(brand: String) {
 </pre>
 
 Note the two different styles of comments.
+
+You can use the constructor to construct an instance:
+
+<pre>
+scala> val calc = new Calculator("HP")
+calc: Calculator = Calculator@1e64cc4d
+
+scala> calc.color
+res0: String = black
+</pre>
 
 h3. Expressions
 
@@ -363,6 +376,10 @@ h2(#trait). Traits
 <pre>
 trait Car {
   val brand: String
+}
+
+trait Shiny {
+  val shineRefraction: Int
 }
 </pre>
 
