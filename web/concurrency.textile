@@ -208,7 +208,7 @@ h3. Three tools
 
 h4. synchronization
 
-Mutexes provide ownership semantics.  When you enter a mutex, you own it.  The most common way of using a mutex in the JVM is by synchronizing on something.  In this case, we'll synchronize on our userMap.
+Mutexes provide ownership semantics.  When you enter a mutex, you own it.  The most common way of using a mutex in the JVM is by synchronizing on something.  In this case, we'll synchronize on our Person.
 
 In the JVM, you can synchronize on any instance that's not null.
 
@@ -449,7 +449,7 @@ abstract class Consumer[T](queue: BlockingQueue[T]) extends Runnable {
 
 val queue = new LinkedBlockingQueue[String]()
 
-// One thread for the consumer
+// One thread for the producer
 val producer = new Producer[String]("users.txt", q)
 new Thread(producer).start()
 
