@@ -195,7 +195,7 @@ class Person(var name: String) {
 <p>Let&#8217;s talk about some tools that force threads to keep a consistent view of data.</p>
 <h3>Three tools</h3>
 <h4>synchronization</h4>
-<p>Mutexes provide ownership semantics.  When you enter a mutex, you own it.  The most common way of using a mutex in the <span class="caps">JVM</span> is by synchronizing on something.  In this case, we&#8217;ll synchronize on our userMap.</p>
+<p>Mutexes provide ownership semantics.  When you enter a mutex, you own it.  The most common way of using a mutex in the <span class="caps">JVM</span> is by synchronizing on something.  In this case, we&#8217;ll synchronize on our Person.</p>
 <p>In the <span class="caps">JVM</span>, you can synchronize on any instance that&#8217;s not null.</p>
 <pre>
 class Person(var name: String) {
@@ -318,16 +318,16 @@ class SynchronizedInvertedIndex(userMap: mutable.Map[String, User]) extends Inve
 </pre>
 <p>If you look at the implementation, you realize that it&#8217;s simply synchronizing on every method so while it&#8217;s safe, it might not have the performance you&#8217;re hoping for.</p>
 <h2>Java ConcurrentHashMap</h2>
-<p>Java comes with a nice thread-safe ConcurrentHashMap.  Thankfully, we can use JavaConversions to give us nice Scala semantics.</p>
+<p>Java comes with a nice thread-safe ConcurrentHashMap.  Thankfully, we can use JavaConverters to give us nice Scala semantics.</p>
 <p>In fact, we can seamlessly layer our new, thread-safe InvertedIndex as an extension of the old unsafe one.</p>
 <pre>
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 class ConcurrentInvertedIndex(userMap: collection.mutable.ConcurrentMap[String, User])
     extends InvertedIndex(userMap) {
 
-  def this() = this(new ConcurrentHashMap[String, User])
+  def this() = this(new ConcurrentHashMap[String, User] asScala)
 }
 </pre>
 <h2>Let&#8217;s load our InvertedIndex</h2>
@@ -378,7 +378,7 @@ abstract class Consumer[T](queue: BlockingQueue[T]) extends Runnable {
 
 val queue = new LinkedBlockingQueue[String]()
 
-// One thread for the consumer
+// One thread for the producer
 val producer = new Producer[String]("users.txt", q)
 new Thread(producer).start()
 

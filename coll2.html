@@ -282,12 +282,12 @@ res56: numbers.type = Map((2,3), (4,1), (1,2))
 <p><strong>Stack and ArrayStack</strong> <a href="http://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html">Stack <span class="caps">API</span></a>, <a href="http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html">ArrayStack <span class="caps">API</span></a></p>
 <p><strong>StringBuilder</strong> Interestingly, StringBuilder is a collection. <a href="http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html"><span class="caps">API</span> doc</a></p>
 <h2 id="java">Life with Java</h2>
-<p>You can easily move between Java and Scala collection types using a set of implicit conversions that are available in the JavaConversions package.</p>
+<p>You can easily move between Java and Scala collection types using conversions that are available in the <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>. It decorates commonly-used Java collections with <code>asScala</code> methods and Scala collections with <code>asJava</code> methods.</p>
 <pre>
-   import scala.collection.JavaConversions._
+   import scala.collection.JavaConverters._
    val sl = new scala.collection.mutable.ListBuffer[Int]
-   val jl : java.util.List[Int] = sl
-   val sl2 : scala.collection.mutable.Buffer[Int] = jl
+   val jl : java.util.List[Int] = sl.asJava
+   val sl2 : scala.collection.mutable.Buffer[Int] = jl.asScala
    assert(sl eq sl2)
 </pre>
 <p>Two-way conversions:</p>
