@@ -363,13 +363,13 @@ res56: numbers.type = Map((2,3), (4,1), (1,2))
 
 h2(#java). Life with Java
 
-You can easily move between Java and Scala collection types using a set of implicit conversions that are available in the JavaConversions package.
+You can easily move between Java and Scala collection types using conversions that are available in the <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>. It decorates commonly-used Java collections with <code>asScala</code> methods and Scala collections with <code>asJava</code> methods.
 
 <pre>
-   import scala.collection.JavaConversions._
+   import scala.collection.JavaConverters._
    val sl = new scala.collection.mutable.ListBuffer[Int]
-   val jl : java.util.List[Int] = sl
-   val sl2 : scala.collection.mutable.Buffer[Int] = jl
+   val jl : java.util.List[Int] = sl.asJava
+   val sl2 : scala.collection.mutable.Buffer[Int] = jl.asScala
    assert(sl eq sl2)
 </pre>
 
