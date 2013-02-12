@@ -379,18 +379,18 @@ If you look at the implementation, you realize that it's simply synchronizing on
 
 h2.  Java ConcurrentHashMap
 
-Java comes with a nice thread-safe ConcurrentHashMap.  Thankfully, we can use JavaConversions to give us nice Scala semantics.
+Java comes with a nice thread-safe ConcurrentHashMap.  Thankfully, we can use JavaConverters to give us nice Scala semantics.
 
 In fact, we can seamlessly layer our new, thread-safe InvertedIndex as an extension of the old unsafe one.
 
 <pre>
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 class ConcurrentInvertedIndex(userMap: collection.mutable.ConcurrentMap[String, User])
     extends InvertedIndex(userMap) {
 
-  def this() = this(new ConcurrentHashMap[String, User])
+  def this() = this(new ConcurrentHashMap[String, User] asScala)
 }
 </pre>
 
