@@ -103,7 +103,7 @@ There is Function1 through 22.  Why 22?  It's an arbitrary magic number.  I've n
 
 The syntactic sugar of apply helps unify the duality of object and functional programming.  You can pass classes around and use them as functions and functions are just instances of classes under the covers.
 
-Does this mean that everytime you define a method in your class, you're actually getting an instance of Function*?  No, methods in classes are methods.  methods defined standalone in the repl are Function* instances.
+Does this mean that every time you define a method in your class, you're actually getting an instance of Function*?  No, methods in classes are methods.  Methods defined standalone in the repl are Function* instances.
 
 Classes can also extend Function and those instances can be called with ().
 
@@ -305,7 +305,7 @@ Exceptions are available in Scala via a try-catch-finally syntax that uses patte
 try {
   remoteCalculatorService.add(1, 2)
 } catch {
-  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
 } finally {
   remoteCalculatorService.close()
 }
@@ -318,7 +318,7 @@ val result: Int = try {
   remoteCalculatorService.add(1, 2)
 } catch {
   case e: ServerIsDownException => {
-    log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+    log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
     0
   }
 } finally {

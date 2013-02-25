@@ -31,7 +31,7 @@ h3. Why Scala?
 * Concise
 ** Type inference
 ** Literal syntax for function creation
-* Java interopability
+* Java interoperability
 ** Can reuse java libraries
 ** Can reuse java tools
 ** No performance penalty
@@ -176,7 +176,7 @@ You will see this syntax often used when passing an anonymous function as an arg
 
 h3. Partial application
 
-You can partially apply a function with an underscore, which gives you another function. Scala uses the underscore to mean different things in different contexts, but you can usually think of it as an unnamed magical wildcard. In the context of `{ _ + 2 }` it means an unnamed parameter. You can use it like so:
+You can partially apply a function with an underscore, which gives you another function. Scala uses the underscore to mean different things in different contexts, but you can usually think of it as an unnamed magical wildcard. In the context of <code>{ _ + 2 }</code> it means an unnamed parameter. You can use it like so:
 
 <pre>
 scala> def adder(m: Int, n: Int) = m + n
@@ -197,7 +197,7 @@ h3. Curried functions
 
 Sometimes it makes sense to let people apply some arguments to your function now and others later.
 
-Here's an example of a function that lets you build multipliers of two numbers together. At one call site, you'll decide which is the multiplier and at a later call site, you'll choose a multipicand.
+Here's an example of a function that lets you build multipliers of two numbers together. At one call site, you'll decide which is the multiplier and at a later call site, you'll choose a multiplicand.
 
 <pre>
 scala> def multiply(m: Int)(n: Int): Int = m * n
@@ -230,7 +230,7 @@ res1: (Int) => (Int) => Int = <function1>
 
 h3. Variable length arguments
 
-There is a special syntax for methods that can take parameters of a repeated type. To apply String's `capitalize` function to several strings, you might write:
+There is a special syntax for methods that can take parameters of a repeated type. To apply String's <code>capitalize</code> function to several strings, you might write:
 
 <pre>
 def capitalizeAll(args: String*) = {
@@ -262,7 +262,7 @@ scala> calc.brand
 res2: String = "HP"
 </pre>
 
-Contained are examples are defining methods with def and fields with val.  methods are just functions that can access the state of the class.
+Contained are examples are defining methods with def and fields with val.  Methods are just functions that can access the state of the class.
 
 h3. Constructor
 
@@ -404,7 +404,7 @@ class BMW extends Car with Shiny {
 
 <ul>
 <li>Favor using traits. It's handy that a class can extend several traits; a class can extend only one class.
-<li>If you need a constructor parameter, use an abstract class. Abstract class constructors can take paramaters; trait constructors can't. For example, you can't say <code>trait t(i: Int) {}</code>; the <code>i</code> parameter is illegal.
+<li>If you need a constructor parameter, use an abstract class. Abstract class constructors can take parameters; trait constructors can't. For example, you can't say <code>trait t(i: Int) {}</code>; the <code>i</code> parameter is illegal.
 </ul>
 
 You are not the first person to ask this question. See fuller answers at "stackoverflow:Scala traits vs abstract classes":http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes, "Difference between Abstract Class and Trait":http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait, and "Programming in Scala: To trait, or not to trait?":http://www.artima.com/pins1ed/traits.html#12.7

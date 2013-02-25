@@ -440,7 +440,7 @@ info] SimpleParser should
 [info] == com.twitter.sample.SimpleParserSpec ==
 </pre>
 
-Uhoh.  We need to check for nested objects.  Let's add some ugly
+Uh oh.  We need to check for nested objects.  Let's add some ugly
 guards to our token reading loop.
 
 <pre>

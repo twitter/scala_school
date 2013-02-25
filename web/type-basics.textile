@@ -64,7 +64,7 @@ scala> res5.head
 res6: Any = 2
 </pre>
 
-And so our application would devolve into a series of casts ("asInstanceOf[]") and we would lack typesafety (because these are all dynamic).
+And so our application would devolve into a series of casts ("asInstanceOf[]") and we would lack type safety (because these are all dynamic).
 
 Polymorphism is achieved through specifying _type variables_.
 
