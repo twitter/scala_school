@@ -24,7 +24,7 @@ This lesson covers testing with Specs, a Behavior-Driven Design (BDD) Framework 
 * "run in sbt":#sbt
 
 
-h2(#example). extends Specifcation
+h2(#example). extends Specification
 
 Let's just jump in.
 
