@@ -133,7 +133,7 @@ mutates a collection by executing @f@ over each element.
 def find (p: (A) => Boolean) : Option[A]
 </code>
 
-returns the first element that matches the predicate funciton
+returns the first element that matches the predicate function
 
 <code>
 def filter (p: (A) => Boolean) : Traversable[A]
@@ -324,7 +324,7 @@ Pros
 Con
 * Can't change at all
 
-Scala allows us to be pragmatic, it encourages immutability but does not penalize us for needing mutatability.  This is very similar to var vs.  val.  We always start with val and move back to var when required.
+Scala allows us to be pragmatic, it encourages immutability but does not penalize us for needing mutability.  This is very similar to var vs. val.  We always start with val and move back to var when required.
 
 We favor starting with the immutable versions of collections but switching to the mutable ones if performance dictates.  Using immutable collections means you won't accidentally change things in multiple threads.
 
