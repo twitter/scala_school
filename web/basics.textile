@@ -16,9 +16,9 @@ This lesson covers:
 
 h2(#overview). About this class
 
-The first few weeks will cover basic syntax and concepts.  Then we'll start to open it up with more exercises.
+The first few weeks will cover basic syntax and concepts, then we'll start to open it up with more exercises.
 
-Some examples will be given as if written in the interpreter, others as if written in a source file.
+Some examples will be given as if written in the interpreter- others as if written in a source file.
 
 Having an interpreter available makes it easy to explore a problem space.
 
