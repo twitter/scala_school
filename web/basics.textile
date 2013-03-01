@@ -16,9 +16,9 @@ This lesson covers:
 
 h2(#overview). About this class
 
-The first few weeks will cover basic syntax and concepts.  Then we'll start to open it up with more exercises.
+The first few weeks will cover basic syntax and concepts, then we'll start to open it up with more exercises.
 
-Some examples will be given as if written in the interpreter, others as if written in a source file.
+Some examples will be given as if written in the interpreter and others as if written in a source file.
 
 Having an interpreter available makes it easy to explore a problem space.
 
@@ -45,7 +45,7 @@ h3. How Scala?
 
 h3. Think Scala
 
-Scala is not just a nicer Java.  You should learn it with a fresh mind, you will get more out of these classes.
+Scala is not just a nicer Java.  You should learn it with a fresh mind- you will get more out of these classes.
 
 h3. Start the Interpreter
 
@@ -88,7 +88,7 @@ You cannot change the binding to a val.
 
 h3. Variables
 
-If you need to change the binding, you can use a <code>var</code> instead
+If you need to change the binding, you can use a <code>var</code> instead.
 
 <pre>
 scala> var name = "steve"
@@ -114,7 +114,7 @@ scala> val three = addOne(2)
 three: Int = 3
 </pre>
 
-You can leave off parens on functions with no arguments
+You can leave off parens on functions with no arguments.
 
 <pre>
 scala> def three() = 1 + 2
@@ -162,7 +162,7 @@ def timesTwo(i: Int): Int = {
 }
 </pre>
 
-This is also true of an anonymous function
+This is also true of an anonymous function.
 
 <pre>
 scala> { i: Int =>
