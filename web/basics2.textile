@@ -226,9 +226,9 @@ Let's classify them according to type.
 
 <pre>
 def calcType(calc: Calculator) = calc match {
-  case calc.brand == "hp" && calc.model == "20B" => "financial"
-  case calc.brand == "hp" && calc.model == "48G" => "scientific"
-  case calc.brand == "hp" && calc.model == "30B" => "business"
+  case calc if calc.brand == "hp" && calc.model == "20B" => "financial"
+  case calc if calc.brand == "hp" && calc.model == "48G" => "scientific"
+  case calc if calc.brand == "hp" && calc.model == "30B" => "business"
   case _ => "unknown"
 }
 </pre>
