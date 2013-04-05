@@ -127,7 +127,7 @@ returns a collection with every element transformed by @f@
 def foreach[U](f: Elem => U): Unit
 </code>
 
-mutates a collection by executing @f@ over each element.
+executes @f@ over each element in a collection.
 
 <code>
 def find (p: (A) => Boolean) : Option[A]
