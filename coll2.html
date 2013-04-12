@@ -112,11 +112,11 @@ def map [B] (f: (A) =&gt; B) : CC[B]
 <p><code>
 def foreach[U](f: Elem =&gt; U): Unit
 </code></p>
-<p>mutates a collection by executing <code>f</code> over each element.</p>
+<p>executes <code>f</code> over each element in a collection.</p>
 <p><code>
 def find (p: (A) =&gt; Boolean) : Option[A]
 </code></p>
-<p>returns the first element that matches the predicate funciton</p>
+<p>returns the first element that matches the predicate function</p>
 <p><code>
 def filter (p: (A) =&gt; Boolean) : Traversable[A]
 </code></p>
@@ -255,7 +255,7 @@ res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 <ul>
 	<li>Can&#8217;t change at all</li>
 </ul>
-<p>Scala allows us to be pragmatic, it encourages immutability but does not penalize us for needing mutatability.  This is very similar to var vs.  val.  We always start with val and move back to var when required.</p>
+<p>Scala allows us to be pragmatic, it encourages immutability but does not penalize us for needing mutability.  This is very similar to var vs. val.  We always start with val and move back to var when required.</p>
 <p>We favor starting with the immutable versions of collections but switching to the mutable ones if performance dictates.  Using immutable collections means you won&#8217;t accidentally change things in multiple threads.</p>
 <h2 id="mutable">Mutable</h2>
 <p>All of the above classes we&#8217;ve discussed were immutable.  Let&#8217;s discuss the commonly used mutable collections.</p>

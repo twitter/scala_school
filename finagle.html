@@ -110,7 +110,7 @@ scala&gt;
 <p><a name="futsequential">&nbsp;</a></p>
 <h3>Sequential composition</h3>
 <p>Futures have combinators <a href="collections.html#combinators">similar to those in the collections APIs</a> (e.g., map, flatMap). A collection-combinator, you recall, lets you express things like &#8220;I have a List of integers and a <tt>square</tt> function: map that to the List of the squares of my integers.&#8221; This is neat; you can put together the combinator-function with another function to effectively define a new function. A Future-combinator lets you express things like &#8220;I have a Future hypothetical-integer and a <tt>square</tt> function: map that to the Future square of my hypothetical-integer.&#8221;</p>
-<p>If you&#8217;re defining an asynchronous <span class="caps">API</span>, a request value comes in and your <span class="caps">API</span> gives back a response wrapped in a Future. Thus, these combinators that turn inputs and functions into Futures are darned useful: they help you define your asynchronous <span class="caps">API</span> in terms of other asychronous APIs.</p>
+<p>If you&#8217;re defining an asynchronous <span class="caps">API</span>, a request value comes in and your <span class="caps">API</span> gives back a response wrapped in a Future. Thus, these combinators that turn inputs and functions into Futures are darned useful: they help you define your asynchronous <span class="caps">API</span> in terms of other asynchronous APIs.</p>
 <p>The most important <code>Future</code> combinator is <code>flatMap</code><sup class="footnote" id="fnr2"><a href="#fn2">2</a></sup>:</p>
 <blockquote>
 <p><code>def Future[A].flatMap[B](f: A =&gt; Future[B]): Future[B]</code></p>
@@ -507,7 +507,7 @@ class MyService(client: Service[..]) extends Service[HttpRequest, HttpResponse]
 abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
   extends ((ReqIn, Service[ReqOut, RepIn]) =&gt; Future[RepOut])
 </pre>
-<p>Its type is better viewed diagramatically:</p>
+<p>Its type is better viewed diagrammatically:</p>
 <pre>
     ((ReqIn, Service[ReqOut, RepIn])
          =&gt; Future[RepOut])
@@ -604,7 +604,7 @@ val  server = ServerBuilder()
 	<li>If your code calls a blocking operation (<code>apply</code> or <code>get</code>), use a <a href="https://github.com/twitter/finagle#Using%20Future%20Pools">Future Pool</a> to wrap the blocking code. This runs the blocking operation in its own thread pool, giving you a Future for the completion (or failure) of that operation which you can compose with other Futures.</li>
 	<li>If your code uses sequential composition of Futures, don&#8217;t worry that it&#8217;s &#8220;blocking&#8221; on those Futures.</li>
 </ul>
-<p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> Careful, there are other &#8220;Future&#8221; classes out there. Don&#8217;t confuse <code>twitter.com.util.Future</code> with <code>scala.actor.Future</code> or <code>java.util.concurrent.Future</code>!</p>
+<p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> Careful, there are other &#8220;Future&#8221; classes out there. Don&#8217;t confuse <code>com.twitter.util.Future</code> with <code>scala.actor.Future</code> or <code>java.util.concurrent.Future</code>!</p>
 <p class="footnote" id="fn2"><a href="#fnr2"><sup>2</sup></a> If you study type systems and/or category theory, you&#8217;ll be glad to learn that <code>flatMap</code> is equivalent to a monadic bind.</p>
     </div> <!-- /container -->
 

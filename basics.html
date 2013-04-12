@@ -46,8 +46,8 @@
 	<li><a href="#types">types</a></li>
 </ul>
 <h2 id="overview">About this class</h2>
-<p>The first few weeks will cover basic syntax and concepts.  Then we&#8217;ll start to open it up with more exercises.</p>
-<p>Some examples will be given as if written in the interpreter, others as if written in a source file.</p>
+<p>The first few weeks will cover basic syntax and concepts, then we&#8217;ll start to open it up with more exercises.</p>
+<p>Some examples will be given as if written in the interpreter and others as if written in a source file.</p>
 <p>Having an interpreter available makes it easy to explore a problem space.</p>
 <h3>Why Scala?</h3>
 <ul>
@@ -61,7 +61,7 @@
 		<li>Type inference</li>
 		<li>Literal syntax for function creation</li>
 	</ul></li>
-	<li>Java interopability
+	<li>Java interoperability
 	<ul>
 		<li>Can reuse java libraries</li>
 		<li>Can reuse java tools</li>
@@ -78,7 +78,7 @@
 	</ul></li>
 </ul>
 <h3>Think Scala</h3>
-<p>Scala is not just a nicer Java.  You should learn it with a fresh mind, you will get more out of these classes.</p>
+<p>Scala is not just a nicer Java.  You should learn it with a fresh mind- you will get more out of these classes.</p>
 <h3>Start the Interpreter</h3>
 <p>Start the included <code>sbt console</code>.</p>
 <pre>
@@ -107,7 +107,7 @@ two: Int = 2
 </pre>
 <p>You cannot change the binding to a val.</p>
 <h3>Variables</h3>
-<p>If you need to change the binding, you can use a <code>var</code> instead</p>
+<p>If you need to change the binding, you can use a <code>var</code> instead.</p>
 <pre>
 scala&gt; var name = "steve"
 name: java.lang.String = steve
@@ -126,7 +126,7 @@ addOne: (m: Int)Int
 scala&gt; val three = addOne(2)
 three: Int = 3
 </pre>
-<p>You can leave off parens on functions with no arguments</p>
+<p>You can leave off parens on functions with no arguments.</p>
 <pre>
 scala&gt; def three() = 1 + 2
 three: ()Int
@@ -163,7 +163,7 @@ def timesTwo(i: Int): Int = {
   i * 2
 }
 </pre>
-<p>This is also true of an anonymous function</p>
+<p>This is also true of an anonymous function.</p>
 <pre>
 scala&gt; { i: Int =&gt;
   println("hello world")
@@ -173,7 +173,7 @@ res0: (Int) =&gt; Int = &lt;function1&gt;
 </pre>
 <p>You will see this syntax often used when passing an anonymous function as an argument.</p>
 <h3>Partial application</h3>
-<p>You can partially apply a function with an underscore, which gives you another function. Scala uses the underscore to mean different things in different contexts, but you can usually think of it as an unnamed magical wildcard. In the context of `{ _ + 2 }` it means an unnamed parameter. You can use it like so:</p>
+<p>You can partially apply a function with an underscore, which gives you another function. Scala uses the underscore to mean different things in different contexts, but you can usually think of it as an unnamed magical wildcard. In the context of <code>{ _ + 2 }</code> it means an unnamed parameter. You can use it like so:</p>
 <pre>
 scala&gt; def adder(m: Int, n: Int) = m + n
 adder: (m: Int,n: Int)Int
@@ -189,7 +189,7 @@ res50: Int = 5
 <p>You can partially apply any argument in the argument list, not just the last one.</p>
 <h3>Curried functions</h3>
 <p>Sometimes it makes sense to let people apply some arguments to your function now and others later.</p>
-<p>Here&#8217;s an example of a function that lets you build multipliers of two numbers together. At one call site, you&#8217;ll decide which is the multiplier and at a later call site, you&#8217;ll choose a multipicand.</p>
+<p>Here&#8217;s an example of a function that lets you build multipliers of two numbers together. At one call site, you&#8217;ll decide which is the multiplier and at a later call site, you&#8217;ll choose a multiplicand.</p>
 <pre>
 scala&gt; def multiply(m: Int)(n: Int): Int = m * n
 multiply: (m: Int)(n: Int)Int
@@ -213,7 +213,7 @@ scala&gt; (adder _).curried
 res1: (Int) =&gt; (Int) =&gt; Int = &lt;function1&gt;
 </pre>
 <h3>Variable length arguments</h3>
-<p>There is a special syntax for methods that can take parameters of a repeated type. To apply String&#8217;s `capitalize` function to several strings, you might write:</p>
+<p>There is a special syntax for methods that can take parameters of a repeated type. To apply String&#8217;s <code>capitalize</code> function to several strings, you might write:</p>
 <pre>
 def capitalizeAll(args: String*) = {
   args.map { arg =&gt;
@@ -241,7 +241,7 @@ res1: Int = 3
 scala&gt; calc.brand
 res2: String = "HP"
 </pre>
-<p>Contained are examples are defining methods with def and fields with val.  methods are just functions that can access the state of the class.</p>
+<p>Contained are examples are defining methods with def and fields with val.  Methods are just functions that can access the state of the class.</p>
 <h3>Constructor</h3>
 <p>Constructors aren&#8217;t special methods, they are the code outside of method definitions in your class.  Let&#8217;s extend our Calculator example to take a constructor argument and use it to initialize internal state.</p>
 <pre>
@@ -354,7 +354,7 @@ class BMW extends Car with Shiny {
 <p><strong>When do you want a Trait instead of an Abstract Class?</strong> If you want to define an interface-like type, you might find it difficult to choose between a trait or an abstract class. Either one lets you define a type with some behavior, asking extenders to define some other behavior. Some rules of thumb:</p>
 <ul>
 <li>Favor using traits. It&#8217;s handy that a class can extend several traits; a class can extend only one class.<br />
-<li>If you need a constructor parameter, use an abstract class. Abstract class constructors can take paramaters; trait constructors can&#8217;t. For example, you can&#8217;t say <code>trait t(i: Int) {}</code>; the <code>i</code> parameter is illegal.</ul>
+<li>If you need a constructor parameter, use an abstract class. Abstract class constructors can take parameters; trait constructors can&#8217;t. For example, you can&#8217;t say <code>trait t(i: Int) {}</code>; the <code>i</code> parameter is illegal.</ul>
 <p>You are not the first person to ask this question. See fuller answers at <a href="http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes">stackoverflow:Scala traits vs abstract classes</a>, <a href="http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait">Difference between Abstract Class and Trait</a>, and <a href="http://www.artima.com/pins1ed/traits.html#12.7">Programming in Scala: To trait, or not to trait?</a></p>
 <h2 id="types">Types</h2>
 <p>Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you&#8217;ll see a type parameter introduced with the square bracket syntax. Here&#8217;s an example of a Cache of generic Keys and Values.</p>

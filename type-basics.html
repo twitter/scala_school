@@ -78,7 +78,7 @@ res5: List[Any] = List(2, 1, bar, foo)
 scala&gt; res5.head
 res6: Any = 2
 </pre>
-<p>And so our application would devolve into a series of casts (&#8220;asInstanceOf[]&#8221;) and we would lack typesafety (because these are all dynamic).</p>
+<p>And so our application would devolve into a series of casts (&#8220;asInstanceOf[]&#8221;) and we would lack type safety (because these are all dynamic).</p>
 <p>Polymorphism is achieved through specifying <em>type variables</em>.</p>
 <pre>
 scala&gt; def drop1[A](l: List[A]) = l.tail

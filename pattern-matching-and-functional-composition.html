@@ -52,31 +52,31 @@
 	<li><a href="#case">What is a case statement?</a></li>
 </ul>
 <h2 id="composition">Function Composition</h2>
-<p>Let&#8217;s make two helpful functions:</p>
+<p>Let&#8217;s make two aptly-named functions:</p>
 <pre>
-scala&gt; def addUmm(x: String) = x + " umm"
-addUmm: (x: String)String
+scala&gt; def f(s: String) = "f(" + s + ")"
+f: (String)java.lang.String
 
-scala&gt;  def addAhem(x: String) = x + " ahem"
-addAhem: (x: String)String
+scala&gt; def g(s: String) = "g(" + s + ")"
+g: (String)java.lang.String
 </pre>
 <h3>compose</h3>
 <p><code>compose</code> makes a new function that composes other functions <code>f(g(x))</code></p>
 <pre>
-scala&gt; val ummThenAhem = addAhem _ compose addUmm _
-ummThenAhem: (String) =&gt; String = &lt;function1&gt;
+scala&gt; val fComposeG = f _ compose g _
+fComposeG: (String) =&gt; java.lang.String = &lt;function&gt;
 
-scala&gt; ummThenAhem("well")
-res0: String = well umm ahem
+scala&gt; fComposeG("yay")
+res0: java.lang.String = f(g(yay))
 </pre>
 <h3>andThen</h3>
 <p><code>andThen</code> is like <code>compose</code>, but calls the first function and then the second, <code>g(f(x))</code></p>
 <pre>
-scala&gt; val ahemThenUmm = addAhem _ andThen addUmm _
-ahemThenUmm: (String) =&gt; String = &lt;function1&gt;
+scala&gt; val fAndThenG = f _ andThen g _
+fAndThenG: (String) =&gt; java.lang.String = &lt;function&gt;
 
-scala&gt; ahemThenUmm("well")
-res1: String = well ahem umm
+scala&gt; fAndThenG("yay")
+res1: java.lang.String = g(f(yay))
 </pre>
 <h2 id="curryvspartial">Currying vs Partial Application</h2>
 <h3>case statements</h3>

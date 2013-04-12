@@ -167,7 +167,7 @@ res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
 <p>Combined, these often result in less code, especially when threading through views.</p>
 <h2 id="higher">Higher-kinded types &amp; ad-hoc polymorphism</h2>
 <p>Scala can abstract over &#8220;higher kinded&#8221; types. For example, suppose that you needed to use several types of containers for several types of data. You might define a <code>Container</code> interface that might be implemented by means of several container types: an <code>Option</code>, a <code>List</code>, etc. You want to define an interface for using values in these containers without nailing down the values&#8217; type.</p>
-<p>This is analagous to function currying. For example, whereas &#8220;unary types&#8221; have constructors like <code>List[A]</code>, meaning we have to satisfy one &#8220;level&#8221; of type variables in order to produce a concrete types (just like an uncurried function needs to be supplied by only one argument list to be invoked), a higher-kinded type needs more.</p>
+<p>This is analogous to function currying. For example, whereas &#8220;unary types&#8221; have constructors like <code>List[A]</code>, meaning we have to satisfy one &#8220;level&#8221; of type variables in order to produce a concrete types (just like an uncurried function needs to be supplied by only one argument list to be invoked), a higher-kinded type needs more.</p>
 <pre>
 scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
 
@@ -210,7 +210,7 @@ trait Container extends Ordered[Container]
 <pre>
 def compare(that: Container): Int
 </pre>
-<p>And so we cannot access the concrete subtype, eg.:</p>
+<p>And so we cannot access the concrete subtype, e.g.:</p>
 <pre>
 class MyContainer extends Container {
   def compare(that: MyContainer): Int
