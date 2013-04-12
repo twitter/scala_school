@@ -18,14 +18,14 @@ This lesson covers:
 
 h2(#composition). Function Composition
 
-Let's make two helpful functions:
+Let's make two aptly-named functions:
 
 <pre>
-scala> def addUmm(x: String) = x + " umm"
-addUmm: (x: String)String
+scala> def f(s: String) = "f(" + s + ")"
+f: (String)java.lang.String
 
-scala>  def addAhem(x: String) = x + " ahem"
-addAhem: (x: String)String
+scala> def g(s: String) = "g(" + s + ")"
+g: (String)java.lang.String
 </pre>
 
 h3. compose
@@ -33,11 +33,11 @@ h3. compose
 <code>compose</code> makes a new function that composes other functions <code>f(g(x))</code>
 
 <pre>
-scala> val ummThenAhem = addAhem _ compose addUmm _
-ummThenAhem: (String) => String = <function1>
+scala> val fComposeG = f _ compose g _
+fComposeG: (String) => java.lang.String = <function>
 
-scala> ummThenAhem("well")
-res0: String = well umm ahem
+scala> fComposeG("yay")
+res0: java.lang.String = f(g(yay))
 </pre>
 
 h3. andThen
@@ -45,11 +45,11 @@ h3. andThen
 <code>andThen</code> is like <code>compose</code>, but calls the first function and then the second, <code>g(f(x))</code>
 
 <pre>
-scala> val ahemThenUmm = addAhem _ andThen addUmm _
-ahemThenUmm: (String) => String = <function1>
+scala> val fAndThenG = f _ andThen g _
+fAndThenG: (String) => java.lang.String = <function>
 
-scala> ahemThenUmm("well")
-res1: String = well ahem umm
+scala> fAndThenG("yay")
+res1: java.lang.String = g(f(yay))
 </pre>
 
 h2(#curryvspartial). Currying vs Partial Application
