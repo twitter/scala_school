@@ -206,7 +206,7 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 
 A project definition is an SBT class.  In our case we extend SBT's DefaultProject.
 
-You declare dependencies by specifing a val that is a dependency.  SBT uses reflection to scan all the dependency vals in your project and build up a dependency tree at build time.  The syntax here may be new, but this is equivalent to the maven dependency
+You declare dependencies by specifying a val that is a dependency.  SBT uses reflection to scan all the dependency vals in your project and build up a dependency tree at build time.  The syntax here may be new, but this is equivalent to the maven dependency
 
 <pre>
 <dependency>
