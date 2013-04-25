@@ -224,16 +224,18 @@ Remember our calculator from earlier.
 
 Let's classify them according to type.
 
+Here's the painful way first.
+
 <pre>
 def calcType(calc: Calculator) = calc match {
-  case calc.brand == "hp" && calc.model == "20B" => "financial"
-  case calc.brand == "hp" && calc.model == "48G" => "scientific"
-  case calc.brand == "hp" && calc.model == "30B" => "business"
+  case _ if calc.brand == "hp" && calc.model == "20B" => "financial"
+  case _ if calc.brand == "hp" && calc.model == "48G" => "scientific"
+  case _ if calc.brand == "hp" && calc.model == "30B" => "business"
   case _ => "unknown"
 }
 </pre>
 
-Wow, that's painful. Thankfully Scala provides some nice tools specifically for this.
+Wow, that's painful.  Thankfully Scala provides some nice tools specifically for this.
 
 h2(#caseclass). Case Classes
 
