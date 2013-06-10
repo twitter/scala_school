@@ -1,8 +1,8 @@
 all:
-	jekyll web web.out
+	jekyll build -s web -d web.out
 
 serve:
-	jekyll --serve --auto web web.out
+	jekyll serve --watch -s web -d web.out
 
 publish: all
 	./publish.sh web.out
