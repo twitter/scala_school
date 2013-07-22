@@ -18,7 +18,7 @@ h2(#overview). 이번 강좌에 대해
 
 처음에는 기본적인 문법과 개념을 다룰 것이다. 그 후, 더 많은 연습문제를 통해 점점 범위를 넓힐 것이다. 
 
-예제중 일부는 인터프리터에서 작성된 것을 보일 것이고, 나머지는 소스파일로 된 것을 보여줄것이다.
+예제 중 일부는 인터프리터에서 작성된 것을 보일 것이고, 나머지는 소스파일로 된 것을 보여줄것이다.
 
 인터프리터가 있으면 문제가 되는 부분을 빠르게 찾아나갈 수 있을 것이다.
 
@@ -173,7 +173,7 @@ res0: (Int) => Int = <function1>
 
 이름 없는 함수를 넘길 때 위와 같은 형태를 자주 보게 될 것이다.
 
-h3. 인자의 일부만 사용해 호출하기(부분 적용,Partial application)
+h3. 인자의 일부만 사용해 호출하기(부분 적용, Partial application)
 
 함수 호출시 밑줄(_)을 사용해 일부만 적용할 수 있다. 그렇게 하면 새로운 함수를 얻는다. 스칼라에서 밑줄은 문맥에 따라 의미가 다르다. 하지만 보통 이름 없는 마법의 문자로 생각해도 된다. `{ _ + 2 }` 이라는 문맥에서 밑줄은 이름이 없는 매개변수를 가리킨다. 다음과 같이 이를 사용할 수 있다.
 
@@ -228,7 +228,7 @@ scala> (adder _).curried
 res1: (Int) => (Int) => Int = <function1>
 </pre>
 
-(연습문제(역자): 어떤 함수 f(x1,x2,....)의 커리화 된 함수를 어떻게 작성할 수 있을까? 이름없는 함수(람다식이라고도 한다)를 사용해 이를 구현해 보라.)
+(연습문제(역자): 어떤 함수 f(x1,x2,....)의 커리화 된 함수를 어떻게 작성할 수 있을까? 이름없는 함수(무명함수 또는 람다식이라고도 한다)를 사용해 이를 구현해 보라.)
 
 h3. 가변 길이 인자
 
@@ -268,12 +268,12 @@ res2: String = "HP"
 
 h3. 생성자
 
-스칼라에서는 생성자가 특별한 메소드로 따로 존재하지 않는다. 함수 내의 메소드 정의 부분 밖에 있는 모든 코드가 생성자 코드가 된다. Calculator 예제를 생성자가 인자를 받아 내부 상태를 초기화하도록 변경해 보자.
+스칼라에서는 생성자가 특별한 메소드로 따로 존재하지 않는다. 클래스 몸체에서 메소드 정의 부분 밖에 있는 모든 코드가 생성자 코드가 된다. Calculator 예제를 생성자가 인자를 받아 내부 상태를 초기화하도록 변경해 보자.
 
 <pre>
 class Calculator(brand: String) {
   /**
-   * A constructor.
+   * 생성자
    */
   val color: String = if (brand == "TI") {
     "blue"
@@ -283,7 +283,7 @@ class Calculator(brand: String) {
     "white"
   }
 
-  // An instance method.
+  // 인스턴스 메소드
   def add(m: Int, n: Int): Int = m + n
 }
 </pre>
@@ -306,7 +306,7 @@ BasicCalculator 예제를 보면 스칼라가 식 중심의 언어란 점을 잘
 
 h3. 곁다리: 함수 대 메소드
 
-함수와 메소드는 서로 바꿔쓸 수 있는 개념이다. 함수와 메소드는 매우 유사하며, 실제 여러분이 호출 중인 어떤 <em>것</em>이 함수인지 메소드인지를 기억하지 못할 수도 있다. 실제 메소드와 함수의 차이에 마주치게 되면 혼동이 올 수도 있다.
+함수와 메소드는 서로 바꿔쓸 수 있는 개념이다. 함수와 메소드는 매우 유사하며, 실제 여러분이 호출 중인 어떤 <em>것</em>이 함수인지 메소드인지를 기억하지 못할 수도 있다. 실제 메소드와 함수의 차이와 마주치게 되면 혼동이 올 수도 있다.
 
 <pre>
 scala> class C {
@@ -319,15 +319,15 @@ defined class C
 scala> val c = new C
 c: C = C@1af1bd6
 
-scala> c.minc // calls c.minc()
+scala> c.minc // c.minc() 호출함
 
-scala> c.finc // returns the function as a value:
+scala> c.finc // 함수 값(반환값이 아니라 함수 자체)을 반환함
 res2: () => Unit = <function0>
 </pre>
 
-어떤 "함수"를 괄호 없이 호출할 수 있는데, 다른 것은 그렇게 할 수 없다면, <em>어라? 스칼라 함수가 어떻게 돌아가는지 잘 안다고 생각했는데, 안그런 모양이네. 때로 괄호를 꼭 써야하는 경우도 있나?</em>라고 생각할 지 모르겠다. 아마 함수라고 생각하고 있지만, 메소드를 사용하는 것이었을 수도 있다.(역주. 솔직히 말해 뭔소리 하는건지 모르겠음)
+어떤 "함수"를 괄호 없이 호출할 수 있는데, 다른 것은 그렇게 할 수 없다면, <em>어라? 스칼라 함수가 어떻게 돌아가는지 잘 안다고 생각했는데, 안그런 모양이네. 때로 괄호를 꼭 써야하는 경우도 있나?</em>라고 생각할 지 모르겠다. 아마 함수라고 생각하고 있지만, 메소드를 사용하는 것이었을 수도 있다.(역주. 인자가 없는 메소드는 이름만으로 호출 가능하지만, 인자가 없는 함수는 이름만 사용하면 해당 함수를 의미하지, 그 함수를 적용한 값을 의미하지 않는다. )
 
-실제로는 메소드와 함수의 차이를 잘 모르더라도 스칼라로 훌륭한 일을 해낼 수 있다. 스칼라를 처음 접하는 독자가 <a href="https://www.google.com/search?q=difference+scala+function+method">그 둘의 차이에 대한 설명</a>을 보면, 내용을 따라가기 어려울 수도 있다. 하지만 이는 스칼라 언어를 상당히 깊이 파고 들어야 그 둘의 차이를 구분할 수 있을 만큼 함수와 메소드의 차이가 미묘하다는 사실을 보여주는 것 뿐이다.
+실제로는 메소드와 함수의 차이를 잘 모르더라도 스칼라로 훌륭한 일을 해낼 수 있다. 스칼라를 처음 접하는 독자가 <a href="https://www.google.com/search?q=difference+scala+function+method">그 둘의 차이에 대한 설명</a>을 보면, 내용을 따라가기 어려울 수도 있다. 하지만 이는 스칼라 언어를 상당히 깊이 파고 들어야 그 둘의 차이를 구분할 수 있을 만큼 함수와 메소드의 차이가 미묘하다는 사실을 보여주는 것 뿐이다. 위 c.finc 부분의 결과를 보면 이를 알 수 있다.)
 
 h2(#extends). 상속
 
@@ -337,9 +337,9 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 }
 </pre>
 
-*See Also* "효율적인 스칼라(effective scala)"에서는 서브클래스가 수퍼클래스와 실제 다르지 않을 경우 <a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">타입 별명</a>이 <code>extends</code>보다 더 낫다고 말한다. 스칼라 여행(Tour of Scala)에서는 <a href="http://www.scala-lang.org/node/125">서브클래싱(Subclassing)</a>에 대해 다루고 있다.
+*See Also* "효율적인 스칼라(effective scala)"에서는 하위클래스가 상위클래스와 실제 다르지 않을 경우 <a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">타입 별명</a>이 <code>extends(확장)</code>보다 더 낫다고 말한다. 스칼라 여행(Tour of Scala)에서는 <a href="http://www.scala-lang.org/node/125">상속하기(Subclassing)</a>에 대해 다루고 있다.
 
-h3. 메소드 오버로딩(Overloading)
+h3. 메소드 중복정의(Overloading)
 
 <pre>
 class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
@@ -349,11 +349,11 @@ class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(b
 
 h3. 추상 클래스
 
-<em>추상 클래스(abstract class)</em>는 메소드 정의는 있지만, 구현은 없는 클래스이다. 대신, 이를 상속한 하위클래스에서 메소드를 구현하게 된다. 추상 클래스의 인스턴스를 만들 수는 없다.
+<em>추상 클래스(abstract class)</em>는 메소드 정의는 있지만 구현은 없는 클래스이다. 대신 이를 상속한 하위클래스에서 메소드를 구현하게 된다. 추상 클래스의 인스턴스를 만들 수는 없다.
 
 <pre>
 scala> abstract class Shape {
-     |   def getArea():Int    // subclass should define this
+     |   def getArea():Int    // 하위클래스에서 이 메소드를 정의해야만 한다
      | }
 defined class Shape
 
@@ -373,7 +373,7 @@ c: Circle = Circle@65c0035b
 
 h2(#trait). 트레잇(Traits, 특성이라는 뜻)
 
-<code>트레잇(trait)</code>는 다른 클래스가 확장(즉, 상속)하거나 믹스인 할 수 있는 필드와 동작의 모음이다.
+<code>트레잇(trait)</code>은 다른 클래스가 확장(즉, 상속)하거나 섞어 넣을 수 있는(이를 믹스인Mix in 이라 한다) 필드와 동작의 모음이다.
 
 <pre>
 trait Car {
@@ -403,14 +403,14 @@ class BMW extends Car with Shiny {
 *See Also* 효율적인 스칼라도 <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">트레잇에</a>대해 다루고 있다.
 .
 
-*추상 클래스 대신 트레잇를 사용해야 하는 경우는 언제인가?* 인터페이스 역할을 하는 타입을 설계할 때 트레잇와 추상 클래스 중 어떤 것을 골라야할까? 두 가지 다 어떤 동작을 하는 타입을 만들 수 있으며, 확장하는 쪽에서 일부를 구현하도록 요청한다. 중요한 규칙은 다음과 같다.
+*추상클래스 대신 트레잇를 사용해야 하는 경우는 언제인가?* 인터페이스 역할을 하는 타입을 설계할 때 트레잇과 추상클래스 중 어떤 것을 골라야할까? 두 가지 다 어떤 동작을 하는 타입을 만들 수 있으며, 확장하는 쪽에서 일부를 구현하도록 요청한다. 중요한 규칙은 다음과 같다.
 
 <ul>
-<li>트레잇를 사용하는 것이 낫다. 클래스는 오직 하나만 상속(extend)할 수 있지만, 트레잇는 여럿을 받아 사용할 수 있다.
+<li>트레잇을 사용하는 것이 낫다. 클래스는 오직 하나만 상속(extend)할 수 있지만, 트레잇은 여러 가지를 받아 사용할 수 있다.
 <li>생성자 매개변수가 필요한 경우라면 추상 클래스를 사용하라. 추상 클래스의 생성자는 매개변수를 받을 수 있지만, 트레잇의 생성자는 그렇지 않다. 예를 들어 <code>trait t(i: Int) {}</code> 에서 <code>i</code> 매개변수는 허용되지 않는다.
 </ul>
 
-당신이 이런 질문을 한 첫번째 사람은 아니다. "스택 오버플로우의 트레잇와 추상 클래스의 비교":http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes, "추상 클래스와 트레잇의 차이":http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait, 
+당신이 이런 질문을 한 첫번째 사람은 아니다. 스택 오버플로우에서 "트레잇과 추상 클래스의 비교":http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes, "추상 클래스와 트레잇의 차이":http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait, 
 또는 "스칼라 프로그래밍: 트레잇냐 아니냐 그것이 문제로다?":http://www.artima.com/pins1ed/traits.html#12.7 등을 참조하라.
 
 h2(#types). 타입
