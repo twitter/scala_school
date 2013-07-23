@@ -57,7 +57,7 @@ scala> val hostPort = ("localhost", 80)
 hostPort: (String, Int) = (localhost, 80)
 </pre>
 
-케이스 클래스와 달리 튜플의 억세서에는 이름이 없다. 대신 위치에 따라 숫자로 된 억세서가 있다. 첫번째 원소는 0번이 아니고 1번이다.(역주: 1번부터 시작한 것은 함수언어의 전통에 따른 것이다)
+케이스 클래스와 달리 튜플의 억세서(accessor)에는 이름이 없다. 대신 위치에 따라 숫자로 된 억세서가 있다. 첫번째 원소는 0번이 아니고 1번이다(역주: 1번부터 시작한 것은 함수언어의 전통에 따른 것이다).
 
 <pre>
 scala> hostPort._1
@@ -94,9 +94,9 @@ Map(1 -> 2)
 Map("foo" -> "bar")
 </pre>
 
-맵을 위한 특별한 문법처럼 보인다. 하지만, 튜플에서 본 것처럼 <code>-></code>는 단지 2-튜플을 만들기 위한 것이다.
+위 코드에서 <code>-></code>는 맵을 위한 특별한 문법처럼 보인다. 하지만, 튜플에서 본 것처럼 <code>-></code>는 단지 2-튜플을 만들기 위한 것이다.
 
-또한 위 Map()에는 1강에서 살펴 본 가변 길이 인자 문법이 사용되었다. 따라서 <code>Map(1 -> "one", 2 -> "two")</code>은 실제로는 <code>Map((1, "one"), (2, "two"))</code>이 되고, 리스트에 있는 각 튜플의 첫번째 원소는 키, 두번째 원소는 값이 된다.
+또한 위 Map()에는 1강에서 살펴 본 가변 길이 인자 문법이 사용되었다. 따라서 <code>Map(1 -> "one", 2 -> "two")</code>은 실제로는 <code>Map((1, "one"), (2, "two"))</code>가 되고, 리스트에 있는 각 튜플의 첫번째 원소는 키, 두번째 원소는 값이 된다.
 
 맵이 다른 맵이나 함수를 값으로 보관할 수도 있다.
 
@@ -110,7 +110,7 @@ Map("timesTwo" -> { timesTwo(_) })
 
 h2(#Option). 옵션
 
-어떤 것(객체)가 존재하거나 존재하지 않을 수 있을 때 <code>Option</code>을 사용해 처리한다.
+어떤 것(객체)가 존재하거나 존재하지 않을 수 있을 때, <code>Option</code>을 사용해 처리한다.
 
 옵션의 기본 인터페이스는 다음과 같다.
 
@@ -122,7 +122,7 @@ trait Option[T] {
 }
 </code>
 
-옵션 자체는 일반적 클래스이며, 두가지 하위클래스 <code>Some[T]</code>와 <code>None</code>이 있다.
+옵션 자체는 일반적 클래스이며, 두 하위클래스 <code>Some[T]</code>와 <code>None</code>이 있다.
 
 이제 옵션을 어떻게 사용하는지 살펴보자.
 
@@ -170,12 +170,12 @@ val result = res1 match {
 </code>
 
 *See Also* 효율적인 스칼라를 보면 <a href="http://twitter.github.com/effectivescala/#Functional programming-Options">옵션</a>에 대한 글이 있다.
-
+ 
 h1(#combinators). 함수 콤비네이터
 
-(역주: 콤비네이터란 이름에 웬지 모를 위압감을 느낄지도 모르겠는데, 여기서의 콤비네이터는 람다 대수의 콤비네이터와는 다르고, 함수와 컬렉션 등을 받아서 적절한 작업을 해주는 조합 장치 정도로 생각하면 됩니다.)
+(역주: 콤비네이터란 이름에 웬지 모를 위압감을 느낄지도 모르겠는데, 콤비네이터는 함수와 컬렉션 등 다른 식을 받아서 적절한 작업을 해주는 조합 장치(함수) 정도로 생각하면 된다.)
 
-<code>List(1, 2, 3) map squared</code>라고 하면 <code>squared</code> 함수를 리스트의 모든 원소에 적용한 다음 새 리스트를 반환한다. 결과는 아마도 <code>List(1, 4, 9)</code>가 될 것이다. <code>map</code>과 같은 함수를 <em>콤비네이터(combinator)</em>라 부릅니다. (더 나은 정의를 보고픈 사람은 스택 오버플로우의 <a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">콤비네이터에 대한 설명</a>을 참조하라.) 콤비네이터는 보통 표준 데이터 구조에 많이 사용된다.
+<code>List(1, 2, 3) map squared</code>라고 하면 <code>squared</code> 함수를 리스트의 모든 원소에 적용한 다음 새 리스트를 반환한다. 결과는 아마도 <code>List(1, 4, 9)</code>가 될 것이다. <code>map</code>과 같은 함수를 <em>콤비네이터(combinator)</em>라 부른다. (더 나은 정의를 보고픈 사람은 스택 오버플로우의 <a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">콤비네이터에 대한 설명</a>을 참조하라.) 콤비네이터는 보통 표준 데이터 구조에 많이 사용된다.
 
 h2(#map). map
 
@@ -216,7 +216,7 @@ doubled: Unit = ()
 
 h2(#filter). filter
 
-전달된 함수가 거짓을 반환하는 원소들을 제외하고 나머지 원소들로 이루어진 리스트를 반환한다. 참/거짓(즉, Boolean 값)을 반환하는 함수를 술어함수(predicate function)라 부르곤 한다.
+전달된 함수가 거짓을 반환하는 원소들을 제외한 나머지 원소들로 이루어진 리스트를 반환한다. 참/거짓(즉, Boolean 값)을 반환하는 함수를 술어함수(predicate function)라 부르곤 한다.
 
 <pre>
 scala> numbers.filter((i: Int) => i % 2 == 0)
@@ -243,7 +243,7 @@ res0: List[(Int, String)] = List((1,a), (2,b), (3,c))
 h2(#partition). partition
 
 <code>partition</code>은 술어 함수가 반환하는 값에 따라 리스트를 둘로 나눈다.
-(역주. 원래 리스트의 모든 원소는 반환되는 두 리스트 중 어느 하나에 꼭 포함되어야 하며, 한 원소가 양쪽에 같이 속하는 일도 없어야 한다.)
+(역주. 원래 리스트의 모든 원소는 반환되는 두 리스트 중 어느 하나에 꼭 포함되며, 한 원소가 양쪽에 같이 속하는 일도 없다.)
 
 <pre>
 scala> val numbers = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
@@ -376,12 +376,12 @@ scala> ourMap(numbers, timesTwo(_))
 res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
 </pre>
 
-왜 Nil이 아니고 <tt>List[Int]()</tt>를 초기값으로 넣었을까? 이는 스칼라가 빈 Int 리스트에 값을 누적하기를 바란다는 점을 알아낼 정도로 똑똑하지 못하기 때문이다.
+왜 Nil이 아니고 <tt>List[Int]()</tt>를 초기값으로 넣었을까? 이는 스칼라가 빈 Int 리스트에 값을 누적하기를 바란다는 점을 알아낼 정도로 똑똑하지 못하기 때문이다(역주: Nil을 넣으면 스칼라 타입 추론이 실패한다는 의미이다).
 
 h2(#vsMap). Map?
 
 앞에서 본 모든 함수 콤비네이터는 맵에서도 사용 가능하다. 맵을 키와 값을 쌍으로 하는 원소를 가지는 리스트로 생각한다면, 앞의 모든 함수들은 그 위에 동작할 수 있다.
-
+(역주: 여러 콤비네이터는 스칼라 컬렉션의 대부분의 클래스에서 사용 가능하다. 이에 대해서는 <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.package">스칼라 API문서의 컬렉션 부분</a>이나 <a href="http://docs.scala-lang.org/overviews/collections/introduction.html">스칼라 컬렉션 가이드</a>를 참조하라.)
 <pre>
 scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
 extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
