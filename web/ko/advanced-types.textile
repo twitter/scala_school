@@ -7,14 +7,14 @@ layout: post
 
 이번 강좌에서는 다음을 다룬다.
 
-* "View bounds":#viewbounds ("type classes")
-* "Other Type Bounds":#otherbounds
-* "Higher kinded types & ad-hoc polymorphism":#higher
-* "F-bounded polymorphism / recursive types":#fbounded
-* "Structural types":#structural
-* "Abstract types members":#abstractmem
-* "Type erasures & manifests":#manifest
-* "Case study: Finagle":#finagle
+* "뷰 바운드(View bound)":#viewbounds ("타입 클래스")
+* "다른 타입 바운드들":#otherbounds
+* "상류(Higher kinded) 타입과 임의 다형성":#higher
+* "F-바운드 다형성/ 재귀적 타입":#fbounded
+* "구조적 타입(structural type)":#structural
+* "추상 타입 멤버":#abstractmem
+* "타입 소거(Type erasure)와 매니페스트(manifest)":#manifest
+* "사례 연구: 피네이글(Finagle)":#finagle
 
 h2(#viewbounds). 뷰 바운드("타입 클래스")
 
@@ -36,14 +36,14 @@ scala> math.max("123", 111)
 res1: Int = 123
 </pre>
 
-뷰 바운드는 어떤 타입에 대해 그런 함수가 존재해야 함을 요청하기 위해 사용한다. 뷰 바운드는 아래 예에서와 같이 <code><%</code>로 표시한다.
+뷰 바운드는 타입 바인드처럼 어떤 타입에 대해 그런 타입 변환 함수가 존재해야 함을 요청하기 위해 사용한다. 뷰 바운드는 아래 예에서와 같이 <code><%</code>로 표시한다.
 
 <pre>
 scala> class Container[A <% Int] { def addIt(x: A) = 123 + x }
 defined class Container
 </pre>
 
-"A <% Int"의 뜻은 *A*가 *Int*로 "볼 수 있어야만" 한다는 뜻이다. 이를 시험해 보자.
+"A <% Int"의 뜻은 *A* 를 *Int* 로 "볼 수 있어야만" 한다는 뜻이다. 이를 시험해 보자.
 
 <pre>
 scala> (new Container[String]).addIt("123")
@@ -60,7 +60,7 @@ scala> (new Container[Float]).addIt(123.2F)
 
 h2(#otherbounds). 다른 타입 바운드들
 
-메소드에는 묵시적 매개변수를 통해 더 복잡한 타입 바운드를 걸 수 있다. 예를 들어 <code>List</code>는 원소가 수인 경우 <code>sum</code>을 지원하지만 수가 아니면 지원하지 않는다. 하지만 불행한 점은 스칼라에서 모든 수가 공유하는 공통의 상위타입이 없다는 것이다. 따라서 <code>T <: Number</code>과 같은 바운드를 사용할 수는 없다. 대신 이를 위해 스칼라의 수학 라이브러리에서는 지원하는 타입 T에 대해 <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/"> 묵시적인 <code>Numeric[T]</code>를 정의해 두었다. <code>List</code>의 정의에서는 다음과 같이 그 사실을 활용하면 된다.
+메소드에는 묵시적 매개변수를 통해 더 복잡한 타입 바운드를 걸 수 있다. 예를 들어 <code>List</code>는 원소가 수인 경우 <code>sum</code>을 지원하지만 수가 아니면 지원하지 않는다. 하지만 불행한 점은 스칼라에서 모든 수가 공유하는 공통의 상위타입이 없다는 것이다. 따라서 <code>T <: Number</code>과 같은 바운드를 사용할 수는 없다. 대신 이를 위해 스칼라의 수학 라이브러리에서는 지원하는 타입 T에 대해 <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/"> 묵시적인 <code>Numeric[T]</code></a>를 정의해 두었다. <code>List</code>의 정의에서는 다음과 같이 그 사실을 활용하면 된다.
 
 <pre>
 sum[B >: A](implicit num: Numeric[B]): B
