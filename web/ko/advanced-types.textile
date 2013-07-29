@@ -99,7 +99,7 @@ res15: Int = 246
 
 h3. 뷰를 사용한 일반적 프로그래밍
 
-스칼라 표준 라이브러리에서 주로 뷰가 사용되는 곳은 컬렉션에 대한 일반적인 함수를 정의하는 경우이다. 예를 들면 *Seq[]*에 대한 "min" 함수가 이런식이다.
+스칼라 표준 라이브러리에서 주로 뷰가 사용되는 곳은 컬렉션에 대한 일반적인 함수를 정의하는 경우이다. 예를 들면 *Seq[]* 에 대한 "min" 함수가 이런식이다.
 
 <pre>
 def min[B >: A](implicit cmp: Ordering[B]): A = {
@@ -112,7 +112,7 @@ def min[B >: A](implicit cmp: Ordering[B]): A = {
 
 이렇게 하면 다음과 같은 장점이 있다.
 
-* 컬렉션에 들어간 원소들이 *Ordered*를 강제로 구현할 필요가 없어진다. 그럼에도 불구하고 *Ordered* 사용이 정적으로 타입 체크 된다.
+* 컬렉션에 들어간 원소들이 *Ordered* 를 강제로 구현할 필요가 없어진다. 그럼에도 불구하고 *Ordered* 사용이 정적으로 타입 체크 된다.
 * 추가 라이브러리 지원 없이도 원하는 데로 순서를 지정할 수 있다.
 
 <pre>
@@ -123,7 +123,7 @@ scala> List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b com
 res3: Int = 4
 </pre>
 
-한가지 덧붙이자면,표준 라이브러리에는 *Ordered*와 *Ordering*을 상호 변환하는 뷰가 있다.
+한가지 덧붙이자면,표준 라이브러리에는 *Ordered* 와 *Ordering* 을 상호 변환하는 뷰가 있다.
 
 <pre>
 trait LowPriorityOrderingImplicits {
@@ -145,7 +145,7 @@ scala> def foo[A : Ordered] {}
 foo: [A](implicit evidence$1: Ordered[A])Unit
 </pre>
 
-원한다면 *implicitly*를 사용해 묵시적 값을 억세스할 수 있다.
+원한다면 *implicitly* 를 사용해 묵시적 값을 억세스할 수 있다.
 
 <pre>
 scala> implicitly[Ordering[Int]]
@@ -175,7 +175,7 @@ scala> container.put(123)
 res25: List[Int] = List(123)
 </pre>
 
-*Container*의 다형성은 매개변수가 있는 타입(즉, "컨테이너 타입")에 대해 정의됨에 주의하라.
+*Container* 의 다형성은 매개변수가 있는 타입(즉, "컨테이너 타입")에 대해 정의됨에 주의하라.
 
 이 container를 implicit와 함께 사용하면 "임의" 다형성이 가능하다. 즉, 컨테이너에 대한 일반적 함수를 작성할 수 있다.
 
@@ -221,7 +221,7 @@ class MyContainer extends Container {
 }
 </pre>
 
-우리가 명시한 것은 *Container*에 대한 순서가 있어야 한다는 것이었지 특정 하위 타입에 대한 것이 아니었기 때문이다.
+우리가 명시한 것은 *Container* 에 대한 순서가 있어야 한다는 것이었지 특정 하위 타입에 대한 것이 아니었기 때문이다.
 
 이를 해결하기 위해 F-바운드 하위타입을 사용한다.
 
@@ -229,7 +229,7 @@ class MyContainer extends Container {
 trait Container[A <: Container[A]] extends Ordered[A]
 </pre>
 
-이상한 타입이다! 하지만, 이제는 Ordered가 *A*에 대해 매개변수화 되어 있다는 점을 보라. 그런데, A는 사실 *Container[A]*이다.
+이상한 타입이다! 하지만, 이제는 Ordered가 *A* 에 대해 매개변수화 되어 있다는 점을 보라. 그런데, A는 사실 *Container[A]* 이다.
 
 따라서, 다음과 같이 쓸 수 있다.
 
@@ -249,7 +249,7 @@ scala> List(new MyContainer, new MyContainer, new MyContainer).min
 res4: MyContainer = MyContainer@33dfeb30
 </pre>
 
-모두가 *Container[_]*의 하위 타입이다. 따라서 이제 다른 하위 클래스를 정의하고, 여러 *Container[_]* 타입들이 함께 들어간 리스트를 만들 수 있다.
+모두가 *Container[_]* 의 하위 타입이다. 따라서 이제 다른 하위 클래스를 정의하고, 여러 *Container[_]* 타입들이 함께 들어간 리스트를 만들 수 있다.
 
 <pre>
 scala> class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
@@ -260,8 +260,8 @@ res2: List[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourC
   = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
 </pre>
 
-이제는 결과 타입이 *YourContainer with MyContainer*라는 하위 바운드로 제약된다. 이는 타입 유추기(inferencer)가 한 일이다. 재미있는 것은, 이 타입이 말이 되지 않는 타입이라도 상관 없다는 사실이다. 
-이 타입은 리스트에 들어가는 통합된 타입의 논리적인 공통의 최저 하위 바운드를 제공하는 역할을 할 뿐이다. 이제 *Ordered*를 사용하면 어떤 일이 벌어질까?
+이제는 결과 타입이 *YourContainer with MyContainer* 라는 하위 바운드로 제약된다. 이는 타입 유추기(inferencer)가 한 일이다. 재미있는 것은, 이 타입이 말이 되지 않는 타입이라도 상관 없다는 사실이다. 
+이 타입은 리스트에 들어가는 통합된 타입의 논리적인 공통의 최저 하위 바운드를 제공하는 역할을 할 뿐이다. 이제 *Ordered* 를 사용하면 어떤 일이 벌어질까?
 
 <pre>
 (new MyContainer, new MyContainer, new MyContainer, new YourContainer).min
@@ -269,11 +269,11 @@ res2: List[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourC
   Ordering[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]]
 </pre>
 
-아쉽지만 통합된 타입에는 *Ordered[]*가 존재하지 않는다. 
+아쉽지만 통합된 타입에는 *Ordered[]* 가 존재하지 않는다. 
 
 h2(#structural). 구조적 타입(Structural type)
 
-스칼라는 *구조적 타입*을 지원한다. 타입 요구 사항을 구체적 타입 대신 인터페이스 _구조_를 사용해 표현할 수 있다.
+스칼라는 *구조적 타입* 을 지원한다. 타입 요구 사항을 구체적 타입 대신 인터페이스 _구조_ 를 사용해 표현할 수 있다.
 
 <pre>
 scala> def foo(x: { def get: Int }) = 123 + x.get
@@ -315,7 +315,7 @@ x: List[Int] = List(1)
 
 h2(#manifest). 타입 소거와 메니페이스(Type erasure & manifest)
 
-아다시피 타입 정보는 컴파일시 _소거_되어 없어진다. 스칼라는 원하는 타입 정보를 복구할 수 있는 *메니페스트* 기능을 제공한다. 메니페스트는 묵시적 값으로 제공되며, 필요에 따라 컴파일러가 만들어낸다.
+아다시피 타입 정보는 컴파일시 _소거_ 되어 없어진다. 스칼라는 원하는 타입 정보를 복구할 수 있는 *메니페스트* 기능을 제공한다. 메니페스트는 묵시적 값으로 제공되며, 필요에 따라 컴파일러가 만들어낸다.
 
 <pre>
 scala> class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
@@ -324,8 +324,8 @@ scala> (new MakeFoo[String]).make
 res10: String = ""
 </pre>
 
-h2(#finagle). 사례 분석: Finagle
-(역주: Finagle은 JVM을 위한 RPC 시스템이다. 홈페이지는 http://twitter.github.io/finagle/을 참조하라.)
+h2(#finagle). 사례 분석: 피네이글(Finagle)
+(역주: 피네이글은 JVM을 위한 RPC 시스템이다. 홈페이지는 http://twitter.github.io/finagle/을 참조하라.)
 
 See: https://github.com/twitter/finagle
 
