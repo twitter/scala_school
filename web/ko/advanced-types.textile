@@ -124,7 +124,7 @@ res3: Int = 4
 </pre>
 
 한가지 덧붙이자면,표준 라이브러리에는 *Ordered* 와 *Ordering* 을 상호 변환하는 뷰가 있다.
-
+(역주: Ordered와 Ordering의 차이는 자바 Comparable과 Comparator의 차이와 유사하다. 둘다 순서관계(partial ordering)를 지정하는 함수를 제공하는 역할을 하지만, Ordered는 주로 클래스에서 상속해 사용해 기본 대소비교를 담당하는 역할에 사용되고, Ordering은 명시적으로 두 값의 대소를 비교하는 연산을 정의해서 넘겨야 하는 경우 사용된다. 예를 들어 scala.util.Sorting에 있는 정렬 함수들에 컬렉션 객체만을 넘기면 컬렉션 원소의 Ordered 트레잇에 의해 정렬이 수행되고, 직접 Ordering을 넘기면 그 순서에 의해 정렬이 수행된다.)
 <pre>
 trait LowPriorityOrderingImplicits {
   implicit def ordered[A <: Ordered[A]]: Ordering[A] = new Ordering[A] {
@@ -201,7 +201,7 @@ res34: List[(Int, Int)] = List((1,2))
 
 h2(#fbounded). F-바운드 다형성
 
-(일반적인) 트레잇 안에서 구체적 하위 클래스를 억세스해야 할 경우가 가끔 있다. 예를 들어 일반적인 어떤 트레잇이 있는데, 그 트레잇의 특정 하위 클래스와 비교를 할 수 있다고 하자.
+(일반적인) 트레잇 안에서 구체적 하위 클래스를 억세스해야만 하는 경우가 가끔 있다. 예를 들어 일반적인 어떤 트레잇이 있는데, 그 트레잇의 특정 하위 클래스와만 비교를 할 수 있다고 하자.
 
 <pre>
 trait Container extends Ordered[Container]
@@ -230,6 +230,7 @@ trait Container[A <: Container[A]] extends Ordered[A]
 </pre>
 
 이상한 타입이다! 하지만, 이제는 Ordered가 *A* 에 대해 매개변수화 되어 있다는 점을 보라. 그런데, A는 사실 *Container[A]* 이다.
+(역주: F-바운드 다형성을 재귀적 다형성이라고도 한다. 위에서 보면 <code>A</code>는 <code>Container[A]</code> 로 바운드되어 있는데, 다시 <code>Ordered[A]</code>를 확장하고 있다.)
 
 따라서, 다음과 같이 쓸 수 있다.
 
@@ -392,3 +393,4 @@ val upFilter =
 </pre>
 
 이때 타입 안전성이 보장된다!
+(역주: 어떻게 타입안전성을 보장하는지 궁금한 독자는 졸저 <a href="http://enshahar.com/2013/05/16/%EC%8A%A4%EC%B9%BC%EB%9D%BC%ED%83%80%EC%9E%85%EC%B2%B4%ED%81%AC%EB%A1%9C%EC%84%A4%EC%A0%95%EC%BB%B4%ED%8C%8C%EC%9D%BC%EC%8B%9C%EC%B2%B4%ED%81%AC/">스칼라 타입체크로 설정을 컴파일시 체크하기</a>를 참고하라.)
