@@ -154,7 +154,7 @@ h2(#variance). 공변성/반공변성(Variance)
 |*반공변성(contravariant)* |C[T]는 C[T']의 하위 클래스이다   | [-T]|
 |*무공변성(invariant)*     |C[T]와 C[T']는 아무 관계가 없다 | [T]|
 
-하위타입 관계가 실제 의미하는 것은 "어떤 타입 T에 대해 T'이 하위 타입이라면, T'으로 T를 대치할 수 있는가?" 하는 문제이다.
+하위타입 관계가 실제 의미하는 것은 "어떤 타입 T에 대해 T'이 하위 타입이라면, T'으로 T를 대치할 수 있는가?" 하는 문제이다(역주: 이를 리스코프치환원칙(Liskov Substitution Principle)이라 한다. 이는 상위타입이 쓰이는 곳에는 언제나 하위 타입의 인스턴스를 넣어도 이상이 없이 동작해야 한다는 의미이다. 이를 위해 하위 타입은 상위 타입의 인터페이스(자바의 인터페이스가 아니라 외부와의 접속을 위해 노출시키는 인터페이스)를 모두 지원하고, 상위타입에서 가지고 있는 가정을 어겨서는 안된다).
 
 <pre>
 scala> class Covariant[+A]
@@ -211,7 +211,10 @@ defined class Chicken
 scala> val getTweet: (Bird => String) = // TODO
 </pre>
 
-표준 동물 라이브러리에도 이 함수가 있다. 하지만, 그 함수는 대신 <code>Animal</code>을 매개변수로 받는다. 대부분의 경우 "난 ___가 필요한데, ___의 하위 클래스밖에 없네"라는 상황이라도 문제가 없다. 하지만, 함수 매개변수는 반공변성이다. <code>Bird</code>를 인자로 받는 함수가 필요한 상황에서, <code>Chicken</code>을 받는 함수를 사용했다고 가정하자. 이 경우 인자로 <code>Duck</code>이 들어온다면 문제가 생길 것이다. 하지만, 거기에 <code>Animal</code>을 인자로 받는 함수를 사용한다면 아무 문제가 없을 것이다.
+표준 동물 라이브러리에도 이런 일을 하는 함수가 있기는 하다. 하지만, 그 함수는 <code>Animal</code>을 매개변수로 받는다.  보통은 "난 ___가 필요한데, ___의 하위 클래스밖에 없네"라는 상황이라도 문제가 되지 않는다. 하지만, 함수 매개변수는 반공변성이다. <code>Bird</code>를 인자로 받는 함수가 필요한 상황에서, <code>Chicken</code>을 받는 함수를 사용했다고 가정하자. 이 경우 인자로 <code>Duck</code>이 들어온다면 문제가 생길 것이다. 하지만, 거기에 <code>Animal</code>을 인자로 받는 함수를 사용한다면 아무 문제가 없을 것이다.
+(역주: 함수 <pre>Bird=>String</pre>가 있다면 이 함수 내에서는 <pre>Bird</pre>의 인터페이스를 사용해 무언가를 수행하리라는 것을 예상할 수 있다. 이제 이런 함수를 받아 무언가 동작을 하는 <pre>f: (Bird=>String)=>String</pre>이라는 타입의 함수가 있고, <pre>f</pre>의 몸체에서는 <pre>Bird=>String</pre>함수에 <code>Duck</code> 타입의 값을 전달한다고 생각해 보자. 지금까지는 아무 문제가 없다.
+이제 <pre>f</pre>에 <pre>Chicken=>String</pre> 타입의 함수 <pre>g</pre>를 넘긴다고 생각해 보면 문제가 왜 생기는지 알 수 있다. 이런 경우 <pre>g</pre>에 <pre>Chicken</pre>이 아닌 <pre>Duck</pre>이 전달될 것이다. 하지만, <pre>g</pre> 안에서는 닭만이 할 수 있는 짓(닭짓?)을 하게 되고, 돼지는 닭짓이 불가능하다. 따라서, 프로그램은 오류가 발행할 수 밖에 없다. 
+반면, <pre>f</pre>에 <pre>Animal=>String</pre> 타입의 함수 <pre>h</pre>를 넘긴다면, <pre>h</pre>에 <pre>Duck</pre>이 전달될 것이다. 바람직하게도, <pre>h</pre> 안에서는 모든 동물이 할 수 있는 짓만을 하기 때문에, 오리도 아무 문제 없이 사용될 수 있다.)
 
 <pre>
 scala> val getTweet: (Bird => String) = ((a: Animal) => a.sound )
