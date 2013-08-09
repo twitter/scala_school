@@ -326,9 +326,10 @@ res10: String = ""
 </pre>
 
 h2(#finagle). 사례 분석: 피네이글(Finagle)
+
 (역주: 피네이글은 JVM을 위한 RPC 시스템이다. 홈페이지는 http://twitter.github.io/finagle/을 참조하라.)
 
-See: https://github.com/twitter/finagle
+다음을 보라: https://github.com/twitter/finagle
 
 <pre>
 trait Service[-Req, +Rep] extends (Req => Future[Rep])
