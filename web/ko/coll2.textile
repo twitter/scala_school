@@ -33,7 +33,7 @@ scala> 1 :: 2 :: 3 :: Nil
 res1: List[Int] = List(1, 2, 3)
 </pre>
 
-*See also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
+*See also* "리스트 API":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
 
 h3. 집합
 
@@ -44,7 +44,7 @@ scala> Set(1, 1, 2)
 res2: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 
-*See also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*See also* "집합 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
 h3. 순서열(Seq)
 
@@ -57,7 +57,7 @@ res3: Seq[Int] = List(1, 1, 2)
 
 (반환된 것이 리스트임에 유의하라. <code>Seq</code>는 트레잇이다. 리스트는 Seq를 잘 구현하고 있다. 여기서 볼 수 있듯 <code>Seq</code>라 불리는 팩토리 객체가 있어서 리스트를 만들어준다.)
 
-*See also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*See also* "순서열 API":http://www.scala-lang.org/api/current/scala/collection/Seq.html
 
 h3. 맵(Map)
 
@@ -68,7 +68,7 @@ scala> Map('a' -> 1, 'b' -> 2)
 res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 </pre>
 
-*See also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*See also* "맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
 h2(#hierarchy). 계층 구조
 
@@ -78,31 +78,31 @@ h3. 방문가능(Traversable)
 
 모든 컬렉션은 방문 가능해야 한다. 이 트레잇는 표준적인 함수 콤비네이터를 정의한다. 이런 콤비네이터는 @foreach@를 기초로 구현되어 있다. @foreach@는 모든 컬렉션이 구현해야만 하는 메소드이다.
 
-*See Also* "API 문서":#http://www.scala-lang.org/api/current/scala/collection/Traversable.html
+*See Also* "방문가능 API":#http://www.scala-lang.org/api/current/scala/collection/Traversable.html
 
 h3. 반복가능(Iterable)
 
 원소에 대해 루프를 돌 수 있는 반복자를 반환하는 @iterator()@ 메소드를 반환한다.
 
-*See Also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
+*See Also* "반복가능 API":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
 
 h3. 순서열(Seq)
 
 순서가 있는 아이템 열이다.
 
-*See Also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*See Also* "순서열 API":http://www.scala-lang.org/api/current/scala/collection/Seq.html
 
 h3. 집합(Set)
 
 원소의 중복이 없는 컬렉션이다.
 
-*See Also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*See Also* "집합 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
 h3. 맵(Map)
 
 키-값 쌍을 보관하는 컬렉션이다.
 
-*See Also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*See Also* "맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
 h2(#methods). 메소드
 
