@@ -260,7 +260,7 @@ scala> numbers.find((i: Int) => i > 5)
 res0: Option[Int] = Some(6)
 </pre>
 
-h2(#drop). drop & dropWhile
+h2(#drop). drop과 dropWhile
 
 <code>drop</code>은 첫 i개의 원소를 떨군다. 따라서 나머지 (원래 리스트 길이-i)개의 원소만 남는다.
 
