@@ -59,7 +59,7 @@ res3: Seq[Int] = List(1, 1, 2)
 
 *See also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/Seq.html
 
-h3. Map
+h3. 맵(Map)
 
 맵은 키-값 쌍을 저장한다.
 
@@ -74,31 +74,31 @@ h2(#hierarchy). 계층 구조
 
 다음은 모든 트레잇이다. mutable과 immutable 패키지에는 이 트레잇에 대한 각각의 구현이 들어있다.
 
-h3. Traversable
+h3. 방문가능(Traversable)
 
 모든 컬렉션은 방문 가능해야 한다. 이 트레잇는 표준적인 함수 콤비네이터를 정의한다. 이런 콤비네이터는 @foreach@를 기초로 구현되어 있다. @foreach@는 모든 컬렉션이 구현해야만 하는 메소드이다.
 
 *See Also* "API 문서":#http://www.scala-lang.org/api/current/scala/collection/Traversable.html
 
-h3. Iterable
+h3. 반복가능(Iterable)
 
 원소에 대해 루프를 돌 수 있는 반복자를 반환하는 @iterator()@ 메소드를 반환한다.
 
 *See Also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
 
-h3. Seq
+h3. 순서열(Seq)
 
 순서가 있는 아이템 열이다.
 
 *See Also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/Seq.html
 
-h3. Set
+h3. 집합(Set)
 
 원소의 중복이 없는 컬렉션이다.
 
 *See Also* "API 문서":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
-h3. Map
+h3. 맵(Map)
 
 키-값 쌍을 보관하는 컬렉션이다.
 
@@ -106,7 +106,7 @@ h3. Map
 
 h2(#methods). 메소드
 
-h3. Traversable
+h3. 방문가능(Traversable)
 
 아래 메소드들은 모두 사용 가능하다. 하위 클래스에서 오버라이드가 가능하기 때문에, 인자와 반환 값의 타입이 아래 명시된 것과 동일하지 않을 수도 있다.
 
@@ -182,7 +182,7 @@ scala> Map(1 -> 2).toArray
 res41: Array[(Int, Int)] = Array((1,2))
 </pre>
 
-h3. Iterable
+h3. 반복가능(Iterable)
 
 반복자를 사용하도록 해준다.
 
@@ -199,7 +199,7 @@ def next(): A
 
 아주 자바스럽다. 스칼라에서 반복자를 사용할 일은 많지 않다. 함수 콤비네이터나 for-컴프리핸션(for-comprehension)을 더 많이 쓰게 될 것이다.
 
-h3. Set
+h3. 집합
 
 <pre>
   def contains(key: A): Boolean
@@ -207,7 +207,7 @@ h3. Set
   def -(elem: A): Set[A]
 </pre>
 
-h3. Map
+h3. 맵
 
 키-값의 열로, 키를 가지고 검색이 가능하다.
 
@@ -252,18 +252,19 @@ res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (
 
 h3. 자주 사용하게 될 하위 클래스들
 
-*HashSet과 HashMap* 빠른 검색이 가능하며, 컬렉션 중 가장 자주 사용하게될 것이다. "HashSet API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "HashMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
+*해시집합(HashSet)과 해시맵(HashMap)* 빠른 검색이 가능하며, 컬렉션 중 가장 자주 사용하게될 것이다. 
+"해시집합 API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "해시맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
 
-*TreeMap* SortedMap의 하위클래스로, 맵이면서 순서를 보존해준다. "TreeMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
+*트리맵(TreeMap)* 정렬된 맵(SortedMap)의 하위클래스로, 맵이면서 순서를 보존해준다. "트리맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
 
-*Vector* 빠른 임의 위치 읽기와 변경을 보장해준다. "Vector API":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html
+*벡터(Vector)* 빠른 임의 위치 읽기와 변경을 보장해준다. "벡터 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html
 
 <pre>
 scala> IndexedSeq(1, 2, 3)
 res0: IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 
-*Range* 1 간격으로 된 정수 열이다. 자바에서 숫자를 세는 for 루프를 사용했던 경우 많이 쓰게될 것이다. "Range API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
+*범위(Range)* 1 간격으로 된 정수 열이다. 자바에서 숫자를 세는 for 루프를 사용했던 경우 많이 쓰게될 것이다. "범위 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
 
 <pre>
 scala> for (i <- 1 to 3) { println(i) }
@@ -312,29 +313,29 @@ res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 
 h3. 다른 (이름이 특징을 설명해 주는) 트레잇들
 
-*IndexedSeq* 원소의 빠른 임의 억세스가 가능하고, 길이를 빠르게 계산한다. "API 문서":http://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html
+*색인열(IndexedSeq)* 원소의 빠른 임의 억세스가 가능하고, 길이를 빠르게 계산한다. "색인열 API":http://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html
 
-*LinearSeq* head를 사용해 빠르게 첫 원소를 억세스할 수 있고, tail 연산도 빨리 할 수 있다. "API 문서":http://www.scala-lang.org/api/current/scala/collection/LinearSeq.html
+*선형열(LinearSeq)* head를 사용해 빠르게 첫 원소를 억세스할 수 있고, tail 연산도 빨리 할 수 있다. "선형열 API":http://www.scala-lang.org/api/current/scala/collection/LinearSeq.html
 
 h4. 변경가능한지 아닌지 여부에 따른 구분
 
-immutable
+불면성(immutable)
 
-Pros
+장점
 * 다중 쓰레드의 경우에도 다른 클래스로 바꿀 필요가 없다.
 
-Con
+단점
 * 변경이 불가능하다.
 
 스칼라는 실용적인 접근을 허용한다. 불변성을 장려하기는 하지만, 변경을 사용한다고 해서 문제가 될것은 없다. 이는 var와 val과도 유사하다. 보통 val로 프로그램을 짜기 시작 하지만, 필요한 경우 var를 활용해도 된다.
 
 불변성 컬렉션으로 시작해서 성능 향상이 필요한 경우 변경 가능한쪽으로 바꿀 수 있다. 불변성 컬렉션을 사용하면 다중 쓰레드에서 실수로 이를 변경하는 경우를 막을 수 있다.
 
-h2(#mutable). Mutable
+h2(#mutable). 변경가능(Mutable)
 
 지금까지 다룬 모든 클래스는 불변성이었다. 이제 자주 사용되는 변경 가능한 컬렉션을 살펴보자.
 
-*HashMap*은 @getOrElseUpdate@, @+=@ 등을 제공한다 "HashMap API":http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html
+*해시맵(HashMap)*은 @getOrElseUpdate@, @+=@ 등을 제공한다 "해시맵 API":http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html
 
 <pre>
 scala> val numbers = collection.mutable.Map(1 -> 2)
@@ -353,15 +354,15 @@ scala> numbers += (4 -> 1)
 res56: numbers.type = Map((2,3), (4,1), (1,2))
 </pre>
 
-*ListBuffer와 ArrayBuffer* @+=@를 제공함 "ListBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "ArrayBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
+*리스트버퍼(ListBuffer)와 배열버퍼(ArrayBuffer)* @+=@를 제공함 "리스트버퍼 API":http://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "배열버퍼 API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
 
-*LinkedList와 DoubleLinkedList* "LinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "DoubleLinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
+*연결리스트(LinkedList)와 이중연결리스트(DoubleLinkedList)* "연결리스트 API":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "이중연결리스트 API":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
 
-*PriorityQueue* "API 문서":http://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
+*우선순위 큐(PriorityQueue)* "우선순위 큐 API":http://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
 
-*Stack과 ArrayStack* "Stack API":http://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "ArrayStack API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
+*스택(Stack)과 배열스택(ArrayStack)* "스택 API":http://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "배열스택 API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
 
-*StringBuilder* 재미있는 것은 StringBuilder가 컬렉션이란 점이다. "API 문서":http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html
+*스트링빌더(StringBuilder)* 재미있는 것은 스트링빌더가 컬렉션이란 점이다. "스트링빌더 API":http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html
 
 h2(#java). 자바와 공존하기
 
