@@ -5,9 +5,9 @@ title: 컬렉션(계속)
 layout: post
 ---
 
-스칼라에는 멋진 컬렉션이 여럿 구현되어 있다. 이를 활용해 <code>Foo</code>의 컬렉션이 <code>List</code>, <code>Set</code>, 또는 다른 어떤 것이건 잘 동작하는 코드를 만들 수 있다.
+스칼라에는 멋진 컬렉션이 여럿 구현되어 있다. 이를 활용해 <code>Foo</code>를 모아둔 컬렉션이 <code>리스트(List)</code>, <code>집합(Set)</code>, 또는 다른 어떤 것이든 상관 없이 잘 동작하는 코드를 만들 수 있다.
 
-"이 페이지는":http://www.decodified.com/scala/collections-api.xml 기본 구현의 구조를 잘 보여주며, 각 클래스의 스칼라 문서에 대한 링크도 제공한다.
+"이 페이지는":http://www.decodified.com/scala/collections-api.xml 스칼라가 제공하는 기본 구현의 구조를 잘 보여주며, 각 클래스의 스칼라 문서에 대한 링크도 제공한다.
 
 * "기초":#basics 항상 사용하게 될 컬렉션들
 * "계층 구조":#hierarchy 컬렉션 추상화 계층
@@ -19,14 +19,14 @@ h2(#basics). 기초
 
 h3. 리스트
 
-표준적인 링크드 리스트이다.
+표준적인 연결 리스트이다.
 
 <pre>
 scala> List(1, 2, 3)
 res0: List[Int] = List(1, 2, 3)
 </pre>
 
-다른 함수언어와 마찬가지로 cons로 구성이 가능하다.
+다른 함수언어와 마찬가지로 cons(역주: LISP에서 내려온 전통적인 이름으로 두 셀을 하나로 묶어 구성(construction)해 주기 때문에 cons라 부른다. LISP에서는 cons를 사용해 리스트 뿐 아니라 트리 등 여러 데이터구조를 만들고 활용한다. Haskell등 더 정형화된 함수언어로 오면서 LISP의 cons cell이 가지는 일반성은 없어졌지만, :나 ::등의 연산자를 부르는 이름으로 여전히 사용되곤 한다)로 구성이 가능하다.
 
 <pre>
 scala> 1 :: 2 :: 3 :: Nil
