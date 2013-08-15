@@ -10,11 +10,11 @@ layout: post
 * "Specification(명세 클래스) 확장하기":#example
 ** 내포
 * "실행 모델":#scope
-* "Setup(준비작업)과 TearDown(정리작업)":#setup
+* "준비작업과 정리작업-Setup, Teardown":#setup
 ** doFirst
 ** doBefore
 ** doAfter
-* "Matcher(매처)":#matchers
+* "매처-Matcher":#matchers
 ** mustEqual
 ** contains
 ** sameSize?
@@ -43,19 +43,19 @@ object ArithmeticSpec extends Specification {
 }
 </pre>
 
-*Arithmetic*은 *명세를 지정할 시스템(System under Specification)*이다.
+*Arithmetic* 은 *명세를 지정할 시스템(System under Specification)* 이다.
 
-*add*는 컨택스트(context)라 한다.
+*add* 는 컨택스트(context)라 한다.
 
-*add two numbers*와 *add three numbers*는 예제(example)라 한다.
+*add two numbers*와 *add three numbers* 는 예제(example)라 한다.
 
-@mustEqual@은 *예상결과(expectation)*이다.
+@mustEqual@ 은 *예상결과(expectation)* 이다.
 
-@1 mustEqual 1@은 "예상결과"를 담을 수 있는 틀로 활용할 수 있다. 예제는 반드시 하나 이상의 예상결과를 포함해야 한다.
+@1 mustEqual 1@ 은 "예상결과"를 담을 수 있는 틀로 활용할 수 있다. 예제는 반드시 하나 이상의 예상결과를 포함해야 한다.
 
 h3. 중복
 
-두 테스트의 이름에 @add@가 같이 포함되어 있는게 보이는가? 이런 중복은 예상결과를 *내포*시킴으로써 없앨 수 있다.
+두 테스트의 이름에 @add@ 가 같이 포함되어 있는게 보이는가? 이런 중복은 예상결과를 *내포* 시킴으로써 없앨 수 있다.
 
 <pre>
 import org.specs._
@@ -104,11 +104,11 @@ h3. doBefore & doAfter
 }
 </pre>
 
-*NOTE* @doBefore@/@doAfter@는 말단 예제에 대해에서만 실행된다.
+*NOTE* @doBefore@ / @doAfter@ 는 말단 예제에 대해에서만 실행된다.
 
 h3. doFirst & doLast
 
-@doFirst@/@doLast@는 일회성 설정을 위한 장치이다. (예제가 필요하다. 나(즉, 원저자)는 이를 사용하지 않는다.)
+@doFirst@ / @doLast@는 일회성 설정을 위한 장치이다. (예제가 필요하다. 나(즉, 원저자)는 이를 사용하지 않는다.)
 
 <pre>
 "Foo" should {
@@ -135,7 +135,7 @@ h3. mustEqual
 
 동일성에는 참조 동일성과 값 동일성이 있다.
 
-h3. 시퀀스의 원소
+h3. 열의 원소
 
 <pre>
 val numbers = List(1, 2, 3)
@@ -292,7 +292,7 @@ there was one(spiedList).add("one")
 spiedList.get(0) returns "one"
 </pre>
 
-이 경우 @doReturn@을 사용해야만 한다.
+이 경우 @doReturn@ 을 사용해야만 한다.
 
 <pre>
 doReturn("one").when(spiedList).get(0)
