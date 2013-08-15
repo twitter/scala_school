@@ -53,7 +53,7 @@ hello world
 
 </pre>
 
-Runnable을 구현한 클래스는 어디선가 쓰레드상에서 실행하기 위한 클래스이다.
+Runnable을 구현한 클래스는 나중에 어디선가 쓰레드상에 실행될 것을 가정하고 만들어진 클래스이다.
 
 h3. 단일 쓰레드 프로그램의 예
 
@@ -238,7 +238,7 @@ class Person(@volatile var name: String) {
 
 h4. AtomicReference
 
-자바 5부터 수많은 저수준 동시성 기본 도구들이 추가되었다. 그 중 하나가 @AtomicReference@ 클래스이다.
+자바 5부터 많은 저수준 동시성 도구들이 추가되었다. 그 중 하나가 @AtomicReference@ 클래스이다.
 
 <pre>
 import java.util.concurrent.atomic.AtomicReference
@@ -258,7 +258,7 @@ h4. 사용시 얼마나 비용이 드나?
 
 자바에서는 synchronized로 동기화된 지점에 들어가거나, volatile로 지정된 참조를 억세스하거나, AtomicReferences를 역참조하는 경우 프로세서가 캐시 라인을 비워서 데이터를 메모리에서 가져오도록 만든다. 이를 통해 데이터를 볼 때 일관성을 부여해준다.
 
-내가 틀렸다면 지적해 주기 바란다. 이 주제는 복잡하기 때문에, 논의할 것이 많이 있다.
+내(원저자)가 틀렸다면 지적해 주기 바란다. 이 주제는 복잡하기 때문에, 논의할 것이 많이 있다.
 
 h3. 자바 5부터 지원되는 여러 도구들
 
