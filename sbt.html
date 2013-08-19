@@ -220,7 +220,7 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 }
 </pre>
 <p>A project definition is an <span class="caps">SBT</span> class.  In our case we extend SBT&#8217;s DefaultProject.</p>
-<p>You declare dependencies by specifing a val that is a dependency.  <span class="caps">SBT</span> uses reflection to scan all the dependency vals in your project and build up a dependency tree at build time.  The syntax here may be new, but this is equivalent to the maven dependency</p>
+<p>You declare dependencies by specifying a val that is a dependency.  <span class="caps">SBT</span> uses reflection to scan all the dependency vals in your project and build up a dependency tree at build time.  The syntax here may be new, but this is equivalent to the maven dependency</p>
 <pre>
 &lt;dependency&gt;
   &lt;groupId&gt;org.codehaus.jackson&lt;/groupId&gt;

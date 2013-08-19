@@ -204,15 +204,16 @@ def bigger(o: Any): Any = {
 <h3>Matching on class members</h3>
 <p>Remember our calculator from earlier.</p>
 <p>Let&#8217;s classify them according to type.</p>
+<p>Here&#8217;s the painful way first.</p>
 <pre>
 def calcType(calc: Calculator) = calc match {
-  case calc.brand == "hp" &amp;&amp; calc.model == "20B" =&gt; "financial"
-  case calc.brand == "hp" &amp;&amp; calc.model == "48G" =&gt; "scientific"
-  case calc.brand == "hp" &amp;&amp; calc.model == "30B" =&gt; "business"
+  case _ if calc.brand == "hp" &amp;&amp; calc.model == "20B" =&gt; "financial"
+  case _ if calc.brand == "hp" &amp;&amp; calc.model == "48G" =&gt; "scientific"
+  case _ if calc.brand == "hp" &amp;&amp; calc.model == "30B" =&gt; "business"
   case _ =&gt; "unknown"
 }
 </pre>
-<p>Wow, that&#8217;s painful. Thankfully Scala provides some nice tools specifically for this.</p>
+<p>Wow, that&#8217;s painful.  Thankfully Scala provides some nice tools specifically for this.</p>
 <h2 id="caseclass">Case Classes</h2>
 <p>case classes are used to conveniently store and match on the contents of a class. You can construct them without using new.</p>
 <pre>
