@@ -198,7 +198,7 @@ f: com.twitter.util.Future[(User, Boolean)] = Promise@35785606(...)
 
 scala&gt;
 </pre>
-<p>produces a future <code>f: Future[(User, Boolean)]</code> with the user object and and a Boolean indicating whether that user has been rate limited. Note how sequential composition is required here: <code>rateLimit</code> takes as an argument the output of <code>authenticate</code>.</p>
+<p>produces a future <code>f: Future[(User, Boolean)]</code> with the user object and and a Boolean indicating whether that user has been banned. Note how sequential composition is required here: <code>isBanned</code> takes as an argument the output of <code>authenticate</code>.</p>
 <p><a name="futconcurrent">&nbsp;</a></p>
 <h3>Concurrent composition</h3>
 <p>You might want to fetch data from more than one service at once. For example, if you&#8217;re writing a web service that shows content and ads, it might fetch content from one service and ads from another. But how do you tell your code to wait for both replies? This could get tricky if you had to write it yourself, but instead you can use concurrent combinators.</p>
