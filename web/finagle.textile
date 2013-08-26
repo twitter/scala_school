@@ -195,7 +195,7 @@ f: com.twitter.util.Future[(User, Boolean)] = Promise@35785606(...)
 scala>
 </pre>
 
-produces a future <code>f: Future[(User, Boolean)]</code> with the user object and and a Boolean indicating whether that user has been rate limited. Note how sequential composition is required here: <code>rateLimit</code> takes as an argument the output of <code>authenticate</code>.
+produces a future <code>f: Future[(User, Boolean)]</code> with the user object and and a Boolean indicating whether that user has been banned. Note how sequential composition is required here: <code>isBanned</code> takes as an argument the output of <code>authenticate</code>.
 
 <a name="futconcurrent">&nbsp;</a>
 
