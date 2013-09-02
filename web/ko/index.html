@@ -1,0 +1,72 @@
+---
+layout: default
+title: Scala School
+---
+
+      <div class="hero-unit">
+        <h1>Scala School!</h1>
+        <p>From &empty; to Distributed Service</p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span8">
+          <p><b>Other Languages:</b> <a href="../ru/index.html">Русский</a> &nbsp <a href="ko/index.html">한국어</a></p>
+
+          <h2>About</h2>
+          <!--
+            Scala school started as a series of lectures at Twitter to prepare experienced engineers to be productive <a href="http://www.scala-lang.org/">Scala</a> programmers. Scala is a relatively new language, but draws on many familiar concepts. Thus, these lectures assumed the audience knew the oncepts and showed how to use them in Scala. We found this an effective way of getting new engineers up to speed quickly. This is the written material that accompanied those lectures. We have found that these are useful in their own right.
+
+            Scala school은 생산적인 경험이 풍부한 엔지니어를 준비하는 <a href="http://www.scala-lang.org/">Scala</a> 프로그래머를 위해 Twitter에서 일련의 강의 시리즈로 시작했습니다. Scala는 새로운 언어이지만, 많은 익숙한 개념에 의존하고 있습니다. 따라서 이 강의는 청중이 기본 개념을 잘 알고 있다고 가정하고 Scala에서 사용하는 방법을 설명했습니다. 이 방법이 짧은 시간에 새로운 엔지니어를 얻을 수 있는 효과적인 방법이라고 생각합니다. 이것은 강의 서면 자료입니다. 이 강의가 엔지니어들에게 유용할것입니다.
+          -->
+          <p>Scala school은 생산적인 경험이 풍부한 엔지니어를 준비하는 <a href="http://www.scala-lang.org/">Scala</a> 프로그래머를 위해 Twitter에서 일련의 강의 시리즈로 시작했습니다. Scala는 새로운 언어이지만, 많은 익숙한 개념에 의존하고 있습니다. 따라서 이 강의는 독자들이 개념을 알고 있다고 가정하고 Scala에서 사용하는 방법을 설명했습니다. 이 방법이 짧은 시간에 새로운 엔지니어를 얻을 수 있는 효과적인 방법이라고 생각합니다. 이것은 강의 서면 자료입니다. 이 강의가 엔지니어들에게 유용할것입니다.
+          </p>
+
+          <h2>Approach</h2>
+          <!--
+            We think it makes the most sense to approach teaching Scala not as if it were an improved Java but instead as a new language.Experience in Java is not expected. Focus will be on the interpreter and the object-functional style as well as the style of programming we do here. An emphasis will be placed on maintainability, clarity of expression, and leveraging the type system.
+            
+            우리는 새로운 언어처럼 그뿐 아니라 자바를 항상 연구한것 처럼 스칼라에 접근하는 것은 가장 좋은 방법이 아니라고 생각합니다. 자바의 경험은 필요합니다. 초점은 interpreter , object-functional 스타일 및 우리들이 작업하는 프로그래밍 스타일이 될 것입니다. 중점은 유지 보수성, 표현의 명확성, 그리고 형 시스템의 활용에 두는것이 중요할 것이다.
+
+            Most of the lessons require no software other than a Scala REPL. The reader is encouraged to follow along, but also to go further! Use these lessons as a starting point to explore the language.
+
+            수업의 대부분은 Scala의 REPL 이외의 소프트웨어가 필요하지 않습니다. 독자가 함께 따라하는것을 장려 하지만, 또한 더 나가! Scala를 탐구하기위한 출발점으로, 교육을 활용할 수 있습니다.
+          -->
+          <p>우리는 새로운 언어처럼 그뿐 아니라 자바를 항상 연구한것 처럼 스칼라에 접근하는 것은 가장 좋은 방법이 아니라고 생각합니다. 자바의 경험은 필요합니다. 초점은 interpreter , object-functional 스타일 및 우리들이 작업하는 프로그래밍 스타일이 될 것입니다. 중점은 유지 보수성, 표현의 명확성, 그리고 형 시스템의 활용에 두는것이 중요할 것이다.</p>
+          <p>수업의 대부분은 Scala의 REPL 이외의 소프트웨어가 필요하지 않습니다. 독자가 함께 따라하는것을 장려 하지만, 또한 더 나가! Scala를 탐구하기위한 출발점으로, 교육을 활용할 수 있습니다.</p>
+
+          <h2>Also</h2>
+          <!--
+            You can learn more elsewhere:
+            다른 곳에서 더 배울수 있습니다:
+
+            Twitter's "best practices" for Scala. Useful for understanding idioms in Twitter's code.
+            스칼라를 위한 Twitter의 "모법사례". Twitter의 응용프로그램 코드를 이해하는데 유용함.
+
+            Links to tutorials, manuals, API reference, books, ...
+          -->
+          <p>다른 곳에서 더 배울수 있습니다:
+          <ul>
+          <li><strong><a href="http://twitter.github.com/effectivescala/">Effective Scala</a></strong> 스칼라를 위한 Twitter의 "모법사례". Twitter의 응용프로그램 코드를 이해하는데 유용함.</li>
+          <li><strong><a href="http://www.scala-lang.org/node/197">scala-lang.org Documentation</a></strong> 자습서의 링크, 가이드, API, 책, ...</li>
+          <li><strong><a href="http://www.scala-lang.org/api/">Scala API Documentation</a></strong></li>
+          </ul>
+
+        </div>
+        <div class="span6">
+          <h2>Lessons</h2>
+            <dl>
+              {% for lesson in site.lessons %}
+                <dt><a href="{{ lesson.url }}">{{ lesson.title }}</a></dt>
+                <dd>{{ lesson.desc }}</dd>
+              {% endfor %}
+            </dl>
+       </div>
+      </div>
+    </div> <!-- /container -->
+
+    <!-- banner -->
+    <a href="https://github.com/twitter/scala_school"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+  </body>
+</html>
