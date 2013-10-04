@@ -430,7 +430,7 @@ def crawl(url: String): Future[Seq[Resource]] =
     Future.collect(
       page.links map { u => crawl(u) }
     ) map { pps => pps.flatten }
-}
+  }
 
 crawl("profile.html")
    ...hangs REPL, infinite loop...
@@ -517,7 +517,6 @@ import com.twitter.util.Future
 import org.jboss.netty.handler.codec.http.{DefaultHttpResponse, HttpVersion, HttpResponseStatus, HttpRequest, HttpResponse}
 import java.net.{SocketAddress, InetSocketAddress}
 import com.twitter.finagle.builder.{Server, ServerBuilder}
-import com.twitter.finagle.builder.ServerBuilder
 
 // Define our service: OK response for root, 404 for other paths
 val rootService = new Service[HttpRequest, HttpResponse] {
