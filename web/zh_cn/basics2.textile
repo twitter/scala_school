@@ -1,0 +1,382 @@
+---
+prev: basics.textile
+next: collections.textile
+title: 基础知识（续）
+layout: post
+---
+
+课程内容:
+* "apply方法":#apply
+* "单例对象":#object
+* "函数即对象":#fnobj
+* "包":#package
+* "模式匹配":#match
+* "样本类":#caseclass
+* "try-catch-finally 异常":#exception
+
+h2(#apply). apply 方法
+
+apply methods give you a nice syntactic sugar for when a class or object has one main use.
+当类和单例方法有一个主要用途的时候，apply方法为你提供了一个很好的语法糖。
+<pre>
+scala> class Foo {}
+defined class Foo
+
+scala> object FooMaker {
+     |   def apply() = new Foo
+     | }
+defined module FooMaker
+
+scala> val newFoo = FooMaker()
+newFoo: Foo = Foo@5b83f762
+</pre>
+
+或
+
+<pre>
+scala> class Bar {
+     |   def apply() = 0
+     | }
+defined class Bar
+
+scala> val bar = new Bar
+bar: Bar = Bar@47711479
+
+scala> bar()
+res8: Int = 0
+</pre>
+
+Here our instance object looks like we're calling a method. More on that later!
+在这里，我们实例化对象看起来像是在调用一个方法。以后会有更多介绍！
+
+
+
+
+h2(#object). 单例对象
+
+Objects are used to hold single instances of a class. Often used for factories.
+单例对象用于持有一个类的唯一实例。通常用于工厂模式。
+
+<pre>
+object Timer {
+  var count = 0
+
+  def currentCount(): Long = {
+    count += 1
+    count
+  }
+}
+</pre>
+
+可以这样使用：
+
+<pre>
+scala> Timer.currentCount()
+res0: Long = 1
+</pre>
+
+Classes and Objects can have the same name.  The object is called a 'Companion Object'.  We commonly use Companion Objects for Factories.
+
+Here is a trivial example that only serves to remove the need to use 'new' to create an instance.
+单例对象可以和类具有相同的名称，此时该对象也被称为“伴生对象”。我们将通常伴生对象作为工厂使用。
+
+下面是一个简单的例子，这样就不需要使用'new'来创建一个实例了。
+
+<pre>
+class Bar(foo: String)
+
+object Bar {
+  def apply(foo: String) = new Bar(foo)
+}
+</pre>
+
+
+h2(#fnobj). Functions are Objects函数即对象
+
+In Scala, we talk about object-functional programming often.  What does that mean? What is a Function, really?
+
+A Function is a set of traits. Specifically, a function that takes one argument is an instance of a Function1 trait. This trait defines the <code>apply()</code> syntactic sugar we learned earlier, allowing you to call an object like you would a function.
+在Scala中，我们经常谈论对象的函数式编程。这是什么意思？到底什么是函数呢？
+
+函数是一些特质的集合。具体来说，具有一个参数的函数是Function1特质的一个实例。这个特征定义了<code>apply()</code>语法糖，让你调用一个对象，就像你在调用一个函数。
+
+<pre>
+scala> object addOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined module addOne
+
+scala> addOne(1)
+res2: Int = 2
+</pre>
+
+There is Function1 through 22.  Why 22?  It's an arbitrary magic number.  I've never needed a function with more than 22 arguments so it seems to work out.
+
+The syntactic sugar of apply helps unify the duality of object and functional programming.  You can pass classes around and use them as functions and functions are just instances of classes under the covers.
+
+Does this mean that every time you define a method in your class, you're actually getting an instance of Function*?  No, methods in classes are methods.  Methods defined standalone in the repl are Function* instances.
+
+Classes can also extend Function and those instances can be called with ().
+这个Function特质集合下标从1一直到22都有。为什么是22？这是一个主观的魔幻数字(magic number)。我从来没有使用超过22个参数的函数，所以这个数字似乎是合理的。
+
+apply语法糖有助于统一对象和函数式编程的二重性。您可以传递类，并把它们当做函数，而函数本质上是类的实例。
+
+这是否意味着，每一次你在你的类中定义一个方法，你实际上得到的一个Function*的实例？不是的，在类中定义的方法是方法而不是函数。在repl中独立定义的方法是Function*的实例。
+
+类也可以扩展Function，这些类的实例可以使用()调用。
+
+<pre>
+scala> class AddOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined class AddOne
+
+scala> val plusOne = new AddOne()
+plusOne: AddOne = <function1>
+
+scala> plusOne(1)
+res0: Int = 2
+</pre>
+
+TODO
+A nice short-hand for <code>extends Function1[Int, Int]</code> is <code>extends (Int => Int)</code>
+
+一个快捷的实现<code>extends Function1[Int, Int]</code>的方式是<code>extends (Int => Int)</code>
+
+<pre>
+class AddOne extends (Int => Int) {
+  def apply(m: Int): Int = m + 1
+}
+</pre>
+
+h2(#package). 包
+
+You can organize your code inside of packages.
+你可以将你的代码组织在包里。
+
+<pre>
+package com.twitter.example
+</pre>
+
+at the top of a file will declare everything in the file to be in that package.
+在文件头部定义包，说明文件中所有的代码都将在那个包中。
+Values and functions cannot be outside of a class or object.  Objects are a useful tool for organizing static functions.
+值和函数不能在类或单例对象之外定义。单例对象是组织静态函数(static function)的有效工具。
+
+<pre>
+package com.twitter.example
+
+object colorHolder {
+  val BLUE = "Blue"
+  val RED = "Red"
+}
+</pre>
+
+Now you can access the members directly
+现在你可以直接访问这些成员
+<pre>
+println("the color is: " + com.twitter.example.colorHolder.BLUE)
+</pre>
+
+Notice what the scala repl says when you define this object:
+注意scala repl在你定义这个对象时的返回：
+<pre>
+scala> object colorHolder {
+     |   val Blue = "Blue"
+     |   val Red = "Red"
+     | }
+defined module colorHolder
+</pre>
+
+This gives you a small hint that the designers of Scala designed objects to be part of Scala's module system.
+这暗示了Scala的设计者将对象作为Scala模块系统的一部分设计的。
+
+h2(#match). 模式匹配
+
+One of the most useful parts of Scala.
+这是Scala中最有用的部分之一。
+
+Matching on values
+匹配值
+
+<pre>
+val times = 1
+
+times match {
+  case 1 => "one"
+  case 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+Matching with guards
+使用守卫进行匹配
+
+<pre>
+times match {
+  case i if i == 1 => "one"
+  case i if i == 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+Notice how we captured the value in the variable 'i'.
+注意我们怎样获取变量'i'的取值。
+
+The <code>_</code> in the last case statement is a wildcard; it
+ensures that we can handle any statement. Otherwise you will suffer a
+runtime error if you pass in a number that doesn't match. We discuss
+this more later.
+在最后一行代码的<code>_</code>是一个通配符TODO；他保证了我们可以处理所有的情况。
+否则当传递一个不能匹配的数字的时候，你将获得一个运行时错误。我们以后会继续讨论这个话题的。
+
+*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Pattern matching">when to use pattern matching</a> and <a href="http://twitter.github.com/effectivescala/#Formatting-Pattern matching">pattern matching formatting</a>. A Tour of Scala describes <a href="http://www.scala-lang.org/node/120">Pattern Matching</a>
+*另见* Effective Scala 对此的建议<a href="http://twitter.github.com/effectivescala/#Functional programming-Pattern matching">什么时候使用模式匹配</a> 和 <a href="http://twitter.github.com/effectivescala/#Formatting-Pattern matching">模式匹配格式化</a>. A Tour of Scala 也描述了 <a href="http://www.scala-lang.org/node/120">模式匹配</a>
+
+
+h3. Matching on type
+匹配类型
+
+You can use <code>match</code> to handle values of different types differently.
+你可以使用 <code>match</code>来分别处理不同类型的不同值。
+<pre>
+def bigger(o: Any): Any = {
+  o match {
+    case i: Int if i < 0 => i - 1
+    case i: Int => i + 1
+    case d: Double if d < 0.0 => d - 0.1
+    case d: Double => d + 0.1
+    case text: String => text + "s"
+  }
+}
+</pre>
+
+h3. Matching on class members
+匹配类成员
+
+Remember our calculator from earlier.
+还记得我们之前的计算器吗。
+Let's classify them according to type.
+我们通过类型对它们进行分类。
+
+Here's the painful way first.
+一开始会很痛苦。
+
+<pre>
+def calcType(calc: Calculator) = calc match {
+  case _ if calc.brand == "hp" && calc.model == "20B" => "financial"
+  case _ if calc.brand == "hp" && calc.model == "48G" => "scientific"
+  case _ if calc.brand == "hp" && calc.model == "30B" => "business"
+  case _ => "unknown"
+}
+</pre>
+
+Wow, that's painful.  Thankfully Scala provides some nice tools specifically for this.
+(⊙o⊙)哦，太痛苦了。幸好Scala提供了一些对应这种情况的有效工具。
+
+h2(#caseclass). Case Classes
+样本类
+
+case classes are used to conveniently store and match on the contents of a class. You can construct them without using new.
+样本类用来方便的存储和匹配类的内容。你不用new关键字就可以创建它们。
+
+<pre>
+scala> case class Calculator(brand: String, model: String)
+defined class Calculator
+
+scala> val hp20b = Calculator("hp", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+</pre>
+
+case classes automatically have equality and nice toString methods based on the constructor arguments.
+样本类自动地基于构造函数的参数实现了相等性和易读的toString方法。
+
+<pre>
+scala> val hp20b = Calculator("hp", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+scala> val hp20B = Calculator("hp", "20b")
+hp20B: Calculator = Calculator(hp,20b)
+
+scala> hp20b == hp20B
+res6: Boolean = true
+</pre>
+
+case classes can have methods just like normal classes.
+样本类也可以向普通类那样拥有方法。
+
+h6. Case Classes with pattern matching
+使用样本类进行模式匹配
+
+case classes are designed to be used with pattern matching.  Let's simplify our calculator classifier example from earlier.
+样本类被设计用在模式匹配中的。让我们简化之前的计算器分类器的例子。
+
+<pre>
+val hp20b = Calculator("hp", "20B")
+val hp30b = Calculator("hp", "30B")
+
+def calcType(calc: Calculator) = calc match {
+  case Calculator("hp", "20B") => "financial"
+  case Calculator("hp", "48G") => "scientific"
+  case Calculator("hp", "30B") => "business"
+  case Calculator(ourBrand, ourModel) => "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
+}
+</pre>
+
+Other alternatives for that last match
+最后一句也可以这样写
+
+<pre>
+  case Calculator(_, _) => "Calculator of unknown type"
+</pre>
+
+  OR we could simply not specify that it's a Calculator at all.
+或者我们不将匹配对象指定为Calculator
+
+<pre>
+  case _ => "Calculator of unknown type"
+</pre>
+
+  OR we could re-bind the matched value with another name
+或者我们也可以将匹配的值重新命名。
+
+<pre>
+  case c@Calculator(_, _) => "Calculator: %s of unknown type".format(c)
+</pre>
+
+h2(#exception). 异常
+
+Exceptions are available in Scala via a try-catch-finally syntax that uses pattern matching.
+Scala中的异常可以在try-catch-finally语法中通过模式匹配使用。
+
+<pre>
+try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+<code>try</code>s are also expression-oriented
+<code>try</code>也是面向表达式的
+
+<pre>
+val result: Int = try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => {
+    log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
+    0
+  }
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+This is not an example of excellent programming style, just an example of try-catch-finally resulting in expressions like most everything else in Scala.
+这并不是一个完美编程风格的展示，而只是说明try-catch-finally和其他Scala表达式一样的一个例子。
+Finally will be called after an exception has been handled and is not part of the expression.
+当一个异常被捕获处理了，Finally将被调用，他不是表达式的一部分。
