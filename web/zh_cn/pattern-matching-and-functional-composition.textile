@@ -1,0 +1,168 @@
+---
+prev: collections.textile
+next: type-basics.textile
+title: 模式匹配与函数组合 Pattern matching & functional composition
+layout: post
+---
+
+课程内容:
+
+* "Function Composition":#composition
+** compose
+** andThen
+* "Currying vs Partial Application":#curryvspartial
+* "PartialFunctions":#PartialFunction
+** range and domain
+** composition with orElse
+* "What is a case statement?":#case
+
+h2(#composition). Function Composition函数组合
+让我们创建两个适当命名的函数：
+
+Let's make two aptly-named functions:
+
+<pre>
+scala> def f(s: String) = "f(" + s + ")"
+f: (String)java.lang.String
+
+scala> def g(s: String) = "g(" + s + ")"
+g: (String)java.lang.String
+</pre>
+
+h3. compose
+
+<code>compose</code> makes a new function that composes other functions <code>f(g(x))</code>
+<code>compose</code> 使用其他函数组成一个新的函数 <code>f(g(x))</code>
+
+<pre>
+scala> val fComposeG = f _ compose g _
+fComposeG: (String) => java.lang.String = <function>
+
+scala> fComposeG("yay")
+res0: java.lang.String = f(g(yay))
+</pre>
+
+h3. andThen
+
+<code>andThen</code> is like <code>compose</code>, but calls the first function and then the second, <code>g(f(x))</code>
+<code>andThen</code> 就像 <code>compose</code>，但是调用顺序是先调用第一个函数，然后调用第二个，<code>g(f(x))</code>
+
+<pre>
+scala> val fAndThenG = f _ andThen g _
+fAndThenG: (String) => java.lang.String = <function>
+
+scala> fAndThenG("yay")
+res1: java.lang.String = g(f(yay))
+</pre>
+
+h2(#curryvspartial). 柯里化 vs 部分应用
+
+h3. case statements
+case 语句
+
+h4. So just what are case statements?
+那么究竟什么是case语句？
+
+It's a subclass of function called a PartialFunction.
+这是一个被称为PartialFunction的函数的子类。
+
+h4. What is a collection of multiple case statements?
+多个case语句的集合是什么？
+
+他们是多个PartialFunctions共同组成的。
+They are multiple PartialFunctions composed together.
+
+h2(#PartialFunction). Understanding PartialFunction了解PartialFunction
+
+函数的每个参数类型都是给定的。换句话说，一个定义为(Int) => String的函数会接收Int类型的参数，并返回一个字符串。
+A function works for every argument of the defined type. In other words, a function defined as (Int) => String takes any Int and returns a String.
+
+A Partial Function is only defined for certain values of the defined type.  A Partial Function (Int) => String might not accept every Int.
+一个部分函数只定义在指定类型定义的某些特定的值上。一个部分函数(Int) => String可能不能接受所有Int值为输入。
+
+<code>isDefinedAt</code> is a method on PartialFunction that can be used to determine if the PartialFunction will accept a given argument.
+<code>isDefinedAt</code> 是PartialFunction的一个方法，可以用来确定一个给定的参数是否能被PartialFunction接受。
+
+__Note__ <code>PartialFunction</code> is unrelated to a partially applied function that we talked about earlier.
+__Note__ <code>PartialFunction</code> 和我们前面提到的部分应用函数是无关的。
+
+*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.
+*请参阅* Effective Scala 对<a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>的意见。
+
+<pre>
+scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
+one: PartialFunction[Int,String] = <function1>
+
+scala> one.isDefinedAt(1)
+res0: Boolean = true
+
+scala> one.isDefinedAt(2)
+res1: Boolean = false
+</pre>
+
+You can apply a partial function.
+您可以调用一个部分函数。
+
+<pre>
+scala> one(1)
+res2: String = one
+</pre>
+
+PartialFunctions can be composed with something new, called orElse, that reflects whether the PartialFunction is defined over the supplied argument.
+TODO PartialFunctions可以组成新的东西，否则别指望，反映的PartialFunction是否提供的参数定义了。
+
+<pre>
+scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
+two: PartialFunction[Int,String] = <function1>
+
+scala> val three: PartialFunction[Int, String] = { case 3 => "three" }
+three: PartialFunction[Int,String] = <function1>
+
+scala> val wildcard: PartialFunction[Int, String] = { case _ => "something else" }
+wildcard: PartialFunction[Int,String] = <function1>
+
+scala> val partial = one orElse two orElse three orElse wildcard
+partial: PartialFunction[Int,String] = <function1>
+
+scala> partial(5)
+res24: String = something else
+
+scala> partial(3)
+res25: String = three
+
+scala> partial(2)
+res26: String = two
+
+scala> partial(1)
+res27: String = one
+
+scala> partial(0)
+res28: String = something else
+</pre>
+
+h3(#case). The mystery of case.神秘的case。
+
+上周我们看到一些新奇的东西。我们在通常使用函数的地方看到了一个case语句。
+Last week we saw something curious. We saw a case statement used where a function is normally used.
+
+<pre>
+scala> case class PhoneExt(name: String, ext: Int)
+defined class PhoneExt
+
+scala> val extensions = List(PhoneExt("steve", 100), PhoneExt("robey", 200))
+extensions: List[PhoneExt] = List(PhoneExt(steve,100), PhoneExt(robey,200))
+
+scala> extensions.filter { case PhoneExt(name, extension) => extension < 200 }
+res0: List[PhoneExt] = List(PhoneExt(steve,100))
+</pre>
+
+Why does this work?
+
+filter takes a function. In this case a predicate function of (PhoneExt) => Boolean.
+
+A PartialFunction is a subtype of Function so filter can also take a PartialFunction!
+为什么这可以执行？
+
+filter使用了一个函数。在这个例子中是一个谓词函数(PhoneExt) => Boolean。
+
+PartialFunction是Function的子类型，所以filter也可以使用PartialFunction！

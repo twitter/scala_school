@@ -1,0 +1,767 @@
+---
+prev: java.textile
+next: searchbird.textile
+title: An introduction to Finagle
+layout: post
+---
+
+"Finagle":https://github.com/twitter/finagle 是 Twitter 的RPC system. 
+"This":http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html blog post explains its motivations and core design tenets, the "finagle README":https://github.com/twitter/finagle/blob/master/README.md contains more detailed documentation. Finagle aims to make it easy to build robust clients and servers.
+"这篇博客"：http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html 解释了其动机和核心设计原则，"finagle README":https://github.com/twitter/finagle/blob/master/README.md 包含更详细的文档。Finagle的目标是可以很容易地建立强大的客户端和服务器。
+
+* "REPL":#repl
+* "Futures":#Future: "Sequential composition":#futsequential, "Concurrent composition":#futconcurrent, "Composition Example: Cached Rate Limit":#combined_combinator_example_cache, "Composition Example: Thumbnail Fetcher":#combined_combinator_thumbnail
+* "Service":#Service
+* "Client Example":#client
+* "Server Example":#server
+* "Filters":#Filter
+* "Builders":#Builder
+* "Don't Block":#DontBlock (unless you do it the right way)
+
+h2(#repl). Finagle-Friendly REPL
+
+We're about to discuss some code that's not part of standard Scala. If you like to use the REPL to learn, you might wonder how to get a Scala REPL that knows about Twitter's Finagle and things it depends on.
+我们要讨论一些不是标准Scala的代码。如果你喜欢使用REPL学习，你可能想知道如何获得一个加入Finagle 和其依赖的 Scala REPL。
+
+你可以在<a href="https://github.com/twitter/finagle/">这里获取Finagle源代码</a>。
+You want the <a href="https://github.com/twitter/finagle/">Finagle source code</a>.
+
+If you have the Finagle source code in a directory named <code>finagle</code>, you can get a console via
+如果你在 <code>finagle</code>目录下有Finagle的源代码，你可以通过下面的命令得到一个控制台
+
+<pre>
+$ cd finagle
+$ ./sbt "project finagle-http" console
+ ...build output...
+scala>
+</pre>
+
+h2(#Future). Futures
+
+Finagle uses <code>com.twitter.util.Future</code>[1] to encode delayed operations. A Future is a handle for a value not yet available. Finagle uses Futures as return values for its asynchronous APIs. A synchronous API waits for a result before returning; an asynchronous API does not. For example, an HTTP request to some service on the internet might not return a value for half a second. You don't want your program's execution to block for half a second waiting. "Slow" APIs can return a <code>Future</code> right away and then "fill in" its value when it resolves.
+Finagle使用 <code>com.twitter.util.Future</code>[1] 编码延迟操作。Future是尚未生成的值的一个句柄。Finagle使用Future作为其异步API的返回值。同步API会在返回前等待结果；但是异步API则不等待。例如，一个对互联网上的一些服务的HTTP请求可能半秒都不会返回。你不希望你的程序阻塞等待半秒。 “慢”的API可以立即返回一个<code>Future</code>，然后在需要解析其值时“填充”。
+
+<pre>
+val myFuture = MySlowService(request) // returns right away
+   ...do other things...
+val serviceResult = myFuture.get() // blocks until service "fills in" myFuture
+</pre>
+
+In practice, you wonvalu't write code that sends a request and then calls <code>myFuture.get</code> a few statements later. A Future has methods to register callbacks to invoke when the e becomes available.
+在实践中，你不会发送一个请求，然后在几行后调用<code>myFuture.get</code>。一个Future有注册回调的方法，在值变得可用时调用。
+
+如果你用过其他异步API，当看到“回调”你也许畏缩。您可能会联想到他们难以辨认的代码流，调用的功能藏在远远的地方。但是，Future可以利用Scala一等函数展示出一个更可读的代码流。您可以在调用它的地方定义一个简单的处理函数。
+If you've used other asynchronous APIs, you perhaps cringed when you saw the word "callbacks" just now. You might associate them with illegible code flows, functions hiding far from where they're invoked. But Futures can take advantage of Scala's first-class functions to present a more-readable code flow. You can define a simpler handler function in the place where it's invoked.
+
+For example to, write code that dispatches a request and then "handles" the response, you can keep the code together:
+例如，写代码调度请求，然后“处理”回应，你可以保持代码在一起：
+
+<pre>
+val future = dispatch(req) // returns immediately, but future is "empty"
+future onSuccess { reply => // when the future gets "filled", use its value
+  println(reply)
+}
+</pre>
+
+You can play with Futures in the REPL. This is a bad way to learn how you will use them in real code, but can help with understanding the API. When you use the REPL, Promise is a handy class. It's a concrete subclass of the abstract Future class. You can use it to create a Future that has no value yet.
+你可以用REPL Future做些玩具功能。这不是个好的学习方式来认识如何在真正的代码使用他们，但可以帮助理解API。当你使用REPL，Promise是一个方便的类。这是Future抽象类的一个具体子类。你可以用它来创建一个还没有值的Future。
+
+<pre>
+scala> import com.twitter.util.{Future,Promise}
+import com.twitter.util.{Future, Promise}
+
+scala> val f6 = Future.value(6) // create already-resolved future
+f6: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@c63a8af
+
+scala> f6.get()
+res0: Int = 6
+
+scala> val fex = Future.exception(new Exception) // create resolved sad future
+fex: com.twitter.util.Future[Nothing] = com.twitter.util.ConstFuture@38ddab20
+
+scala> fex.get()
+java.lang.Exception
+  ... stack trace ...
+
+scala> val pr7 = new Promise[Int] // create unresolved future
+pr7: com.twitter.util.Promise[Int] = Promise@1994943491(...)
+
+scala> pr7.get()
+  ...console hangs, waiting for future to resolve...
+Ctrl-C
+Execution interrupted by signal.
+
+scala> pr7.setValue(7)
+
+scala> pr7.get()
+res1: Int = 7
+
+scala>
+</pre>
+
+When you use Futures in real code, you normally don't call <code>get</code>; you use callback functions instead. <code>get</code> is just handy for REPL tinkering.
+当你在真正的代码中使用Future，你通常不调用<code>get</code> ；而是使用回调函数。 <code>get</code>仅仅是方便在REPL修修补补。
+
+<a name="futsequential">&nbsp;</a>
+
+h3. Sequential composition顺序组合
+
+Future有类似<a href="collections.html#combinators">集合中API的组合子</a>（如 map, flatMap） 。集合组合子，你还记得，让你可以表达如“我有一个整数List和一个<tt>square</tt>函数：map那个列表获得整数平方的列表。 ”这是整齐的；你可以把组合子函数和另一个函数放在一起有效地组成一个新函数。一个面向Future的组合子可以让你这样表达“我有一个期望整数的Future和一个<tt>square</tt>函数：map那个获得整数平方的Future。 ”
+Futures have combinators <a href="collections.html#combinators">similar to those in the collections APIs</a> (e.g., map, flatMap). A collection-combinator, you recall, lets you express things like "I have a List of integers and a <tt>square</tt> function: map that to the List of the squares of my integers." This is neat; you can put together the combinator-function with another function to effectively define a new function. A Future-combinator lets you express things like "I have a Future hypothetical-integer and a <tt>square</tt> function: map that to the Future square of my hypothetical-integer."
+
+If you're defining an asynchronous API, a request value comes in and your API gives back a response wrapped in a Future. Thus, these combinators that turn inputs and functions into Futures are darned useful: they help you define your asynchronous API in terms of other asynchronous APIs.
+如果你定义一个异步API，传入一个请求值，然后你的API返回一个包裹在Future中的响应。因此，这些把输入和函数加入Future的组合子是相当有用的：他们帮助您根据别的异步API定义你的异步API。
+
+最重要的<code>Future</code>的组合子是<code>flatMap</code>[2]：
+The most important <code>Future</code> combinator is <code>flatMap</code>[2]:
+
+<a name="futsequential"> </ A>
+
+
+<blockquote>
+<code>def Future[A].flatMap[B](f: A => Future[B]): Future[B]</code>
+</blockquote>
+
+<code>flatMap</code> sequences two futures. That is, it takes a Future and an asynchronous function and returns another Future. The method signature tells the story: given the successful value of a future, the function <code>f</code> provides the next <code>Future</code>. <code>flatMap</code> automatically calls <code>f</code> if/when the input <code>Future</code> completes successfully. The result of this operation is another <code>Future</code> that is complete only when both of these futures have completed. If either <code>Future</code> fails, the given <code>Future</code> will also fail. This implicit interleaving of errors allow us to handle errors only in those places where they are semantically significant. <code>flatMap</code> is the standard name for the combinator with these semantics.
+<code>flatMap</code> 序列化两个期货。即，它需要一个Future和一个异步函数，并返回另一个Future。方法签名中是这样写的：给定一个Future成功的值，函数<code>f</code>提供下一个<code>Future</code>。<code>flatMap</code>自动调用<code>f</code>如果/当输入的<code>Future</code> 成功完成。只有当这两个Future都已完成，此操作的另一个<code>Future</code>结果才是完整的。如果任何一个<code>Future</code>失败，则给定的 <code>Future</code>也将失败。这种隐交织的错误让我们只需要在必要时来处理错误。<code>flatMap</code>是这些语义组合子的标准名称。
+
+
+如果你有一个Future并且想在异步API使用其值，使用<tt>flatMap</tt>。例如，假设你有一个Future[User]，需要一个Future[Boolean]，表示用户是否已被禁止。有一个<code>isBanned</code> API来判断一个用户是否已被禁止，但它是异步的。可以使用flatMap ：
+If you have a Future and you want apply an asynchronous API to its value, use <tt>flatMap</tt>. For example, suppose you have a Future[User] and need a Future[Boolean] indicating whether the enclosed User has been banned. There is an <code>isBanned</code> API to determine whether a User has been banned, but it is asynchronous. You can use flatMap:
+
+<pre>
+scala> import com.twitter.util.{Future,Promise}
+import com.twitter.util.{Future, Promise}
+
+scala> class User(n: String) { val name = n }
+defined class User
+
+scala> def isBanned(u: User) = { Future.value(false) }
+isBanned: (u: User)com.twitter.util.Future[Boolean]
+
+scala> val pru = new Promise[User]
+pru: com.twitter.util.Promise[User] = Promise@897588993(...)
+
+scala> val futBan = pru flatMap isBanned // apply isBanned to future
+futBan: com.twitter.util.Future[Boolean] = Promise@1733189548(...)
+
+scala> futBan.get()
+  ...REPL hangs, futBan not resolved yet...
+Ctrl-C
+Execution interrupted by signal.
+
+scala> pru.setValue(new User("prudence"))
+
+scala> futBan.get()
+res45: Boolean = false
+
+scala>
+</pre>
+
+Similarly, to apply a <em>synchronous</em> function to a Future, use <tt>map</tt>. For example, suppose you have a Future[RawCredentials] and need a Future[Credentials]. You have a synchronous <code>normalize</code> function that converts from RawCredentials to Credentials. You can use <code>map</code>:
+同样，要在Future中应用一个<em>同步</em>函数，使用<tt>map</tt>。例如，假设你有一个Future[RawCredentials]需要一个Future[Credentials]。你有一个的同步的<code>normalize</code>函数将RawCredentials转换成Credentials。可以使用<code>map</code>：
+
+<pre>
+scala> class RawCredentials(u: String, pw: String) {
+     |   val username = u
+     |   val password = pw
+     | }
+defined class RawCredentials
+
+scala> class Credentials(u: String, pw: String) {
+     |   val username = u
+     |   val password = pw
+     | }
+defined class Credentials
+
+scala> def normalize(raw: RawCredentials) = {
+     |   new Credentials(raw.username.toLowerCase(), raw.password)
+     | }
+normalize: (raw: RawCredentials)Credentials
+
+scala> val praw = new Promise[RawCredentials]
+praw: com.twitter.util.Promise[RawCredentials] = Promise@1341283926(...)
+
+scala> val fcred = praw map normalize // apply normalize to future
+fcred: com.twitter.util.Future[Credentials] = Promise@1309582018(...)
+
+scala> fcred.get()
+   ...REPL hangs, fcred doesn't have a value yet...
+Ctrl-C
+Execution interrupted by signal.
+
+scala> praw.setValue(new RawCredentials("Florence", "nightingale"))
+
+scala> fcred.get().username
+res48: String = florence
+
+scala>
+</pre>
+
+Scala has syntactic shorthand to invoke flatMap: the <code>for</code> comprehension. Suppose you want to authenticate a login request via an asynchronous API and then check to see whether the user is banned via another asynchronous API. With the help of for-comprehensions, we can write this as:
+Scala有语法糖来调用flatMap：TODO<code>for</code>。假设你想通过异步API验证登录请求，然后通过另一个异步API检查用户是否被禁止。为for的帮助下，我们可以这样写：
+
+<pre>
+scala> def authenticate(req: LoginRequest) = {
+     |   // TODO: we should check the password
+     |   Future.value(new User(req.username))
+     | }
+authenticate: (req: LoginRequest)com.twitter.util.Future[User]
+
+scala> val f = for {
+     |  u <- authenticate(request)
+     |  b <- isBanned(u)
+     | } yield (u, b)
+f: com.twitter.util.Future[(User, Boolean)] = Promise@35785606(...)
+
+scala>
+</pre>
+
+produces a future <code>f: Future[(User, Boolean)]</code> with the user object and and a Boolean indicating whether that user has been banned. Note how sequential composition is required here: <code>isBanned</code> takes as an argument the output of <code>authenticate</code>.
+产生一个<code>f: Future[(User, Boolean)]</code>包含用户对象和一个表示该用户是否已被禁止的布尔值。注意这里组合的顺序：<code>isBanned</code>使用了<code>authenticate</code>的输出作为输入。
+
+<a name="futconcurrent">&nbsp;</a>
+
+h3. Concurrent composition 并发组成
+
+You might want to fetch data from more than one service at once. For example, if you're writing a web service that shows content and ads, it might fetch content from one service and ads from another. But how do you tell your code to wait for both replies? This could get tricky if you had to write it yourself, but instead you can use concurrent combinators.
+你可能想一次获取来自多个服务的数据。例如，如果你正在编写一个Web服务来显示内容和广告，它可能会从两个服务中分别获取内容和广告。但是，你怎么告诉你的代码等待两份答复？如果自己实现可能会非常棘手，不过你可以使用并发组合子。
+
+<code>Future</code> 提供了一些并发组合子。一般来说，他们都是将<code>Future</code>的序列转换成一个序列的<code>Future</code>，只是方式略微不同。这是很好的，因为它（本质上）可以让你把几个Future封装成一个单一的Future。
+<code>Future</code> provides some concurrent combinators. Generally, these convert a sequence of <code>Future</code> into a <code>Future</code> of sequence in slightly different ways. This is nice because it lets you (essentially) package several Futures into a single Future.
+
+<a name="futconcurrent"></ A>
+
+<pre>
+object Future {
+  …
+  def collect[A](fs: Seq[Future[A]]): Future[Seq[A]]
+  def join(fs: Seq[Future[_]]): Future[Unit]
+  def select(fs: Seq[Future[A]]) : Future[(Try[A], Seq[Future[A]])]
+}
+</pre>
+
+<code>collect</code> takes a set of <code>Future</code>s of the same type, and yields a <code>Future</code> of a sequence of values of that type. This future is complete when all of the underlying futures have completed or when any of them have failed. The returned sequence's order corresponds to the order of the passed-in sequence.
+<code>collect</code>获取相同类型的<code>Future</code>集合，返回一个包含那个类型的值的序列的一个<code>Future</code>。当所有的Future都完成或者当中任何一个失败，都会使这个Future完成。返回序列的顺序和传入序列的顺序对应。
+<pre>
+scala> val f2 = Future.value(2)
+f2: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@13ecdec0
+
+scala> val f3 = Future.value(3)
+f3: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@263bb672
+
+scala> val f23 = Future.collect(Seq(f2, f3))
+f23: com.twitter.util.Future[Seq[Int]] = Promise@635209178(...)
+
+scala> val f5 = f23 map (_.sum)
+f5: com.twitter.util.Future[Int] = Promise@1954478838(...)
+
+scala> f5.get()
+res9: Int = 5
+
+</pre>>
+
+<code>join</code> takes a sequence of <code>Future</code>s whose types may be mixed, yielding a <code>Future[Unit]</code> that is complete when all of the underlying futures are (or fails if any of them do). This is useful for indicating the completion of a set of heterogeneous operations. It might be a good solution for the content-and-ads example.<code>join</code>获取混合类型的<code>Future</code>序列，产生一个Future[Unit]的是完整的，当所有的相关Future完成时（无论他们是否失败）改Future完成。其作用是指示一组异构操作完成。这可能是一个很好的解决内容和广告例子的方案。
+
+<pre>
+scala> val ready = Future.join(Seq(f2, f3))
+ready: com.twitter.util.Future[Unit] = Promise@699347471(...)
+
+scala> ready.get() // doesn't ret value, but I know my futures are done
+
+scala>
+</pre>>
+
+<code>select</code> returns a <code>Future</code> that is complete when the first of the given <code>Future</code>s complete. It returns that <code>Future</code> together with a Seq containing the remaining uncompleted Futures. (It doesn't do anything to cancel the remaining Futures. If you want to wait for more responses, you can; if you want to ignore the remaining responses, you can.)
+<code>select</code>返回一个<code>Future</code>当给定的<code>Future</code>序列的第一个<code>Future</code>完成的时候。它会将那个完成的<code>Future</code>和其他未完成的Future一起放在Seq中返回。 （它不会做任何事情来取消剩余的Future。你可以等待更多的回应，或者忽略他们））
+<pre>
+scala> val pr7 = new Promise[Int] // unresolved future
+pr7: com.twitter.util.Promise[Int] = Promise@1608532943(...)
+
+scala> val sel = Future.select(Seq(f2, pr7)) // select from 2 futs, one resolved
+sel: com.twitter.util.Future[...] = Promise@1003382737(...)
+
+scala> val(complete, stragglers) = sel.get()
+complete: com.twitter.util.Try[Int] = Return(2)
+stragglers: Seq[...] = List(...)
+
+scala> complete.get()
+res110: Int = 2
+
+scala> stragglers(0).get() // our list of not-yet-finished futures has one item
+  ...get() hangs the REPL because this straggling future is not finished...
+Ctrl-C
+Execution interrupted by signal.
+
+scala> pr7.setValue(7)
+
+scala> stragglers(0).get()
+res113: Int = 7
+
+scala>
+</pre>
+
+<a name="combined_combinator_example_cache">&nbsp;</a>
+
+
+h3. Composition Example: Cached Rate Limit 组成例：缓存速率限
+
+TODO
+这些组合子表达了典型的网络服务业务。这段假设的代码对速率进行了限制（为了保持本地缓存速率限制）的同时，对代表用户的请求调度到后
+
+These combinators express operations typical of network services. This hypothetical code performs rate limiting (in order to maintain a local rate limit cache) concurrently with dispatching a request on behalf of the user to the backend:
+
+<pre>
+// Find out if user is rate-limited. This can be slow; we have to ask
+// the remote server that keeps track of who is rate-limited.
+def isRateLimited(u: User): Future[Boolean] = {
+  ...
+}
+
+// Notice how you can swap this implementation out now with something that might
+// implement a different, more restrictive policy.
+
+// Check the cache to find out if user is rate-limited. This cache
+// implementation is just a Map, and can return a value right way. But we
+// return a Future anyhow in case we need to use a slower implementation later.
+def isLimitedByCache(u: User): Future[Boolean] =  Future.value(limitCache(u))
+
+// Update the cache
+def setIsLimitedInCache(user: User, v: Boolean) { limitCache(user) = v }
+
+// Get a timeline of tweets... unless the user is rate-limited (then throw
+// an exception instead)
+def getTimeline(cred: Credentials): Future[Timeline] =
+  isLimitedByCache(cred.user) flatMap {
+    case true => Future.exception(new Exception("rate limited"))
+    case false =>
+
+      // First we get auth'd user then we get timeline.
+      // Sequential composition of asynchronous APIs: use flatMap
+      val timeline = auth(cred) flatMap(getTimeline)
+      val limited = isRateLimited(cred.user) onSuccess(
+                                       setIsLimitedInCache(cred.user, _))
+
+      // 'join' concurrently combines differently-typed futures
+      // 'flatMap' sequentially combines, specifies what to do next
+      timeline join limited flatMap {
+        case (_, true) => Future.exception(new Exception("rate limited"))
+        case (timeline, _) => Future.value(timeline)
+      }
+  }
+}
+</pre>
+
+This hypothetical example combines sequential and concurrent composition. Note that there is no explicit error handling other than converting a rate limiting reply to an exception. If any future fails here, it is automatically propagated to the returned <code>Future</code>.
+这个假设的例子结合了顺序和并发组合。请注意，除了给转化速率限制回应一个异常以外，没有明确的错误处理。如果任何Future在这里失败，它会自动传播到的的返回的<code>Future</code>中。
+
+<a name="combined_combinator_example_thumbnail">&nbsp;</a>
+
+h3. Composition Examples: Web Crawlers 组合例子：网络爬虫
+
+您已经看到了如何使用Future组合子，不过也许想要欣赏更多的例子。假设你有一个简单的互联网模式。它具有HTML网页和图片。页面可以链接到图像和其他网页。你可以获取一个页面或图像，但API是异步的。这个假的API调用这些“可获取”数据的资源：
+You've seen how to to use combinators with Futures, but might appreciate  more examples. Suppose you have a simple model of the internet. It has HTML pages and images. Pages can link to images and link to other pages. You can fetch a page or an image, but the API is asynchronous. This fake API calls these "fetchable" things Resources:
+
+<pre>
+import com.twitter.util.{Try,Future,Promise}
+
+// a fetchable thing
+trait Resource {
+  def imageLinks(): Seq[String]
+  def links(): Seq[String]
+}
+
+// HTML pages can link to Imgs and to other HTML pages.
+class HTMLPage(val i: Seq[String], val l: Seq[String]) extends Resource {
+  def imageLinks() = i
+  def links = l
+}
+
+// IMGs don't actually link to anything else
+class Img() extends Resource {
+  def imageLinks() = Seq()
+  def links() = Seq()
+}
+
+// profile.html links to gallery.html and has an image link to portrait.jpg
+val profile = new HTMLPage(Seq("portrait.jpg"), Seq("gallery.html"))
+val portrait = new Img
+
+// gallery.html links to profile.html and two images
+val gallery = new HTMLPage(Seq("kitten.jpg", "puppy.jpg"), Seq("profile.html"))
+val kitten = new Img
+val puppy = new Img
+
+val internet = Map(
+  "profile.html" -> profile,
+  "gallery.html" -> gallery,
+  "portrait.jpg" -> portrait,
+  "kitten.jpg" -> kitten,
+  "puppy.jpg" -> puppy
+)
+
+// fetch(url) attempts to fetch a resource from our fake internet.
+// Its returned Future might contain a Resource or an exception
+def fetch(url: String) = { new Promise(Try(internet(url))) }
+</pre>
+
+<strong>Sequential Composition</strong>
+
+Suppose you wish to fetch a page's first image, given that page's URL. Perhaps you're making a site where users can post links to interesting pages. To help other users decide whether a link is worth following, you want to display a thumbnail of the linked-to page's first image.
+假设对给定页面URL你想获取页面的第一个图。也许你正在做一个网站，用户可以发布有趣的网页链接。为了帮助其他用户决定某个链接是否值得追踪，你要显示那个链接中第一张图像的缩略图
+
+
+如果你不知道组合子，你仍然可以写一个缩略图获取的函数：
+If you didn't know about combinators, you could still write a thumbnail-getting function:
+
+<pre>
+def getThumbnail(url: String): Future[Resource]={
+  val returnVal = new Promise[Resource]
+
+  fetch(url) onSuccess { page => // callback for successful page fetch
+    fetch(page.imageLinks()(0)) onSuccess { p => // callback for successful img fetch
+      returnVal.setValue(p)
+    } onFailure { exc => // callback for failed img fetch
+      returnVal.setException(exc)
+    }
+  } onFailure { exc => // callback for failed page fetch
+    returnVal.setException(exc)
+  }
+  returnVal
+}
+</pre>
+
+This version of the function works OK. Most of it consists of unwrapping Futures and then putting their contents into another Future.
+这个版本的函数能共组。它的大部分内容用来Future，然后把他们的内容传给另一个Future。
+
+我们希望得到一个页面，然后从该页面获得一个图像。如果你想获得<var>A</var>，然后<var>B</var>的，这通常意味着顺序组合。由于我们的<var>B</var>的是异步的，我们希望使用flatMap：
+We want to get one page and then get one image from that page. If you want <var>A</var> and then <var>B</var>, that usually means sequential composition. Since our <var>B</var> is asynchronous, we want flatMap:
+
+<pre>
+def getThumbnail(url: String): Future[Resource] =
+  fetch(url) flatMap { page => fetch(page.imageLinks()(0)) }
+</pre>
+
+<strong>...with Concurrent Composition</strong>
+<strong>...通过并发组合</strong>
+
+Fetching a page's first image is nice, but maybe we should fetch all of them and let the user choose their favorite. We could write a <code>for</code> loop to fetch them one after the other, but that could take a long time. We'd like to fetch them in parallel. If you want things to happen "in parallel," that usually means concurrent composition. So we use Future.collect to fetch all of the images:
+抓取页面的第一个图片是好的，但也许我们应该获取所有图片，让用户选择自己喜欢的。我们可以使用<code>for</code>循环一个个地获取，但可能需要很长的时间。我们想并行获取它们。如果你想的事情“并行”发生，这通常意味着并发组合。所以我们使用Future.collect的提取所有的图像：
+
+<pre>
+def getThumbnails(url:String): Future[Seq[Resource]] =
+  fetch(url) flatMap { page =>
+    Future.collect(
+      page.imageLinks map { u => fetch(u) }
+    )
+  }
+</pre>
+
+If this makes sense to you, then great. You might worry about the line <code>page.imageLinks map { u => fetch(u) }</code>: it uses <code>map</code> and the thing after the <code>map</code> returns a Future. Aren't we supposed to use flatMap when the next thing returns a Future? But notice that the thing <em>before</em> the <code>map</code> isn't a Future; it's a collection. <var>collection</var> map <var>function</var> returns a collection; we use Future.collect to gather that collection of Futures into one Future.
+如果这对你有意义，那太好了。你可能会担心这行代码 <code>page.imageLinks map { u => fetch(u) }</code>：它使用<code>map</code>和<code>map</code>后的函数返回一个Future。当接下来的事情是返回一个Future时，我们是不是应该使用flatMap呢？但是请注意，在<code>map</code><em>前</em>的不是一个Future；它是一个集合。<var>collection</var> map <var>function</var>返回一个集合；我们使用Future.collect收集Future的集合到一个Future中。
+
+<strong>Concurrent + Recursion并发+递归</strong>
+
+Instead of fetching a page's images, we might fetch the other pages that it links to. If we then recurse on those, we have a simple web crawler.
+我们可能会想获取它链接的其他页面。通过递归我们可以构建一个简单的网络爬虫。
+
+<pre>
+// Return
+def crawl(url: String): Future[Seq[Resource]] =
+  fetch(url) flatMap { page =>
+    Future.collect(
+      page.links map { u => crawl(u) }
+    ) map { pps => pps.flatten }
+}
+
+crawl("profile.html")
+   ...hangs REPL, infinite loop...
+Ctrl-C
+Execution interrupted by signal.
+
+
+scala>
+// She's gone rogue, captain! Have to take her out!
+// Calling Thread.stop on runaway Thread[Thread-93,5,main] with offending code:
+// scala> crawl("profile.html")
+</pre>
+
+In practice, this web crawler is not so useful: we didn't tell it when to stop crawling; it merrily re-fetches resources that it just fetched a moment earlier.
+在实践中，这个爬虫不是很有用：我们没有告诉它何时停止爬行；对刚刚获取的资源，它仍然会欢快地重新来取。
+
+h2(#Service). Service 服务
+
+A Finagle <code>Service</code> represents a service that handles RPCs, taking requests and giving back replies. A Service is a function <code>Req => Future[Rep]</code> for some request and reply types.
+一个Finagle <code>服务</code>是处理RPC请求，并给予回复的。服务是一种对请求和回应的函数<code>Req => Future[Rep]</code>。
+
+<blockquote>
+<code>abstract class Service[-Req, +Rep] extends (Req => Future[Rep])</code>
+</blockquote>
+
+!>finagle_client_server.png(Client and Server)!
+
+We define both clients and servers in terms of Services.
+在服务方面，我们要同时定义客户端和服务器。
+
+一个Finagle客户端“引入”一个网络服务。从概念上讲，Finagle客户端有两部分：
+A Finagle client "imports" a Service from the network. Conceptually, a Finagle client has two parts:
+
+<ul>
+<li>一个<em>使用</em>服务的函数：分发一个 <code>Req</code>并处理 <code>Future[Rep]</code>
+<li>配置怎样分发这些请求； 例如，作为HTTP请求发送到<code>api.twitter.com</code>的80端口
+</ul>
+<ul>
+<li>A function to <em>use</em> the Service: dispatch a <code>Req</code> and handle a <code>Future[Rep]</code>
+<li>Configuration of how to dispatch requests; e.g., as HTTP requests to port 80 of <code>api.twitter.com</code>
+</ul>
+
+Similarly, a Finagle server "exports" a Service to the network. A server has two parts:
+同样，Finagle服务端“输出”网络服务。一个服务端有两个部分：
+<ul>
+<li>一个<em>实现</em>服务的函数：传入一个<code>Req</code> 并返回一个<code>Future[Rep]</code>
+<li>配置如何“监听”输入的 Reqs；例如，在端口80上的HTTP请求。
+</ul>
+<ul>
+<li>A function to <em>implement</em> the Service: take a <code>Req</code> and return a <code>Future[Rep]</code>
+<li>Configuration of how to "listen" for incoming Reqs; e.g., as HTTP requests on port 80.
+</ul>
+
+This separates the Service "logic" from the configuration of how data flows across the network.
+这种设计将服务“逻辑”和数据如何在网络中流动的逻辑进行了分离。
+
+!>finagle_filter.png(Filter and Server)!
+
+We also talk about Finagle "filters." A filter sits between services, modifying data that flows through it. Filters compose nicely with services. For example, if you have a rate-limiter filter and a tweet-serving service, you can put them together to make a rate-limited tweet-serving service.
+我们也谈论Finagle“过滤器”。过滤器在服务之间，修改流过它的数据。过滤器可以很好地和服务组合。例如，如果你有一个速率限制过滤器和tweet服务，你可以把它们组合在一起形成速率限制的tweet服务。
+
+h2(#client). Client 客户端
+
+A Finagle client "imports" a Service. It has some configuration about how to send data over the network. A simple HTTP client might look like:
+一个Finagle客户端“引入”一个网络服务。它有一些关于如何在网络上发送数据的配置。一个简单的HTTP客户端可能看起来像这样：
+
+<pre>
+import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpRequest, HttpResponse, HttpVersion, HttpMethod}
+import com.twitter.finagle.Service
+import com.twitter.finagle.builder.ClientBuilder
+import com.twitter.finagle.http.Http
+
+// Don't worry, we discuss this magic "ClientBuilder" later
+val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
+  .codec(Http())
+  .hosts("twitter.com:80") // If >1 host, client does simple load-balancing
+  .hostConnectionLimit(1)
+  .build()
+
+val req = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/")
+
+val f = client(req) // Client, send the request
+
+// Handle the response:
+f onSuccess { res =>
+  println("got response", res)
+} onFailure { exc =>
+  println("failed :-(", exc)
+}
+</pre>
+
+h2(#server). Server 服务端
+
+A server is defined in terms of a Service and some configuration about how to "listen" for requests coming in over the network. A simple HTTP server might look like:
+一个服务端按服务进行定义，并配置如何“监听”网络上的请求。一个简单的HTTP服务端可能看起来像这样
+
+<pre>
+import com.twitter.finagle.Service
+import com.twitter.finagle.http.Http
+import com.twitter.util.Future
+import org.jboss.netty.handler.codec.http.{DefaultHttpResponse, HttpVersion, HttpResponseStatus, HttpRequest, HttpResponse}
+import java.net.{SocketAddress, InetSocketAddress}
+import com.twitter.finagle.builder.{Server, ServerBuilder}
+import com.twitter.finagle.builder.ServerBuilder
+
+// Define our service: OK response for root, 404 for other paths
+val rootService = new Service[HttpRequest, HttpResponse] {
+  def apply(request: HttpRequest) = {
+    val r = request.getUri match {
+      case "/" => new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
+      case _ => new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND)
+    }
+    Future.value(r)
+  }
+}
+
+// Serve our service on a port
+val address: SocketAddress = new InetSocketAddress(10000)
+val server: Server = ServerBuilder()
+  .codec(Http())
+  .bindTo(address)
+  .name("HttpServer")
+  .build(rootService)
+</pre>
+
+Though we won't use it in these examples, the mandatory `name` is useful for profiling and debugging.
+虽然我们没有在例子中使用它，但是强加`name`对分析和调试是很有用的。
+
+h2(#Filter). Filters
+
+Filters transform services. They can provide <em>service generic</em> functionality. For example, you might have several services that should support rate limiting; you can write one rate-limiting filter and apply it to all your services. Filters are also good for decomposing a service into distinct phases.
+过滤器改造服务。他们可以提供<em>通用的服务</em>功能。例如，您可能有几个服务应该支持速率限制；你可以写一个限速过滤器，并将其应用于所有的服务。过滤器对将服务分解成不同的阶段也很有用。
+
+一个简单的代理可能看起来像这样：
+A simple proxy might look like this:
+
+<pre>
+class MyService(client: Service[..]) extends Service[HttpRequest, HttpResponse]
+{
+  def apply(request: HttpRequest) = {
+    client(rewriteReq(request)) map { res =>
+      rewriteRes(res)
+    }
+  }
+}
+</pre>
+
+where <code>rewriteReq</code> and <code>rewriteRes</code> can provide protocol translation, for example.
+其中<code>rewriteReq</code> 和 <code>rewriteRes</code>可以提供协议翻译，例如。
+
+<pre>
+abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
+  extends ((ReqIn, Service[ReqOut, RepIn]) => Future[RepOut])
+</pre>
+
+Its type is better viewed diagrammatically:
+
+<pre>
+    ((ReqIn, Service[ReqOut, RepIn])
+         => Future[RepOut])
+
+
+           (*   Service   *)
+[ReqIn -> (ReqOut -> RepIn) -> RepOut]
+</pre>
+
+Here's how you might write a filter that provides a service timeout mechanism.
+下面的例子展示了你如何写一个过滤器来提供服务超时机制。
+
+<pre>
+class TimeoutFilter[Req, Rep](
+  timeout: Duration,
+  exception: RequestTimeoutException,
+  timer: Timer)
+  extends Filter[Req, Rep, Req, Rep]
+{
+  def this(timeout: Duration, timer: Timer) =
+    this(timeout, new IndividualRequestTimeoutException(timeout), timer)
+
+  def apply(request: Req, service: Service[Req, Rep]): Future[Rep] = {
+    val res = service(request)
+
+    res.within(timer, timeout) rescue {
+      case _: java.util.concurrent.TimeoutException =>
+        res.cancel()
+        Trace.record(TimeoutFilter.TimeoutAnnotation)
+        Future.exception(exception)
+    }
+  }
+}
+</pre>
+
+This example shows how you might provide authentication (via an authentication service) in order to convert a <code>Service[AuthHttpReq, HttpRep]</code> into <code>Service[HttpReq, HttpRep]</code>.
+这个例子展示了，你怎样（通过身份验证服务）提供身份验证来将<code>Service[AuthHttpReq, HttpRep]</code> 转换为 <code>Service[HttpReq, HttpRep]</code>。
+
+<pre>
+class RequireAuthentication(authService: AuthService)
+  extends Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep] {
+  def apply(
+    req: HttpReq,
+    service: Service[AuthHttpReq, HttpRep]
+  ) = {
+    authService.auth(req) flatMap {
+      case AuthResult(AuthResultCode.OK, Some(passport), _) =>
+        service(AuthHttpReq(req, passport))
+      case ar: AuthResult =>
+        Future.exception(
+          new RequestUnauthenticated(ar.resultCode))
+    }
+  }
+}
+</pre>
+
+Using a filter this way yields some nice advantages. It helps you keep your "auth logic" in one place. Having a separate type for authorized requests makes it easier to reason about your program's security.
+这样使用过滤器会有一些很好的优点。它可以帮助你保持“身份验证逻辑”在同一个地方。拥有一个独立的类型授权的请求，使得它更容易追查程序安全性的原因。
+
+过滤器使用code>andThen</code>组合。传入一个<code>Service</code>参数给<code>andThen</code> 将创建一个（过滤）的<code>Service</code>（类型说明TODO）。
+Filters compose together with <code>andThen</code>. Providing a <code>Service</code> as an argument to <code>andThen</code> creates a (filtered) <code>Service</code> (types provided for illustration).
+
+<pre>
+val authFilter: Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep]
+val timeoutfilter[Req, Rep]: Filter[Req, Rep, Req, Rep]
+val serviceRequiringAuth: Service[AuthHttpReq, HttpRep]
+
+val authenticateAndTimedOut: Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep] =
+  authFilter andThen timeoutFilter
+
+val authenticatedTimedOutService: Service[HttpReq, HttpRep] =
+  authenticateAndTimedOut andThen serviceRequiringAuth
+</pre>
+
+h2(#Builder). Builders
+
+Builders put it all together. A <code>ClientBuilder</code> produces a <code>Service</code> instance given a set of parameters, and a <code>ServerBuilder</code> takes a <code>Service</code> instance and dispatches incoming requests on it. In order to determine the type of <code>Service</code>, we must provide a <code>Codec</code>. Codecs provide the underlying protocol implementation (eg. HTTP, thrift, memcached). Both builders have many parameters, and require a few.
+Builder把所有组合在一起。一个<code>ClientBuilder</code>对给定的一组参数产生一个<code>Service</code>，一个<code>ServerBuilder</code> 获取一个<code>Service</code> 的实例，并调度传入请求给它。为了确定的<code>Service</code>的类型，我们必须提供一个<code>Codec编解码器</code>。编解码器提供底层协议的实现（如HTTP，thrift，memcached）。两个Builder都有很多参数，其中很多是必填的。
+
+下面是一个调用<code>ClientBuilder</code>的例子（TODO类型作说明）
+Here's an example <code>ClientBuilder</code> invocation (types provided for illustration):
+
+<pre>
+val client: Service[HttpRequest, HttpResponse] = ClientBuilder()
+  .codec(Http)
+  .hosts("host1.twitter.com:10000,host2.twitter.com:10001,host3.twitter.com:10003")
+  .hostConnectionLimit(1)
+  .tcpConnectTimeout(1.second)
+  .retries(2)
+  .reportTo(new OstrichStatsReceiver)
+  .build()
+</pre>
+
+This builds a client that load balances over the three given hosts, establishing at most one connection per host, and giving up only after two failures. Stats are reported to "ostrich":https://github.com/twitter/ostrich. The following builder options are required (and their presence statically enforced): <code>hosts</code> or <code>cluster</code>, <code>codec</code> and <code>hostConnectionLimit</code>.
+这将构建一个客户端在三个主机上进行负载平衡，最多在每台主机建立一个连接，并在两次失败后放弃。统计数据会报给"ostrich":https://github.com/twitter/ostrich。以下Builder选项是必须的（而且他们也被静态强制填写了）：<code>hosts</code> 或 <code>cluster</code>, <code>codec</code> 和 <code>hostConnectionLimit</code>。
+
+同样的，你也可以使用一个<code>ServerBuilder</code>来创建“监听”传入的请求的服务：
+Similarly, you can use a <code>ServerBuilder</code> to make your service "listen" for incoming requests:
+
+<pre>
+val service = new MyService(...) // construct instance of your Finagle service
+var filter = new MyFilter(...) // and maybe some filters
+var filteredServce = filter andThen service
+val  server = ServerBuilder()
+  .bindTo(new InetSocketAddress(port))
+  .codec(ThriftServerFramedCodec())
+  .name("my filtered service")
+//  .hostConnectionMaxLifeTime(5.minutes)
+//  .readTimeout(2.minutes)
+  .build(filteredService)
+</pre>
+
+This will serve, on port <var>port</var>, a Thrift server which dispatches requests to <var>service</var>. If we un-comment the <code>hostConnectionMaxLifeTime</code> line, each connection would be allowed to stay alive for up to 5 minutes. If we un-comment the <code>readTimeout</code> line, then we require a request to be sent within 2 minutes. The required <code>ServerBuilder</code> options are: <code>name</code>, <code>bindTo</code> and <code>codec</code>.
+这个配置会有一个Thrift服务器将请求分发给<var>service</var>在端口<var>port</var>。如果我们去掉<code>hostConnectionMaxLifeTime</code>的注释，每个连接将被允许留存长达5分钟。如果我们取消<code>readTimeout</code>的注释，那么我们就需要请求在2分钟之内发送。<code>ServerBuilder</code>必须的选项有：<code>name</code>, <code>bindTo</code> 和 <code>codec</code>。
+
+h2(#DontBlock). Don't Block (unless you do it the right way) 不要阻塞（除非你用正确的方式）
+
+Finagle automatically juggles threads to keep your service running smoothly. However, if your service blocks, it can block all Finagle threads.
+Finagle 自动操作线程来保证服务顺利运行。但是，如果你的服务阻塞了，它会阻塞所有Finagle线程。
+
+* If your code calls a blocking operation (<code>apply</code> or <code>get</code>), use a <a href="https://github.com/twitter/finagle#Using%20Future%20Pools">Future Pool</a> to wrap the blocking code. This runs the blocking operation in its own thread pool, giving you a Future for the completion (or failure) of that operation which you can compose with other Futures.
+* If your code uses sequential composition of Futures, don't worry that it's "blocking" on those Futures.
+
+*如果您的代码调用了一个阻塞操作（<code>apply</code> 或 <code>get</code>），使用<a href="https://github.com/twitter/finagle#Using%20Future%20Pools">Future 池</a>来包装阻塞代码。阻塞操作将运行在自己的线程池，给你一个Future，您可以撰写与其他期货的完成（或失败）TODO。
+
+*如果您的代码中使用Future的顺序组合，不用担心它会“阻塞”那些Future。
+
+fn1的。小心，还有其他班列有“未来”的。不要混淆的<code> com.twitter.util.Future </代码>与<CODE> scala.actor.Future </代码>或<code> java.util.concurrent.Future </代码>
+
+
+fn1. Careful, there are other "Future" classes out there. Don't confuse <code>com.twitter.util.Future</code> with <code>scala.actor.Future</code> or <code>java.util.concurrent.Future</code>!
+fn1. 小心，还有其他“Future”类。不要把 <code>com.twitter.util.Future</code> 和 <code>scala.actor.Future</code> 或 <code>java.util.concurrent.Future</code>混在一起！
+
+fn2. If you study type systems and/or category theory, you'll be glad to learn that <code>flatMap</code> is equivalent to a monadic bind.
+fn2. 如果你学习类型系统和/或分类理论，你会高兴发现<code>flatMap</code>相当于一元绑定。
