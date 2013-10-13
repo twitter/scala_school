@@ -30,7 +30,7 @@ h3. 为什么选择 Scala?
 ** 闭包
 * 简洁
 ** 类型推断
-** 创造功能的文字语法
+** 函数创建的文法支持
 * Java互操作性
 ** 可重用Java库
 ** 可重用Java工具
@@ -39,13 +39,13 @@ h3. 为什么选择 Scala?
 h3. Scala 如何工作?
 
 * 编译成Java字节码
-* 可任何标准的JVM上运行
+* 可在任何标准JVM上运行
 ** 甚至是一些不规范的JVM上，如Dalvik
 ** Scala编译器是Java编译器的作者写的
 
 h3. 用 Scala 思考
 
-Scala不只是一个更好的Java。你应该用全新的头脑来学习它，你会从更多的课程中认识到的。
+Scala不仅仅是更好的Java。你应该用全新的头脑来学习它，你会从这些课程中认识到这一点的。
 
 h3. 启动解释器
 
@@ -73,11 +73,11 @@ res0: Int = 2
 
 res0是解释器自动创建的变量名称，用来指代表达式的计算结果。它是Int类型，值为2。
 
-在Scala中，（几乎）一切都是表达式。
+Scala中（几乎）一切都是表达式。
 
 h2(#val). 值 
 
-你可以给一个表达式的结果赋予不变量val。
+你可以给一个表达式的结果起个名字赋成一个不变量（val）。
 
 <pre>
 scala> val two = 1 + 1
@@ -88,7 +88,7 @@ two: Int = 2
 
 h3. 变量
 
-如果你需要修改这个结果的绑定，可以选择使用<code>var</code>。
+如果你需要修改这个名称和结果的绑定，可以选择使用<code>var</code>。
 
 <pre>
 scala> var name = "steve"
@@ -114,7 +114,7 @@ scala> val three = addOne(2)
 three: Int = 3
 </pre>
 
-如果函数不带参数，您可以不写括号。
+如果函数不带参数，你可以不写括号。
 
 <pre>
 scala> def three() = 1 + 2
@@ -172,11 +172,11 @@ scala> { i: Int =>
 res0: (Int) => Int = <function1>
 </pre>
 
-在将一个匿名函数作为参数传递时会经常使用到这个语法。
+在将一个匿名函数作为参数进行传递时，这个语法会经常被用到。
 
-h3. 偏函数应用（Partial application）
+h3. 部分应用（Partial application）
 
-你可以使用下划线“_”部分应用一个函数，结果将得到另一个函数。Scala使用下划线表示不同上下文中的不同事物，你通常可以把它看作是一个没有命名的神奇通配符。在<code>{ _ + 2 }</code>的上下文中，它代表一个匿名参数。您可以这样使用它：
+你可以使用下划线“_”部分应用一个函数，结果将得到另一个函数。Scala使用下划线表示不同上下文中的不同事物，你通常可以把它看作是一个没有命名的神奇通配符。在<code>{ _ + 2 }</code>的上下文中，它代表一个匿名参数。你可以这样使用它：
 
 <pre>
 scala> def adder(m: Int, n: Int) = m + n
@@ -195,7 +195,7 @@ res50: Int = 5
 
 h3. 柯里化函数
 
-有时会有需求允许别人一会在你的函数上应用这些参数，然后又换为其他参数。
+有时会有这样的需求：允许别人一会在你的函数上应用一些参数，然后又应用另外的一些参数。
 
 例如一个乘法函数，在一个场景需要选择乘数，而另一个场景需要选择被乘数。
 
@@ -230,7 +230,7 @@ res1: (Int) => (Int) => Int = <function1>
 
 h3. 可变长度参数
 
-有一个特殊的语法可以向方法传入任意个数的同类型的参数。例如要让String的<code>capitalize</code>函数用在多个字符串上可以这样写：
+这是一个特殊的语法，可以向方法传入任意多个同类型的参数。例如要在多个字符串上执行String的<code>capitalize</code>函数，可以这样写：
 
 <pre>
 def capitalizeAll(args: String*) = {
@@ -262,11 +262,11 @@ scala> calc.brand
 res2: String = "HP"
 </pre>
 
-上面的例子展示了如何在类中用def定义方法和用val定义字段值。类的方法就是可以访问类的状态的函数。
+上面的例子展示了如何在类中用def定义方法和用val定义字段值。方法就是可以访问类的状态的函数。
 
 h3. 构造函数
 
-构造函数不是特殊的方法，他们就是类的方法定义之外的代码。让我们扩展计算器实例构造函数的参数，并用它来初始化内部状态。
+构造函数不是特殊的方法，他们是除了类的方法定义之外的代码。让我们扩展计算器的例子，增加一个构造函数参数，并用它来初始化内部状态。
 
 <pre>
 class Calculator(brand: String) {
@@ -288,7 +288,7 @@ class Calculator(brand: String) {
 
 注意两种不同风格的评论。
 
-您可以使用构造函数来构造一个实例：
+你可以使用构造函数来构造一个实例：
 
 <pre>
 scala> val calc = new Calculator("HP")
@@ -300,7 +300,7 @@ res0: String = black
 
 h3. 表达式
 
-上文的Calculator就是说明Scala是如何面向表达式的一个例子。颜色的值就是绑定在一个if/else表达式上的。 Scala是高度面向表达式的：大多数东西都是表达式而非指令。
+上文的Calculator例子说明了Scala是如何面向表达式的。颜色的值就是绑定在一个if/else表达式上的。Scala是高度面向表达式的：大多数东西都是表达式而非指令。
 
 h3. 旁白: 函数 vs 方法
 
@@ -323,7 +323,7 @@ scala> c.finc // returns the function as a value:
 res2: () => Unit = <function0>
 </pre>
 
-当你可以调用一个不带括号的“函数”，但是对另一个却必须加上括号的时候，您可能会想<em>哎呀，我还以为自己知道Scala是怎么工作的呢。也许他们有时需要括号？</em>你可能以为自己用的是函数，但实际使用的是方法。
+当你可以调用一个不带括号的“函数”，但是对另一个却必须加上括号的时候，你可能会想<em>哎呀，我还以为自己知道Scala是怎么工作的呢。也许他们有时需要括号？</em>你可能以为自己用的是函数，但实际使用的是方法。
 
 在实践中，即使不理解方法和函数上的区别，你也可以用Scala做伟大的事情。如果你是Scala新手，而且在读<a href="https://www.google.com/search?q=difference+scala+function+method">两者的差异解释</a>，你可能会跟不上。不过这并不意味着你在使用Scala上有麻烦。它只是意味着函数和方法之间的差异是很微妙的，只有深入语言内部才能清楚理解它。
 
@@ -335,7 +335,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 }
 </pre>
 
-*附注* Effective Scala 指出如果子类与父类实际上没有区别，<a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">类型别名</a>是优于<code>继承</code>的。A Tour of Scala 详细介绍了<a href="http://www.scala-lang.org/node/125">子类化</a>。
+*参考* Effective Scala 指出如果子类与父类实际上没有区别，<a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">类型别名</a>是优于<code>继承</code>的。A Tour of Scala 详细介绍了<a href="http://www.scala-lang.org/node/125">子类化</a>。
 
 h3. 重载方法
 
@@ -347,7 +347,7 @@ class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(b
 
 h3. 抽象类
 
-您可以定义一个<em>抽象类</em>，它定义了一些方法，但没有实现它们。相反，是由扩展抽象类的子类定义这些方法。您不能创建一个抽象类的实例。
+你可以定义一个<em>抽象类</em>，它定义了一些方法但没有实现它们。取而代之是由扩展抽象类的子类定义这些方法。你不能创建抽象类的实例。
 
 <pre>
 scala> abstract class Shape {
@@ -371,7 +371,6 @@ c: Circle = Circle@65c0035b
 
 h2(#trait). 特质（Traits）
 
-<code>traits</code> are collections of fields and behaviors that you can extend or mixin to your classes.
 <code>特质</code>是一些字段和行为的集合，可以扩展或混入（mixin）你的类中。
 
 <pre>
@@ -399,20 +398,20 @@ class BMW extends Car with Shiny {
 }
 </pre>
 
-*附注* Effective Scala 对<a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">特质的观点</a>。
+*参考* Effective Scala 对<a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">特质的观点</a>。
 
-*什么时候应该使用特质而不是抽象类？*如果你想定义一个类似接口的类型，你可能会在特质和抽象类之间难以取舍。这两种形式都可以让你定义一个类型的一些行为，并要求继承者定义一些其他行为。一些经验法则：
+*什么时候应该使用特质而不是抽象类？* 如果你想定义一个类似接口的类型，你可能会在特质和抽象类之间难以取舍。这两种形式都可以让你定义一个类型的一些行为，并要求继承者定义一些其他行为。一些经验法则：
 
 <ul>
-<li>优先使用特质。一个类可以扩展多个特质是很方便的，而一个类只能扩展一个抽象类。
-<li>如果你需要一个构造函数的参数，使用抽象类。抽象类可以定义带参数的构造函数，而特质不行。例如，你不能说<code>trait t(i: Int) {}</code>，参数<code>i</code>是非法的。
+<li>优先使用特质。一个类扩展多个特质是很方便的，但却只能扩展一个抽象类。
+<li>如果你需要构造函数参数，使用抽象类。因为抽象类可以定义带参数的构造函数，而特质不行。例如，你不能说<code>trait t(i: Int) {}</code>，参数<code>i</code>是非法的。
 </ul>
 
-你不是问这个问题的第一人。可以查看更全面的答案："stackoverflow : Scala特质 vs 抽象类":http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes, "抽象类和特质的区别":http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait, and "Scala编程: 用特质，还是不用特质？":http://www.artima.com/pins1ed/traits.html#12.7
+你不是问这个问题的第一人。可以查看更全面的答案： "stackoverflow: Scala特质 vs 抽象类":http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes , "抽象类和特质的区别":http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait, and "Scala编程: 用特质，还是不用特质？":http://www.artima.com/pins1ed/traits.html#12.7
 
 h2(#types). 类型
 
-此前，我们定义了一个函数的参数为<code>Int</code>，表示输入是一个数字类型。其实函数也可以是泛型的，来适用于所有类型。当这种情况发生时，你会看到用方括号语法引入的类型参数。下面是使用泛型的键和值缓存的例子。
+此前，我们定义了一个函数的参数为<code>Int</code>，表示输入是一个数字类型。其实函数也可以是泛型的，来适用于所有类型。当这种情况发生时，你会看到用方括号语法引入的类型参数。下面的例子展示了一个使用泛型键和值的缓存。
 
 <pre>
 trait Cache[K, V] {
