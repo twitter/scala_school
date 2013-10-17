@@ -49,10 +49,10 @@ Scala is not just a nicer Java.  You should learn it with a fresh mind- you will
 
 h3. Start the Interpreter
 
-Start the included <code>sbt console</code>.
+Start the included <code>scala</code>.
 
 <pre>
-$ sbt console
+$ scala
 
 [...]
 
