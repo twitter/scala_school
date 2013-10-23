@@ -173,7 +173,7 @@ val result = res1 match {
 
 h1(#combinators). Functional Combinators
 
-<code>List(1, 2, 3) map squared</code> applies the function <code>squared</code> to the elements of the the list, returning a new list, perhaps <code>List(1, 4, 9)</code>. We call operations like <code>map</code> <em>combinators</em>. (If you'd like a better definition, you might like <a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">Explanation of combinators</a> on Stackoverflow.) Their most common use is on the standard data structures.
+<code>List(1, 2, 3) map squared</code> applies the function <code>squared</code> to the elements of the list, returning a new list, perhaps <code>List(1, 4, 9)</code>. We call operations like <code>map</code> <em>combinators</em>. (If you'd like a better definition, you might like <a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">Explanation of combinators</a> on Stackoverflow.) Their most common use is on the standard data structures.
 
 h2(#map). map
 
