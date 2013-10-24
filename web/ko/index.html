@@ -1,0 +1,51 @@
+---
+layout: default
+title: 스칼라 학교
+---
+
+      <div class="hero-unit">
+        <h1>스칼라 학교!</h1>
+        <p>&empty; 에서 분산 서비스까지</p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span8">
+          <p><b>다른 언어:</b> <a href="../index.html">English</a> <a href="../ru/index.html">Русский</a></p>
+
+          <h2>소개</h2>
+          <p>스칼라 학교는 트위터에서 기획된 강좌로, 경력이 많은 엔지니어들이 생산성 높은 <a href="http://www.scala-lang.org/">스칼라(Scala)</a> 프로그래머가 되도록 준비시키기 위한 것이었다. 스칼라는 비교적 새로운 언어이지만, 많은 기존 개념을 활용하고 있다. 따라서 이 강좌에서는 독자들이 개념에 대해서는 어느정도 잘 알고 있다고 가정하고 이를 스칼라에서 어떻게 사용하는지를 보여줄 것이다. 이런 방식을 택하면 엔지니어들이 더 효과적이고 빠르게 일정 수준에 도달할 수 있음을 알게 되었다. 이 글은 강좌에서 사용된 보조 교재이다. 하지만 그 자체로도 유용하다는 사실을 알게 되었다.
+          </p>
+
+          <h2>접근방식</h2>
+          <p>스칼라를 가르칠 때, 발전된 자바로 다루기 보다는 새로운 언어로 취급하는 편이 더 합리적이라 생각한다. 자바 경험이 필요하지는 않다. 인터프리터와 객체지향-함수형 언어 스타일, 그리고 여기(트위터)에서 프로그래밍하는 스타일에 더 촛점을 맞출 것이다. 유지보수성, 표현의 명확성, 그리고 타입 시스템의 기능을 최대한 활용하는 쪽에 강조점이 주어질 것이다.</p>
+          <p>대부분의 강좌에서는 스칼라 REPL만 있으면 충분하다. 강좌를 따라해 보고 더 많은 실험을 해보길 바란다. 각 강좌를 스칼라를 탐구하기 위한 출발점으로 삼아라.</p>
+
+          <h2>추가 정보</h2>
+          <p>다음 링크에서 더 많은 것을 배울 수 있다.
+          <ul>
+          <li><strong><a href="http://twitter.github.com/effectivescala/">효율적 스칼라(Effective Scala)</a></strong> 트위터의 스칼라 "성공 사례"이다. 트위터 코드에 사용된 여러 용례를 익히는 데 유용하다.</li>
+          <li><strong><a href="http://www.scala-lang.org/node/197">scala-lang.org 문서</a></strong>에는 자습서, 메뉴얼, API 참조문서, 여러 도서 등에 대한 정보가 포함되어 있다.</li>
+          <li><strong><a href="http://www.scala-lang.org/api/">Scala API 문서</a></strong></li>
+          </ul>
+
+          <h3>한글 번역: <a href="http://enshahar.com/">오현석(Hyunsok Oh)</a>
+
+        </div>
+        <div class="span6">
+          <h2>Lessons</h2>
+            <dl>
+              {% for lesson in site.lessons %}
+                <dt><a href="{{ lesson.url }}">{{ lesson.title_ko }}</a></dt>
+                <dd>{{ lesson.desc_ko }}</dd>
+              {% endfor %}
+            </dl>
+       </div>
+      </div>
+    </div> <!-- /container -->
+
+    <!-- banner -->
+    <a href="https://github.com/twitter/scala_school"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+  </body>
+</html>

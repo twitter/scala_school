@@ -1,0 +1,398 @@
+---
+prev: sbt.textile
+next: specs.textile
+title: 컬렉션(계속)
+layout: post
+---
+
+스칼라에는 멋진 컬렉션이 여럿 구현되어 있다. 이를 활용해 <code>Foo</code>를 모아둔 컬렉션이 <code>리스트(List)</code>, <code>집합(Set)</code>, 또는 다른 어떤 것이든 상관 없이 잘 동작하는 코드를 만들 수 있다.
+
+"이 페이지는":http://www.decodified.com/scala/collections-api.xml 스칼라가 제공하는 기본 구현의 구조를 잘 보여주며, 각 클래스의 스칼라 문서에 대한 링크도 제공한다.
+
+* "기초":#basics 항상 사용하게 될 컬렉션들
+* "계층 구조":#hierarchy 컬렉션 추상화 계층
+* "메소드":#methods
+* "변경불가능한 컬렉션":#mutable
+* "자바 컬렉션":#java 도 사용 가능함
+
+h2(#basics). 기초
+
+h3. 리스트
+
+표준적인 연결 리스트이다.
+
+<pre>
+scala> List(1, 2, 3)
+res0: List[Int] = List(1, 2, 3)
+</pre>
+
+다른 함수언어와 마찬가지로 cons(역주: LISP에서 내려온 전통적인 이름으로 두 셀을 하나로 묶어 구성(construction)해 주기 때문에 cons라 부른다. LISP에서는 cons를 사용해 리스트 뿐 아니라 트리 등 여러 데이터구조를 만들고 활용한다. Haskell등 더 정형화된 함수언어로 오면서 LISP의 cons cell이 가지는 일반성은 없어졌지만, :나 ::등의 연산자를 부르는 이름으로 여전히 사용되곤 한다)로 구성이 가능하다.
+
+<pre>
+scala> 1 :: 2 :: 3 :: Nil
+res1: List[Int] = List(1, 2, 3)
+</pre>
+
+*See also* "리스트 API":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
+
+h3. 집합
+
+중복을 허용하지 않는다.
+
+<pre>
+scala> Set(1, 1, 2)
+res2: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+
+*See also* "집합 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+
+h3. 순서열(Seq)
+
+순서열은 순서가 있다.
+
+<pre>
+scala> Seq(1, 1, 2)
+res3: Seq[Int] = List(1, 1, 2)
+</pre>
+
+(반환된 것이 리스트임에 유의하라. <code>Seq</code>는 트레잇이다. 리스트는 Seq를 잘 구현하고 있다. 여기서 볼 수 있듯 <code>Seq</code>라 불리는 팩토리 객체가 있어서 리스트를 만들어준다.)
+
+*See also* "순서열 API":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+
+h3. 맵(Map)
+
+맵은 키-값 쌍을 저장한다.
+
+<pre>
+scala> Map('a' -> 1, 'b' -> 2)
+res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
+</pre>
+
+*See also* "맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+
+h2(#hierarchy). 계층 구조
+
+다음은 모든 트레잇이다. mutable과 immutable 패키지에는 이 트레잇에 대한 각각의 구현이 들어있다.
+
+h3. 방문가능(Traversable)
+
+모든 컬렉션은 방문 가능해야 한다. 이 트레잇는 표준적인 함수 콤비네이터를 정의한다. 이런 콤비네이터는 @foreach@를 기초로 구현되어 있다. @foreach@는 모든 컬렉션이 구현해야만 하는 메소드이다.
+
+*See Also* "방문가능 API":#http://www.scala-lang.org/api/current/scala/collection/Traversable.html
+
+h3. 반복가능(Iterable)
+
+원소에 대해 루프를 돌 수 있는 반복자를 반환하는 @iterator()@ 메소드를 반환한다.
+
+*See Also* "반복가능 API":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
+
+h3. 순서열(Seq)
+
+순서가 있는 아이템 열이다.
+
+*See Also* "순서열 API":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+
+h3. 집합(Set)
+
+원소의 중복이 없는 컬렉션이다.
+
+*See Also* "집합 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+
+h3. 맵(Map)
+
+키-값 쌍을 보관하는 컬렉션이다.
+
+*See Also* "맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+
+h2(#methods). 메소드
+
+h3. 방문가능(Traversable)
+
+아래 메소드들은 모두 사용 가능하다. 하위 클래스에서 오버라이드가 가능하기 때문에, 인자와 반환 값의 타입이 아래 명시된 것과 동일하지 않을 수도 있다.
+
+<pre>
+def head : A
+def tail : Traversable[A]
+</pre>
+
+다음에 정의된 모든 함수 콤비네이터를 보인다.
+
+<code>
+def map [B] (f: (A) => B) : CC[B]
+</code>
+
+모든 원소가 @f@로 변환된 결과 컬렉션을 반환한다
+
+<code>
+def foreach[U](f: Elem => U): Unit
+</code>
+
+컬렉션의 모든 원소에 @f@를 적용해 컬렉션을 변환한다. (역주: 즉, f의 부작용-side effect-을 활용한다)
+
+<code>
+def find (p: (A) => Boolean) : Option[A]
+</code>
+
+술어 함수 p를 만족하는 가장 첫 원소를 반환한다.
+
+<code>
+def filter (p: (A) => Boolean) : Traversable[A]
+</code>
+
+술어함수를 만족하는 모든 원소로 이루어진 컬렉션을 반환한다.
+
+분할하기:
+
+<code>
+def partition (p: (A) ⇒ Boolean) : (Traversable[A], Traversable[A])
+</code>
+
+컬렉션을 술어함수에 따라 서로소인 두 컬렉션으로 나눈다.
+
+<code>
+def groupBy [K] (f: (A) => K) : Map[K, Traversable[A]]
+</code>
+
+f의 반환값에 따라 컬렉션을 분할해서 맵에 넣어준다.
+
+변환:
+
+재미있게도 한 컬렉션을 다른 컬렉션으로 상호 변환 가능하다.
+
+<pre>
+def toArray : Array[A]
+def toArray [B >: A] (implicit arg0: ClassManifest[B]) : Array[B]
+def toBuffer [B >: A] : Buffer[B]
+def toIndexedSeq [B >: A] : IndexedSeq[B]
+def toIterable : Iterable[A]
+def toIterator : Iterator[A]
+def toList : List[A]
+def toMap [T, U] (implicit ev: <:<[A, (T, U)]) : Map[T, U]
+def toSeq : Seq[A]
+def toSet [B >: A] : Set[B]
+def toStream : Stream[A]
+def toString () : String
+def toTraversable : Traversable[A]
+</pre>
+
+맵을 배열로 변환하면, 키-값 쌍(튜플)의 배열을 얻는다.
+
+<pre>
+scala> Map(1 -> 2).toArray
+res41: Array[(Int, Int)] = Array((1,2))
+</pre>
+
+h3. 반복가능(Iterable)
+
+반복자를 사용하도록 해준다.
+
+<pre>
+  def iterator: Iterator[A]
+</pre>
+
+반복자 Iterator가 제공하는 기능은?
+
+<pre>
+def hasNext(): Boolean
+def next(): A
+</pre>
+
+아주 자바스럽다. 스칼라에서 반복자를 사용할 일은 많지 않다. 함수 콤비네이터나 for-컴프리핸션(for-comprehension)을 더 많이 쓰게 될 것이다.
+
+h3. 집합
+
+<pre>
+  def contains(key: A): Boolean
+  def +(elem: A): Set[A]
+  def -(elem: A): Set[A]
+</pre>
+
+h3. 맵
+
+키-값의 열로, 키를 가지고 검색이 가능하다.
+
+아래와 같이 튜플의 리스트를 apply()에 넘기거나,
+
+<pre>
+scala> Map("a" -> 1, "b" -> 2)
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2))
+</pre>
+
+아래와 같이 넘기면 맵이 생성된다.
+
+<pre>
+scala> Map(("a", 2), ("b", 2))
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,2), (b,2))
+</pre>
+
+h6. 곁가지
+
+<code>-></code>는 무엇일까? 이는 특별한 문법이 아니다. 단지 튜플을 반환하는 메소드일 뿐이다.
+
+<pre>
+scala> "a" -> 2
+
+res0: (java.lang.String, Int) = (a,2)
+</pre>
+
+기억할지 모르겠지만, 이는 단지 아래 식을 쓰기 편하게 한 것일 뿐이다.
+
+<pre>
+scala> "a".->(2)
+
+res1: (java.lang.String, Int) = (a,2)
+</pre>
+
+또한 <code>++</code>를 사용해 맵을 구축할 수도 있다.
+
+<pre>
+scala> Map.empty ++ List(("a", 1), ("b", 2), ("c", 3))
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (c,3))
+</pre>
+
+h3. 자주 사용하게 될 하위 클래스들
+
+*해시집합(HashSet)과 해시맵(HashMap)* 빠른 검색이 가능하며, 컬렉션 중 가장 자주 사용하게될 것이다. 
+"해시집합 API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "해시맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
+
+*트리맵(TreeMap)* 정렬된 맵(SortedMap)의 하위클래스로, 맵이면서 순서를 보존해준다. "트리맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
+
+*벡터(Vector)* 빠른 임의 위치 읽기와 변경을 보장해준다. "벡터 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html
+
+<pre>
+scala> IndexedSeq(1, 2, 3)
+res0: IndexedSeq[Int] = Vector(1, 2, 3)
+</pre>
+
+*범위(Range)* 1 간격으로 된 정수 열이다. 자바에서 숫자를 세는 for 루프를 사용했던 경우 많이 쓰게될 것이다. "범위 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
+
+<pre>
+scala> for (i <- 1 to 3) { println(i) }
+1
+2
+3
+</pre>
+
+범위는 자체만의 표준 함수 콤비네이터를 제공한다.
+
+<pre>
+scala> (1 to 3).map { i => i }
+res0: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3)
+</pre>
+
+h3. 기본 구현
+
+각 트레잇의 apply 메소드를 호출하면 기본 구현의 인스턴스를 만들 수 있다. 예를 들어 Iterable(1, 2)를 호출하면 Iterable의 기본 구현인 리스트가 반환된다.
+
+<pre>
+scala> Iterable(1, 2)
+
+res0: Iterable[Int] = List(1, 2)
+</pre>
+
+앞에서 설명했지만 Seq도 마찬가지이다.
+
+<pre>
+scala> Seq(1, 2)
+res3: Seq[Int] = List(1, 2)
+
+scala> Iterable(1, 2)
+res1: Iterable[Int] = List(1, 2)
+
+scala> Sequence(1, 2)
+warning: there were deprecation warnings; re-run with -deprecation for details
+res2: Seq[Int] = List(1, 2)
+</pre>
+
+집합은 다음과 같다.
+
+<pre>
+scala> Set(1, 2)
+res31: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+
+h3. 다른 (이름이 특징을 설명해 주는) 트레잇들
+
+*색인열(IndexedSeq)* 원소의 빠른 임의 억세스가 가능하고, 길이를 빠르게 계산한다. "색인열 API":http://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html
+
+*선형열(LinearSeq)* head를 사용해 빠르게 첫 원소를 억세스할 수 있고, tail 연산도 빨리 할 수 있다. "선형열 API":http://www.scala-lang.org/api/current/scala/collection/LinearSeq.html
+
+h4. 변경가능한지 아닌지 여부에 따른 구분
+
+불면성(immutable)
+
+장점
+* 다중 쓰레드의 경우에도 다른 클래스로 바꿀 필요가 없다.
+
+단점
+* 변경이 불가능하다.
+
+스칼라는 실용적인 접근을 허용한다. 불변성을 장려하기는 하지만, 변경을 사용한다고 해서 문제가 될것은 없다. 이는 var와 val과도 유사하다. 보통 val로 프로그램을 짜기 시작 하지만, 필요한 경우 var를 활용해도 된다.
+
+불변성 컬렉션으로 시작해서 성능 향상이 필요한 경우 변경 가능한쪽으로 바꿀 수 있다. 불변성 컬렉션을 사용하면 다중 쓰레드에서 실수로 이를 변경하는 경우를 막을 수 있다.
+
+h2(#mutable). 변경가능(Mutable)
+
+지금까지 다룬 모든 클래스는 불변성이었다. 이제 자주 사용되는 변경 가능한 컬렉션을 살펴보자.
+
+*해시맵(HashMap)*은 @getOrElseUpdate@, @+=@ 등을 제공한다 "해시맵 API":http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html
+
+<pre>
+scala> val numbers = collection.mutable.Map(1 -> 2)
+numbers: scala.collection.mutable.Map[Int,Int] = Map((1,2))
+
+scala> numbers.get(1)
+res0: Option[Int] = Some(2)
+
+scala> numbers.getOrElseUpdate(2, 3)
+res54: Int = 3
+
+scala> numbers
+res55: scala.collection.mutable.Map[Int,Int] = Map((2,3), (1,2))
+
+scala> numbers += (4 -> 1)
+res56: numbers.type = Map((2,3), (4,1), (1,2))
+</pre>
+
+*리스트버퍼(ListBuffer)와 배열버퍼(ArrayBuffer)* @+=@를 제공함 "리스트버퍼 API":http://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "배열버퍼 API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
+
+*연결리스트(LinkedList)와 이중연결리스트(DoubleLinkedList)* "연결리스트 API":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "이중연결리스트 API":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
+
+*우선순위 큐(PriorityQueue)* "우선순위 큐 API":http://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
+
+*스택(Stack)과 배열스택(ArrayStack)* "스택 API":http://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "배열스택 API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
+
+*스트링빌더(StringBuilder)* 재미있는 것은 스트링빌더가 컬렉션이란 점이다. "스트링빌더 API":http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html
+
+h2(#java). 자바와 공존하기
+
+자바와 스칼라 컬렉션을 쉽게 오갈 수 있다. 변환은 <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters 패키지에</a> 정의되어 있다. 이를 통해 자주 사용하는 자바 컬렉션에는 <code>asScala</code> 메소드가, 스칼라 컬렉션에는 <code>asJava</code> 메소드가 추가된다.
+
+<pre>
+   import scala.collection.JavaConverters._
+   val sl = new scala.collection.mutable.ListBuffer[Int]
+   val jl : java.util.List[Int] = sl.asJava
+   val sl2 : scala.collection.mutable.Buffer[Int] = jl.asScala
+   assert(sl eq sl2)
+</pre>
+
+상호 변환이 되는 것은 다음과 같다.
+
+<pre>
+scala.collection.Iterable <=> java.lang.Iterable
+scala.collection.Iterable <=> java.util.Collection
+scala.collection.Iterator <=> java.util.{ Iterator, Enumeration }
+scala.collection.mutable.Buffer <=> java.util.List
+scala.collection.mutable.Set <=> java.util.Set
+scala.collection.mutable.Map <=> java.util.{ Map, Dictionary }
+scala.collection.mutable.ConcurrentMap <=> java.util.concurrent.ConcurrentMap
+</pre>
+
+추가로 다음은 한쪽으로만 변환이 가능하다.
+
+<pre>
+scala.collection.Seq => java.util.List
+scala.collection.mutable.Seq => java.util.List
+scala.collection.Set => java.util.Set
+scala.collection.Map => java.util.Map
+</pre>

@@ -3,77 +3,103 @@ lessons:
   - 
     title: Basics
     title_ru: Основы
+    title_ko: 기초
     url: basics.html
     desc: Values, functions, classes, methods, inheritance, try-catch-finally. Expression-oriented programming
     desc_ru: Переменные, функции, классы, методы, наследование, try-catch-finally. Программирование ориентированное на выражения
+    desc_ko: 값, 함수, 클래스, 메소드, 상속, try-catch-finally. 식 중심의 프로그래밍
   -
     title: Basics continued
     title_ru: Основы языка. Продолжение
+    title_ko: 기초(계속)
     url: basics2.html
     desc: Case classes, objects, packages, apply, update, Functions are Objects (uniform access principle), pattern matching.
     desc_ru: Case классы, объекты, пакеты, apply, update, Функции как Объекты (единый принцип доступа), сопоставление с образцом.
+    desc_ko: 케이스 클래스, 객체, 패키지, apply, update, 함수는 객체이다(동일한 억세스 원칙), 패턴 매치
   -
     title: Collections
     title_ru: Коллекции
+    title_ko: 컬렉션
     url: collections.html
     desc: Lists, Maps, functional combinators (map, foreach, filter, zip, folds)
     desc_ru: Списки, Карты, функциональные комбинаторы (map, foreach, filter, zip, folds)
+    desc_ko: 리스트, 맵, 함수 콤비네이터(map, foreach, filter, zip, fold들)
   -
     title: Pattern matching & functional composition
     title_ru: Сопоставление с образцом и функкциональная композиция
+    title_ko: 패턴 매치와 함수 합성
     url: pattern-matching-and-functional-composition.html
     desc: More functions! PartialFunctions, more Pattern Matching
     desc_ru: Еще больше функций! Частичные функции, еще больше сопоставления с образцом
+    desc_ko: 함수에 대한 추가 설명, 부분함수, 패턴 매치에 대한 설명
   -
     title: Type & polymorphism basics
     title_ru: Основы типов и полиморфизма
+    title_ko: 타입과 다형성의 기초
     url: type-basics.html
     desc: Basic Types and type polymorphism, type inference, variance, bounds, quantification
     desc_ru: Основные типы и полиморфизм типов, вывод типов, изменчивость, пределы, квантификация
+    desc_ko: 기본 타입, 타입 다형성, 타입 추론, 공변성, 바운드, 한정하기
   -
     title: Advanced types
     title_ru: Дополнительные типы
+    title_ko: 타입(고급 주제)
     url: advanced-types.html
     desc: Advanced Types, view bounds, higher-kinded types, recursive types, structural types
     desc_ru: Дополнительные типы, видимое ограничение, типы высшего порядка, рекурсивные типы, структурные типы
+    desc_ko: 타입에 대한 추가 설명, 뷰 바운드, 상류 타입, 재귀적 타입, 구조적 타입    
   -
     title: Simple Build Tool
     title_ru: Simple Build Tool
+    title_ko: SBT
     url: sbt.html
     desc: All about SBT, the standard Scala build tool
     desc_ru: Все о SBT, Стандартное средство сборки приложений для Scala
+    desc_ko: 표준 스칼라 빌드 도구인 SBT에 대한 설명
   -
     title: More collections
     title_ru: Подробнее о коллекциях
+    title_ko: 컬렉션(계속)
     url: coll2.html
     desc: Tour of the Scala Collections library
     desc_ru: Рассказ о библиотеке коллекций Scala
+    desc_ko: 스칼라 컬렉션 라이브러리 소개
   -
     title: Testing with specs
     title_ru: Тестирование с помощью specs
+    title_ko: specs로 테스트하기
     url: specs.html
     desc_ru: Написание тестов с помощью Specs, Scala BDD фреймфорк для тестирования
+    desc_ko: Scala 테스트 프레임워크 Specs로 테스트하기
   -
     title: Concurrency in Scala
     title_ru: Параллельность в Scala
+    title_ko: 스칼라의 동시성
     url: concurrency.html
     desc: Runnable, Callable, threads, Futures
     desc_ru: Runnable, Callable, потоки, Futures
+    desc_ko: Runnable, Callable, 쓰레드, Future
   -
     title: Java + Scala
     title_ru: Java + Scala
+    title_ko: Java + Scala
     url: java.html
     desc: 'Java interop: Using Scala from Java'
     desc_ru:  'Java совместимость: Использование Scala из Java'
+    desc_ko: '자바에서 스칼라 사용하기'
   -
     title: An introduction to Finagle
     title_ru: Введение в Finagle
+    title_ko: 피네이글(Finagle) 소개
     url: finagle.html
     desc: 'Finagle primitives: Future, Service, Filter, Builder'
     desc_ru: 'Finagle примитивы: Future, Service, Filter, Builder'
+    desc_ko: '피네이글 기본 요소: Future, Servie, Filter, Builder'
   -
     title: Searchbird
     title_ru: Searchbird
+    title_ko: 검색조(Searchbird)
     url: searchbird.html
     desc: Building a distributed search engine using Finagle
     desc_ru: Создание распределенного поискового движка, используя Finagle
+    desc_ko: 피네이글로 분산 검색 엔진 만들기
