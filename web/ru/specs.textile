@@ -281,7 +281,7 @@ spiedList.size returns 100
 spiedList.add("one")
 spiedList.add("two")
 
-// и проверка может происходить с помощ��ю шпиона
+// и проверка может происходить с помощью шпиона
 there was one(spiedList).add("one")
 </pre>
 
