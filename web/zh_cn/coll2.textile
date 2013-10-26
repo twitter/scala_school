@@ -5,44 +5,38 @@ title: More collections
 layout: post
 ---
 
-Scala provides a nice set of collection implementations. It also provides some abstractions for collection types. This allows you to write code that can work with a collection of <code>Foo</code>s without worrying whether that collection is a <code>List</code>, <code>Set</code>, or what-have-you.
-Scala提供了一套很好的集合实现。它也提供集合类型的一些抽象。这让你的代码可以与<code>Foo</code>的集合交互，而无需担心该集合是否是一个<code>List</code>，<code>Set</code>，或任何你有的。
+Scala提供了一套很好的集合实现，提供了一些集合类型的抽象。这让你的代码可以与<code>Foo</code>的集合交互，而无需担心该集合是是一个<code>List</code>，还是<code>Set</code>，或是任何你有的类型。
 
-“此页”：http://www.decodified.com/scala/collections-api.xml 提供了一个跟踪默认实现和链接到所有scaladoc的强大方式。
-"This page":http://www.decodified.com/scala/collections-api.xml offers a great way to follow the default implementations and links to all the scaladoc.
+"这里":http://www.decodified.com/scala/collections-api.xml 提供了一个很好的页面来查看各种集合的默认实现，并链接到他们的scala在线文档。
 
-* "Basics基础知识":#basics Collection types you'll use all the time 你会随时用到的基本集合类型
-* "Hierarchy层次":#hierarchy Collection abstractions 集合抽象层次
-* "Methods方法":#methods 方法
-* "Mutable可变":#mutable 可变
-* "Java collections Java集合":#java just work java的也可以工作
+* "基础知识":#basics 你会随时用到的基本集合类型
+* "层次结构":#hierarchy 集合抽象层次
+* "方法":#methods 方法
+* "可变集合":#mutable 可变
+* "Java集合":#java 与java集合交互
 
-h2(#basics). The basics
+h2(#basics). 基础知识
 
-h3. List 表
+h3. 表 List
 
-标准链表。
-The standard linked list.
+标准的链表。
 
 <pre>
 scala> List(1, 2, 3)
 res0: List[Int] = List(1, 2, 3)
 </pre>
 
-You can cons them up as you would expect in a functional language.
-TODO？你可以将它们的利弊，你会期望在函数式语言。
+你可以用函数式语言的方式连接它们。
 
 <pre>
 scala> 1 :: 2 :: 3 :: Nil
 res1: List[Int] = List(1, 2, 3)
 </pre>
 
-*See also* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
-*另见*“API文档”：http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
+*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
 
-h3. Set
+h3. 集 Set
 
-Sets have no duplicates
 集没有重复
 
 <pre>
@@ -50,137 +44,118 @@ scala> Set(1, 1, 2)
 res2: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 
-*See also* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
-h3. Seq 序列
+h3. 序列 Seq
 
-序列有一个定义的顺序。
-Sequences have a defined order.
+序列有一个给定的顺序。
 
 <pre>
 scala> Seq(1, 1, 2)
 res3: Seq[Int] = List(1, 1, 2)
 </pre>
 
-(Notice that returned a List. <code>Seq</code> is a trait; List is a lovely implementation of Seq. There's a factory object <code>Seq</code> which, as you see here, creates Lists.)
-（请注意返回了一个列表。<code>Seq</code>是一个特质；列表是序列的一个可爱实现。<code>Seq</code>是一个工厂单例对象，如你所见，创建列表。）
+（请注意返回的是一个列表。因为<code>Seq</code>是一个特质；而列表是序列的很好实现。如你所见，<code>Seq</code>也是一个工厂单例对象，可以用来创建列表。）
 
-*See also* "API doc":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/Seq.html
 
-h3. Map
+h3. 映射 Map
 
 映射是键值容器。
-Maps are key value containers.
 
 <pre>
 scala> Map('a' -> 1, 'b' -> 2)
 res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 </pre>
 
-*See also* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
-h2(#hierarchy). The Hierarchy 层次结构
+h2(#hierarchy). 层次结构
 
-所有这些都是特质，在可变的mutable和不可变的immutable包都有这些特质的特定实现。
-These are all traits, both the mutable and immutable packages have implementations of these as well as specialized implementations.
+下面介绍的都是特质，它们在可变的（mutable）和不可变的（immutable）的包中都有特定实现。
 
 h3. Traversable
 
-所有集合都可以被遍历。这个特质定义了标准函数组合子。 这些组合子根据@foreach@来写，所有集合必须实现。
-All collections can be traversed.  This trait defines standard function combinators. These combinators are written in terms of @foreach@, which collections must implement.
+所有集合都可以被遍历。这个特质定义了标准函数组合子。 这些组合子根据 @foreach@ 来写，所有集合必须实现。
 
-TODO
-*See Also* "API doc":#http://www.scala-lang.org/api/current/scala/collection/Traversable.html
+*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/Traversable.html
 
 h3. Iterable
 
-@iterator()@方法给你一个Iterator来迭代元素。
-Has an @iterator()@ method to give you an Iterator over the elements.
+@iterator()@方法返回一个Iterator来迭代元素。
 
-*See Also* "API doc":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
+*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
 
 h3. Seq 序列
 
-有顺序的项目序列。
-Sequence of items with ordering.
+有顺序的对象序列。
 
-*See Also* "API doc":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/Seq.html
 
 h3. Set 集
 
-没有重复的项目集合。
-A collection of items with no duplicates.
+没有重复的对象集合。
 
-*See Also* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
 h3. Map
 
-Key Value Pairs.键值对。
+键值对。
 
-*See Also* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
-h2(#methods). The methods
+h2(#methods). 方法
 
 h3. Traversable
 
-All of these methods below are available all the way down.  The argument and return types types won't always look the same as subclasses are free to override them.
-TODO下面所有这些方法都可以一路下跌。参数和返回值的类型看起来可能不同因为子类可以覆盖它们。
+下面所有方法在子类中都是可用的。参数和返回值的类型可能会因为子类的覆盖而看起来不同。
 
 <pre>
 def head : A
 def tail : Traversable[A]
 </pre>
 
-Here are where the Functional Combinators are defined.
-这里式函数组合子的定义。
+这里是函数组合子定义的地方。
 
 <code>
 def map [B] (f: (A) => B) : CC[B]
 </code>
 
-returns a collection with every element transformed by @f@
 返回每个元素都被 @f@ 转化的集合
 
 <code>
 def foreach[U](f: Elem => U): Unit
 </code>
 
-executes @f@ over each element in a collection.
-在集合中的每个元素上执行 @f@。
+在集合中的每个元素上执行 @f@ 。
 
 <code>
 def find (p: (A) => Boolean) : Option[A]
 </code>
 
-returns the first element that matches the predicate function
 返回匹配谓词函数的第一个元素
 
 <code>
 def filter (p: (A) => Boolean) : Traversable[A]
 </code>
 
-returns a collection with all elements matching the predicate function
 返回所有匹配谓词函数的元素集合
 
-分区：
-Partitioning:
+划分：
 
 <code>
 def partition (p: (A) ⇒ Boolean) : (Traversable[A], Traversable[A])
 </code>
 
-Splits a collection into two halves based on a predicate function
 按照谓词函数把一个集合分割成两部分
 
 <code>
 def groupBy [K] (f: (A) => K) : Map[K, Traversable[A]]
 </code>
 
-Conversion:
 转换：
 
 有趣的是，你可以转换集合类型。
-Interestingly, you can convert one collection type to another.
 
 <pre>
 def toArray : Array[A]
@@ -198,7 +173,6 @@ def toString () : String
 def toTraversable : Traversable[A]
 </pre>
 
-Let's convert a Map to an Array. You get an Array of the Key Value pairs.
 把映射转换为一个数组，您会得到一个键值对的数组。
 
 <pre>
@@ -208,14 +182,12 @@ res41: Array[(Int, Int)] = Array((1,2))
 
 h3. Iterable
 
-Adds access to an iterator.
 添加一个迭代器的访问。
 
 <pre>
   def iterator: Iterator[A]
 </pre>
 
-What does an Iterator give you?
 一个迭代器能给你提供什么？
 
 <pre>
@@ -223,8 +195,7 @@ def hasNext(): Boolean
 def next(): A
 </pre>
 
-This is very Java-esque.  You often won't see iterators used in Scala, you are much more likely to see the functional combinators or a for-comprehension used.
-这是非常Java式的。你通常不会看到在Scala中使用迭代器，你更容易看到的是函数组合器或forTODO？使用的理解。
+这是非常Java式的。你通常不会看到在Scala中使用迭代器，通常更容易出现的是函数组合器或for循环的使用。
 
 h3. Set
 
@@ -236,18 +207,15 @@ h3. Set
 
 h3. Map
 
-Sequence of key and value pairs with lookup by key.
 通过键查找的键值对的序列。
 
-可以像这样将一个键值对序列传入apply()
-Pass a List of Pairs into apply() like so
+可以像这样将一个键值对列表传入apply()
 
 <pre>
 scala> Map("a" -> 1, "b" -> 2)
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2))
 </pre>
 
-Or also like:
 或者像这样：
 
 <pre>
@@ -255,9 +223,8 @@ scala> Map(("a", 2), ("b", 2))
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,2), (b,2))
 </pre>
 
-h6. Digression 题外话
+h6. 题外话
 
-What is <code>-></code>? That isn't special syntax, it's a method that returns a Tuple.
 什么是<code>-></code>？这不是特殊的语法，这是一个返回元组的方法。
 
 <pre>
@@ -266,7 +233,6 @@ scala> "a" -> 2
 res0: (java.lang.String, Int) = (a,2)
 </pre>
 
-Remember, that is just sugar for
 请记住，这仅仅是下面代码的语法糖
 
 <pre>
@@ -275,32 +241,27 @@ scala> "a".->(2)
 res1: (java.lang.String, Int) = (a,2)
 </pre>
 
-You can also build one up via <code>++</code>
-您也可以类似建立一个<code>++</code>操作符
+您也可以使用<code>++</code>操作符构建
 
 <pre>
 scala> Map.empty ++ List(("a", 1), ("b", 2), ("c", 3))
 res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (c,3))
 </pre>
 
-h3. Commonly-used subclasses 常用的子类 
+h3. 常用的子类 
 
-*HashSet and HashMap* Quick lookup, the most commonly used forms of these collections. "HashSet API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "HashMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
 *HashSet和HashMap* 的快速查找，这些集合的最常用的形式。 "HashSet API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "HashMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
 
-*TreeMap* A subclass of SortedMap, it gives you ordered access. "TreeMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
-*TreeMap* SortedMap的一个子类，它可以让你有序访问。 “TreeMap的API”：http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html 
+*TreeMap* 是SortedMap的一个子类，它可以让你进行有序访问。 "TreeMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html 
 
-*向量* 快速随机选择和快速更新。 “向量API”：http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html 
-*Vector* Fast random selection and fast updates. "Vector API":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html
+*Vector* 快速随机选择和快速更新。 "Vector API":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html 
 
 <pre>
 scala> IndexedSeq(1, 2, 3)
 res0: IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 
-*Range* Ordered sequence of Ints that are spaced apart.  You will often see this used where a counting for-loop was used before. "Range API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
-*范围* 等间隔的Int有序序列。你经常会在for循环看到。 “范围API”：http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html 
+*Range* 等间隔的Int有序序列。你经常会在for循环看到。 "Range API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
 
 <pre>
 scala> for (i <- 1 to 3) { println(i) }
@@ -309,18 +270,16 @@ scala> for (i <- 1 to 3) { println(i) }
 3
 </pre>
 
-Ranges have the standard functional combinators available to them.
-Ranges提供标准的函数组合子。 
+Ranges支持标准的函数组合子。 
 
 <pre>
 scala> (1 to 3).map { i => i }
 res0: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 
-h3. Defaults 默认 
+h3. 默认实现
 
 使用特质的apply方法会给你默认实现的实例，例如，Iterable(1, 2)会返回一个列表作为其默认实现。 
-Using apply methods on the traits will give you an instance of the default implementation, For instance, Iterable(1, 2) returns a List as its default implementation.
 
 <pre>
 scala> Iterable(1, 2)
@@ -328,8 +287,8 @@ scala> Iterable(1, 2)
 res0: Iterable[Int] = List(1, 2)
 </pre>
 
-Same with Seq, as we saw earlier
-同序列Seq，正如我们前面所看到的 
+序列Seq也是一样的，正如我们前面所看到的
+ 
 <pre>
 scala> Seq(1, 2)
 res3: Seq[Int] = List(1, 2)
@@ -349,42 +308,31 @@ scala> Set(1, 2)
 res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 
-h3. Some descriptive traits 一些描述性的特质 
+h3. 一些描述性的特质 
 
-*IndexedSeq* fast random-access of elements and a fast length operation. "API doc":http://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html
-*IndexedSeq* 快速随机访问元素和一个快速的长度操作。 “API文档”：http://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html 
+*IndexedSeq* 快速随机访问元素和一个快速的长度操作。"API 文档":http://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html 
 
-*LinearSeq* fast access only to the first element via head, but also has a fast tail operation. "API 
-doc":http://www.scala-lang.org/api/current/scala/collection/LinearSeq.html
-*LinearSeq* 通过head快速访问第一个元素，也有一个快速的tail操作。 “API文档”：http://www.scala-lang.org/api/current/scala/collection/LinearSeq.html 
-h4. Mutable vs. Immutable 可变与不变 
+*LinearSeq* 通过head快速访问第一个元素，也有一个快速的tail操作。 "API文档":http://www.scala-lang.org/api/current/scala/collection/LinearSeq.html 
 
-immutable
+h4. 可变 vs 不可变 
 
-Pros
-* Can't change in multiple threads
+不可变
+
 优点 
-* 在多线程不会改变
+* 在多线程中不会改变
 
 缺点 
-* 不能改变 
-Con
-* Can't change at all
+* 一点也不能改变 
 
-Scala allows us to be pragmatic, it encourages immutability but does not penalize us for needing mutability.  This is very similar to var vs. val.  We always start with val and move back to var when required.
 Scala允许我们是务实的，它鼓励不变性，但不惩罚我们需要的可变性。这和var vs. val非常相似。我们总是先从val开始并在必要时回退为var。 
 
 我们赞成使用不可改变的版本的集合，但如果性能使然，也可以切换到可变的。使用不可变集合意味着你在多线程不会意外地改变事物。 
-We favor starting with the immutable versions of collections but switching to the mutable ones if performance dictates.  Using immutable collections means you won't accidentally change things in multiple threads.
 
-h2(#mutable). Mutable
-易变的 
+h2(#mutable). 可变集合
 
 前面讨论的所有类都是不可变的。让我们来讨论常用的可变集合。 
-All of the above classes we've discussed were immutable.  Let's discuss the commonly used mutable collections.
 
-*HashMap* defines @getOrElseUpdate@, @+=@ "HashMap API":http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html
-*HashMap* 定义了在 @getOrElseUpdate@, @+=@ "HashMap的API"：http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html 
+*HashMap* 定义了 @getOrElseUpdate@, @+=@ "HashMap API":http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html 
 
 <pre>
 scala> val numbers = collection.mutable.Map(1 -> 2)
@@ -403,23 +351,20 @@ scala> numbers += (4 -> 1)
 res56: numbers.type = Map((2,3), (4,1), (1,2))
 </pre>
 
-*ListBuffer and ArrayBuffer* Defines @+=@ "ListBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "ArrayBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
-*ListBuffer和ArrayBuffer* 定义 @+=@ “ListBuffer API”：http://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "ArrayBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
+*ListBuffer和ArrayBuffer* 定义 @+=@        "ListBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "ArrayBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
 
 *LinkedList and DoubleLinkedList* "LinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "DoubleLinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
-*LinkedList和DoubleLinkedList* "LinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "DoubleLinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
+*LinkedList和DoubleLinkedList*    "LinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "DoubleLinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
 
-*PriorityQueue* "API doc":http://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
+*PriorityQueue* "API 文档":http://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
 
 *Stack 和 ArrayStack* "Stack API":http://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "ArrayStack API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
 
-*StringBuilder* Interestingly, StringBuilder is a collection. "API doc":http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html
-*StringBuilder* 有趣的是，StringBuilder的是一个集合。 “API文档”：http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html 
+*StringBuilder* 有趣的是，StringBuilder的是一个集合。                            "API文档":http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html 
 
-h2(#java). Life with Java 与Java生活
+h2(#java). 与Java生活
 
-TODO 您可以轻松地在Java和Scala的集合类型之间转换，也可在<a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>。装饰常用的Java集合以<code>asScala</code> 的方法和Scala集合与<code>asJava</code> 的方法。
-You can easily move between Java and Scala collection types using conversions that are available in the <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>. It decorates commonly-used Java collections with <code>asScala</code> methods and Scala collections with <code>asJava</code> methods.
+您可以通过<a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>轻松地在Java和Scala的集合类型之间转换。它用<code>asScala</code> 装饰常用的Java集合以和用<code>asJava</code> 方法装饰Scala集合。
 
 <pre>
    import scala.collection.JavaConverters._
@@ -429,8 +374,7 @@ You can easily move between Java and Scala collection types using conversions th
    assert(sl eq sl2)
 </pre>
 
-Two-way conversions:
-的双向转换：
+双向转换：
 
 <pre>
 scala.collection.Iterable <=> java.lang.Iterable
@@ -442,8 +386,8 @@ scala.collection.mutable.Map <=> java.util.{ Map, Dictionary }
 scala.collection.mutable.ConcurrentMap <=> java.util.concurrent.ConcurrentMap
 </pre>
 
-In addition, the following one way conversions are provided:
 此外，也提供了以下单向转换
+
 <pre>
 scala.collection.Seq => java.util.List
 scala.collection.mutable.Seq => java.util.List

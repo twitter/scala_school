@@ -78,7 +78,7 @@ h3. Traversable
 
 All collections can be traversed.  This trait defines standard function combinators. These combinators are written in terms of @foreach@, which collections must implement.
 
-*See Also* "API doc":#http://www.scala-lang.org/api/current/scala/collection/Traversable.html
+*See Also* "API doc":http://www.scala-lang.org/api/current/scala/collection/Traversable.html
 
 h3. Iterable
 
