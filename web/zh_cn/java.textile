@@ -8,17 +8,16 @@ layout: post
 课程内容涵盖了Java互操作性。
 
 * Javap
-* Classes
-* Exceptions
-* Traits
-* Objects
-* Closures and Functions
-* Variance
+* 类
+* 异常
+* 特质
+* 单例对象
+* 闭包和函数
+* 变化性
 
 h2. Javap
 
-javap is a tool that ships with the JDK.  Not the JRE.  There's a difference.  Javap decompiles class definitions and shows you what's inside.  Usage is pretty simple
-javap的是JDK附带的一个工具。不是JRE，这里是有区别的。 javap反编译的类定义，给你展示里面有什么。用法是很简单
+javap的是JDK附带的一个工具。不是JRE，这里是有区别的。 javap反编译类定义，给你展示里面有什么。用法很简单
 
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
@@ -29,8 +28,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 }
 </pre>
 
-If you're hardcore you can look at byte code
-如果你够牛可以看看字节码
+如果你是底层控可以看看字节码
 
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap -c MyTrait\$class
@@ -50,20 +48,17 @@ public static void $init$(com.twitter.interop.MyTrait);
 }
 </pre>
 
-If you start wondering why stuff doesn't work in Java land, reach for javap!
-如果你搞不清为什么在Java上不起作用，就用javap看看吧！
+如果你搞不清为什么程序在Java上不起作用，就用javap看看吧！
 
-h2. Classes
+h2. 类
 
-The four major items to consider when using a Scala _class_ from Java are
-当要在Java中使用Scala _class类_时要考虑的四个主要问题
+在Java中使用Scala _类_ 时要考虑的四个要点
 
-* Class parameters 类参数
-* Class vals vals
-* Class vars 类变量
-* Exceptions 异常
+* 类参数
+* 类常量
+* 类变量
+* 异常
 
-We'll construct a simple scala class to show the full range of entities
 我们将构建一个简单的Scala类来展示这一系列实体
 
 <pre>
@@ -94,10 +89,8 @@ class SimpleClass(name: String, val acc: String, @BeanProperty var mutable: Stri
 }
 </pre>
 
-h3. Class parameters 类参数
+h3. 类参数
 
-* by default, class parameters are effectively constructor args in Java land.  This means you can't access them outside the class.
-* declaring a class parameter as a val/var is the same as this code
 * 默认情况下，类参数都是有效的Java构造函数的参数。这意味着你不能从类的外部访问。
 * 声明一个类参数为val/var 和这段代码是相同的
 
@@ -106,18 +99,16 @@ class SimpleClass(acc_: String) {
   val acc = acc_
 }
 </pre>
-which makes it accessible from Java code just like other vals
-这使得它在Java代码中就像其他vals一样可以访问
 
-h3. Vals
+这使得它在Java代码中就像其他常量一样可以被访问
 
-* vals get a method defined for access from Java.  You can access the value of the val "foo" via the method "foo()"
-* vals 定义了一个获取方法。您可以通过方法“foo()”访问“foo”的值
+h3. 类常量
 
-h3. Vars
+* 常量（val）在Java中定义了一个获取方法。你可以通过方法“foo()”访问“val foo”的值
 
-* vars get a method <name>_$eq defined.  You can call it like so
-* vars 生成了一个 <name>_$eq 方法。您可以这样调用它
+h3. 类变量
+
+* 变量（var）会生成一个 <name>_$eq 方法。你可以这样调用它
 
 <pre>
 foo$_eq("newfoo");
@@ -125,8 +116,7 @@ foo$_eq("newfoo");
 
 h3. BeanProperty
 
-You can annotate vals and vars with the @BeanProperty annotation.  This generates getters/setters that look like POJO getter/setter definitions.  If you want the isFoo variant, use the BooleanBeanProperty annotation.  The ugly foo$_eq becomes
-您可以通过@BeanProperty 注解val 和var定义。这会按照POJO定义生成getter/setter方法​​​。如果你想生成isFoo方法，使用BooleanBeanProperty的注解。丑陋的foo$_eq将成为
+你可以通过@BeanProperty注解val和var定义。这会按照POJO定义生成getter/setter方法。如果你想生成isFoo方法，使用BooleanBeanProperty注解。丑陋的foo$_eq将变为
 
 <pre>
 setFoo("newfoo");
@@ -134,10 +124,9 @@ getFoo();
 </pre>
 
 
-h3. Exceptions
+h3. 异常
 
-Scala doesn't have checked exceptions.  Java does.  This is a philosophical debate we won't get into, but it *does* matter when you want to catch an exception in Java.  The definitions of dangerFoo and dangerBar demonstrate this.  In Java I can't do this
-Scala没有向java那样有受限异常[checked exception]。需不需要受限异常是一个我们不会进入的哲学辩论，不过当你需要在Java中捕获一个它就*很重要*了。dangerFoo和dangerBar将演示这一点。在Java中不能这样做
+Scala没有像java那样有受检异常（checked exception）。需不需要受检异常是一个我们不会进入的哲学辩论，不过当你需要在Java中捕获它时就 *很重要* 了。dangerFoo和dangerBar将演示这一点。在Java中不能这样做
 
 <pre>
         // exception erasure!
@@ -146,24 +135,19 @@ Scala没有向java那样有受限异常[checked exception]。需不需要受限�
         } catch (IOException e) {
             // UGLY
         }
-
 </pre>
 
-Java complains that the body of s.dangerFoo never throws IOException.  We can hack around this by catching Throwable, but that's lame.
 Java会抱怨说 s.dangerFoo从未抛出过 IOException异常。我们可以通过捕获Throwable来跳过，但是这样不好。
 
-相反，作为一个很好的Scala公民，可以很体面地像在dangerBar中那样使用throws注解。这使我们能够继续在Java中使用受限异常。
-Instead, as a good Scala citizen it's a decent idea to use the throws annotation like we did on dangerBar.  This allows us to continue using checked exceptions in Java land.
+相反，作为一个良好的Scala公民，可以很体面地像在dangerBar中那样使用throws注解。这使我们能够继续在Java中使用受检异常。
 
-h3. Further Reading 进一步阅读
+h3. 进一步阅读
 
-支持Java互操作的Scala注解的完整列表在这里http://www.scala-lang.org/node/106。
-A full list of Scala annotations for supporting Java interop can be found here http://www.scala-lang.org/node/106.
+支持Java互操作的Scala注解的完整列表在这里 <a href="http://www.scala-lang.org/node/106">http://www.scala-lang.org/node/106</a>。
 
-h2. Traits
+h2. 特质
 
-How do you get an interface + implementation?  Let's take a simple trait definition and look
-你如何获得一个接口+实现？让我们看一个简单的特质
+你如何获得一个接口+实现？让我们看一个简单的特质定义
 
 <pre>
 trait MyTrait {
@@ -172,11 +156,9 @@ trait MyTrait {
 }
 </pre>
 
-This trait has one abstract method (traitName) and one implemented method (upperTraitName).  What does Scala generate for us?  An interface named MyTrait, and a companion implementation named MyTrait$class.
-这个特质有一个抽象方法（traitName）和一个实现的方法（upperTraitName）。Scala为我们生成了什么？一个名为MyTrait的的接口，和一个名为MyTrait$class的实现类。
+这个特质有一个抽象方法（traitName）和一个实现的方法（upperTraitName）。Scala为我们生成了什么呢？一个名为MyTrait的的接口，和一个名为MyTrait$class的实现类。
 
 MyTrait和你期望的一样
-The implementation of MyTrait is what you'd expect
 
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
@@ -187,7 +169,6 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 }
 </pre>
 
-The implementation of MyTrait$class is more interesting
 MyTrait$class更有趣
 
 <pre>
@@ -199,11 +180,9 @@ public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object
 }
 </pre>
 
-MyTrait$class has only static methods that take an instance of MyTrait.  This gives us a clue as to how to extend a Trait in Java.
-MyTrait$class只有以MyTrait实例为参数的静态方法。这给了我们一个提示，如何在Java中来扩展一个特质。
+MyTrait$class只有以MyTrait实例为参数的静态方法。这给了我们一个如何在Java中来扩展一个特质的提示。
 
-受限尝试下面的操作
-Our first try is the following
+首先尝试下面的操作
 
 <pre>
 package com.twitter.interop;
@@ -221,7 +200,6 @@ public class JTraitImpl implements MyTrait {
 }
 </pre>
 
-And we get the following error
 我们会得到以下错误
 
 <pre>
@@ -231,7 +209,6 @@ And we get the following error
 [error]        ^
 </pre>
 
-We _could_ just implement this ourselves.  But there's a sneakier way.
 我们 _可以_ 自己实现。但有一个鬼鬼祟祟的方式。
 
 <pre>
@@ -242,16 +219,13 @@ package com.twitter.interop;
     }
 </pre>
 
-We can just delegate this call to the generated Scala implementation.  We can also override it if we want.
-我们可以使用代理调用生成的Scala实现。如果愿意我们也可以覆盖它。
+我们只要把调用代理到生成的Scala实现上就可以了。如果愿意我们也可以覆盖它。
 
-h2.  Objects
+h2.  单例对象
 
-Objects are the way Scala implements static methods/singletons.  Using them from Java is a bit odd.  There isn't a stylistically perfect way to use them, but in Scala 2.8 it's not terrible
-单例对象是Scala实现静态方法/单例模式的方式。在Java中使用它会有点奇怪。没有一个使用它们的完美风格，但在Scala2.8中并不很糟糕
+单例对象是Scala实现静态方法/单例模式的方式。在Java中使用它会有点奇怪。没有一个使用它们的完美风格，但在Scala2.8中用起来并不很糟糕
 
-一个Scala单例对象会被编译成结尾有一个“$”的类。让我们建立一个类和一个伴生对象
-A Scala object is compiled to a class that has a trailing "$".  Let's set up a class and a companion object
+一个Scala单例对象会被编译成由“$”结尾的类。让我们创建一个类和一个伴生对象
 
 <pre>
 class TraitImpl(name: String) extends MyTrait {
@@ -264,15 +238,13 @@ object TraitImpl {
 }
 </pre>
 
-We can naïvely access this in Java like so
 我们可以像这样天真地在Java中访问
 
 <pre>
 MyTrait foo = TraitImpl$.MODULE$.apply("foo");
 </pre>
 
-Now you may be asking yourself, WTF?  This is a valid response.  Let's look at what's actually inside TraitImpl$
-现在你可能会问自己，这是神马玩意？这是一个很好的反应。让我们来看看TraitImpl$里面实际上是什么
+现在你可能会问自己，这是神马玩意？这是一个正常的反应。让我们来看看TraitImpl$里面实际上是什么
 
 <pre>
 local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
@@ -285,22 +257,19 @@ public final class com.twitter.interop.TraitImpl$ extends java.lang.Object imple
 }
 </pre>
 
-There actually aren't any static methods.  Instead it has a static member named MODULE$.  The method implementations delegate to this member.  This makes access ugly, but workable if you know to use MODULE$.
-其实没有任何静态方法。取而代之的是一个名为MODULE$的静态成员。方法实现被委托给该成员。这使得访问代码很难看，但却是可行的。
+其实它里面没有任何静态方法。取而代之的是一个名为MODULE$的静态成员。方法实现被委托给该成员。这使得访问代码很难看，但却是可行的。
 
-h3.  Forwarding Methods 转发方法
+h3.  转发方法（Forwarding Methods）
 
-In Scala 2.8 dealing with Objects got quite a bit easier.  If you have a class with a companion object, the 2.8 compiler generates forwarding methods on the companion class.  So if you built with 2.8, you can access methods in the TraitImpl Object like so
-在Scala2.8处理单例对象变得相当容易一点。如果你有一个类与一个伴生对象，2.8编译器会生成转发方法在伴生类中。所以，如果您用2.8，你可以像这样在TraitImpl对象访问方法
+在Scala2.8中处理单例对象变得相对容易一点。如果你有一个类与一个伴生对象，2.8编译器会生成转发方法在伴生类中。所以，如果你用2.8，你可以像这样调用TraitImpl单例对象的方法
 
 <pre>
 MyTrait foo = TraitImpl.apply("foo");
 </pre>
 
-h2. Closures Functions 闭包功能
+h2. 闭包函数
 
 Scala的最重要的特点之一，就是把函数作为头等公民。让我们来定义一个类，它定义了一些以函数作为参数的方法。
-One of Scala's most important features is the treatment of functions as first class citizens.  Let's define a class that defines some methods that take functions as arguments.
 
 <pre>
 class ClosureClass {
@@ -314,7 +283,6 @@ class ClosureClass {
 }
 </pre>
 
-In Scala I can call this like so
 在Scala中可以像这样调用
 
 <pre>
@@ -322,8 +290,7 @@ val cc = new ClosureClass
 cc.printResult { "HI MOM" }
 </pre>
 
-In Java it's not so easy, but it's not terrible either.  Let's see what ClosureClass actually compiled to:
-在Java中却不那么容易，但它并不可怕。让我们来看看ClosureClass实际上被编译成什么：
+在Java中却不那么容易，不过也并不可怕。让我们来看看ClosureClass实际上被编译成什么：
 
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
@@ -335,11 +302,9 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
 }
 </pre>
 
-This isn't so scary.  "f: => T" translates to "Function0", and "f: String => T" translates to "Function1".  Scala actually defines Function0 through Function22, supporting this stuff up to 22 arguments.  Which really should be enough.
 这也不是那么恐怖。 “f: => T”被转义成“Function0”，“f: String => T”被转义成“Function1”。Scala实际上从Function0定义到Function22，最多支持22个参数。这真的应该足够了。
 
 现在我们只需要弄清楚如何在Java中使用这些东东。我们可以传入Scala提供的AbstractFunction0和AbstractFunction1，像这样
-Now we just need to figure out how to get those things going in Java.  Turns out Scala provides an AbstractFunction0 and an AbstractFunction1 we can pass in like so
 
 <pre>
     @Test public void closureTest() {
@@ -357,5 +322,4 @@ Now we just need to figure out how to get those things going in Java.  Turns out
     }
 </pre>
 
-Note that we can use generics to parameterize arguments.
-可以注意到，我们可以使用泛型参数。
+注意我们可以使用泛型参数。
