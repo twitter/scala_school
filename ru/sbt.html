@@ -218,7 +218,7 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 }
 </pre>
 <p>Описание проекта &#8211; это <span class="caps">SBT</span> класс. В нашем случае, мы расширяем стандартный DefaultProject <span class="caps">SBT</span>.</p>
-<p>Вы о��ъявляете зависимости с помощью val. <span class="caps">SBT</span> использует отражение, чтобы найти все val зависимости в вашем проекте и построить дерево зависимостей во время сборки. Синтаксис может показаться новым, но он эквивалентен тому, что используется в Maven</p>
+<p>Вы объявляете зависимости с помощью val. <span class="caps">SBT</span> использует отражение, чтобы найти все val зависимости в вашем проекте и построить дерево зависимостей во время сборки. Синтаксис может показаться новым, но он эквивалентен тому, что используется в Maven</p>
 <pre>
 &lt;dependency&gt;
   &lt;groupId&gt;org.codehaus.jackson&lt;/groupId&gt;
@@ -376,7 +376,7 @@ object SimpleParserSpec extends Specification {
 [info]     'foo","nested":{"id' is not equal to 'foo' (SimpleParserSpec.scala:31)
 [info]   + fail on partial content
 </pre>
-<p>Теперь дав��йте перепишем наш <span class="caps">JSON</span> парсер, чтобы он больше соответсвовал действительности</p>
+<p>Теперь давайте перепишем наш <span class="caps">JSON</span> парсер, чтобы он больше соответсвовал действительности</p>
 <pre>
 package com.twitter.sample
 
@@ -473,7 +473,7 @@ info] SimpleParser should
   }
 </pre>
 <p>И&#8230; все работает!</p>
-<h2>Создание пакетов и публи��ация</h2>
+<h2>Создание пакетов и публикация</h2>
 <p>С этого момента мы можем запустить команду создания пакета, чтобы сгенерировать jar файл. Тем не менее, нам может быть захочется поделиться нашим jar файлом с другими командами. Делать это мы будем с помощью StandardProject, который дает нам большое преимущество.</p>
 <p>Первым шагом будет включение StandardProject как <span class="caps">SBT</span> плагина. Плагины &#8211; это способ добавить зависимость в вашу сборку, а не в проект. Эти зависимости располагаются в project/plugins/Plugins.scala. Добавьте следующие строки в файл Plugins.scala.</p>
 <pre>
@@ -560,7 +560,7 @@ def printTask = task {log.info("a test action"); None}
 lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
 override def packageAction = super.packageAction.dependsOn(printTimestamp)
 </pre>
-<p>Есть много прим��ров в StandardProject по настройке стандартных значений <span class="caps">SBT</span> и добавлению пользовательских задач.</p>
+<p>Есть много примеров в StandardProject по настройке стандартных значений <span class="caps">SBT</span> и добавлению пользовательских задач.</p>
 <h2>Краткий справочник</h2>
 <h3>Популярные команды</h3>
 <ul>

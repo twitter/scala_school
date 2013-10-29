@@ -81,7 +81,7 @@ res0: scala.collection.immutable.Set[Int] = Set(1, 2)
 scala&gt; val hostPort = ("localhost", 80)
 hostPort: (String, Int) = (localhost, 80)
 </pre>
-<p>В отличие от case классов, у него нет именованных функций доступа, вместо этого у него есть функции доступа, которые носят названия по номеру позиции элемента кортежа и они нумер��тся с 1, а не с 0.</p>
+<p>В отличие от case классов, у него нет именованных функций доступа, вместо этого у него есть функции доступа, которые носят названия по номеру позиции элемента кортежа и они нумеруются с 1, а не с 0.</p>
 <pre>
 scala&gt; hostPort._1
 res0: String = localhost
@@ -275,7 +275,7 @@ m: 1 n: 54
 res0: Int = 55
 </pre>
 <h2 id="flatten">flatten</h2>
-<p>flatten сжимает вложенн��е структуры.</p>
+<p>flatten сжимает вложенные структуры.</p>
 <pre>
 scala&gt; List(List(1, 2), List(3, 4)).flatten
 res0: List[Int] = List(1, 2, 3, 4)
@@ -317,7 +317,7 @@ res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
 scala&gt; val extensions = Map("steve" -&gt; 100, "bob" -&gt; 101, "joe" -&gt; 201)
 extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
 </pre>
-<p>теперь выберем каждую запись, у которой телефонный код мен��ше 200.</p>
+<p>теперь выберем каждую запись, у которой телефонный код меньше 200.</p>
 <pre>
 scala&gt; extensions.filter((namePhone: (String, Int)) =&gt; namePhone._2 &lt; 200)
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
