@@ -10,13 +10,13 @@ layout: post
 "这篇博客":http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html 解释了其动机和核心设计原则， "finagle README":https://github.com/twitter/finagle/blob/master/README.md 包含更详细的文档。Finagle的目标是方便地建立强大的客户端和服务器。
 
 * "REPL":#repl
-* "Futures":#Future: "Sequential composition":#futsequential, "Concurrent composition":#futconcurrent, "Composition Example: Cached Rate Limit":#combined_combinator_example_cache, "Composition Example: Thumbnail Fetcher":#combined_combinator_thumbnail
-* "Service":#Service
-* "Client Example":#client
-* "Server Example":#server
-* "Filters":#Filter
-* "Builders":#Builder
-* "Don't Block":#DontBlock (unless you do it the right way)
+* "Futures":#Future: "顺序组合":#futsequential, "并发组合":#futconcurrent, "组合例子：缓存速率限制":#combined_combinator_example_cache, "组合例子：网络爬虫":#combined_combinator_example_thumbnail 
+* "服务":#Service
+* "客户端":#client
+* "服务端":#server
+* "过滤器":#Filter
+* "生成器（Builder）":#Builder
+* "不要阻塞":#DontBlock （除非你用正确的方式
 
 h2(#repl). Finagle-Friendly REPL
 
