@@ -15,7 +15,7 @@ lessons:
     url: basics2.html
     desc: Case classes, objects, packages, apply, update, Functions are Objects (uniform access principle), pattern matching.
     desc_ru: Case классы, объекты, пакеты, apply, update, Функции как Объекты (единый принцип доступа), сопоставление с образцом.
-    desc_zh_cn: 样本类（Case classes），对象，包，应用，更新，函数即对象（统一访问原则），模式匹配（pattern matching）。
+    desc_zh_cn: 样本类，对象，包，应用，更新，函数即对象（统一访问原则），模式匹配。
   -
     title: Collections
     title_ru: Коллекции
@@ -39,7 +39,7 @@ lessons:
     url: type-basics.html
     desc: Basic Types and type polymorphism, type inference, variance, bounds, quantification
     desc_ru: Основные типы и полиморфизм типов, вывод типов, изменчивость, пределы, квантификация
-    desc_zh_cn: 基本类型和类型多态性，类型推断，TODO方差，突飞猛进，量化
+    desc_zh_cn: 基本类型和类型多态性，类型推断，变性，边界，量化
   -
     title: Advanced types
     title_ru: Дополнительные типы
@@ -47,7 +47,7 @@ lessons:
     url: advanced-types.html
     desc: Advanced Types, view bounds, higher-kinded types, recursive types, structural types
     desc_ru: Дополнительные типы, видимое ограничение, типы высшего порядка, рекурсивные типы, структурные типы
-    desc_zh_cn: TODO高级类型，视图界限，更高kinded类型，递归类型，结构类型
+    desc_zh_cn: 高级类型，视界，更高kinded类型，递归类型，结构类型
   -
     title: Simple Build Tool
     title_ru: Simple Build Tool

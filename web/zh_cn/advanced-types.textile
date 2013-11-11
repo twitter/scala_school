@@ -7,14 +7,14 @@ layout: post
 
 课程内容：
 
-* "View bounds":#viewbounds ("type classes")
-* "Other Type Bounds":#otherbounds
-* "Higher kinded types & ad-hoc polymorphism":#higher
-* "F-bounded polymorphism / recursive types":#fbounded
-* "Structural types":#structural
-* "Abstract types members":#abstractmem
-* "Type erasures & manifests":#manifest
-* "Case study: Finagle":#finagle
+* "视界":#viewbounds ("类型类")
+* "其他类型限制":#otherbounds
+* "高阶类型 和 特设多态性":#higher
+* "F-界多态性 / 递归类型":#fbounded
+* "结构类型":#structural
+* "抽象类型成员":#abstractmem
+* "类型擦除和清单":#manifest
+* "案例分析: Finagle":#finagle
 
 h2(#viewbounds). 视界（“类型类”）
 
@@ -152,7 +152,7 @@ res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
 
 相结合后往往会使用更少的代码，尤其是串联视图的时候。
 
-h2(#higher). Higher-kinded types & ad-hoc polymorphism 高阶类型 和 特设多态性
+h2(#higher). 高阶类型 和 特设多态性
 
 Scala可以对“更高阶”的类型进行抽象。例如，假设您需要用几种类型的容器处理几种类型的数据。你可能定义了一个<code>Container</code>的接口，它可以被实现为几种类型的容器：<code>Option</code>、<code>List</code>等。你要定义可以使用这些容器里的值的接口，但不想确定值的类型。
 
@@ -319,7 +319,7 @@ scala> (new MakeFoo[String]).make
 res10: String = ""
 </pre>
 
-h2(#finagle). Case study: Finagle
+h2(#finagle). 案例分析: Finagle
 
 参见: https://github.com/twitter/finagle
 
