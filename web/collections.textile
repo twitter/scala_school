@@ -157,18 +157,18 @@ We would suggest that you use either <code>getOrElse</code> or pattern matching 
 
 <code>getOrElse</code> lets you easily define a default value.
 
-<code>
+<pre>
 val result = res1.getOrElse(0) * 2
-</code>
+</pre>
 
 Pattern matching fits naturally with <code>Option</code>.
 
-<code>
+<pre>
 val result = res1 match {
   case Some(n) => n * 2
   case None => 0
 }
-</code>
+</pre>
 
 *See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>.
 
