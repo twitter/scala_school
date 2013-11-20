@@ -9,7 +9,7 @@ layout: post
 
 * "视界":#viewbounds ("类型类")
 * "其他类型限制":#otherbounds
-* "高阶类型 和 特设多态性":#higher
+* "更高级多态性类型 和 特设多态性":#higher
 * "F-界多态性 / 递归类型":#fbounded
 * "结构类型":#structural
 * "抽象类型成员":#abstractmem
@@ -152,7 +152,7 @@ res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
 
 相结合后往往会使用更少的代码，尤其是串联视图的时候。
 
-h2(#higher). 高阶类型 和 特设多态性
+h2(#higher). 更高级多态性类型 和 特设多态性
 
 Scala可以对“更高阶”的类型进行抽象。例如，假设您需要用几种类型的容器处理几种类型的数据。你可能定义了一个<code>Container</code>的接口，它可以被实现为几种类型的容器：<code>Option</code>、<code>List</code>等。你要定义可以使用这些容器里的值的接口，但不想确定值的类型。
 

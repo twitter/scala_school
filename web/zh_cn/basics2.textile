@@ -46,7 +46,6 @@ scala> bar()
 res8: Int = 0
 </pre>
 
-Here our instance object looks like we're calling a method. More on that later!
 在这里，我们实例化对象看起来像是在调用一个方法。以后会有更多介绍！
 
 

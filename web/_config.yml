@@ -31,7 +31,7 @@ lessons:
     url: pattern-matching-and-functional-composition.html
     desc: More functions! PartialFunctions, more Pattern Matching
     desc_ru: Еще больше функций! Частичные функции, еще больше сопоставления с образцом
-    desc_zh_cn: 更多的函数！偏函数，更多模式匹配
+    desc_zh_cn: 更多函数！偏函数，更多模式匹配
   -
     title: Type & polymorphism basics
     title_ru: Основы типов и полиморфизма
@@ -47,7 +47,7 @@ lessons:
     url: advanced-types.html
     desc: Advanced Types, view bounds, higher-kinded types, recursive types, structural types
     desc_ru: Дополнительные типы, видимое ограничение, типы высшего порядка, рекурсивные типы, структурные типы
-    desc_zh_cn: 高级类型，视界，更高kinded类型，递归类型，结构类型
+    desc_zh_cn: 高级类型，视界，更高级多态性类型，递归类型，结构类型
   -
     title: Simple Build Tool
     title_ru: Simple Build Tool
@@ -63,7 +63,7 @@ lessons:
     url: coll2.html
     desc: Tour of the Scala Collections library
     desc_ru: Рассказ о библиотеке коллекций Scala
-    desc_zh_cn: Scala Collections库概览
+    desc_zh_cn: Scala Collections库指南
   -
     title: Testing with specs
     title_ru: Тестирование с помощью specs
@@ -85,7 +85,7 @@ lessons:
     url: java.html
     desc: 'Java interop: Using Scala from Java'
     desc_ru:  'Java совместимость: Использование Scala из Java'
-    desc_zh_cn:  'Java的互操作：在Java中使用Scala'
+    desc_zh_cn:  'Java跨平台交互：在Java中使用Scala'
   -
     title: An introduction to Finagle
     title_ru: Введение в Finagle
@@ -101,4 +101,4 @@ lessons:
     url: searchbird.html
     desc: Building a distributed search engine using Finagle
     desc_ru: Создание распределенного поискового движка, используя Finagle
-    desc_zh_cn: 利用Finagle构建一个分布式的搜索引擎
+    desc_zh_cn: 利用Finagle构建一个分布式搜索引擎
