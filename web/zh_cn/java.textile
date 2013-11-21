@@ -1,0 +1,325 @@
+---
+prev: concurrency.textile
+next: finagle.textile
+title: Java + Scala
+layout: post
+---
+
+课程内容涵盖了Java互操作性。
+
+* Javap
+* 类
+* 异常
+* 特质
+* 单例对象
+* 闭包和函数
+* 变化性
+
+h2. Javap
+
+javap的是JDK附带的一个工具。不是JRE，这里是有区别的。 javap反编译类定义，给你展示里面有什么。用法很简单
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
+Compiled from "Scalaisms.scala"
+public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
+    public abstract java.lang.String traitName();
+    public abstract java.lang.String upperTraitName();
+}
+</pre>
+
+如果你是底层控可以看看字节码
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap -c MyTrait\$class
+Compiled from "Scalaisms.scala"
+public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
+public static java.lang.String upperTraitName(com.twitter.interop.MyTrait);
+  Code:
+   0:	aload_0
+   1:	invokeinterface	#12,  1; //InterfaceMethod com/twitter/interop/MyTrait.traitName:()Ljava/lang/String;
+   6:	invokevirtual	#17; //Method java/lang/String.toUpperCase:()Ljava/lang/String;
+   9:	areturn
+
+public static void $init$(com.twitter.interop.MyTrait);
+  Code:
+   0:	return
+
+}
+</pre>
+
+如果你搞不清为什么程序在Java上不起作用，就用javap看看吧！
+
+h2. 类
+
+在Java中使用Scala _类_ 时要考虑的四个要点
+
+* 类参数
+* 类常量
+* 类变量
+* 异常
+
+我们将构建一个简单的Scala类来展示这一系列实体
+
+<pre>
+package com.twitter.interop
+
+import java.io.IOException
+import scala.throws
+import scala.reflect.{BeanProperty, BooleanBeanProperty}
+
+class SimpleClass(name: String, val acc: String, @BeanProperty var mutable: String) {
+  val foo = "foo"
+  var bar = "bar"
+  @BeanProperty
+  val fooBean = "foobean"
+  @BeanProperty
+  var barBean = "barbean"
+  @BooleanBeanProperty
+  var awesome = true
+
+  def dangerFoo() = {
+    throw new IOException("SURPRISE!")
+  }
+
+  @throws(classOf[IOException])
+  def dangerBar() = {
+    throw new IOException("NO SURPRISE!")
+  }
+}
+</pre>
+
+h3. 类参数
+
+* 默认情况下，类参数都是有效的Java构造函数的参数。这意味着你不能从类的外部访问。
+* 声明一个类参数为val/var 和这段代码是相同的
+
+<pre>
+class SimpleClass(acc_: String) {
+  val acc = acc_
+}
+</pre>
+
+这使得它在Java代码中就像其他常量一样可以被访问
+
+h3. 类常量
+
+* 常量（val）在Java中定义了一个获取方法。你可以通过方法“foo()”访问“val foo”的值
+
+h3. 类变量
+
+* 变量（var）会生成一个 <name>_$eq 方法。你可以这样调用它
+
+<pre>
+foo$_eq("newfoo");
+</pre>
+
+h3. BeanProperty
+
+你可以通过@BeanProperty注解val和var定义。这会按照POJO定义生成getter/setter方法。如果你想生成isFoo方法，使用BooleanBeanProperty注解。丑陋的foo$_eq将变为
+
+<pre>
+setFoo("newfoo");
+getFoo();
+</pre>
+
+
+h3. 异常
+
+Scala没有像java那样有受检异常（checked exception）。需不需要受检异常是一个我们不会进入的哲学辩论，不过当你需要在Java中捕获它时就 *很重要* 了。dangerFoo和dangerBar将演示这一点。在Java中不能这样做
+
+<pre>
+        // exception erasure!
+        try {
+            s.dangerFoo();
+        } catch (IOException e) {
+            // UGLY
+        }
+</pre>
+
+Java会抱怨说 s.dangerFoo从未抛出过 IOException异常。我们可以通过捕获Throwable来跳过，但是这样不好。
+
+相反，作为一个良好的Scala公民，可以很体面地像在dangerBar中那样使用throws注解。这使我们能够继续在Java中使用受检异常。
+
+h3. 进一步阅读
+
+支持Java互操作的Scala注解的完整列表在这里 <a href="http://www.scala-lang.org/node/106">http://www.scala-lang.org/node/106</a>。
+
+h2. 特质
+
+你如何获得一个接口+实现？让我们看一个简单的特质定义
+
+<pre>
+trait MyTrait {
+  def traitName:String
+  def upperTraitName = traitName.toUpperCase
+}
+</pre>
+
+这个特质有一个抽象方法（traitName）和一个实现的方法（upperTraitName）。Scala为我们生成了什么呢？一个名为MyTrait的的接口，和一个名为MyTrait$class的实现类。
+
+MyTrait和你期望的一样
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
+Compiled from "Scalaisms.scala"
+public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
+    public abstract java.lang.String traitName();
+    public abstract java.lang.String upperTraitName();
+}
+</pre>
+
+MyTrait$class更有趣
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait\$class
+Compiled from "Scalaisms.scala"
+public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
+    public static java.lang.String upperTraitName(com.twitter.interop.MyTrait);
+    public static void $init$(com.twitter.interop.MyTrait);
+}
+</pre>
+
+MyTrait$class只有以MyTrait实例为参数的静态方法。这给了我们一个如何在Java中来扩展一个特质的提示。
+
+首先尝试下面的操作
+
+<pre>
+package com.twitter.interop;
+
+public class JTraitImpl implements MyTrait {
+    private String name = null;
+
+    public JTraitImpl(String name) {
+        this.name = name;
+    }
+
+    public String traitName() {
+        return name;
+    }
+}
+</pre>
+
+我们会得到以下错误
+
+<pre>
+[info] Compiling main sources...
+[error] /Users/mmcbride/projects/interop/src/main/java/com/twitter/interop/JTraitImpl.java:3: com.twitter.interop.JTraitImpl is not abstract and does not override abstract method upperTraitName() in com.twitter.interop.MyTrait
+[error] public class JTraitImpl implements MyTrait {
+[error]        ^
+</pre>
+
+我们 _可以_ 自己实现。但有一个鬼鬼祟祟的方式。
+
+<pre>
+package com.twitter.interop;
+
+    public String upperTraitName() {
+        return MyTrait$class.upperTraitName(this);
+    }
+</pre>
+
+我们只要把调用代理到生成的Scala实现上就可以了。如果愿意我们也可以覆盖它。
+
+h2.  单例对象
+
+单例对象是Scala实现静态方法/单例模式的方式。在Java中使用它会有点奇怪。没有一个使用它们的完美风格，但在Scala2.8中用起来并不很糟糕
+
+一个Scala单例对象会被编译成由“$”结尾的类。让我们创建一个类和一个伴生对象
+
+<pre>
+class TraitImpl(name: String) extends MyTrait {
+  def traitName = name
+}
+
+object TraitImpl {
+  def apply = new TraitImpl("foo")
+  def apply(name: String) = new TraitImpl(name)
+}
+</pre>
+
+我们可以像这样天真地在Java中访问
+
+<pre>
+MyTrait foo = TraitImpl$.MODULE$.apply("foo");
+</pre>
+
+现在你可能会问自己，这是神马玩意？这是一个正常的反应。让我们来看看TraitImpl$里面实际上是什么
+
+<pre>
+local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
+Compiled from "Scalaisms.scala"
+public final class com.twitter.interop.TraitImpl$ extends java.lang.Object implements scala.ScalaObject{
+    public static final com.twitter.interop.TraitImpl$ MODULE$;
+    public static {};
+    public com.twitter.interop.TraitImpl apply();
+    public com.twitter.interop.TraitImpl apply(java.lang.String);
+}
+</pre>
+
+其实它里面没有任何静态方法。取而代之的是一个名为MODULE$的静态成员。方法实现被委托给该成员。这使得访问代码很难看，但却是可行的。
+
+h3.  转发方法（Forwarding Methods）
+
+在Scala2.8中处理单例对象变得相对容易一点。如果你有一个类与一个伴生对象，2.8编译器会生成转发方法在伴生类中。所以，如果你用2.8，你可以像这样调用TraitImpl单例对象的方法
+
+<pre>
+MyTrait foo = TraitImpl.apply("foo");
+</pre>
+
+h2. 闭包函数
+
+Scala的最重要的特点之一，就是把函数作为头等公民。让我们来定义一个类，它定义了一些以函数作为参数的方法。
+
+<pre>
+class ClosureClass {
+  def printResult[T](f: => T) = {
+    println(f)
+  }
+
+  def printResult[T](f: String => T) = {
+    println(f("HI THERE"))
+  }
+}
+</pre>
+
+在Scala中可以像这样调用
+
+<pre>
+val cc = new ClosureClass
+cc.printResult { "HI MOM" }
+</pre>
+
+在Java中却不那么容易，不过也并不可怕。让我们来看看ClosureClass实际上被编译成什么：
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
+Compiled from "Scalaisms.scala"
+public class com.twitter.interop.ClosureClass extends java.lang.Object implements scala.ScalaObject{
+    public void printResult(scala.Function0);
+    public void printResult(scala.Function1);
+    public com.twitter.interop.ClosureClass();
+}
+</pre>
+
+这也不是那么恐怖。 “f: => T”被转义成“Function0”，“f: String => T”被转义成“Function1”。Scala实际上从Function0定义到Function22，最多支持22个参数。这真的应该足够了。
+
+现在我们只需要弄清楚如何在Java中使用这些东东。我们可以传入Scala提供的AbstractFunction0和AbstractFunction1，像这样
+
+<pre>
+    @Test public void closureTest() {
+        ClosureClass c = new ClosureClass();
+        c.printResult(new AbstractFunction0() {
+                public String apply() {
+                    return "foo";
+                }
+            });
+        c.printResult(new AbstractFunction1<String, String>() {
+                public String apply(String arg) {
+                    return arg + "foo";
+                }
+            });
+    }
+</pre>
+
+注意我们可以使用泛型参数。

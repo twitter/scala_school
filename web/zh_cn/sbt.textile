@@ -1,0 +1,614 @@
+---
+prev: advanced-types.textile
+next: coll2.textile
+title: 简单构建工具
+layout: post
+---
+
+这堂课将概述SBT！具体议题包括：
+* 创建一个SBT项目
+* 基本命令
+* sbt控制台
+* 连续命令执行
+* 自定义你的项目
+* 自定义命令
+* 快速浏览SBT资源（如果时间允许）
+
+h2. 关于SBT
+
+SBT是一个现代化的构建工具。虽然它由Scala编写并提供了很多Scala便利，但它是一个通用的构建工具。
+
+h2. 为什么选择SBT？
+
+* 明智的依赖管理
+** 使用Ivy做依赖管理
+** “只在请求时更新”的模型
+* 对创建任务全面的Scala语言支持
+* 连续执行命令
+* 在项目上下文内启动解释器
+
+h2. 入门
+
+*译注* 最新的SBT安装方式请参考 <a href="http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html">scala-sbt的文档</a>
+
+* 下载jar包 <a href="http://code.google.com/p/simple-build-tool/downloads/list">地址 </a>
+* 创建一个调用这个jar的SBT shell脚本，例如
+
+<pre>
+java -Xmx512M -jar sbt-launch.jar "$@"
+</pre>
+
+* 确保它是可执行的，并在你的path下
+* 运行sbt来创建项目
+
+<pre>
+[local ~/projects]$ sbt
+Project does not exist, create new project? (y/N/s) y
+Name: sample
+Organization: com.twitter
+Version [1.0]: 1.0-SNAPSHOT
+Scala version [2.7.7]: 2.8.1
+sbt version [0.7.4]:      
+Getting Scala 2.7.7 ...
+:: retrieving :: org.scala-tools.sbt#boot-scala
+	confs: [default]
+	2 artifacts copied, 0 already retrieved (9911kB/221ms)
+Getting org.scala-tools.sbt sbt_2.7.7 0.7.4 ...
+:: retrieving :: org.scala-tools.sbt#boot-app
+	confs: [default]
+	15 artifacts copied, 0 already retrieved (4096kB/167ms)
+[success] Successfully initialized directory structure.
+Getting Scala 2.8.1 ...
+:: retrieving :: org.scala-tools.sbt#boot-scala
+	confs: [default]
+	2 artifacts copied, 0 already retrieved (15118kB/386ms)
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
+> 
+</pre>
+
+可以看到它已经以较好的形式创建了项目的快照版本。
+
+h2. 项目布局
+
+* 项目 - 项目定义文件
+** project/build/<yourproject>.scala - 主项目定义文件
+** project/build.properties - 项目、sbt和Scala版本定义
+* src/main - 你的应用程序代码出现在这里，在子目录表明代码的语言（如src/main/scala, src/main/java）
+* src/main/resources - 你想要添加到jar包中的静态文件（如日志配置）
+* src/test - 就像src/main，不过是对测试
+* lib_managed - 你的项目依赖的jar文件。由sbt update时填充
+* target -  生成物的目标路径（如自动生成的thrift代码，类文件，jar包）
+
+h2. 添加一些代码
+
+我们将为简单的tweet消息创建一个简单的JSON解析器。将以下代码加在这个文件中
+src/main/scala/com/twitter/sample/SimpleParser.scala
+
+<pre>
+package com.twitter.sample
+
+case class SimpleParsed(id: Long, text: String)
+
+class SimpleParser {
+
+  val tweetRegex = "\"id\":(.*),\"text\":\"(.*)\"".r
+
+  def parse(str: String) = {
+    tweetRegex.findFirstMatchIn(str) match {
+      case Some(m) => {
+        val id = str.substring(m.start(1), m.end(1)).toInt
+        val text = str.substring(m.start(2), m.end(2))
+        Some(SimpleParsed(id, text))
+      }
+      case _ => None
+    }
+  }
+}
+</pre>
+
+这段代码丑陋并有bug，但应该能够编译通过。
+
+h2. 在控制台中的测试
+
+SBT既可以用作命令行脚本，也可以作为构建控制台。我们将主要利用它作为构建控制台，不过大多数命令可以作为参数传递给SBT独立运行，如
+
+<pre>
+sbt test
+</pre>
+
+需要注意如果一个命令需要参数，你需要使用引号包括住整个参数路径，例如
+
+<pre>
+sbt 'test-only com.twitter.sample.SampleSpec'
+</pre>
+
+这种方式很奇怪。
+
+不管怎样，要开始我们的代码工作了，启动SBT吧
+
+<pre>
+[local ~/projects/sbt-sample]$ sbt
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
+> 
+</pre>
+
+SBT允许你启动一个Scala REPL并加载所有项目依赖。它会在启动控制台前编译项目的源代码，从而为我们提供一个快速测试解析器的工作台。
+
+<pre>
+> console
+[info] 
+[info] == compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling main sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 3 classes.
+[info] == compile ==
+[info] 
+[info] == copy-test-resources ==
+[info] == copy-test-resources ==
+[info] 
+[info] == test-compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling test sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 0 classes.
+[info] == test-compile ==
+[info] 
+[info] == copy-resources ==
+[info] == copy-resources ==
+[info] 
+[info] == console ==
+[info] Starting scala interpreter...
+[info] 
+Welcome to Scala version 2.8.1.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_22).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> 
+</pre>
+
+我们代码编译通过了，并提供了典型的Scala提示符。我们将创建一个新的解析器，一个tweet以确保其“能工作”
+
+<pre>
+scala> import com.twitter.sample._            
+import com.twitter.sample._
+
+scala> val tweet = """{"id":1,"text":"foo"}"""
+tweet: java.lang.String = {"id":1,"text":"foo"}
+
+scala> val parser = new SimpleParser          
+parser: com.twitter.sample.SimpleParser = com.twitter.sample.SimpleParser@71060c3e
+
+scala> parser.parse(tweet)                    
+res0: Option[com.twitter.sample.SimpleParsed] = Some(SimpleParsed(1,"foo"}))
+
+scala> 
+</pre>
+
+h2. 添加依赖
+
+我们简单的解析器对这个非常小的输入集工作正常，但我们需要添加更多的测试并让它出错。第一步是在我们的项目中添加specs测试库和一个真正的JSON解析器。要做到这一点，我们必须超越默认的SBT项目布局来创建一个项目。
+
+SBT认为project/build目录中的Scala文件是项目定义。添加以下内容到这个文件中project/build/SampleProject.scala
+
+<pre>
+import sbt._
+
+class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
+  val jackson = "org.codehaus.jackson" % "jackson-core-asl" % "1.6.1"
+  val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
+}
+</pre> 
+
+一个项目定义是一个SBT类。在上面例子中，我们扩展了SBT的DefaultProject。
+
+这里是通过val声明依赖。SBT使用反射来扫描项目中的所有val依赖，并在构建时建立依赖关系树。这里使用的语法可能是新的，但本质和Maven依赖是相同的
+
+<pre>
+<dependency>
+  <groupId>org.codehaus.jackson</groupId>
+  <artifactId>jackson-core-asl</artifactId>
+  <version>1.6.1</version>
+</dependency>
+<dependency>
+  <groupId>org.scala-tools.testing</groupId>
+  <artifactId>specs_2.8.0</artifactId>
+  <version>1.6.5</version>
+  <scope>test</scope>
+</dependency>
+</pre>
+
+现在可以下载我们的项目依赖了。在命令行中（而不是sbt console中）运行sbt update
+
+<pre>
+[local ~/projects/sbt-sample]$ sbt update
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using SampleProject with sbt 0.7.4 and Scala 2.7.7
+[info] 
+[info] == update ==
+[info] :: retrieving :: com.twitter#sample_2.8.1 [sync]
+[info] 	confs: [compile, runtime, test, provided, system, optional, sources, javadoc]
+[info] 	1 artifacts copied, 0 already retrieved (2785kB/71ms)
+[info] == update ==
+[success] Successful.
+[info] 
+[info] Total time: 1 s, completed Nov 24, 2010 8:47:26 AM
+[info] 
+[info] Total session time: 2 s, completed Nov 24, 2010 8:47:26 AM
+[success] Build completed successfully.
+</pre>
+
+你会看到sbt检索到specs库。现在还增加了一个lib_managed目录，并且在lib_managed/scala_2.8.1/test目录中包含 specs_2.8.0-1.6.5.jar
+
+h2. 添加测试
+
+现在有了测试库，可以把下面的测试代码写入src/test/scala/com/twitter/sample/SimpleParserSpec.scala文件
+
+<pre>
+package com.twitter.sample
+
+import org.specs._
+
+object SimpleParserSpec extends Specification {
+  "SimpleParser" should {
+    val parser = new SimpleParser()
+    "work with basic tweet" in {
+      val tweet = """{"id":1,"text":"foo"}"""
+      parser.parse(tweet) match {
+        case Some(parsed) => {
+          parsed.text must be_==("foo")
+          parsed.id must be_==(1)
+        }
+        case _ => fail("didn't parse tweet")
+      }
+    }
+  }
+}
+</pre>
+
+在SBT控制台中运行test
+
+<pre>
+> test
+[info] 
+[info] == compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling main sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 3 classes.
+[info] == compile ==
+[info] 
+[info] == test-compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling test sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 10 classes.
+[info] == test-compile ==
+[info] 
+[info] == copy-test-resources ==
+[info] == copy-test-resources ==
+[info] 
+[info] == copy-resources ==
+[info] == copy-resources ==
+[info] 
+[info] == test-start ==
+[info] == test-start ==
+[info] 
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] SimpleParserSpec
+[info] SimpleParser should
+[info]   + work with basic tweet
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] 
+[info] == test-complete ==
+[info] == test-complete ==
+[info] 
+[info] == test-finish ==
+[info] Passed: : Total 1, Failed 0, Errors 0, Passed 1, Skipped 0
+[info]  
+[info] All tests PASSED.
+[info] == test-finish ==
+[info] 
+[info] == test-cleanup ==
+[info] == test-cleanup ==
+[info] 
+[info] == test ==
+[info] == test ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 8:54:45 AM
+> 
+</pre>
+
+我们的测试通过了！现在，我们可以增加更多。运行触发动作是SBT提供的优秀特性之一。在动作开始添加一个波浪线会启动一个循环，在源文件发生变化时重新运行动作。让我们运行 ~test 并看看会发生什么吧。
+
+<pre>
+[info] == test ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 8:55:50 AM
+1. Waiting for source changes... (press enter to interrupt)
+</pre>
+
+现在，让我们添加下面的测试案例
+
+<pre>
+    "reject a non-JSON tweet" in {
+      val tweet = """"id":1,"text":"foo""""
+      parser.parse(tweet) match {
+        case Some(parsed) => fail("didn't reject a non-JSON tweet")
+        case e => e must be_==(None)
+      }
+    }
+
+    "ignore nested content" in {
+      val tweet = """{"id":1,"text":"foo","nested":{"id":2}}"""
+      parser.parse(tweet) match {
+        case Some(parsed) => {
+          parsed.text must be_==("foo")
+          parsed.id must be_==(1)
+        }
+        case _ => fail("didn't parse tweet")
+      }
+    }
+
+    "fail on partial content" in {
+      val tweet = """{"id":1}"""
+      parser.parse(tweet) match {
+        case Some(parsed) => fail("didn't reject a partial tweet")
+        case e => e must be_==(None)
+      }
+    }
+</pre>
+
+在我们保存文件后，SBT会检测到变化，运行测试，并通知我们的解析器有问题
+
+<pre>
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] SimpleParserSpec
+[info] SimpleParser should
+[info]   + work with basic tweet
+[info]   x reject a non-JSON tweet
+[info]     didn't reject a non-JSON tweet (Specification.scala:43)
+[info]   x ignore nested content
+[info]     'foo","nested":{"id' is not equal to 'foo' (SimpleParserSpec.scala:31)
+[info]   + fail on partial content
+</pre>
+
+因此，让我们返工实现真正的JSON解析器
+
+<pre>
+package com.twitter.sample
+
+import org.codehaus.jackson._
+import org.codehaus.jackson.JsonToken._
+
+case class SimpleParsed(id: Long, text: String)
+
+class SimpleParser {
+
+  val parserFactory = new JsonFactory()
+
+  def parse(str: String) = {
+    val parser = parserFactory.createJsonParser(str)
+    if (parser.nextToken() == START_OBJECT) {
+      var token = parser.nextToken()
+      var textOpt:Option[String] = None
+      var idOpt:Option[Long] = None
+      while(token != null) {
+        if (token == FIELD_NAME) {
+          parser.getCurrentName() match {
+            case "text" => {
+              parser.nextToken()
+              textOpt = Some(parser.getText())
+            }
+            case "id" => {
+              parser.nextToken()
+              idOpt = Some(parser.getLongValue())
+            }
+            case _ => // noop
+          }
+        }
+        token = parser.nextToken()
+      }
+      if (textOpt.isDefined && idOpt.isDefined) {
+        Some(SimpleParsed(idOpt.get, textOpt.get))
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+  }
+}
+</pre>
+
+这是一个简单的Jackson解析器。当我们保存，SBT会重新编译代码和运行测试。代码变得越来越好了！
+
+<pre>
+info] SimpleParser should
+[info]   + work with basic tweet
+[info]   + reject a non-JSON tweet
+[info]   x ignore nested content
+[info]     '2' is not equal to '1' (SimpleParserSpec.scala:32)
+[info]   + fail on partial content
+[info] == com.twitter.sample.SimpleParserSpec ==
+</pre>
+
+哦。我们需要检查嵌套对象。让我们在token读取循环处添加一些丑陋的守卫。
+
+<pre>
+  def parse(str: String) = {
+    val parser = parserFactory.createJsonParser(str)
+    var nested = 0
+    if (parser.nextToken() == START_OBJECT) {
+      var token = parser.nextToken()
+      var textOpt:Option[String] = None
+      var idOpt:Option[Long] = None
+      while(token != null) {
+        if (token == FIELD_NAME && nested == 0) {
+          parser.getCurrentName() match {
+            case "text" => {
+              parser.nextToken()
+              textOpt = Some(parser.getText())
+            }
+            case "id" => {
+              parser.nextToken()
+              idOpt = Some(parser.getLongValue())
+            }
+            case _ => // noop
+          }
+        } else if (token == START_OBJECT) {
+          nested += 1
+        } else if (token == END_OBJECT) {
+          nested -= 1
+        }
+        token = parser.nextToken()
+      }
+      if (textOpt.isDefined && idOpt.isDefined) {
+        Some(SimpleParsed(idOpt.get, textOpt.get))
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+  }
+</pre>
+
+...测试通过了！
+
+h2. 打包和发布
+
+现在我们已经可以运行package命令来生成一个jar文件。不过我们可能要与其他组分享我们的jar包。要做到这一点，我们将在StandardProject基础上构建，这给了我们一个良好的开端。
+
+第一步是引入StandardProject为SBT插件。插件是一种为你的构建引进依赖的方式，注意不是为你的项目引入。这些依赖关系定义在project/plugins/Plugins.scala文件中。添加以下代码到Plugins.scala文件中。
+
+<pre>
+import sbt._
+
+class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
+  val twitterMaven = "twitter.com" at "http://maven.twttr.com/"
+  val defaultProject = "com.twitter" % "standard-project" % "0.7.14"
+}
+</pre>
+
+注意我们指定了一个Maven仓库和一个依赖。这是因为这个标准项目库是由twitter托管的，不在SBT默认检查的仓库中。
+
+我们也将更新项目定义来扩展StandardProject，包括SVN发布特质，和我们希望发布的仓库定义。修改SampleProject.scala
+
+<pre>
+import sbt._
+import com.twitter.sbt._
+
+class SampleProject(info: ProjectInfo) extends StandardProject(info) with SubversionPublisher {
+  val jackson = "org.codehaus.jackson" % "jackson-core-asl" % "1.6.1"
+  val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
+
+  override def subversionRepository = Some("http://svn.local.twitter.com/maven/")
+}
+</pre>
+
+现在如果我们运行发布操作，将看到以下输出
+
+<pre>
+[info] == deliver ==
+IvySvn Build-Version: null
+IvySvn Build-DateTime: null
+[info] :: delivering :: com.twitter#sample;1.0-SNAPSHOT :: 1.0-SNAPSHOT :: release :: Wed Nov 24 10:26:45 PST 2010
+[info] 	delivering ivy file to /Users/mmcbride/projects/sbt-sample/target/ivy-1.0-SNAPSHOT.xml
+[info] == deliver ==
+[info] 
+[info] == make-pom ==
+[info] Wrote /Users/mmcbride/projects/sbt-sample/target/sample-1.0-SNAPSHOT.pom
+[info] == make-pom ==
+[info] 
+[info] == publish ==
+[info] :: publishing :: com.twitter#sample
+[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
+[info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
+[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
+[info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
+[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
+[info] 	published ivy to com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
+[info] Binary diff deleting com/twitter/sample/1.0-SNAPSHOT
+[info] Commit finished r977 by 'mmcbride' at Wed Nov 24 10:26:47 PST 2010
+[info] Copying from com/twitter/sample/.upload to com/twitter/sample/1.0-SNAPSHOT
+[info] Binary diff finished : r978 by 'mmcbride' at Wed Nov 24 10:26:47 PST 2010
+[info] == publish ==
+[success] Successful.
+[info] 
+[info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
+</pre>
+
+这样（一段时间后），就可以在 <a href="http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/">binaries.local.twitter.com</a> 上看到我们发布的jar包。
+
+h2. 添加任务
+
+任务就是Scala函数。添加一个任务最简单的方法是，在你的项目定义中引入一个val定义的任务方法，如
+
+<pre>
+lazy val print = task {log.info("a test action"); None}
+</pre>
+
+你也可以这样加上依赖和描述
+
+<pre>
+lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
+</pre>
+
+刷新项目，并执行print操作，我们将看到以下输出
+
+<pre>
+> print
+[info] 
+[info] == print ==
+[info] a test action
+[info] == print ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 11:05:12 AM
+> 
+</pre>
+
+所以它起作用了。如果你只是在一个项目定义一个任务的话，这工作得很好。然而如果你定义的是一个插件的话，它就很不灵活了。我可能要
+
+<pre>
+lazy val print = printAction
+def printAction = printTask.dependsOn(compile) describedAs("prints a line after compile")
+def printTask = task {log.info("a test action"); None}
+</pre>
+
+这可以让消费者覆盖任务本身，依赖和/或任务的描述，或动作本身。大多数SBT内建的动作都遵循这种模式。作为一个例子，我们可以通过修改内置打包任务来打印当前时间戳
+
+<pre>
+lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
+override def packageAction = super.packageAction.dependsOn(printTimestamp)
+</pre>
+
+有很多例子介绍了怎样调整SBT默认的StandardProject，和如何添加自定义任务。
+
+h2. 快速参考
+
+h3. 常用命令
+
+* actions - 显示这个项目中可用的动作
+* update -  下载依赖
+* compile - 编译源文件
+* test -  运行测试
+* package - 创建一个可发布的jar文件
+* publish-local - 在本地ivy缓存中安装构建好的jar包
+* publish - 将你的jar推到一个远程库中（如果配置了的话）
+
+h3. 更多命令
+
+* test-failed - 运行所有失败的规格测试
+* test-quick - 运行任何失败的和/或依赖更新的规格
+* clean-cache - 删除SBT缓存各种的东西。就像sbt的clean命令
+* clean-lib - 删除lib_managed下的一切
+
+h3. 项目布局
+
+待续

@@ -3,77 +3,102 @@ lessons:
   - 
     title: Basics
     title_ru: Основы
+    title_zh_cn: 基础
     url: basics.html
     desc: Values, functions, classes, methods, inheritance, try-catch-finally. Expression-oriented programming
     desc_ru: Переменные, функции, классы, методы, наследование, try-catch-finally. Программирование ориентированное на выражения
+    desc_zh_cn: 值，函数，类，方法，继承，try-catch-finally。面向表达式编程
   -
     title: Basics continued
     title_ru: Основы языка. Продолжение
+    title_zh_cn: 基础知识（续）
     url: basics2.html
     desc: Case classes, objects, packages, apply, update, Functions are Objects (uniform access principle), pattern matching.
     desc_ru: Case классы, объекты, пакеты, apply, update, Функции как Объекты (единый принцип доступа), сопоставление с образцом.
+    desc_zh_cn: 样本类，对象，包，应用，更新，函数即对象（统一访问原则），模式匹配。
   -
     title: Collections
     title_ru: Коллекции
+    title_zh_cn: 集合
     url: collections.html
     desc: Lists, Maps, functional combinators (map, foreach, filter, zip, folds)
     desc_ru: Списки, Карты, функциональные комбинаторы (map, foreach, filter, zip, folds)
+    desc_zh_cn: 列表，映射，功能组合(map, foreach, filter, zip, folds)
   -
     title: Pattern matching & functional composition
     title_ru: Сопоставление с образцом и функкциональная композиция
+    title_zh_cn: 模式匹配与函数组合
     url: pattern-matching-and-functional-composition.html
     desc: More functions! PartialFunctions, more Pattern Matching
     desc_ru: Еще больше функций! Частичные функции, еще больше сопоставления с образцом
+    desc_zh_cn: 更多函数！偏函数，更多模式匹配
   -
     title: Type & polymorphism basics
     title_ru: Основы типов и полиморфизма
+    title_zh_cn: 类型和多态基础
     url: type-basics.html
     desc: Basic Types and type polymorphism, type inference, variance, bounds, quantification
     desc_ru: Основные типы и полиморфизм типов, вывод типов, изменчивость, пределы, квантификация
+    desc_zh_cn: 基本类型和类型多态性，类型推断，变性，边界，量化
   -
     title: Advanced types
     title_ru: Дополнительные типы
+    title_zh_cn: 高级类型
     url: advanced-types.html
     desc: Advanced Types, view bounds, higher-kinded types, recursive types, structural types
     desc_ru: Дополнительные типы, видимое ограничение, типы высшего порядка, рекурсивные типы, структурные типы
+    desc_zh_cn: 高级类型，视界，更高级多态性类型，递归类型，结构类型
   -
     title: Simple Build Tool
     title_ru: Simple Build Tool
+    title_zh_cn: 简单构建工具
     url: sbt.html
     desc: All about SBT, the standard Scala build tool
     desc_ru: Все о SBT, Стандартное средство сборки приложений для Scala
+    desc_zh_cn: 关于SBT——标准的Scala构建工具
   -
     title: More collections
     title_ru: Подробнее о коллекциях
+    title_zh_cn: 更多的集合
     url: coll2.html
     desc: Tour of the Scala Collections library
     desc_ru: Рассказ о библиотеке коллекций Scala
+    desc_zh_cn: Scala Collections库指南
   -
     title: Testing with specs
     title_ru: Тестирование с помощью specs
+    title_zh_cn: 使用specs测试
     url: specs.html
     desc_ru: Написание тестов с помощью Specs, Scala BDD фреймфорк для тестирования
   -
     title: Concurrency in Scala
     title_ru: Параллельность в Scala
+    title_zh_cn: Scala 并发编程
     url: concurrency.html
     desc: Runnable, Callable, threads, Futures
     desc_ru: Runnable, Callable, потоки, Futures
+    desc_zh_cn: Runnable, Callable, 线程, Futures
   -
     title: Java + Scala
     title_ru: Java + Scala
+    title_zh_cn: Java + Scala
     url: java.html
     desc: 'Java interop: Using Scala from Java'
     desc_ru:  'Java совместимость: Использование Scala из Java'
+    desc_zh_cn:  'Java跨平台交互：在Java中使用Scala'
   -
     title: An introduction to Finagle
     title_ru: Введение в Finagle
+    title_zh_cn: Finagle介绍
     url: finagle.html
     desc: 'Finagle primitives: Future, Service, Filter, Builder'
     desc_ru: 'Finagle примитивы: Future, Service, Filter, Builder'
+    desc_zh_cn: 'Finagle原语：Future, Service, Filter, Builder'
   -
     title: Searchbird
     title_ru: Searchbird
+    title_zh_cn: Searchbird
     url: searchbird.html
     desc: Building a distributed search engine using Finagle
     desc_ru: Создание распределенного поискового движка, используя Finagle
+    desc_zh_cn: 利用Finagle构建一个分布式搜索引擎

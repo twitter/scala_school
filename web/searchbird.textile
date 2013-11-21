@@ -617,7 +617,7 @@ class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServe
 }
 </pre>
 
-Now we'll adjust the configuration itself: add the "shards" initialization to the instantiation of @SearchbirdServiceConfig@ (we can talk to shard 0 via port 9000, shard 0 via port 9001, and so on). 
+Now we'll adjust the configuration itself: add the "shards" initialization to the instantiation of @SearchbirdServiceConfig@ (we can talk to shard 0 via port 9000, shard 1 via port 9001, and so on). 
 
 h5. config/development.scala
 

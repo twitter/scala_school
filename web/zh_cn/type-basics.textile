@@ -1,0 +1,317 @@
+---
+prev: pattern-matching-and-functional-composition.textile
+next: advanced-types.textile
+title: 类型和多态基础
+layout: post
+---
+
+课程内容：
+
+* "什么是静态类型":#background
+* "Scala中的类型":#scala
+* "参数化多态性":#parametricpoly
+* "类型推断： Hindley-Milner算法 vs. 局部类型推理":#inference
+* "变性":#variance
+* "边界":#bounds
+* "量化":#quantification
+
+h2(#background). 什么是静态类型？它们为什么有用？
+
+按Pierce的话讲：“类型系统是一个语法方法，它们根据程序计算的值的种类对程序短语进行分类，通过分类结果错误行为进行自动检查。”
+
+类型允许你表示函数的定义域和值域。例如，从数学角度看这个定义： 
+
+<pre>
+f: R -> N
+</pre>
+
+它告诉我们函数“f”是从实数集到自然数集的映射。 
+
+抽象地说，这就是 _具体_ 类型的准确定义。类型系统给我们提供了一些更强大的方式来表达这些集合。 
+
+鉴于这些注释，编译器可以 _静态地_ （在编译时）验证程序是 _合理_ 的。也就是说，如果值（在运行时）不符合程序规定的约束，编译将失败。 
+
+一般说来，类型检查只能保证 _不合理_ 的程序不能编译通过。它不能保证每一个合理的程序都 _可以_ 编译通过。
+
+随着类型系统表达能力的提高，我们可以生产更可靠的代码，因为它能够在我们运行程序之前验证程序的不变性（当然是发现类型本身的模型bug！）。学术界一直很努力地提高类型系统的表现力，包括值依赖（value-dependent）类型！ 
+
+需要注意的是，所有的类型信息会在编译时被删去，因为它已不再需要。这就是所谓的擦除。 
+
+h2(#scala). Scala中的类型
+
+Scala强大的类型系统拥有非常丰富的表现力。其主要特性有：
+
+* *参数化多态性* 粗略地说，就是泛型编程
+* *（局部）类型推断* 粗略地说，就是为什么你不需要这样写代码<code>val i: Int = 12: Int</code>
+* *存在量化* 粗略地说，为一些没有名称的类型进行定义
+* *视窗* 我们将下周学习这些；粗略地说，就是将一种类型的值“强制转换”为另一种类型
+
+h2(#parametricpoly). 参数化多态性
+
+多态性是在不影响静态类型丰富性的前提下，用来（给不同类型的值）编写通用代码的。 
+
+例如，如果没有参数化多态性，一个通用的列表数据结构总是看起来像这样（事实上，它看起来很像使用泛型前的Java）： 
+
+<pre>
+scala> 2 :: 1 :: "bar" :: "foo" :: Nil
+res5: List[Any] = List(2, 1, bar, foo)
+</pre>
+
+现在我们无法恢复其中成员的任何类型信息。
+
+<pre>
+scala> res5.head
+res6: Any = 2
+</pre>
+
+所以我们的应用程序将会退化为一系列类型转换（“asInstanceOf[]”），并且会缺乏类型安全的保障（因为这些都是动态的）。 
+
+多态性是通过指定 _类型变量_ 实现的。
+
+<pre>
+scala> def drop1[A](l: List[A]) = l.tail
+drop1: [A](l: List[A])List[A]
+
+scala> drop1(List(1,2,3))
+res1: List[Int] = List(2, 3)
+</pre>
+
+h3. Scala有秩1多态性
+
+粗略地说，这意味着在Scala中，有一些你想表达的类型概念“过于泛化”以至于编译器无法理解。假设你有一个函数
+
+<pre>
+def toList[A](a: A) = List(a)
+</pre>
+
+你希望继续泛型地使用它：
+
+<pre>
+def foo[A, B](f: A => List[A], b: B) = f(b)
+</pre>
+
+这段代码不能编译，因为所有的类型变量只有在调用上下文中才被固定。即使你“钉住”了类型<code>B</code>：
+
+<pre>
+def foo[A](f: A => List[A], i: Int) = f(i)
+</pre>
+
+...你也会得到一个类型不匹配的错误。
+
+h2(#inference). 类型推断
+
+静态类型的一个传统反对意见是，它有大量的语法开销。Scala通过 _类型推断_ 来缓解这个问题。
+
+在函数式编程语言中，类型推断的经典方法是 _Hindley Milner算法_，它最早是实现在ML中的。
+
+Scala类型推断系统的实现稍有不同，但本质类似：推断约束，并试图统一类型。
+
+例如，在Scala中你无法这样做：
+
+<pre>
+scala> { x => x }
+<console>:7: error: missing parameter type
+       { x => x }
+</pre>
+
+而在OCaml中你可以：
+
+<pre>
+# fun x -> x;;
+- : 'a -> 'a = <fun>
+</pre>
+
+在Scala中所有类型推断是 _局部的_ 。Scala一次分析一个表达式。例如：
+
+<pre>
+scala> def id[T](x: T) = x
+id: [T](x: T)T
+
+scala> val x = id(322)
+x: Int = 322
+
+scala> val x = id("hey")
+x: java.lang.String = hey
+
+scala> val x = id(Array(1,2,3,4))
+x: Array[Int] = Array(1, 2, 3, 4)
+</pre>
+
+类型信息都保存完好，Scala编译器为我们进行了类型推断。请注意我们并不需要明确指定返回类型。
+
+h2(#variance). 变性 Variance
+
+Scala的类型系统必须同时解释类层次和多态性。类层次结构可以表达子类关系。在混合OO和多态性时，一个核心问题是：如果<tt>T'</tt>是<tt>T</tt>一个子类，<tt>Container[T']</tt>应该被看做是<tt>Container[T]</tt>的子类吗？变性（Variance）注解允许你表达类层次结构和多态类型之间的关系：
+
+|                    |*含义*               | *Scala 标记*|
+|*协变covariant*     |C[T']是 C[T] 的子类   | [+T]|
+|*逆变contravariant* |C[T] 是 C[T']的子类   | [-T]|
+|*不变invariant*     |C[T] 和 C[T']无关     | [T]|
+
+子类型关系的真正含义：对一个给定的类型T，如果T'是其子类型，你能替换它吗？
+
+<pre>
+scala> class Covariant[+A]
+defined class Covariant
+
+scala> val cv: Covariant[AnyRef] = new Covariant[String]
+cv: Covariant[AnyRef] = Covariant@4035acf6
+
+scala> val cv: Covariant[String] = new Covariant[AnyRef]
+<console>:6: error: type mismatch;
+ found   : Covariant[AnyRef]
+ required: Covariant[String]
+       val cv: Covariant[String] = new Covariant[AnyRef]
+                                   ^
+</pre>
+
+<pre>
+scala> class Contravariant[-A]
+defined class Contravariant
+
+scala> val cv: Contravariant[String] = new Contravariant[AnyRef]
+cv: Contravariant[AnyRef] = Contravariant@49fa7ba
+
+scala> val fail: Contravariant[AnyRef] = new Contravariant[String]
+<console>:6: error: type mismatch;
+ found   : Contravariant[String]
+ required: Contravariant[AnyRef]
+       val fail: Contravariant[AnyRef] = new Contravariant[String]
+                                     ^
+</pre>
+
+逆变似乎很奇怪。什么时候才会用到它呢？令人惊讶的是，函数特质的定义就使用了它！
+
+<pre>
+trait Function1 [-T1, +R] extends AnyRef
+</pre>
+
+如果你仔细从替换的角度思考一下，会发现它是非常合理的。让我们先定义一个简单的类层次结构：
+
+<pre>
+scala> class Animal { val sound = "rustle" }
+defined class Animal
+
+scala> class Bird extends Animal { override val sound = "call" }
+defined class Bird
+
+scala> class Chicken extends Bird { override val sound = "cluck" }
+defined class Chicken
+</pre>
+
+假设你需要一个以<code>Bird</code>为参数的函数：
+
+<pre>
+scala> val getTweet: (Bird => String) = // TODO
+</pre>
+
+标准动物库有一个函数满足了你的需求，但它的参数是<code>Animal</code>。在大多数情况下，如果你说“我需要一个___，我有一个___的子类”是可以的。但是，在函数参数这里是逆变的。如果你需要一个参数为<code>Bird</code>的函数，并且指向一个参数为<code>Chicken</code>的函数，那么给它传入一个<code>Duck</code>时就会出错。但指向一个参数为<code>Animal</code>的函数就是可以的：
+
+<pre>
+scala> val getTweet: (Bird => String) = ((a: Animal) => a.sound )
+getTweet: Bird => String = <function1>
+</pre>
+
+函数的返回值类型是协变的。如果你需要一个返回<code>Bird</code>的函数，但指向的函数返回类型是<code>Chicken</code>，这当然是可以的。
+
+<pre>
+scala> val hatch: (() => Bird) = (() => new Chicken )
+hatch: () => Bird = <function0>
+</pre>
+
+h2(#bounds). 边界
+
+Scala允许你通过 _边界_ 来限制多态变量。这些边界表达了子类型关系。
+
+<pre>
+scala> def cacophony[T](things: Seq[T]) = things map (_.sound)
+<console>:7: error: value sound is not a member of type parameter T
+       def cacophony[T](things: Seq[T]) = things map (_.sound)
+                                                        ^
+
+scala> def biophony[T <: Animal](things: Seq[T]) = things map (_.sound)
+biophony: [T <: Animal](things: Seq[T])Seq[java.lang.String]
+
+scala> biophony(Seq(new Chicken, new Bird))
+res5: Seq[java.lang.String] = List(cluck, call)
+</pre>
+
+类型下界也是支持的，这让逆变和巧妙协变的引入得心应手。<code>List[+T]</code>是协变的；一个Bird的列表也是Animal的列表。<code>List</code>定义一个操作<code>::(elem T)</code>返回一个加入了<code>elem</code>的新的<code>List</code>。新的<code>List</code>和原来的列表具有相同的类型：
+
+<pre>
+scala> val flock = List(new Bird, new Bird)
+flock: List[Bird] = List(Bird@7e1ec70e, Bird@169ea8d2)
+
+scala> new Chicken :: flock
+res53: List[Bird] = List(Chicken@56fbda05, Bird@7e1ec70e, Bird@169ea8d2)
+</pre>
+
+<code>List</code> _同样_ 定义了<code>::[B >: T](x: B)</code> 来返回一个<code>List[B]</code>。请注意<code>B >: T</code>，这指明了类型<code>B</code>为类型<code>T</code>的超类。这个方法让我们能够做正确地处理在一个<code>List[Bird]</code>前面加一个<code>Animal</code>的操作：
+
+<pre>
+scala> new Animal :: flock
+res59: List[Animal] = List(Animal@11f8d3a8, Bird@7e1ec70e, Bird@169ea8d2)
+</pre>
+
+注意返回类型是<code>Animal</code>。
+
+h2(#quantification). 量化
+
+有时候，你并不关心是否能够命名一个类型变量，例如：
+
+<pre>
+scala> def count[A](l: List[A]) = l.size
+count: [A](List[A])Int
+</pre>
+
+这时你可以使用“通配符”取而代之：
+
+<pre>
+scala> def count(l: List[_]) = l.size
+count: (List[_])Int
+</pre>
+
+这相当于是下面代码的简写：
+
+<pre>
+scala> def count(l: List[T forSome { type T }]) = l.size
+count: (List[T forSome { type T }])Int
+</pre>
+
+注意量化会的结果会变得非常难以理解：
+
+<pre>
+scala> def drop1(l: List[_]) = l.tail
+drop1: (List[_])List[Any]
+</pre>
+
+突然，我们失去了类型信息！让我们细化代码看看发生了什么：
+
+<pre>
+scala> def drop1(l: List[T forSome { type T }]) = l.tail
+drop1: (List[T forSome { type T }])List[T forSome { type T }]
+</pre>
+
+我们不能使用T因为类型不允许这样做。
+
+你也可以为通配符类型变量应用边界：
+
+<pre>
+scala> def hashcodes(l: Seq[_ <: AnyRef]) = l map (_.hashCode)
+hashcodes: (Seq[_ <: AnyRef])Seq[Int]
+
+scala> hashcodes(Seq(1,2,3))
+<console>:7: error: type mismatch;
+ found   : Int(1)
+ required: AnyRef
+Note: primitive types are not implicitly converted to AnyRef.
+You can safely force boxing by casting x.asInstanceOf[AnyRef].
+       hashcodes(Seq(1,2,3))
+                     ^
+
+scala> hashcodes(Seq("one", "two", "three"))
+res1: Seq[Int] = List(110182, 115276, 110339486)
+</pre>
+
+
+*参考* D. R. MacIver写的<a href="http://www.drmaciver.com/2008/03/existential-types-in-scala/">Scala中的存在类型</a>
