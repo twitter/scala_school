@@ -38,30 +38,30 @@
     <div class="container" style="padding-top: 60px;">
       <ul>
 	<li><a href="#runnable">Runnable/Callable</a></li>
-	<li><a href="#Thread">Threads</a></li>
+	<li><a href="#Thread">线程</a></li>
 	<li><a href="#executor">Executors/ExecutorService</a></li>
 	<li><a href="#Future">Futures</a></li>
-	<li><a href="#danger">Thread Safety Problem</a></li>
-	<li><a href="#example">Example: Search Engine</a></li>
-	<li><a href="#solutions">Solutions</a></li>
+	<li><a href="#danger">线程安全问题</a></li>
+	<li><a href="#example">例子：搜索引擎</a></li>
+	<li><a href="#solutions">解决方案</a></li>
 </ul>
 <h2 id="runnable">Runnable/Callable</h2>
-<p>Runnable has a single method that returns no value.</p>
+<p>Runnable接口只有一个没有返回值的方法。</p>
 <pre>
 trait Runnable {
   def run(): Unit
 }
 </pre>
-<p>Callable is similar to run except that it returns a value</p>
+<p>Callable与之类似，除了它有一个返回值</p>
 <pre>
 trait Callable[V] {
   def call(): V
 }
 </pre>
-<h2 id="Thread">Threads</h2>
-<p>Scala concurrency is built on top of the Java concurrency model.</p>
-<p>On Sun JVMs, with a IO-heavy workload, we can run tens of thousands of threads on a single machine.</p>
-<p>A Thread takes a Runnable.  You have to call <code>start</code> on a Thread in order for it to run the Runnable.</p>
+<h2 id="Thread">线程</h2>
+<p>Scala并发是建立在Java并发模型基础上的。</p>
+<p>在Sun JVM上，对IO密集的任务，我们可以在一台机器运行成千上万个线程。</p>
+<p>一个线程需要一个Runnable。你必须调用线程的 <code>start</code> 方法来运行Runnable。</p>
 <pre>
 scala&gt; val hello = new Thread(new Runnable {
   def run() {
@@ -74,9 +74,9 @@ scala&gt; hello.start
 hello world
 
 </pre>
-<p>When you see a class implementing Runnable, you know it&#8217;s intended to run in a Thread somewhere by somebody.</p>
-<h3>Something single-threaded</h3>
-<p>Here&#8217;s a code snippet that works but has problems.</p>
+<p>当你看到一个类实现了Runnable接口，你就知道它的目的是运行在一个线程中。</p>
+<h3>单线程代码</h3>
+<p>这里有一个可以工作但有问题的代码片断。</p>
 <pre>
 import java.net.{Socket, ServerSocket}
 import java.util.concurrent.{Executors, ExecutorService}
@@ -105,21 +105,21 @@ class Handler(socket: Socket) extends Runnable {
 
 (new NetworkService(2020, 2)).run
 </pre>
-<p>Each request will respond with the name of the current Thread, which is always <code>main</code>.</p>
-<p>The main drawback with this code is that only one request at a time can be answered!</p>
-<p>You could put each request in a Thread.  Simply change</p>
+<p>每个请求都会回应当前线程的名称，所以结果始终是 <code>main</code> 。</p>
+<p>这段代码的主要缺点是在同一时间，只有一个请求可以被相应！</p>
+<p>你可以把每个请求放入一个线程中处理。只要简单改变</p>
 <pre>
 (new Handler(socket)).run()
 </pre>
-<p>to</p>
+<p>为</p>
 <pre>
 (new Thread(new Handler(socket))).start()
 </pre>
-<p>but what if you want to reuse threads or have other policies about thread behavior?</p>
+<p>但如果你想重用线程或者对线程的行为有其他策略呢？</p>
 <h2 id="executor">Executors</h2>
-<p>With the release of Java 5, it was decided that a more abstract interface to Threads was required.</p>
-<p>You can get an <code>ExecutorService</code> using static methods on the <code>Executors</code> object.  Those methods provide you to configure an <code>ExecutorService</code> with a variety of policies such as thread pooling.</p>
-<p>Here&#8217;s our old blocking network server written to allow concurrent requests.</p>
+<p>随着Java 5的发布，它决定提供一个针对线程的更抽象的接口。</p>
+<p>你可以通过 <code>Executors</code> 对象的静态方法得到一个 <code>ExecutorService</code> 对象。这些方法为你提供了可以通过各种政策配置的 <code>ExecutorService</code> ，如线程池。</p>
+<p>下面改写我们之前的阻塞式网络服务器来允许并发请求。</p>
 <pre>
 import java.net.{Socket, ServerSocket}
 import java.util.concurrent.{Executors, ExecutorService}
@@ -153,7 +153,7 @@ class Handler(socket: Socket) extends Runnable {
 
 (new NetworkService(2020, 2)).run
 </pre>
-<p>Here&#8217;s a transcript connecting to it showing how the internal threads are re-used.</p>
+<p>这里有一个连接脚本展示了内部线程是如何重用的。</p>
 <pre>
 $ nc localhost 2020
 pool-1-thread-1
@@ -168,8 +168,8 @@ $ nc localhost 2020
 pool-1-thread-2
 </pre>
 <h2 id="Future">Futures</h2>
-<p>A <code>Future</code> represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking <code>get()</code> method on it.  An <code>Executor</code> returns a <code>Future</code>. If you use the Finagle <span class="caps">RPC</span> system, you use <code>Future</code> instances to hold results that might not have arrived yet.</p>
-<p>A <code>FutureTask</code> is a Runnable and is designed to be run by an <code>Executor</code></p>
+<p><code>Future</code> 代表异步计算。你可以把你的计算包装在Future中，当你需要计算结果的时候，你只需调用一个阻塞的 <code>get()</code> 方法就可以了。一个 <code>Executor</code> 返回一个 <code>Future</code> 。如果使用Finagle RPC系统，你可以使用 <code>Future</code> 实例持有可能尚未到达的结果。</p>
+<p>一个 <code>FutureTask</code> 是一个Runnable实现，就是被设计为由 <code>Executor</code> 运行的</p>
 <pre>
 val future = new FutureTask[String](new Callable[String]() {
   def call(): String = {
@@ -177,12 +177,12 @@ val future = new FutureTask[String](new Callable[String]() {
 }})
 executor.execute(future)
 </pre>
-<p>Now I need the results so let&#8217;s block until its done.</p>
+<p>现在我需要结果，所以阻塞直到其完成。</p>
 <pre>
 val blockingResult = future.get()
 </pre>
-<p><strong>See Also</strong> <a href="finagle.html">Scala School&#8217;s Finagle page</a> has plenty of examples of using <code>Future</code>s, including some nice ways to combine them. Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .</p>
-<h2 id="danger">Thread Safety Problem</h2>
+<p><strong>参考</strong> <a href="finagle.html">Scala School的Finagle介绍</a>中大量使用了<code>Future</code>，包括一些把它们结合起来的不错的方法。以及 Effective Scala 对<a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a>的意见。</p>
+<h2 id="danger">线程安全问题</h2>
 <pre>
 class Person(var name: String) {
   def set(changedName: String) {
@@ -190,13 +190,13 @@ class Person(var name: String) {
   }
 }
 </pre>
-<p>This program is not safe in a multi-threaded environment.  If two threads have references to the same instance of Person and call <code>set</code>, you can&#8217;t predict what <code>name</code> will be at the end of both calls.</p>
-<p>In the Java memory model, each processor is allowed to cache values in its L1 or L2 cache so two threads running on different processors can each have their own view of data.</p>
-<p>Let&#8217;s talk about some tools that force threads to keep a consistent view of data.</p>
-<h3>Three tools</h3>
-<h4>synchronization</h4>
-<p>Mutexes provide ownership semantics.  When you enter a mutex, you own it.  The most common way of using a mutex in the <span class="caps">JVM</span> is by synchronizing on something.  In this case, we&#8217;ll synchronize on our Person.</p>
-<p>In the <span class="caps">JVM</span>, you can synchronize on any instance that&#8217;s not null.</p>
+<p>这个程序在多线程环境中是不安全的。如果有两个线程有引用到同一个Person实例，并调用 <code>set</code> ，你不能预测两个调用结束后 <code>name</code> 的结果。</p>
+<p>在Java内存模型中，允许每个处理器把值缓存在L1或L2缓存中，所以在不同处理器上运行的两个线程都可以有自己的数据视图。</p>
+<p>让我们来讨论一些工具，来使线程保持一致的数据视图。</p>
+<h3>三种工具</h3>
+<h4>同步</h4>
+<p>互斥锁（Mutex）提供所有权语义。当你进入一个互斥体，你拥有它。同步是JVM中使用互斥锁最常见的方式。在这个例子中，我们会同步Person。</p>
+<p>在JVM中，你可以同步任何不为null的实例。</p>
 <pre>
 class Person(var name: String) {
   def set(changedName: String) {
@@ -207,8 +207,8 @@ class Person(var name: String) {
 }
 </pre>
 <h4>volatile</h4>
-<p>With Java 5&#8217;s change to the memory model, volatile and synchronized are basically identical except with volatile, nulls are allowed.</p>
-<p><code>synchronized</code> allows for more fine-grained locking.  <code>volatile</code> synchronizes on every access.</p>
+<p>随着Java 5内存模型的变化，volatile和synchronized基本上是相同的，除了volatile允许空值。</p>
+<p><code>synchronized</code> 允许更细粒度的锁。 而 <code>volatile</code> 则对每次访问同步。</p>
 <pre>
 class Person(@volatile var name: String) {
   def set(changedName: String) {
@@ -217,7 +217,7 @@ class Person(@volatile var name: String) {
 }
 </pre>
 <h4>AtomicReference</h4>
-<p>Also in Java 5, a whole raft of low-level concurrency primitives were added. One of them is an <code>AtomicReference</code> class</p>
+<p>此外，在Java 5中还添加了一系列低级别的并发原语。 <code>AtomicReference</code> 类是其中之一</p>
 <pre>
 import java.util.concurrent.atomic.AtomicReference
 
@@ -227,15 +227,15 @@ class Person(val name: AtomicReference[String]) {
   }
 }
 </pre>
-<h4>Does this cost anything?</h4>
-<p>@AtomicReference is the most costly of these two choices since you have to go through method dispatch to access values.</p>
-<p><code>volatile</code> and <code>synchronized</code> are built on top of Java&#8217;s built-in monitors.  Monitors cost very little if there&#8217;s no contention.  Since <code>synchronized</code> allows you more fine-grained control over when you synchronize, there will be less contention so <code>synchronized</code> tends to be the cheapest option.</p>
-<p>When you enter synchronized points, access volatile references, or deference AtomicReferences, Java forces the processor to flush their cache lines and provide a consistent view of data.</p>
-<p><span class="caps">PLEASE</span> <span class="caps">CORRECT</span> ME IF I&#8217;M <span class="caps">WRONG</span> <span class="caps">HERE</span>.  This is a complicated subject, I&#8217;m sure there will be a lengthy classroom discussion at this point.</p>
-<h3>Other neat tools from Java 5</h3>
-<p>As I mentioned with <code>AtomicReference</code>, Java 5 brought many great tools along with it.</p>
+<h4>这个成本是什么？</h4>
+<p><code>AtomicReference</code> 是这两种选择中最昂贵的，因为你必须去通过方法调度（method dispatch）来访问值。</p>
+<p><code>volatile</code> 和 <code>synchronized</code> 是建立在Java的内置监视器基础上的。如果没有资源争用，监视器的成本很小。由于 <code>synchronized</code> 允许你进行更细粒度的控制权，从而会有更少的争夺，所以 <code>synchronized</code> 往往是最好的选择。</p>
+<p>当你进入同步点，访问volatile引用，或去掉AtomicReferences引用时， Java会强制处理器刷新其缓存线从而提供了一致的数据视图。</p>
+<p>如果我错了，请大家指正。这是一个复杂的课题，我敢肯定要弄清楚这一点需要一个漫长的课堂讨论。</p>
+<h3>Java5的其他灵巧的工具</h3>
+<p>正如前面提到的 <code>AtomicReference</code> ，Java5带来了许多很棒的工具。</p>
 <h4>CountDownLatch</h4>
-<p>A <code>CountDownLatch</code> is a simple mechanism for multiple threads to communicate with each other.</p>
+<p><code>CountDownLatch</code> 是一个简单的多线程互相通信的机制。</p>
 <pre>
 val doneSignal = new CountDownLatch(2)
 doAsyncWork(1)
@@ -244,17 +244,17 @@ doAsyncWork(2)
 doneSignal.await()
 println("both workers finished!")
 </pre>
-<p>Among other things, it&#8217;s great for unit tests.  Let&#8217;s say you&#8217;re doing some async work and want to ensure that functions are completing.  Simply have your functions <code>countDown</code> the latch and <code>await</code> in the test.</p>
+<p>先不说别的，这是一个优秀的单元测试。比方说，你正在做一些异步工作，并要确保功能完成。你的函数只需要 <code>倒数计数（countDown）</code> 并在测试中 <code>等待（await）</code> 就可以了。</p>
 <h4>AtomicInteger/Long</h4>
-<p>Since incrementing Ints and Longs is such a common task, <code>AtomicInteger</code> and <code>AtomicLong</code> were added.</p>
+<p>由于对Int和Long递增是一个经常用到的任务，所以增加了 <code>AtomicInteger</code> 和 <code>AtomicLong</code> 。</p>
 <h4>AtomicBoolean</h4>
-<p>I probably don&#8217;t have to explain what this would be for.</p>
+<p>我可能不需要解释这是什么。</p>
 <h4>ReadWriteLocks</h4>
-<p><code>ReadWriteLock</code> lets you take reader and writer locks.  reader locks only block when a writer lock is taken.</p>
-<h2 id="example">Let&#8217;s build an unsafe search engine</h2>
-<p>Here&#8217;s a simple inverted index that isn&#8217;t thread-safe.  Our inverted index maps parts of a name to a given User.</p>
-<p>This is written in a naive way assuming only single-threaded access.</p>
-<p>Note the alternative default constructor <code>this()</code> that uses a <code>mutable.HashMap</code></p>
+<p><code>读写锁（ReadWriteLock）</code> 使你拥有了读线程和写线程的锁控制。当写线程获取锁的时候读线程只能等待。</p>
+<h2 id="example">让我们构建一个不安全的搜索引擎</h2>
+<p>下面是一个简单的倒排索引，它不是线程安全的。我们的倒排索引按名字映射到一个给定的用户。</p>
+<p>这里的代码天真地假设只有单个线程来访问。</p>
+<p>注意使用了 <code>mutable.HashMap</code> 替代了默认的构造函数 <code>this()</code></p>
 <pre>
 import scala.collection.mutable
 
@@ -279,11 +279,11 @@ class InvertedIndex(val userMap: mutable.Map[String, User]) {
   }
 }
 </pre>
-<p>I&#8217;ve left out how to get users out of our index for now.  We&#8217;ll get to that later.</p>
-<h2 id="solutions">Let&#8217;s make it safe</h2>
-<p>In our inverted index example above, userMap is not guaranteed to be safe.  Multiple clients could try to add items at the same time and have the same kinds of visibility errors we saw in our first <code>Person</code> example.</p>
-<p>Since userMap isn&#8217;t thread-safe, how we do we keep only a single thread at a time mutating it?</p>
-<p>You might consider locking on userMap while adding.</p>
+<p>这里没有写如何从索引中获取用户。稍后我们会补充。</p>
+<h2 id="solutions">让我们把它变为线程安全</h2>
+<p>在上面的倒排索引例子中，userMap不能保证是线程安全的。多个客户端可以同时尝试添加项目，并有可能出现前面 <code>Person</code> 例子中的视图错误。</p>
+<p>由于userMap不是线程安全的，那我们怎样保持在同一个时间只有一个线程能改变它呢？</p>
+<p>你可能会考虑在做添加操作时锁定userMap。</p>
 <pre>
 def add(user: User) {
   userMap.synchronized {
@@ -293,7 +293,7 @@ def add(user: User) {
   }
 }
 </pre>
-<p>Unfortunately, this is too coarse.  Always try to do as much expensive work outside of the mutex as possible.  Remember what I said about locking being cheap if there is no contention.  If you do less work inside of a block, there will be less contention.</p>
+<p>不幸的是，这个粒度太粗了。一定要试图在互斥锁以外做尽可能多的耗时的工作。还记得我说过如果不存在资源争夺，锁开销就会很小吗。如果在锁代码块里面做的工作越少，争夺就会越少。</p>
 <pre>
 def add(user: User) {
   // tokenizeName was measured to be the most expensive operation.
@@ -307,8 +307,8 @@ def add(user: User) {
 }
 </pre>
 <h2>SynchronizedMap</h2>
-<p>We can mixin synchronization with a mutable HashMap using the SynchronizedMap trait.</p>
-<p>We can extend our existing InvertedIndex to give users an easy way to build the synchronized index.</p>
+<p>我们可以通过SynchronizedMap特质将同步混入一个可变的HashMap。</p>
+<p>我们可以扩展现有的InvertedIndex，提供给用户一个简单的方式来构建同步索引。</p>
 <pre>
 import scala.collection.mutable.SynchronizedMap
 
@@ -316,10 +316,10 @@ class SynchronizedInvertedIndex(userMap: mutable.Map[String, User]) extends Inve
   def this() = this(new mutable.HashMap[String, User] with SynchronizedMap[String, User])
 }
 </pre>
-<p>If you look at the implementation, you realize that it&#8217;s simply synchronizing on every method so while it&#8217;s safe, it might not have the performance you&#8217;re hoping for.</p>
+<p>如果你看一下其实现，你就会意识到，它只是在每个方法上加同步锁来保证其安全性，所以它很可能没有你希望的性能。</p>
 <h2>Java ConcurrentHashMap</h2>
-<p>Java comes with a nice thread-safe ConcurrentHashMap.  Thankfully, we can use JavaConverters to give us nice Scala semantics.</p>
-<p>In fact, we can seamlessly layer our new, thread-safe InvertedIndex as an extension of the old unsafe one.</p>
+<p>Java有一个很好的线程安全的ConcurrentHashMap。值得庆幸的是，我们可以通过JavaConverters获得不错的Scala语义。</p>
+<p>事实上，我们可以通过扩展老的不安全的代码，来无缝地接入新的线程安全InvertedIndex。</p>
 <pre>
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConverters._
@@ -330,10 +330,9 @@ class ConcurrentInvertedIndex(userMap: collection.mutable.ConcurrentMap[String, 
   def this() = this(new ConcurrentHashMap[String, User] asScala)
 }
 </pre>
-<h2>Let&#8217;s load our InvertedIndex</h2>
-<h3>The naive way</h3>
+<h2>让我们加载InvertedIndex</h2>
+<h3>原始方式</h3>
 <pre>
-
 trait UserMaker {
   def makeUser(line: String) = line.split(",") match {
     case Array(name, userid) =&gt; User(name, userid.trim().toInt)
@@ -348,10 +347,10 @@ class FileRecordProducer(path: String) extends UserMaker {
   }
 }
 </pre>
-<p>For every line in our file, we call <code>makeUser</code> and then <code>add</code> it to our InvertedIndex.  If we use a concurrent InvertedIndex, we can call add in parallel and since makeUser has no side-effects, it&#8217;s already thread-safe.</p>
-<p>We can&#8217;t read a file in parallel but we <em>can</em> build the User and add it to the index in parallel.</p>
-<h3>A solution: Producer/Consumer</h3>
-<p>A common pattern for async computation is to separate producers from consumers and have them only communicate via a <code>Queue</code>.  Let&#8217;s walk through how that would work for our search engine indexer.</p>
+<p>对于文件中的每一行，我们可以调用 <code>makeUser</code> 然后 <code>add</code> 到 InvertedIndex中。如果我们使用并发InvertedIndex，我们可以并行调用add因为makeUser没有副作用，所以我们的代码已经是线程安全的了。</p>
+<p>我们不能并行读取文件，但我们 <em>可以</em> 并行构造用户并且把它添加到索引中。</p>
+<h3>一个解决方案：生产者/消费者</h3>
+<p>异步计算的一个常见模式是把消费者和生产者分开，让他们只能通过 <code>队列（Queue）</code> 沟通。让我们看看如何将这个模式应用在我们的搜索引擎索引中。</p>
 <pre>
 import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
 

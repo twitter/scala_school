@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Scala School - Advanced types</title>
+    <title>Scala School - 高级类型</title>
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -21,7 +21,7 @@
     <div class="topbar">
       <div class="fill">
         <div class="container fixed">
-          <h3><a href="index.html">Advanced types</a></h3>
+          <h3><a href="index.html">高级类型</a></h3>
           <ul class="nav secondary-nav">
             
               <li><a href="type-basics.html">&laquo;Previous</a></li>
@@ -36,20 +36,20 @@
     </div>
 
     <div class="container" style="padding-top: 60px;">
-      <p>This lesson covers:</p>
+      <p>课程内容：</p>
 <ul>
-	<li><a href="#viewbounds">View bounds</a> (&#8220;type classes&#8221;)</li>
-	<li><a href="#otherbounds">Other Type Bounds</a></li>
-	<li><a href="#higher">Higher kinded types &amp; ad-hoc polymorphism</a></li>
-	<li><a href="#fbounded">F-bounded polymorphism / recursive types</a></li>
-	<li><a href="#structural">Structural types</a></li>
-	<li><a href="#abstractmem">Abstract types members</a></li>
-	<li><a href="#manifest">Type erasures &amp; manifests</a></li>
-	<li><a href="#finagle">Case study: Finagle</a></li>
+	<li><a href="#viewbounds">视界</a> (&#8220;类型类&#8221;)</li>
+	<li><a href="#otherbounds">其他类型限制</a></li>
+	<li><a href="#higher">更高级多态性类型 和 特设多态性</a></li>
+	<li><a href="#fbounded">F-界多态性 / 递归类型</a></li>
+	<li><a href="#structural">结构类型</a></li>
+	<li><a href="#abstractmem">抽象类型成员</a></li>
+	<li><a href="#manifest">类型擦除和清单</a></li>
+	<li><a href="#finagle">案例分析: Finagle</a></li>
 </ul>
-<h2 id="viewbounds">View bounds (&#8220;type classes&#8221;)</h2>
-<p>Sometimes you don&#8217;t need to specify that one type is equal/sub/super another, just that you could fake it with conversions. A view bound specifies a type that can be &#8220;viewed as&#8221; another. This makes sense for an operation that needs to &#8220;read&#8221; an object but doesn&#8217;t modify the object.</p>
-<p><strong>Implicit</strong> functions allow automatic conversion. More precisely, they allow on-demand function application when this can help satisfy type inference. e.g.:</p>
+<h2 id="viewbounds">视界（“类型类”）</h2>
+<p>有时候，你并不需要指定一个类型是等/子/超于另一个类，你可以通过转换这个类来伪装这种关联关系。一个视界指定一个类型可以被“看作是”另一个类型。这对对象的只读操作是很有用的。</p>
+<p><strong>隐</strong> 函数允许类型自动转换。更确切地说，在隐式函数可以帮助满足类型推断时，它们允许按需的函数应用。例如：</p>
 <pre>
 scala&gt; implicit def strToInt(x: String) = x.toInt
 strToInt: (x: String)Int
@@ -63,12 +63,12 @@ y: Int = 123
 scala&gt; math.max("123", 111)
 res1: Int = 123
 </pre>
-<p>view bounds, like type bounds demand such a function exists for the given type.  You specify a type bound with <code>&lt;%</code> e.g.,</p>
+<p>视界，就像类型边界，要求对给定的类型存在这样一个函数。您可以使用<code>&lt;%</code>指定类型限制，例如：</p>
 <pre>
 scala&gt; class Container[A &lt;% Int] { def addIt(x: A) = 123 + x }
 defined class Container
 </pre>
-<p>This says that <strong>A</strong> has to be &#8220;viewable&#8221; as <strong>Int</strong>.  Let&#8217;s try it.</p>
+<p>这是说 <strong>A</strong> 必须“可被视”为 <strong>Int</strong> 。让我们试试。</p>
 <pre>
 scala&gt; (new Container[String]).addIt("123")
 res11: Int = 246
@@ -81,25 +81,25 @@ scala&gt; (new Container[Float]).addIt(123.2F)
        (new Container[Float]).addIt(123.2)
         ^
 </pre>
-<h2 id="otherbounds">Other type bounds</h2>
-<p>Methods can enforce more complex type bounds via implicit parameters. For example, <code>List</code> supports <code>sum</code> on numeric contents but not on others. Alas, Scala&#8217;s numeric types don&#8217;t all share a superclass, so we can&#8217;t just say <code>T &lt;: Number</code>. Instead, to make this work, Scala&#8217;s math library <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/">defines an implicit <code>Numeric[T]</code> for the appropriate types T</a>.  Then in <code>List</code>&#8217;s definition uses it:</p>
+<h2 id="otherbounds">其他类型限制</h2>
+<p>方法可以通过隐含参数执行更复杂的类型限制。例如，<code>List</code>支持对数字内容执行<code>sum</code>，但对其他内容却不行。可是Scala的数字类型并不都共享一个超类，所以我们不能使用<code>T &lt;: Number</code>。相反，要使之能工作，Scala的math库<a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/">对适当的类型T 定义了一个隐含的<code>Numeric[T]</code></a>。 然后在<code>List</code>定义中使用它：</p>
 <pre>
 sum[B &gt;: A](implicit num: Numeric[B]): B
 </pre>
-<p>If you invoke <code>List(1,2).sum()</code>, you don&#8217;t need to pass a <em>num</em> parameter; it&#8217;s set implicitly. But if you invoke <code>List("whoop").sum()</code>, it complains that it couldn&#8217;t set <code>num</code>.</p>
-<p>Methods may ask for some kinds of specific &#8220;evidence&#8221; for a type without setting up strange objects as with <code>Numeric</code>. Instead, you can use of these type-relation operators:</p>
+<p>如果你调用<code>List(1,2).sum()</code>，你并不需要传入一个 <em>num</em> 参数；它是隐式设置的。但如果你调用<code>List("whoop").sum()</code>，它会抱怨无法设置<code>num</code>。</p>
+<p>在没有设定陌生的对象为<code>Numeric</code>的时候，方法可能会要求某种特定类型的“证据”。这时可以使用以下类型-关系运算符：</p>
 <table>
 	<tr>
 		<td>A =:= B</td>
-		<td>A must be equal to B</td>
+		<td>A 必须和 B相等</td>
 	</tr>
 	<tr>
 		<td>A &lt;:&lt; B</td>
-		<td>A must be a subtype of B</td>
+		<td>A 必须是 B的子类</td>
 	</tr>
 	<tr>
 		<td>A &lt;%&lt; B</td>
-		<td>A must be viewable as B</td>
+		<td>A 必须可以被看做是 B</td>
 	</tr>
 </table>
 <pre>
@@ -112,7 +112,7 @@ res11: Int = 246
 scala&gt; (new Container("123")).addIt
 &lt;console&gt;:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
 </pre>
-<p>Similarly, given our previous implicit, we can relax the constraint to viewability:</p>
+<p>类似地，根据之前的隐式转换，我们可以放松约束为可视性：</p>
 <pre>
 scala&gt; class Container[A](value: A) { def addIt(implicit evidence: A &lt;%&lt; Int) = 123 + value }
 defined class Container
@@ -120,8 +120,8 @@ defined class Container
 scala&gt; (new Container("123")).addIt
 res15: Int = 246
 </pre>
-<h3>Generic programming with views</h3>
-<p>In the Scala standard library, views are primarily used to implement generic functions over collections.  For example, the &#8220;min&#8221; function (on <strong>Seq[]</strong>), uses this technique:</p>
+<h3>使用视图进行泛型编程</h3>
+<p>在Scala标准库中，视图主要用于实现集合的通用函数。例如“min”函数（在 <strong>Seq[]</strong> 上）就使用了这种技术：</p>
 <pre>
 def min[B &gt;: A](implicit cmp: Ordering[B]): A = {
   if (isEmpty)
@@ -130,10 +130,10 @@ def min[B &gt;: A](implicit cmp: Ordering[B]): A = {
   reduceLeft((x, y) =&gt; if (cmp.lteq(x, y)) x else y)
 }
 </pre>
-<p>The main advantages of this are:</p>
+<p>其主要优点是：</p>
 <ul>
-	<li>Items in the collections aren&#8217;t required to implement <strong>Ordered</strong>, but <strong>Ordered</strong> uses are still statically type checked.</li>
-	<li>You can define your own orderings without any additional library support:</li>
+	<li>集合中的元素并不是必须实现 <strong>Ordered</strong> 特质，但 <strong>Ordered</strong> 的使用仍然可以执行静态类型检查。</li>
+	<li>无需任何额外的库支持，你也可以定义自己的排序：</li>
 </ul>
 <pre>
 scala&gt; List(1,2,3,4).min
@@ -142,7 +142,7 @@ res0: Int = 1
 scala&gt; List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b compare a })
 res3: Int = 4
 </pre>
-<p>As a sidenote, there are views in the standard library that translates <strong>Ordered</strong> into <strong>Ordering</strong> (and vice versa).</p>
+<p>作为旁注，标准库中有视图来将 <strong>Ordered</strong> 转换为 <strong>Ordering</strong> （反之亦然）。</p>
 <pre>
 trait LowPriorityOrderingImplicits {
   implicit def ordered[A &lt;: Ordered[A]]: Ordering[A] = new Ordering[A] {
@@ -150,8 +150,8 @@ trait LowPriorityOrderingImplicits {
   }
 }
 </pre>
-<h4>Context bounds &amp; implicitly[]</h4>
-<p>Scala 2.8 introduced a shorthand for threading through &amp; accessing implicit arguments.</p>
+<h4>上下文边界和implicitly[]</h4>
+<p>Scala2.8引入了一种串联和访问隐式参数的快捷方式。</p>
 <pre>
 scala&gt; def foo[A](implicit x: Ordered[A]) {}
 foo: [A](implicit x: Ordered[A])Unit
@@ -159,15 +159,15 @@ foo: [A](implicit x: Ordered[A])Unit
 scala&gt; def foo[A : Ordered] {}                        
 foo: [A](implicit evidence$1: Ordered[A])Unit
 </pre>
-<p>Implicit values may be accessed via <strong>implicitly</strong></p>
+<p>隐式值可能会通过 <strong>implicitly</strong> 被访问</p>
 <pre>
 scala&gt; implicitly[Ordering[Int]]
 res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
 </pre>
-<p>Combined, these often result in less code, especially when threading through views.</p>
-<h2 id="higher">Higher-kinded types &amp; ad-hoc polymorphism</h2>
-<p>Scala can abstract over &#8220;higher kinded&#8221; types. For example, suppose that you needed to use several types of containers for several types of data. You might define a <code>Container</code> interface that might be implemented by means of several container types: an <code>Option</code>, a <code>List</code>, etc. You want to define an interface for using values in these containers without nailing down the values&#8217; type.</p>
-<p>This is analogous to function currying. For example, whereas &#8220;unary types&#8221; have constructors like <code>List[A]</code>, meaning we have to satisfy one &#8220;level&#8221; of type variables in order to produce a concrete types (just like an uncurried function needs to be supplied by only one argument list to be invoked), a higher-kinded type needs more.</p>
+<p>相结合后往往会使用更少的代码，尤其是串联视图的时候。</p>
+<h2 id="higher">更高级多态性类型 和 特设多态性</h2>
+<p>Scala可以对“更高阶”的类型进行抽象。例如，假设您需要用几种类型的容器处理几种类型的数据。你可能定义了一个<code>Container</code>的接口，它可以被实现为几种类型的容器：<code>Option</code>、<code>List</code>等。你要定义可以使用这些容器里的值的接口，但不想确定值的类型。</p>
+<p>这类似与函数柯里化。例如，尽管“一元类型”有类似<code>List[A]</code>的构造函数，这意味着我们必须满足一个“级别”的类型变量来产生一个具体的类型（就像一个没有柯里化的函数需要只提供一个参数列表来被调用），更高阶的类型需要更多。</p>
 <pre>
 scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
 
@@ -180,8 +180,8 @@ res24: List[java.lang.String] = List(hey)
 scala&gt; container.put(123)
 res25: List[Int] = List(123)
 </pre>
-<p>Note that <strong>Container</strong> is polymorphic in a parameterized type (&#8220;container type&#8221;).</p>
-<p>If we combine using containers with implicits, we get &#8220;ad-hoc&#8221; polymorphism: the ability to write generic functions over containers.</p>
+<p>注意：*Container*是参数化类型的多态（“容器类型”）。</p>
+<p>如果我们结合隐式转换implicits使用容器，我们会得到“特设的”多态性：即对容器写泛型函数的能力。</p>
 <pre>
 scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
 
@@ -201,34 +201,34 @@ res33: Some[(Int, Int)] = Some((1,2))
 scala&gt; tupleize(List(1), List(2))
 res34: List[(Int, Int)] = List((1,2))
 </pre>
-<h2 id="fbounded">F-bounded polymorphism</h2>
-<p>Often it&#8217;s necessary to access a concrete subclass in a (generic) trait. For example, imagine you had some trait that is generic, but can be compared to a particular subclass of that trait.</p>
+<h2 id="fbounded">F-界多态性</h2>
+<p>通常有必要来访问一个（泛型）特质的具体子类。例如，想象你有一些泛型特质，但需要可以与它的某一子类进行比较。</p>
 <pre>
 trait Container extends Ordered[Container]
 </pre>
-<p>However, this now necessitates the compare method</p>
+<p>然而，现在比较方法是必须的了</p>
 <pre>
 def compare(that: Container): Int
 </pre>
-<p>And so we cannot access the concrete subtype, e.g.:</p>
+<p>因此，我们不能访问具体子类型，例如：</p>
 <pre>
 class MyContainer extends Container {
   def compare(that: MyContainer): Int
 }
 </pre>
-<p>fails to compile, since we are specifying Ordered for <strong>Container</strong>, not the particular subtype.</p>
-<p>To reconcile this, we instead use F-bounded polymorphism.</p>
+<p>编译失败，因为我们对 <strong>Container</strong> 指定了Ordered特质，而不是对特定子类型指定的。</p>
+<p>为了调和这一点，我们改用F-界的多态性。</p>
 <pre>
 trait Container[A &lt;: Container[A]] extends Ordered[A]
 </pre>
-<p>Strange type!  But note now how Ordered is parameterized on <strong>A</strong>, which itself is <strong>Container[A]</strong></p>
-<p>So, now</p>
+<p>奇怪的类型！但可以看到怎样对 <strong>A</strong> 实现了Ordered参数化，它本身就是 <strong>Container[A]</strong></p>
+<p>所以，现在</p>
 <pre>
 class MyContainer extends Container[MyContainer] { 
   def compare(that: MyContainer) = 0 
 }
 </pre>
-<p>They are now ordered:</p>
+<p>他们是有序的了：</p>
 <pre>
 scala&gt; List(new MyContainer, new MyContainer, new MyContainer)
 res3: List[MyContainer] = List(MyContainer@30f02a6d, MyContainer@67717334, MyContainer@49428ffa)
@@ -236,7 +236,7 @@ res3: List[MyContainer] = List(MyContainer@30f02a6d, MyContainer@67717334, MyCon
 scala&gt; List(new MyContainer, new MyContainer, new MyContainer).min
 res4: MyContainer = MyContainer@33dfeb30
 </pre>
-<p>Given that they are all subtypes of <strong>Container[_]</strong>, we can define another subclass &amp; create a mixed list of <strong>Container[_]</strong>:</p>
+<p>鉴于他们都是 <strong>Container[_]</strong> 的子类型，我们可以定义另一个子类并创建 <strong>Container[_]</strong> 的一个混合列表：</p>
 <pre>
 scala&gt; class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
 defined class YourContainer
@@ -245,15 +245,15 @@ scala&gt; List(new MyContainer, new MyContainer, new MyContainer, new YourContai
 res2: List[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &gt;: YourContainer with MyContainer &lt;: ScalaObject]]] 
   = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
 </pre>
-<p>Note how the resulting type is now lower-bound by <strong>YourContainer with MyContainer</strong>. This is the work of the type inferencer. Interestingly- this type doesn&#8217;t even need to make sense, it only provides a logical greatest lower bound for the unified type of the list. What happens if we try to use <strong>Ordered</strong> now?</p>
+<p>注意结果类型是怎样成为 <strong>YourContainer 和 MyContainer</strong> 类型确定的下界。这是类型推断的工作。有趣的是，这种类型甚至不需要是有意义的，它只是提供了一个合乎逻辑的最大下界为列表的统一类型。如果现在我们尝试使用 <strong>Ordered</strong> 会发生什么？</p>
 <pre>
 (new MyContainer, new MyContainer, new MyContainer, new YourContainer).min
 &lt;console&gt;:9: error: could not find implicit value for parameter cmp:
   Ordering[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &gt;: YourContainer with MyContainer &lt;: ScalaObject]]]
 </pre>
-<p>No <strong>Ordered[]</strong> exists for the unified type. Too bad.</p>
-<h2 id="structural">Structural types</h2>
-<p>Scala has support for <strong>structural types</strong> &#8212; type requirements are expressed by interface <em>structure</em> instead of a concrete type.</p>
+<p>对统一的类型 <strong>Ordered[]</strong>不存在了。太糟糕了。</p>
+<h2 id="structural">结构类型</h2>
+<p>Scala 支持 <strong>结构类型 structural types</strong> &#8212; 类型需求由接口 <em>构造</em> 表示，而不是由具体的类型表示。</p>
 <pre>
 scala&gt; def foo(x: { def get: Int }) = 123 + x.get
 foo: (x: AnyRef{def get: Int})Int
@@ -261,9 +261,9 @@ foo: (x: AnyRef{def get: Int})Int
 scala&gt; foo(new { def get = 10 })                 
 res0: Int = 133
 </pre>
-<p>This can be quite nice in many situations, but the implementation uses reflection, so be performance-aware!</p>
-<h2 id="abstractmem">Abstract type members</h2>
-<p>In a trait, you can leave type members abstract.</p>
+<p>这可能在很多场景都是相当不错的，但这个实现中使用了反射，所以要注意性能！</p>
+<h2 id="abstractmem">抽象类型成员</h2>
+<p>在特质中，你可以让类型成员保持抽象。</p>
 <pre>
 scala&gt; trait Foo { type A; val x: A; def getX: A = x }
 defined trait Foo
@@ -274,8 +274,8 @@ res3: Int = 123
 scala&gt; (new Foo { type A = String; val x = "hey" }).getX
 res4: java.lang.String = hey
 </pre>
-<p>This is often a useful trick when doing dependency injection, etc.</p>
-<p>You can refer to an abstract type variable using the hash-operator:</p>
+<p>在做依赖注入等情况下，这往往是一个有用的技巧。</p>
+<p>您可以使用hash操作符来引用一个抽象类型的变量：</p>
 <pre>
 scala&gt; trait Foo[M[_]] { type t[A] = M[A] }
 defined trait Foo
@@ -283,16 +283,16 @@ defined trait Foo
 scala&gt; val x: Foo[List]#t[Int] = List(1)
 x: List[Int] = List(1)
 </pre>
-<h2 id="manifest">Type erasures &amp; manifests</h2>
-<p>As we know, type information is lost at compile time due to <em>erasure</em>. Scala features <strong>Manifests</strong>, allowing us to selectively recover type information. Manifests are provided as an implicit value, generated by the compiler as needed.</p>
+<h2 id="manifest">类型擦除和清单</h2>
+<p>正如我们所知道的，类型信息在编译的时候会因为 <em>擦除</em> 而丢失。 Scala的 <strong>清单（Manifests）</strong> 功能，使我们能够选择性地恢复类型信息。清单提供了一个隐含值，根据需要由编译器生成。</p>
 <pre>
 scala&gt; class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
 
 scala&gt; (new MakeFoo[String]).make
 res10: String = ""
 </pre>
-<h2 id="finagle">Case study: Finagle</h2>
-<p>See: https://github.com/twitter/finagle</p>
+<h2 id="finagle">案例分析: Finagle</h2>
+<p>参见: https://github.com/twitter/finagle</p>
 <pre>
 trait Service[-Req, +Rep] extends (Req =&gt; Future[Rep])
 
@@ -319,7 +319,7 @@ trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
   }    
 }
 </pre>
-<p>A service may authenticate requests with a filter.</p>
+<p>一个服务可以通过过滤器对请求进行身份验证。</p>
 <pre>
 trait RequestWithCredentials extends Request {
   def credentials: Credentials
@@ -338,8 +338,8 @@ class CredentialsFilter(credentialsParser: CredentialsParser)
   }
 }
 </pre>
-<p>Note how the underlying service requires an authenticated request, and that this is statically verified. Filters can thus be thought of as service transformers.</p>
-<p>Many filters can be composed together:</p>
+<p>注意底层服务是如何需要对请求进行身份验证的，而且还是静态验证。因此，过滤器可以被看作是服务转换器。</p>
+<p>许多过滤器可以被组合在一起：</p>
 <pre>
 val upFilter =
   logTransaction     andThen
@@ -349,7 +349,7 @@ val upFilter =
   authenticate       andThen
   route
 </pre>
-<p>Type safely!</p>
+<p>享用安全的类型吧!</p>
     </div> <!-- /container -->
 
     <div id="footer">

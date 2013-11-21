@@ -36,18 +36,18 @@
     </div>
 
     <div class="container" style="padding-top: 60px;">
-      <p>This lesson covers Java interoperability.</p>
+      <p>课程内容涵盖了Java互操作性。</p>
 <ul>
 	<li>Javap</li>
-	<li>Classes</li>
-	<li>Exceptions</li>
-	<li>Traits</li>
-	<li>Objects</li>
-	<li>Closures and Functions</li>
-	<li>Variance</li>
+	<li>类</li>
+	<li>异常</li>
+	<li>特质</li>
+	<li>单例对象</li>
+	<li>闭包和函数</li>
+	<li>变化性</li>
 </ul>
 <h2>Javap</h2>
-<p>javap is a tool that ships with the <span class="caps">JDK</span>.  Not the <span class="caps">JRE</span>.  There&#8217;s a difference.  Javap decompiles class definitions and shows you what&#8217;s inside.  Usage is pretty simple</p>
+<p>javap的是JDK附带的一个工具。不是JRE，这里是有区别的。 javap反编译类定义，给你展示里面有什么。用法很简单</p>
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
 Compiled from "Scalaisms.scala"
@@ -56,7 +56,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
     public abstract java.lang.String upperTraitName();
 }
 </pre>
-<p>If you&#8217;re hardcore you can look at byte code</p>
+<p>如果你是底层控可以看看字节码</p>
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap -c MyTrait\$class
 Compiled from "Scalaisms.scala"
@@ -74,16 +74,16 @@ public static void $init$(com.twitter.interop.MyTrait);
 
 }
 </pre>
-<p>If you start wondering why stuff doesn&#8217;t work in Java land, reach for javap!</p>
-<h2>Classes</h2>
-<p>The four major items to consider when using a Scala <em>class</em> from Java are</p>
+<p>如果你搞不清为什么程序在Java上不起作用，就用javap看看吧！</p>
+<h2>类</h2>
+<p>在Java中使用Scala <em>类</em> 时要考虑的四个要点</p>
 <ul>
-	<li>Class parameters</li>
-	<li>Class vals</li>
-	<li>Class vars</li>
-	<li>Exceptions</li>
+	<li>类参数</li>
+	<li>类常量</li>
+	<li>类变量</li>
+	<li>异常</li>
 </ul>
-<p>We&#8217;ll construct a simple scala class to show the full range of entities</p>
+<p>我们将构建一个简单的Scala类来展示这一系列实体</p>
 <pre>
 package com.twitter.interop
 
@@ -111,36 +111,36 @@ class SimpleClass(name: String, val acc: String, @BeanProperty var mutable: Stri
   }
 }
 </pre>
-<h3>Class parameters</h3>
+<h3>类参数</h3>
 <ul>
-	<li>by default, class parameters are effectively constructor args in Java land.  This means you can&#8217;t access them outside the class.</li>
-	<li>declaring a class parameter as a val/var is the same as this code</li>
+	<li>默认情况下，类参数都是有效的Java构造函数的参数。这意味着你不能从类的外部访问。</li>
+	<li>声明一个类参数为val/var 和这段代码是相同的</li>
 </ul>
 <pre>
 class SimpleClass(acc_: String) {
   val acc = acc_
 }
 </pre>
-<p>which makes it accessible from Java code just like other vals</p>
-<h3>Vals</h3>
+<p>这使得它在Java代码中就像其他常量一样可以被访问</p>
+<h3>类常量</h3>
 <ul>
-	<li>vals get a method defined for access from Java.  You can access the value of the val &#8220;foo&#8221; via the method &#8220;foo()&#8221;</li>
+	<li>常量（val）在Java中定义了一个获取方法。你可以通过方法“foo()”访问“val foo”的值</li>
 </ul>
-<h3>Vars</h3>
+<h3>类变量</h3>
 <ul>
-	<li>vars get a method <name>_$eq defined.  You can call it like so</li>
+	<li>变量（var）会生成一个 <name>_$eq 方法。你可以这样调用它</li>
 </ul>
 <pre>
 foo$_eq("newfoo");
 </pre>
 <h3>BeanProperty</h3>
-<p>You can annotate vals and vars with the @BeanProperty annotation.  This generates getters/setters that look like <span class="caps">POJO</span> getter/setter definitions.  If you want the isFoo variant, use the BooleanBeanProperty annotation.  The ugly foo$_eq becomes</p>
+<p>你可以通过@BeanProperty注解val和var定义。这会按照POJO定义生成getter/setter方法。如果你想生成isFoo方法，使用BooleanBeanProperty注解。丑陋的foo$_eq将变为</p>
 <pre>
 setFoo("newfoo");
 getFoo();
 </pre>
-<h3>Exceptions</h3>
-<p>Scala doesn&#8217;t have checked exceptions.  Java does.  This is a philosophical debate we won&#8217;t get into, but it <strong>does</strong> matter when you want to catch an exception in Java.  The definitions of dangerFoo and dangerBar demonstrate this.  In Java I can&#8217;t do this</p>
+<h3>异常</h3>
+<p>Scala没有像java那样有受检异常（checked exception）。需不需要受检异常是一个我们不会进入的哲学辩论，不过当你需要在Java中捕获它时就 <strong>很重要</strong> 了。dangerFoo和dangerBar将演示这一点。在Java中不能这样做</p>
 <pre>
         // exception erasure!
         try {
@@ -148,22 +148,21 @@ getFoo();
         } catch (IOException e) {
             // UGLY
         }
-
 </pre>
-<p>Java complains that the body of s.dangerFoo never throws IOException.  We can hack around this by catching Throwable, but that&#8217;s lame.</p>
-<p>Instead, as a good Scala citizen it&#8217;s a decent idea to use the throws annotation like we did on dangerBar.  This allows us to continue using checked exceptions in Java land.</p>
-<h3>Further Reading</h3>
-<p>A full list of Scala annotations for supporting Java interop can be found here http://www.scala-lang.org/node/106.</p>
-<h2>Traits</h2>
-<p>How do you get an interface + implementation?  Let&#8217;s take a simple trait definition and look</p>
+<p>Java会抱怨说 s.dangerFoo从未抛出过 IOException异常。我们可以通过捕获Throwable来跳过，但是这样不好。</p>
+<p>相反，作为一个良好的Scala公民，可以很体面地像在dangerBar中那样使用throws注解。这使我们能够继续在Java中使用受检异常。</p>
+<h3>进一步阅读</h3>
+<p>支持Java互操作的Scala注解的完整列表在这里 <a href="http://www.scala-lang.org/node/106">http://www.scala-lang.org/node/106</a>。</p>
+<h2>特质</h2>
+<p>你如何获得一个接口+实现？让我们看一个简单的特质定义</p>
 <pre>
 trait MyTrait {
   def traitName:String
   def upperTraitName = traitName.toUpperCase
 }
 </pre>
-<p>This trait has one abstract method (traitName) and one implemented method (upperTraitName).  What does Scala generate for us?  An interface named MyTrait, and a companion implementation named MyTrait$class.</p>
-<p>The implementation of MyTrait is what you&#8217;d expect</p>
+<p>这个特质有一个抽象方法（traitName）和一个实现的方法（upperTraitName）。Scala为我们生成了什么呢？一个名为MyTrait的的接口，和一个名为MyTrait$class的实现类。</p>
+<p>MyTrait和你期望的一样</p>
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
 Compiled from "Scalaisms.scala"
@@ -172,7 +171,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
     public abstract java.lang.String upperTraitName();
 }
 </pre>
-<p>The implementation of MyTrait$class is more interesting</p>
+<p>MyTrait$class更有趣</p>
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait\$class
 Compiled from "Scalaisms.scala"
@@ -181,8 +180,8 @@ public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object
     public static void $init$(com.twitter.interop.MyTrait);
 }
 </pre>
-<p>MyTrait$class has only static methods that take an instance of MyTrait.  This gives us a clue as to how to extend a Trait in Java.</p>
-<p>Our first try is the following</p>
+<p>MyTrait$class只有以MyTrait实例为参数的静态方法。这给了我们一个如何在Java中来扩展一个特质的提示。</p>
+<p>首先尝试下面的操作</p>
 <pre>
 package com.twitter.interop;
 
@@ -198,14 +197,14 @@ public class JTraitImpl implements MyTrait {
     }
 }
 </pre>
-<p>And we get the following error</p>
+<p>我们会得到以下错误</p>
 <pre>
 [info] Compiling main sources...
 [error] /Users/mmcbride/projects/interop/src/main/java/com/twitter/interop/JTraitImpl.java:3: com.twitter.interop.JTraitImpl is not abstract and does not override abstract method upperTraitName() in com.twitter.interop.MyTrait
 [error] public class JTraitImpl implements MyTrait {
 [error]        ^
 </pre>
-<p>We <em>could</em> just implement this ourselves.  But there&#8217;s a sneakier way.</p>
+<p>我们 <em>可以</em> 自己实现。但有一个鬼鬼祟祟的方式。</p>
 <pre>
 package com.twitter.interop;
 
@@ -213,10 +212,10 @@ package com.twitter.interop;
         return MyTrait$class.upperTraitName(this);
     }
 </pre>
-<p>We can just delegate this call to the generated Scala implementation.  We can also override it if we want.</p>
-<h2>Objects</h2>
-<p>Objects are the way Scala implements static methods/singletons.  Using them from Java is a bit odd.  There isn&#8217;t a stylistically perfect way to use them, but in Scala 2.8 it&#8217;s not terrible</p>
-<p>A Scala object is compiled to a class that has a trailing &#8220;$&#8221;.  Let&#8217;s set up a class and a companion object</p>
+<p>我们只要把调用代理到生成的Scala实现上就可以了。如果愿意我们也可以覆盖它。</p>
+<h2>单例对象</h2>
+<p>单例对象是Scala实现静态方法/单例模式的方式。在Java中使用它会有点奇怪。没有一个使用它们的完美风格，但在Scala2.8中用起来并不很糟糕</p>
+<p>一个Scala单例对象会被编译成由“$”结尾的类。让我们创建一个类和一个伴生对象</p>
 <pre>
 class TraitImpl(name: String) extends MyTrait {
   def traitName = name
@@ -227,11 +226,11 @@ object TraitImpl {
   def apply(name: String) = new TraitImpl(name)
 }
 </pre>
-<p>We can naïvely access this in Java like so</p>
+<p>我们可以像这样天真地在Java中访问</p>
 <pre>
 MyTrait foo = TraitImpl$.MODULE$.apply("foo");
 </pre>
-<p>Now you may be asking yourself, <span class="caps">WTF</span>?  This is a valid response.  Let&#8217;s look at what&#8217;s actually inside TraitImpl$</p>
+<p>现在你可能会问自己，这是神马玩意？这是一个正常的反应。让我们来看看TraitImpl$里面实际上是什么</p>
 <pre>
 local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
 Compiled from "Scalaisms.scala"
@@ -242,14 +241,14 @@ public final class com.twitter.interop.TraitImpl$ extends java.lang.Object imple
     public com.twitter.interop.TraitImpl apply(java.lang.String);
 }
 </pre>
-<p>There actually aren&#8217;t any static methods.  Instead it has a static member named <span class="caps">MODULE</span>$.  The method implementations delegate to this member.  This makes access ugly, but workable if you know to use <span class="caps">MODULE</span>$.</p>
-<h3>Forwarding Methods</h3>
-<p>In Scala 2.8 dealing with Objects got quite a bit easier.  If you have a class with a companion object, the 2.8 compiler generates forwarding methods on the companion class.  So if you built with 2.8, you can access methods in the TraitImpl Object like so</p>
+<p>其实它里面没有任何静态方法。取而代之的是一个名为MODULE$的静态成员。方法实现被委托给该成员。这使得访问代码很难看，但却是可行的。</p>
+<h3>转发方法（Forwarding Methods）</h3>
+<p>在Scala2.8中处理单例对象变得相对容易一点。如果你有一个类与一个伴生对象，2.8编译器会生成转发方法在伴生类中。所以，如果你用2.8，你可以像这样调用TraitImpl单例对象的方法</p>
 <pre>
 MyTrait foo = TraitImpl.apply("foo");
 </pre>
-<h2>Closures Functions</h2>
-<p>One of Scala&#8217;s most important features is the treatment of functions as first class citizens.  Let&#8217;s define a class that defines some methods that take functions as arguments.</p>
+<h2>闭包函数</h2>
+<p>Scala的最重要的特点之一，就是把函数作为头等公民。让我们来定义一个类，它定义了一些以函数作为参数的方法。</p>
 <pre>
 class ClosureClass {
   def printResult[T](f: =&gt; T) = {
@@ -261,12 +260,12 @@ class ClosureClass {
   }
 }
 </pre>
-<p>In Scala I can call this like so</p>
+<p>在Scala中可以像这样调用</p>
 <pre>
 val cc = new ClosureClass
 cc.printResult { "HI MOM" }
 </pre>
-<p>In Java it&#8217;s not so easy, but it&#8217;s not terrible either.  Let&#8217;s see what ClosureClass actually compiled to:</p>
+<p>在Java中却不那么容易，不过也并不可怕。让我们来看看ClosureClass实际上被编译成什么：</p>
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
 Compiled from "Scalaisms.scala"
@@ -276,8 +275,8 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
     public com.twitter.interop.ClosureClass();
 }
 </pre>
-<p>This isn&#8217;t so scary.  &#8220;f: =&gt; T&#8221; translates to &#8220;Function0&#8221;, and &#8220;f: String =&gt; T&#8221; translates to &#8220;Function1&#8221;.  Scala actually defines Function0 through Function22, supporting this stuff up to 22 arguments.  Which really should be enough.</p>
-<p>Now we just need to figure out how to get those things going in Java.  Turns out Scala provides an AbstractFunction0 and an AbstractFunction1 we can pass in like so</p>
+<p>这也不是那么恐怖。 “f: =&gt; T”被转义成“Function0”，“f: String =&gt; T”被转义成“Function1”。Scala实际上从Function0定义到Function22，最多支持22个参数。这真的应该足够了。</p>
+<p>现在我们只需要弄清楚如何在Java中使用这些东东。我们可以传入Scala提供的AbstractFunction0和AbstractFunction1，像这样</p>
 <pre>
     @Test public void closureTest() {
         ClosureClass c = new ClosureClass();
@@ -293,7 +292,7 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
             });
     }
 </pre>
-<p>Note that we can use generics to parameterize arguments.</p>
+<p>注意我们可以使用泛型参数。</p>
     </div> <!-- /container -->
 
     <div id="footer">

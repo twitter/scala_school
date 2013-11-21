@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Scala School - Testing with specs</title>
+    <title>Scala School - 使用specs进行测试</title>
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -21,7 +21,7 @@
     <div class="topbar">
       <div class="fill">
         <div class="container fixed">
-          <h3><a href="index.html">Testing with specs</a></h3>
+          <h3><a href="index.html">使用specs进行测试</a></h3>
           <ul class="nav secondary-nav">
             
               <li><a href="coll2.html">&laquo;Previous</a></li>
@@ -36,32 +36,32 @@
     </div>
 
     <div class="container" style="padding-top: 60px;">
-      <p>This lesson covers testing with Specs, a Behavior-Driven Design (<span class="caps">BDD</span>) Framework for Scala.</p>
+      <p>本节课将介绍如何使用specs —— 一个Scala行为驱动设计（BDD）框架，来进行测试。</p>
 <ul>
-	<li><a href="#example">extends Specification</a>
+	<li><a href="#example">扩展规格</a>
 	<ul>
 		<li>nested examples</li>
 	</ul></li>
-	<li><a href="#scope">Execution Model</a></li>
+	<li><a href="#scope">执行模型</a></li>
 	<li><a href="#setup">Setup and TearDown</a>
 	<ul>
 		<li>doFirst</li>
 		<li>doBefore</li>
 		<li>doAfter</li>
 	</ul></li>
-	<li><a href="#matchers">Matchers</a>
+	<li><a href="#matchers">Matchers 匹配器</a>
 	<ul>
 		<li>mustEqual</li>
 		<li>contains</li>
 		<li>sameSize?</li>
-		<li>Write your own</li>
+		<li>编写你自己的匹配器</li>
 	</ul></li>
 	<li><a href="#mocks">Mocks</a></li>
 	<li><a href="#spies">Spies</a></li>
-	<li><a href="#sbt">run in sbt</a></li>
+	<li><a href="#sbt">在sbt中运行</a></li>
 </ul>
-<h2 id="example">extends Specification</h2>
-<p>Let&#8217;s just jump in.</p>
+<h2 id="example">扩展规格</h2>
+<p>让我们直接开始。</p>
 <pre>
 import org.specs._
 
@@ -76,13 +76,13 @@ object ArithmeticSpec extends Specification {
   }
 }
 </pre>
-<p><strong>Arithmetic</strong> is the <strong>System Under Specification</strong></p>
-<p><strong>add</strong> is a context.</p>
-<p><strong>add two numbers</strong> and <strong>add three numbers</strong> are examples.</p>
-<p><code>mustEqual</code> indicates an <strong>expectation</strong></p>
-<p><code>1 mustEqual 1</code> is a common placeholder <strong>expectation</strong> before you start writing real tests.  All examples should have at least one expectation.</p>
-<h3>Duplication</h3>
-<p>Notice how two tests both have <code>add</code> in their name?  We can get rid of that by <strong>nesting</strong> expectations.</p>
+<p><strong>Arithmetic（算术）</strong> 是一个 <strong>规范约束下的系统</strong></p>
+<p><strong>add（加）</strong> 是一个上下文。</p>
+<p><strong>add two numbers（两个数相加）</strong>，和 <strong>add three numbers（三个数字相加）</strong> 是例子。</p>
+<p><code>mustEqual</code> 表示 <strong>预期</strong></p>
+<p><code>1 mustEqual 1</code> 是编写实际测试前使用的一种常见的 <strong>预期</strong> 占位符。所有的测试用例都应该至少有一个预期。</p>
+<h3>复制</h3>
+<p>注意到两个测试都是怎样将 <code>add</code> 加在其名称中的吗？我们可以通过 <strong>嵌套</strong> 预期摆脱这种重复。</p>
 <pre>
 import org.specs._
 
@@ -99,7 +99,7 @@ object ArithmeticSpec extends Specification {
   }
 }
 </pre>
-<h2 id="scope">Execution Model</h2>
+<h2 id="scope">执行模型</h2>
 <pre>
 object ExecSpec extends Specification {
   "Mutations are isolated" should {
@@ -124,9 +124,9 @@ object ExecSpec extends Specification {
   doAfter { cleanThingsUp() }
 }
 </pre>
-<p><strong><span class="caps">NOTE</span></strong> <code>doBefore</code>/<code>doAfter</code> are only run on leaf examples.</p>
+<p><strong>注意</strong> <code>doBefore</code>/<code>doAfter</code> 只能运行在叶子用例上。</p>
 <h3>doFirst &amp; doLast</h3>
-<p><code>doFirst</code>/<code>doLast</code> is for single-time setup. (need example, I don&#8217;t use this)</p>
+<p><code>doFirst</code>/<code>doLast</code> 用来做一次性的设置。（需要例子，我不使用这个）</p>
 <pre>
 "Foo" should {
   doFirst { openTheCurtains() }
@@ -136,16 +136,16 @@ object ExecSpec extends Specification {
 }
 </pre>
 <h2 id="matchers">Matchers</h2>
-<p>You have data, you want to make sure it&#8217;s right. Let&#8217;s tour the most commonly used matchers. (See Also <a href="http://code.google.com/p/specs/wiki/MatchersGuide">Matchers Guide</a>)</p>
+<p>你有数据，并且想要确保它是正确的。让我们看看最常用的匹配器是如何帮助你的。 （参考 <a href="http://code.google.com/p/specs/wiki/MatchersGuide">匹配器指南</a> ）</p>
 <h3>mustEqual</h3>
-<p>We&#8217;ve seen several examples of mustEqual already.</p>
+<p>我们已经看到几个mustEqual的例子了。</p>
 <pre>
 1 mustEqual 1
 
 "a" mustEqual "a"
 </pre>
-<p>Reference equality, value equality.</p>
-<h3>elements in a Sequence</h3>
+<p>引用相等，值相等。</p>
+<h3>序列中的元素</h3>
 <pre>
 val numbers = List(1, 2, 3)
 
@@ -157,7 +157,7 @@ numbers must containInOrder(List(1, 2, 3))
 
 List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4), 2, 3), 1))
 </pre>
-<h3>Items in a Map</h3>
+<h3>映射中的元素</h3>
 <pre>
 map must haveKey(k)
 map must notHaveKey(k)
@@ -165,7 +165,7 @@ map must notHaveKey(k)
 map must haveValue(v)
 map must notHaveValue(v)
 </pre>
-<h3>Numbers</h3>
+<h3>数字</h3>
 <pre>
 a must beGreaterThan(b)
 a must beGreaterThanOrEqualTo(b)
@@ -189,22 +189,22 @@ a must beSome(value)
 <pre>
 a must throwA[WhateverException]
 </pre>
-<p>This is shorter than a try catch with a fail in the body.</p>
-<p>You can also expect a specific message</p>
+<p>这是一个针对try\catch块中有异常抛出的用例的简写。</p>
+<p>您也可以期望一个特定的消息</p>
 <pre>
 a must throwA(WhateverException("message"))
 </pre>
-<p>You can also match on the exception:</p>
+<p>您也可以匹配异常：</p>
 <pre>
 a must throwA(new Exception) like {
   case Exception(m) =&gt; m.startsWith("bad")
 }
 </pre>
-<h3>Write your own Matchers</h3>
+<h3>编写你自己的匹配器</h3>
 <pre>
 import org.specs.matcher.Matcher
 </pre>
-<h4>As a val</h4>
+<h4>作为一个不变量</h4>
 <pre>
 "A matcher" should {
   "be created as a val" in {
@@ -217,14 +217,14 @@ import org.specs.matcher.Matcher
   }
 }
 </pre>
-<p>The contract is to return a tuple containing whether the expectation is true, and a message for when it is and isn&#8217;t true.</p>
-<h4>As a case class</h4>
+<p>契约是返回一个包含三个值的元组，分别是期望是否为真、为真时的消息和为假时的消息。</p>
+<h4>作为一个样本类</h4>
 <pre>
 case class beEven(b: Int) extends Matcher[Int]() {
   def apply(n: =&gt; Int) =  (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
 }
 </pre>
-<p>Using a case class makes it more shareable.</p>
+<p>使用样本类可以增加代码的重用性。</p>
 <h2 id="mocks">Mocks</h2>
 <pre>
 import org.specs.Specification
@@ -246,9 +246,9 @@ object MockExampleSpec extends Specification with Mockito {
   there was no(m).get(1)
 }
 </pre>
-<p><strong>See Also</strong> <a href="http://code.google.com/p/specs/wiki/UsingMockito">Using Mockito</a></p>
+<p><strong>参考</strong> <a href="http://code.google.com/p/specs/wiki/UsingMockito">Using Mockito</a></p>
 <h2 id="spies">Spies</h2>
-<p>Spies can also be used in order to do some &#8220;partial mocking&#8221; of real objects:</p>
+<p>Spies（间谍）可以对真正的对象做一些“局部mocking”：</p>
 <pre>
 val list = new LinkedList[String]
 val spiedList = spy(list)
@@ -263,24 +263,24 @@ spiedList.add("two")
 // and verification can happen on a spy
 there was one(spiedList).add("one")
 </pre>
-<p>However, working with spies can be tricky:</p>
+<p>然而，使用间谍可能会出现非常诡异的情况：</p>
 <pre>
 // if the list is empty, this will throws an IndexOutOfBoundsException
 spiedList.get(0) returns "one"
 </pre>
-<p><code>doReturn</code> must be used in that case:</p>
+<p>这里必须使用 <code>doReturn</code> ：</p>
 <pre>
 doReturn("one").when(spiedList).get(0)
 </pre>
-<h2 id="sbt">Run individual specs in sbt</h2>
+<h2 id="sbt">在sbt中运行单个specs</h2>
 <pre>
 &gt; test-only com.twitter.yourservice.UserSpec
 </pre>
-<p>Will run just that spec.</p>
+<p>将只运行那个规范。</p>
 <pre>
 &gt; ~ test-only com.twitter.yourservice.UserSpec
 </pre>
-<p>Will run that test in a loop, with each file modification triggering a test run.</p>
+<p>将在一个循环中运行该测试，文件的每一次修改都将触发测试运行。</p>
     </div> <!-- /container -->
 
     <div id="footer">
