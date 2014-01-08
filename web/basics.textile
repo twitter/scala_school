@@ -225,7 +225,7 @@ You can take any function of multiple arguments and curry it. Let's try with our
 
 <pre>
 scala> (adder _).curried
-res1: (Int) => (Int) => Int = <function1>
+res1: (Int) => (Int => Int) = <function1>
 </pre>
 
 h3. Variable length arguments
