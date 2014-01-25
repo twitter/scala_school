@@ -224,8 +224,14 @@ res1: Int = 6
 You can take any function of multiple arguments and curry it. Let's try with our earlier <code>adder</code>
 
 <pre>
-scala> (adder _).curried
-res1: (Int) => (Int) => Int = <function1>
+scala> val curriedAdd = (adder _).curried
+curriedAdd: Int => (Int => Int) = <function1>
+
+scala> val addTwo = curriedAdd(2)
+addTwo: Int => Int = <function1>
+
+scala> addTwo(4)
+res22: Int = 6
 </pre>
 
 h3. Variable length arguments
