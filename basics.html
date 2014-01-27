@@ -209,8 +209,14 @@ res1: Int = 6
 </pre>
 <p>You can take any function of multiple arguments and curry it. Let&#8217;s try with our earlier <code>adder</code></p>
 <pre>
-scala&gt; (adder _).curried
-res1: (Int) =&gt; (Int) =&gt; Int = &lt;function1&gt;
+scala&gt; val curriedAdd = (adder _).curried
+curriedAdd: Int =&gt; (Int =&gt; Int) = &lt;function1&gt;
+
+scala&gt; val addTwo = curriedAdd(2)
+addTwo: Int =&gt; Int = &lt;function1&gt;
+
+scala&gt; addTwo(4)
+res22: Int = 6
 </pre>
 <h3>Variable length arguments</h3>
 <p>There is a special syntax for methods that can take parameters of a repeated type. To apply String&#8217;s <code>capitalize</code> function to several strings, you might write:</p>
