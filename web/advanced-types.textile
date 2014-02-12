@@ -321,7 +321,7 @@ res10: String = ""
 
 h2(#finagle). Case study: Finagle
 
-See: https://github.com/twitter/finagle
+See: "https://github.com/twitter/finagle":https://github.com/twitter/finagle
 
 <pre>
 trait Service[-Req, +Rep] extends (Req => Future[Rep])
