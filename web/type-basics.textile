@@ -253,7 +253,7 @@ scala> new Animal :: flock
 res59: List[Animal] = List(Animal@11f8d3a8, Bird@7e1ec70e, Bird@169ea8d2)
 </pre>
 
-Note that the return type is <code>Animal</code>.
+Note that the return type is <code>List[Animal]</code>.
 
 h2(#quantification). Quantification
 
