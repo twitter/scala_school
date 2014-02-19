@@ -8,6 +8,7 @@ layout: post
 This lesson covers:
 
 * Basic Data Structures
+** "Arrays":#Arrays
 ** "Lists":#Lists
 ** "Sets":#Sets
 ** "Tuple":#Tuple
@@ -33,20 +34,37 @@ Scala provides some nice collections.
 
 *See Also* Effective Scala has opinions about how to use <a href="http://twitter.github.com/effectivescala/#Collections">collections</a>.
 
-h2(#Lists). Lists
+h2(#Arrays). Arrays
+
+Arrays preserve order, can contain duplicates, and are mutable.
 
 <pre>
-scala> val numbers = List(1, 2, 3, 4)
-numbers: List[Int] = List(1, 2, 3, 4)
+scala> val numbers = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: Array[Int] = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala> numbers(3) = 10
+</pre>
+
+h2(#Lists). Lists
+
+Lists preserve order, can contain duplicates, and are immutable.
+
+<pre>
+scala> val numbers = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: List[Int] = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala> numbers(3) = 10
+<console>:9: error: value update is not a member of List[Int]
+              numbers(3) = 10
 </pre>
 
 h2(#Sets). Sets
 
-Sets have no duplicates
+Sets do not preserve order and have no duplicates
 
 <pre>
-scala> Set(1, 1, 2)
-res0: scala.collection.immutable.Set[Int] = Set(1, 2)
+scala> val numbers = Set(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: scala.collection.immutable.Set[Int] = Set(5, 1, 2, 3, 4)
 </pre>
 
 h2(#Tuple). Tuple
