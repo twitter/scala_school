@@ -36,7 +36,7 @@ scala> math.max("123", 111)
 res1: Int = 123
 </pre>
 
-View bounds, like type bounds demand such a function exists for the given type.  You specify a type bound with <code><%</code> e.g.,
+View bounds, like type bounds demand such a function exists for the given type.  You specify a view bound with <code><%</code> e.g.,
 
 <pre>
 scala> class Container[A <% Int] { def addIt(x: A) = 123 + x }
