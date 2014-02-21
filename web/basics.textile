@@ -47,6 +47,10 @@ h3. Think Scala
 
 Scala is not just a nicer Java.  You should learn it with a fresh mind- you will get more out of these classes.
 
+h3. Get Scala
+
+Scala School's examples work with "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html . If you use Scala 2.10.x or newer, _most_ examples work OK, but not all.
+
 h3. Start the Interpreter
 
 Start the included <code>sbt console</code>.
