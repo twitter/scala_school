@@ -29,7 +29,7 @@ h2. Why SBT?
 
 h2. Getting Started
 
-* Download the jar:http://code.google.com/p/simple-build-tool/downloads/list
+* "Download the jar":http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
 * Create an sbt shell script that calls the jar, e.g.
 
 <pre>
