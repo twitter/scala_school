@@ -63,7 +63,7 @@ y: Int = 123
 scala&gt; math.max("123", 111)
 res1: Int = 123
 </pre>
-<p>view bounds, like type bounds demand such a function exists for the given type.  You specify a type bound with <code>&lt;%</code> e.g.,</p>
+<p>View bounds, like type bounds demand such a function exists for the given type.  You specify a type bound with <code>&lt;%</code> e.g.,</p>
 <pre>
 scala&gt; class Container[A &lt;% Int] { def addIt(x: A) = 123 + x }
 defined class Container
@@ -102,6 +102,7 @@ sum[B &gt;: A](implicit num: Numeric[B]): B
 		<td>A must be viewable as B</td>
 	</tr>
 </table>
+<p>(If you get errors trying to use &lt;:&lt; or &lt;%&lt;, be aware that those went away in Scala 2.10. Scala School examples work with <a href="http://www.scala-lang.org/download/2.9.3.html">Scala 2.9.x</a> . You can use a newer Scala, but expect errors.)</p>
 <pre>
 scala&gt; class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
 defined class Container
@@ -292,7 +293,7 @@ scala&gt; (new MakeFoo[String]).make
 res10: String = ""
 </pre>
 <h2 id="finagle">Case study: Finagle</h2>
-<p>See: https://github.com/twitter/finagle</p>
+<p>See: <a href="https://github.com/twitter/finagle">https://github.com/twitter/finagle</a></p>
 <pre>
 trait Service[-Req, +Rep] extends (Req =&gt; Future[Rep])
 
