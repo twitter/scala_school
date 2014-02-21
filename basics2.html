@@ -112,7 +112,7 @@ defined module addOne
 scala&gt; addOne(1)
 res2: Int = 2
 </pre>
-<p>There is Function1 through 22.  Why 22?  It&#8217;s an arbitrary magic number.  I&#8217;ve never needed a function with more than 22 arguments so it seems to work out.</p>
+<p>There is Function0 through 22.  Why 22?  It&#8217;s an arbitrary magic number.  I&#8217;ve never needed a function with more than 22 arguments so it seems to work out.</p>
 <p>The syntactic sugar of apply helps unify the duality of object and functional programming.  You can pass classes around and use them as functions and functions are just instances of classes under the covers.</p>
 <p>Does this mean that every time you define a method in your class, you&#8217;re actually getting an instance of Function*?  No, methods in classes are methods.  Methods defined standalone in the repl are Function* instances.</p>
 <p>Classes can also extend Function and those instances can be called with ().</p>

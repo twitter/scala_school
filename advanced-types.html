@@ -63,7 +63,7 @@ y: Int = 123
 scala&gt; math.max("123", 111)
 res1: Int = 123
 </pre>
-<p>View bounds, like type bounds demand such a function exists for the given type.  You specify a type bound with <code>&lt;%</code> e.g.,</p>
+<p>View bounds, like type bounds demand such a function exists for the given type.  You specify a view bound with <code>&lt;%</code> e.g.,</p>
 <pre>
 scala&gt; class Container[A &lt;% Int] { def addIt(x: A) = 123 + x }
 defined class Container
@@ -87,7 +87,7 @@ scala&gt; (new Container[Float]).addIt(123.2F)
 sum[B &gt;: A](implicit num: Numeric[B]): B
 </pre>
 <p>If you invoke <code>List(1,2).sum()</code>, you don&#8217;t need to pass a <em>num</em> parameter; it&#8217;s set implicitly. But if you invoke <code>List("whoop").sum()</code>, it complains that it couldn&#8217;t set <code>num</code>.</p>
-<p>Methods may ask for some kinds of specific &#8220;evidence&#8221; for a type without setting up strange objects as with <code>Numeric</code>. Instead, you can use of these type-relation operators:</p>
+<p>Methods may ask for some kinds of specific &#8220;evidence&#8221; for a type without setting up strange objects as with <code>Numeric</code>. Instead, you can use one of these type-relation operators:</p>
 <table>
 	<tr>
 		<td>A =:= B</td>
