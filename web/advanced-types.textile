@@ -68,7 +68,7 @@ sum[B >: A](implicit num: Numeric[B]): B
 
 If you invoke <code>List(1,2).sum()</code>, you don't need to pass a _num_ parameter; it's set implicitly. But if you invoke <code>List("whoop").sum()</code>, it complains that it couldn't set <code>num</code>.
 
-Methods may ask for some kinds of specific "evidence" for a type without setting up strange objects as with <code>Numeric</code>. Instead, you can use of these type-relation operators:
+Methods may ask for some kinds of specific "evidence" for a type without setting up strange objects as with <code>Numeric</code>. Instead, you can use one of these type-relation operators:
 
 |A =:= B|A must be equal to B|
 |A <:< B|A must be a subtype of B|
