@@ -1,7 +1,7 @@
 ---
 prev: collections.textile
 next: type-basics.textile
-title: Сопоставление с образцом и функкциональная композиция
+title: Сопоставление с образцом и функциональная композиция
 layout: post
 ---
 
