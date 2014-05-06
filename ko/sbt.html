@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Scala School - Simple Build Tool</title>
+    <title>Scala School - 빌드 도구 SBT(Simple Build Tool)</title>
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -21,7 +21,7 @@
     <div class="topbar">
       <div class="fill">
         <div class="container fixed">
-          <h3><a href="index.html">Simple Build Tool</a></h3>
+          <h3><a href="index.html">빌드 도구 SBT(Simple Build Tool)</a></h3>
           <ul class="nav secondary-nav">
             
               <li><a href="advanced-types.html">&laquo;Previous</a></li>
@@ -36,40 +36,40 @@
     </div>
 
     <div class="container" style="padding-top: 60px;">
-      <p>В этом уроке вы узнаете о <span class="caps">SBT</span>! Отдельные разделы включают:</p>
+      <p>이번 강좌에서는 SBT를 다룬다! 아래 주제에 대해 설명할 것이다.</p>
 <ul>
-	<li>создание sbt проекта</li>
-	<li>основные команды</li>
-	<li>sbt консоль</li>
-	<li>продолжительное выполнение команд</li>
-	<li>настройка вашего проекта</li>
-	<li>настройка команд</li>
-	<li>краткий курс по исходникам sbt (если будет время)</li>
+	<li>sbt 프로젝트 만들기</li>
+	<li>기본 명령어</li>
+	<li>sbt 콘솔</li>
+	<li>연속적인 명령 실행</li>
+	<li>프로젝트를 커스텀화하기</li>
+	<li>커스텀 명령어</li>
+	<li>sbt 소스 간략하게 훑어보기(시간이 허락하면)</li>
 </ul>
-<h2>Немного о <span class="caps">SBT</span></h2>
-<p><span class="caps">SBT</span> &#8211; это современный инструмент для сборки приложений. Хотя он написан на Scala и предоставляет множество удобных возможностей Scala, но он может использоваться и как инструмент для сборки общего назначения.</p>
-<h2>Почему именно <span class="caps">SBT</span>?</h2>
+<h2>SBT란</h2>
+<p>SBT는 최신 빌드 도구 중 하나이다. 스칼라로 작성되었고, 스칼라에 사용하기 편한 기능을 많이 제공하기는 하지만, <span class="caps">SBT</span> 자체는 범용 빌드 도구이다.</p>
+<h2>SBT를 쓰는 이유는?</h2>
 <ul>
-	<li>Достойные средства управления зависимостями
+	<li>건전한(?) 의존성 관리
 	<ul>
-		<li>Ivy для управления зависимостями</li>
-		<li>Модель Only-update-on-request</li>
+		<li>의존성 관리에 Ivy를 사용</li>
+		<li>요청이 올때만 업데이트(Only-update-on-request) 모델</li>
 	</ul></li>
-	<li>Полная поддержка языка Scala для создания задач</li>
-	<li>Продолжительное выполнение команд</li>
-	<li>Запуск <span class="caps">REPL</span> в контексте проекта</li>
+	<li>태스크를 작성할 수 있도록 스칼라 언어 전체를 지원</li>
+	<li>연속으로 명령 실행</li>
+	<li>프로젝트 문맥(환경)하에서 <span class="caps">REPL</span> 실행 가능</li>
 </ul>
-<h2>Давайте начнем</h2>
+<h2>시작하기</h2>
 <ul>
-	<li>Загрузите jar-файл :http://code.google.com/p/simple-build-tool/downloads/list</li>
-	<li>Создайте sbt шелл-скрипт, который вызывает jar, например</li>
+	<li>jar를 다운로드하라(http://code.google.com/p/simple-build-tool/downloads/list).</li>
+	<li>아래 예와 같이 다운로드 받은 jar를 호출하는 셀 스크립트를 작성하라.</li>
 </ul>
 <pre>
 java -Xmx512M -jar sbt-launch.jar "$@"
 </pre>
 <ul>
-	<li>убедитесь, что скрипт является исполняемым и находится в указанном вами пути</li>
-	<li>запустите sbt, чтобы создать ваш проект</li>
+	<li>앞에서 만든 스크립트가 실행 경로에 포함되어 있는지 확인하라.</li>
+	<li>sbt를 실행해 프로젝트를 시작하라.</li>
 </ul>
 <pre>
 [local ~/projects]$ sbt
@@ -81,7 +81,7 @@ Scala version [2.7.7]: 2.8.1
 sbt version [0.7.4]:      
 Getting Scala 2.7.7 ...
 :: retrieving :: org.scala-tools.sbt#boot-scala
-	confs: [default]
+  confs: [default]
 	2 artifacts copied, 0 already retrieved (9911kB/221ms)
 Getting org.scala-tools.sbt sbt_2.7.7 0.7.4 ...
 :: retrieving :: org.scala-tools.sbt#boot-app
@@ -96,26 +96,22 @@ Getting Scala 2.8.1 ...
 [info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
 &gt; 
 </pre>
-<p>Заметьте, что это хорошая практика начинать работу со <span class="caps">SNAPSHOT</span> версией вашего проекта.</p>
-<h2>Структура проекта</h2>
+<p>항상 프로젝트 시작시에는 <span class="caps">SNAPSHOT</span> 버전을 가지고 시작하라.</p>
+<h2>프로젝트 구조</h2>
 <ul>
-	<li>project &#8211; файлы проекта
+	<li>project &#8211; 프로젝트 정의 파일들
 	<ul>
-		<li>project/build/<yourproject>.scala &#8211; основной файл проекта</li>
-		<li>project/build.properties &#8211; настройки проекта, sbt и scala версии</li>
+		<li>project/build/<yourproject>.scala &#8211; 주 프로젝트 정의 파일</li>
+		<li>project/build.properties &#8211; 프로젝트, sbt, 스칼라 버전 정의</li>
 	</ul></li>
-	<li>src/main &#8211; код вашего приложения находится здесь, во вложенной директории, которая носит название по имени используемого языка (например, src/main/scala, src/main/java)</li>
-	<li>src/main/resources &#8211; набор статических файлов, которые вы хотите добавить к вашему jar-файлу<br />
-  (например, конфигурация логгирования)</li>
-	<li>src/test &#8211; также как src/main, но  только для тестов</li>
-	<li>lib_managed &#8211; jar файлы от которых зависит ваш проект. Обычно здесь находятся различные обновления sbt</li>
-	<li>target &#8211; содержит сгенерированные объекты (например, сгенерированный thrift<br />
- код, файлы классов, jar файлы)</li>
+	<li>src/main &#8211; 앱 코드가 이 디렉터리 아래 들어감. 언어에 따라 main 아래 하위 디렉터리를 만들고 그 안에 코드를 넣자. (예: src/main/scala, src/main/java)</li>
+	<li>src/main/resources &#8211; jar에 추가하고픈 정적 파일들(예: 로그 설정 파일 등)</li>
+	<li>src/test &#8211; 앱 코드는 src/main에, 테스트 코드는 여기에 넣는다</li>
+	<li>lib_managed &#8211; 프로젝트에서 사용하는(의존하는) jar 파일들. sbt update를 하면 여기에 jar들이 다운로드됨.</li>
+	<li>target &#8211; 빌드시 만들어지는 것들이 들어가는 곳(예: generated thrift code, class files, jars)</li>
 </ul>
-<h2>Добавление кода</h2>
-<p>Мы будем создавать простой парсер <span class="caps">JSON</span> для простых твитов. Добавьте <br />
-следующий код в<br />
-src/main/scala/com/twitter/sample/SimpleParser.scala</p>
+<h2>코드 추가하기</h2>
+<p>간단한 트윗을 처리하는 <span class="caps">JSON</span> 파서를 만들자. 다음 코드를 src/main/scala/com/twitter/sample/SimpleParser.scala에 추가하라.</p>
 <pre>
 package com.twitter.sample
 
@@ -137,27 +133,25 @@ class SimpleParser {
   }
 }
 </pre>
-<p>Этот код уродлив и содержит много ошибок, но должен скомпилироваться.</p>
-<h2>Тестирование в Консоли</h2>
-<p><span class="caps">SBT</span> может использоваться как скрипт командной строки или как консоль для сборки. Мы будем использовать его в основном как консоль для сборки, но большинство команд могут быть использованы в качестве аргументов при передаче их в <span class="caps">SBT</span>, например</p>
+<p>버그도 많고 보기도 안좋다. 그렇지만 컴파일에는 문제가 없다.</p>
+<h2>콘솔에서 테스트하기</h2>
+<p>SBT는 명령행 스크립트로 사용할 수도 있고, 빌드 콘솔로 사용할 수도 있다. 여기서는 주로 빌드 콘솔 형태로 사용할 것이다. 하지만 대부분의 명령은 SBT에 인자로 넘겨서 명령행에서 독립적으로 호출 가능하다. 아래 예를 보라.</p>
 <pre>
 sbt test
 </pre>
-<p>Заметьте, что если команда принимает аргументы, то вы должны заключить в кавычки внутренний путь аргумента, например<br />
-<pre><br />
-sbt &#8216;test-only com.twitter.sample.SampleSpec&#8217;<br />
-</pre></p>
-<p>Это странный способ.</p>
-<p>В любом случае, начните работу с вашим кодом, запустив sbt</p>
+<p>명령어에 인자가 필요한 경우 명령어와 명령의에 들어갈 인자 모두를 아래와 같이 따옴표로 둘러싸야 한다.</p>
+<pre>
+sbt 'test-only com.twitter.sample.SampleSpec'
+</pre>
+<p>이상하긴 하다.</p>
+<p>어쨌든, 우리 코드를 돌려보기 위해 sbt를 실행하자.</p>
 <pre>
 [local ~/projects/sbt-sample]$ sbt
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
 [info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
 &gt; 
 </pre>
-<p><span class="caps">SBT</span> позволяет вам запустить Scala <span class="caps">REPL</span> со всеми вашими зависимостями. <br />
-Перед запуском консоли, сначала компилируется исходный код вашего проекта,<br />
-предоставляя нам быстрый способ прогнать тест нашего парсера.</p>
+<p>필요하면 SBT에서 프로젝트가 의존하는 모든 모듈을 적재한 상태의 스칼라 REPL을 시작할 수 있다. 콘솔을 시작하기 전에 프로젝트 코드를 컴파일할 것이다.  이 REPL을 사용하면 쉽게 우리가 작성한 파서 내부를 들여다 보면서 테스트 할 수 있다.</p>
 <pre>
 &gt; console
 [info] 
@@ -190,7 +184,7 @@ Type :help for more information.
 
 scala&gt; 
 </pre>
-<p>Наш код скомпилировался, и мы попадаем в обычный Scala <span class="caps">REPL</span>. Мы создадим новый парсер, тестовый твит, и убедимся, что все &#8220;работает&#8221;</p>
+<p>코드가 컴파일되고, 낯익은 스칼라 프럼프트가 표시된다. 새 파서와 예제 트윗을 만들고 파서가 잘 &quot;동작&quot;하나 보자.</p>
 <pre>
 scala&gt; import com.twitter.sample._            
 import com.twitter.sample._
@@ -206,9 +200,9 @@ res0: Option[com.twitter.sample.SimpleParsed] = Some(SimpleParsed(1,"foo"}))
 
 scala&gt; 
 </pre>
-<h2>Добавление зависимостей</h2>
-<p>Наш простой парсер работает с небольшим набором входных данных, но мы хотим добавить тесты и &#8220;разрушить&#8221; программу. Первым шагом будет добавление специальной библиотеки тестов и настоящий <span class="caps">JSON</span> парсер в наш проект. Чтобы сделать это, нам нужно выйти за рамки стандартного <span class="caps">SBT</span> проекта и создать свой.</p>
-<p><span class="caps">SBT</span> считает Scala файлы в директории project/build, как файлы описания проекта. Добавьте следующее в файл project/build/SampleProject.scala</p>
+<h2>의존 관계 추가하기</h2>
+<p>방금 입력한 데이터를 대상으로는 파서가 잘 동작하지만, 테스트를 더 추가해 오류가 나는지 확인하고 싶을 것이다. 먼저 할 일은 specs 테스트 라이브러리와 진짜 <span class="caps">JSON</span> 파서를 프로젝트에 추가하는 것이다. 이를 위해서는 기본 <span class="caps">SBT</span> 프로젝트 구조를 벗어나 새 프로젝트를 만들어야 한다.</p>
+<p>SBT는 project/build 아래 있는 스칼라 파일을 프로젝트 정의로 간주한다. 다음을 project/build/SampleProject.scala로 추가하라.</p>
 <pre>
 import sbt._
 
@@ -217,8 +211,8 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
   val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
 }
 </pre>
-<p>Описание проекта &#8211; это <span class="caps">SBT</span> класс. В нашем случае, мы расширяем стандартный DefaultProject <span class="caps">SBT</span>.</p>
-<p>Вы объявляете зависимости с помощью val. <span class="caps">SBT</span> использует отражение, чтобы найти все val зависимости в вашем проекте и построить дерево зависимостей во время сборки. Синтаксис может показаться новым, но он эквивалентен тому, что используется в Maven</p>
+<p>프로젝트 정의는 바로 <span class="caps">SBT</span> 클래스이다. 위 예에서는 SBT의 DefaultProject를 확장했다.</p>
+<p>의존관계를 나타내는 val을 정의하면 의존관계 선언이 된다. SBT는 리플렉션을 사용해 프로젝트 안에 정의된 모든 의존관계 값을 읽고 빌드시 해당 의존관계 트리를 만든다. 여기 쓰인 문법이 낯설지도 모르지만, 실제로는 아래의 메이븐(maven) 의존관계 정의와 같은 것이다.</p>
 <pre>
 &lt;dependency&gt;
   &lt;groupId&gt;org.codehaus.jackson&lt;/groupId&gt;
@@ -232,7 +226,7 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
   &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;
 </pre>
-<p>Теперь мы можем получить все зависимости вашего проекта. В командной строке (не в sbt консоли), наберите sbt update</p>
+<p>이제 프로젝트에서 사용할 라이브러리를 가져올 수 있다. 명령행(sbt 콘솔이 아님)에서 sbt update를 실행해 보자.</p>
 <pre>
 [local ~/projects/sbt-sample]$ sbt update
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
@@ -250,10 +244,9 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 [info] Total session time: 2 s, completed Nov 24, 2010 8:47:26 AM
 [success] Build completed successfully.
 </pre>
-<p>Вы увидете, что sbt загрузит все необходимые библиотеки. Теперь у вас появилась директория lib_managed, а lib_managed/scala_2.8.1/test будет содержать specs_2.8.0-1.6.5.jar</p>
-<h2>Добавление тестов</h2>
-<p>Теперь, когда была добавлена тестовая библиотека, добавьте следующий код в<br />
-src/test/scala/com/twitter/sample/SimpleParserSpec.scala</p>
+<p>sbt가 specs 라이브러리를 가져오는 모습이 보인다. 이제는 lib_managed 디렉터리가 보일 것이다. 그리고, lib_managed/scala_2.8.1/test안에 specs_2.8.0-1.6.5.jar이 있어야 한다.</p>
+<h2>테스트 추가하기</h2>
+<p>테스트 라이브러리를 추가했으니까, 다음 코드를 src/test/scala/com/twitter/sample/SimpleParserSpec.scala에 넣자.</p>
 <pre>
 package com.twitter.sample
 
@@ -275,7 +268,7 @@ object SimpleParserSpec extends Specification {
   }
 }
 </pre>
-<p>Запустите тест, набрав в sbt консоли</p>
+<p>sbt 콘솔에서 test를 실행하라.</p>
 <pre>
 &gt; test
 [info] 
@@ -327,7 +320,8 @@ object SimpleParserSpec extends Specification {
 [info] Total time: 0 s, completed Nov 24, 2010 8:54:45 AM
 &gt; 
 </pre>
-<p>Наш тест работает! Теперь можем добавить еще кода. Одной из прекрасных вещей <span class="caps">SBT</span> является возможностть запускать условые действия. До запуска какого-то действия, стартует цикл, который запускает событие, как только происходит изменение в исходниках. Давайте запустим ~test и посмотрим, что произойдет.</p>
+<p>테스트가 성공했다. 이제 더 많은 테스트를 추가할 수 있다.</p>
+<p>SBT가 제공하는 멋진 기능중 하나는 명령에 트리거를 거는 것이다. 명령 앞에 ~를 붙이면 소스 파일이 변경된 경우 해당 명령을 실행한다. ~test를 실행해서 어떤 일이 벌어지나 보자.</p>
 <pre>
 [info] == test ==
 [success] Successful.
@@ -335,7 +329,7 @@ object SimpleParserSpec extends Specification {
 [info] Total time: 0 s, completed Nov 24, 2010 8:55:50 AM
 1. Waiting for source changes... (press enter to interrupt)
 </pre>
-<p>Теперь давайте добавим следующий набор тестов</p>
+<p>이제 다음 테스트케이스를 추가하자.</p>
 <pre>
     "reject a non-JSON tweet" in {
       val tweet = """"id":1,"text":"foo""""
@@ -364,7 +358,7 @@ object SimpleParserSpec extends Specification {
       }
     }
 </pre>
-<p>После того как мы сохраним наш файл, <span class="caps">SBT</span> определит наши изменения, запустит тесты и проинформирует нас, если парсер работает некорректно</p>
+<p>테스트 파일을 저장하고 나면, SBT가 파일이 바뀐걸 알아채고, 테스트를 실행한 다음, 우리 파서가 형편없음을 알려준다.</p>
 <pre>
 [info] == com.twitter.sample.SimpleParserSpec ==
 [info] SimpleParserSpec
@@ -376,7 +370,7 @@ object SimpleParserSpec extends Specification {
 [info]     'foo","nested":{"id' is not equal to 'foo' (SimpleParserSpec.scala:31)
 [info]   + fail on partial content
 </pre>
-<p>Теперь давайте перепишем наш <span class="caps">JSON</span> парсер, чтобы он больше соответствовал действительности</p>
+<p>이제 우리 <span class="caps">JSON</span> 파서를 실제 파서로 바꿔보자.</p>
 <pre>
 package com.twitter.sample
 
@@ -422,7 +416,7 @@ class SimpleParser {
   }
 }
 </pre>
-<p>Получили простой <span class="caps">JSON</span> парсер. Когда мы сохраним изменения, <span class="caps">SBT</span> перекомпилирует наш код и запустит наши тесты. Получилось намного лучше!</p>
+<p>이 파서는 간단한 잭슨(jackson) 파서이다.  저장하고 나면 SBT가 코드를 재 컴파일해서 테스트를 실행할 것이다. 훨씬 좋아졌다!</p>
 <pre>
 info] SimpleParser should
 [info]   + work with basic tweet
@@ -432,8 +426,7 @@ info] SimpleParser should
 [info]   + fail on partial content
 [info] == com.twitter.sample.SimpleParserSpec ==
 </pre>
-<p>Нам нужно проверить наши вложенные объекты. Давайте добавим немного ужасных <br />
-условий в наш цикл чтения.</p>
+<p>우~. 내포된 객체를 처리해야 한다. 토큰을 읽는 루프에 보기는 싫지만 가드를 추가하자.</p>
 <pre>
   def parse(str: String) = {
     val parser = parserFactory.createJsonParser(str)
@@ -472,10 +465,10 @@ info] SimpleParser should
     }
   }
 </pre>
-<p>И&#8230; все работает!</p>
-<h2>Создание пакетов и публикация</h2>
-<p>С этого момента мы можем запустить команду создания пакета, чтобы сгенерировать jar файл. Тем не менее, нам может быть захочется поделиться нашим jar файлом с другими командами. Делать это мы будем с помощью StandardProject, который дает нам большое преимущество.</p>
-<p>Первым шагом будет включение StandardProject как <span class="caps">SBT</span> плагина. Плагины &#8211; это способ добавить зависимость в вашу сборку, а не в проект. Эти зависимости располагаются в project/plugins/Plugins.scala. Добавьте следующие строки в файл Plugins.scala.</p>
+<p>그러면.. 잘 동작한다!</p>
+<h2>패키징과 배포</h2>
+<p>이제 package 명령을 실행해 jar 파일을 만들 수 있다. 하지만, 이 jar를 다른 팀과 공유해야 할 수도 있다. 이를 위해 StandardProject에 대해 빌드를 수행한다. 그러면 여러가지로 잇점이 많다.</p>
+<p>맨 처음 할 일은 StandardProject를 <span class="caps">SBT</span> 플러그인으로 포함시키는 일이다. 플러그인은 프로젝트가 아니라 빌드에 대해 의존관계를 추가하는 방법이다. 이 의존관계는 project/plugins/Plugins.scala에 정의된다. 다음을 Plugins.scala 파일에 추가하자.</p>
 <pre>
 import sbt._
 
@@ -484,8 +477,8 @@ class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
   val defaultProject = "com.twitter" % "standard-project" % "0.7.14"
 }
 </pre>
-<p>Заметьте, что мы определяем специальный maven репозиторий, также как и зависимости. Это происходит потому, что стандартная библиотека проекта не является стандартным sbt репозиторием.</p>
-<p>Мы также обновим наше описание проекта, расширив StandardProject, включая ветку в <span class="caps">SVN</span>, и определим репозиторий для публикации. Измените  SampleProject.scala на следующее</p>
+<p>메이븐 저장소와 의존성을 같이 지정했다는 점에 유의하라. 왜냐하면 표준 프로젝트 라이브러리는 우리(=트위터)가 관리하고 있는데, 이 저장소는 sbt의 디폴트 저장소에 포함되어 있지 않기 때문이다.</p>
+<p>이제 프로젝트 정의를 StandardProject를 확장하게 바꾸고, <span class="caps">SVN</span> 배포 트레잇도 추가하자. 그리고 배포할 저장소도 지정하자. SampleProject.scala를 다음과 같이 바꾼다.</p>
 <pre>
 import sbt._
 import com.twitter.sbt._
@@ -497,7 +490,7 @@ class SampleProject(info: ProjectInfo) extends StandardProject(info) with Subver
   override def subversionRepository = Some("http://svn.local.twitter.com/maven/")
 }
 </pre>
-<p>Теперь, если мы попробуем опубликовать сборку мы получим следующее</p>
+<p>이제 publish 명령을 내리면 결과를 불 수 있다.</p>
 <pre>
 [info] == deliver ==
 IvySvn Build-Version: null
@@ -527,17 +520,17 @@ IvySvn Build-DateTime: null
 [info] 
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
-<p>и (спустя некоторое время), если мы зайдем на binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-<span class="caps">SNAPSHOT</span>/ , то увидем наш опубликованный jar файл.</p>
-<h2>Добавление задач</h2>
-<p>Задачи &#8211; это Scala функции. Простейший способ добавить задачу, нужно влючить val в ваше описание проекта, используя метод task, например</p>
+<p>그 후(시간이 조금 지나고 나면) binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-<span class="caps">SNAPSHOT</span>/에 가 보면 배포한 jar파일을 볼 수 있다.</p>
+<h2>작업(task) 추가하기</h2>
+<p>작업은 스칼라 함수이다. 작업을 추가하는 제일 쉬운 방법은 프로젝트 정의에 task 메소드를 사용한 val을 추가하는 것이다.</p>
 <pre>
 lazy val print = task {log.info("a test action"); None}
 </pre>
-<p>Если вам нужны зависимости и описание, то их вы можете добавить так</p>
+<p>의존성이나 설명이 필요하다면 다음과 같이 추가할 수 있다.</p>
 <pre>
 lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
 </pre>
-<p>Если мы перезагрузим наш проект и наберем команду print мы увидим следующее</p>
+<p>프로젝트를 다시 로드하고 print 명령을 내리면 다음과 같은 결과를 볼 수 있다.</p>
 <pre>
 &gt; print
 [info] 
@@ -549,38 +542,38 @@ lazy val print = task {log.info("a test action"); None}.dependsOn(compile) descr
 [info] Total time: 0 s, completed Nov 24, 2010 11:05:12 AM
 &gt; 
 </pre>
-<p>Итак, все работает. Если объявляете задачу в одном проекте, то все работает прекрасно. Но если вы определяете задачу как плагин, то это будет непрактично. Я хочу, чтобы было так</p>
+<p>잘 동작한다고 할 수 있다. 특정 프로젝트만을 위한 작업을 만든다면 이정도면 충분하다. 하지만, 플러그인안에 작업을 정의하면 훨씬 유연하게 사용할 수 있다. 다음과 같이 할 수 있을 것이다.</p>
 <pre>
 lazy val print = printAction
 def printAction = printTask.dependsOn(compile) describedAs("prints a line after compile")
 def printTask = task {log.info("a test action"); None}
 </pre>
-<p>Это позволяет пользователям переопределить саму задачу, зависимости и/или описание задачи или действия. Большинство <span class="caps">SBT</span> проектов следуют этому образцу. В качестве примера, мы можем изменить встроенные задачи пакета для печати текущего времени, выполните следующие действия</p>
+<p>이렇게 하면 사용자가 작업이나 의존성, 설명, 동작 등을 오버라이드할 수 있다. SBT에 내장된 명령들도 대부분 이런  패턴을 따른다. 예를 들어 내장된 package 작업을 다음과 같이 변경하면 타임스탬프를 표시하도록 할 수 있다.</p>
 <pre>
 lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
 override def packageAction = super.packageAction.dependsOn(printTimestamp)
 </pre>
-<p>Есть много примеров в StandardProject по настройке стандартных значений <span class="caps">SBT</span> и добавлению пользовательских задач.</p>
-<h2>Краткий справочник</h2>
-<h3>Популярные команды</h3>
+<p>StandardProject를 보면 <span class="caps">SBT</span> 기본 설정을 약간 변경하거나, 새 작업을 추가하는 예를 많이 볼 수 있다.</p>
+<h2>정리</h2>
+<h3>자주 쓰는 명령</h3>
 <ul>
-	<li>actions &#8211; отображает все действия доступные для этого проекта</li>
-	<li>update &#8211; загружает зависимости</li>
-	<li>compile &#8211; компилирует исходники</li>
-	<li>test &#8211; запускает тесты</li>
-	<li>package &#8211; создает jar файл для публикации</li>
-	<li>publish-local &#8211; устанавливает собранный jar в ваш локальный ivy кэш</li>
-	<li>publish &#8211; отправляет ваш jar в удаленный репозиторий (если заранее установлены настройки)</li>
+	<li>actions &#8211; 이 프로젝트에서 사용 가능한 명령을 보여준다</li>
+	<li>update &#8211; 프로젝트가 사용하는 라이브러리를 다운로드한다</li>
+	<li>compile &#8211; 소스코드를 컴파일한다</li>
+	<li>test &#8211; 테스트를 실행한다</li>
+	<li>package &#8211; 배포가능한 jar파일을 만든다</li>
+	<li>publish-local &#8211; 만들어진 jar를 로컬 ivy 캐시에 설치한다</li>
+	<li>publish &#8211; jar를 원격 저장소에 넣는다(원격 저장소가 설정되어 있어야 한다)</li>
 </ul>
-<h3>Еще несколько полезных команд</h3>
+<h3>다른 명령들</h3>
 <ul>
-	<li>test-failed &#8211; запускает любой тест, который не прошел проверку</li>
-	<li>test-quick &#8211; запускает любой тест, который не прошел проверку и/или имеет обновленные зависимости</li>
-	<li>clean-cache &#8211; очищает весь sbt кэш. Похожа на sbt clean</li>
-	<li>clean-lib &#8211; удаляет все из lib_managed</li>
+	<li>test-failed &#8211; 실패한 specs 테스트를 재시도한다</li>
+	<li>test-quick &#8211; 실패했거나 의존관계가 변경된 specs 테스트를 재시도한다</li>
+	<li>clean-cache &#8211; 모든 종류의 캐시된 정보를 지운다. sbt clean과 비슷하다</li>
+	<li>clean-lib &#8211; lib_managed의 내용을 지운다</li>
 </ul>
-<h3>Project Layout</h3>
-<p><span class="caps">TBD</span></p>
+<h3>프로젝트 구성</h3>
+<p>(향후 정의할 예정)</p>
     </div> <!-- /container -->
 
     <div id="footer">

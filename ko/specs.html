@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Scala School - Тестирование с помощью specs</title>
+    <title>Scala School - specs로 테스트 하기</title>
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -21,7 +21,7 @@
     <div class="topbar">
       <div class="fill">
         <div class="container fixed">
-          <h3><a href="index.html">Тестирование с помощью specs</a></h3>
+          <h3><a href="index.html">specs로 테스트 하기</a></h3>
           <ul class="nav secondary-nav">
             
               <li><a href="coll2.html">&laquo;Previous</a></li>
@@ -36,32 +36,32 @@
     </div>
 
     <div class="container" style="padding-top: 60px;">
-      <p>В этом уроке вы узнаете о тестировании с помощью Specs, Scala фреймворк для Разработки, основанная на функционировании.</p>
+      <p>이번 강좌에서는 Specs를 사용해 테스트하는 법을 다룬다. Specs는 스칼라용 동작 주도 설계(Behavior-Driven Design, <span class="caps">BDD</span>) 프레임워크이다.</p>
 <ul>
-	<li><a href="#example">расширяем Спецификацию</a>
+	<li><a href="#example">Specification(명세 클래스) 확장하기</a>
 	<ul>
-		<li>вложенные примеры</li>
+		<li>내포</li>
 	</ul></li>
-	<li><a href="#scope">Модель Выполнения</a></li>
-	<li><a href="#setup">Установка и Распаковка</a>
+	<li><a href="#scope">실행 모델</a></li>
+	<li><a href="#setup">준비작업과 정리작업-Setup, Teardown</a>
 	<ul>
 		<li>doFirst</li>
 		<li>doBefore</li>
 		<li>doAfter</li>
 	</ul></li>
-	<li><a href="#matchers">Конструкции сравнения</a>
+	<li><a href="#matchers">매처-Matcher</a>
 	<ul>
 		<li>mustEqual</li>
 		<li>contains</li>
 		<li>sameSize?</li>
-		<li>пишем свою конструкцию</li>
+		<li>필요한 매처 만들어내기</li>
 	</ul></li>
-	<li><a href="#mocks" title="Mocks">Подделки</a></li>
-	<li><a href="#spies" title="Spies">Шпионы</a></li>
-	<li><a href="#sbt">Запуск в sbt</a></li>
+	<li><a href="#mocks">목업</a></li>
+	<li><a href="#spies">스파이</a></li>
+	<li><a href="#sbt">sbt에서 실행하기</a></li>
 </ul>
-<h2 id="example">Расширяем Спецификацию</h2>
-<p>Давайте сразу посмотрим код.</p>
+<h2 id="example">Specifcation(명세 클래스) 확장하기</h2>
+<p>코드부터 살펴보자.</p>
 <pre>
 import org.specs._
 
@@ -76,13 +76,13 @@ object ArithmeticSpec extends Specification {
   }
 }
 </pre>
-<p><strong>Arithmetic</strong> означает, что <strong>System Under Specification</strong>(Система имеет спецификацию)</p>
-<p><strong>add</strong> &#8211; это контекст.</p>
-<p><strong>add two numbers</strong> и <strong>add three numbers</strong> &#8211; это примеры.</p>
-<p><code>mustEqual</code> отражает наше <strong>ожидание</strong></p>
-<p><code>1 mustEqual 1</code> является общим заменителем <strong>ожидания</strong>, прежде чем мы начнем писать реальные тесты. Все примеры должны иметь по крайней мере одно ожидание.</p>
-<h3>Повторяемость</h3>
-<p>Заметили, что оба теста содержат <code>add</code> в своем имени? Мы избавиться от этого благодаря <strong>вложенным</strong> ожиданиям.</p>
+<p><strong>Arithmetic</strong> 은 <strong>명세를 지정할 시스템(System under Specification)</strong> 이다.</p>
+<p><strong>add</strong> 는 컨택스트(context)라 한다.</p>
+<p><strong>add two numbers</strong>와 <strong>add three numbers</strong> 는 예제(example)라 한다.</p>
+<p><code>mustEqual</code> 은 <strong>예상결과(expectation)</strong> 이다.</p>
+<p><code>1 mustEqual 1</code> 은 &quot;예상결과&quot;를 담을 수 있는 틀로 활용할 수 있다. 예제는 반드시 하나 이상의 예상결과를 포함해야 한다.</p>
+<h3>중복</h3>
+<p>두 테스트의 이름에 <code>add</code> 가 같이 포함되어 있는게 보이는가? 이런 중복은 예상결과를 <strong>내포</strong> 시킴으로써 없앨 수 있다.</p>
 <pre>
 import org.specs._
 
@@ -99,7 +99,7 @@ object ArithmeticSpec extends Specification {
   }
 }
 </pre>
-<h2 id="scope">Модель выполнения</h2>
+<h2 id="scope">실행 모델</h2>
 <pre>
 object ExecSpec extends Specification {
   "Mutations are isolated" should {
@@ -114,19 +114,19 @@ object ExecSpec extends Specification {
   }
 }
 </pre>
-<h2 id="setup">Установка, Распаковка</h2>
-<h3>doBefore и doAfter</h3>
+<h2 id="setup">Setup(준비작업)과 Teardown(정리작업)</h2>
+<h3>doBefore &amp; doAfter</h3>
 <pre>
 "my system" should {
-  doBefore { resetTheSystem() /** определенная пользователем функция сброса */ }
+  doBefore { resetTheSystem() /** user-defined reset function */ }
   "mess up the system" in {...}
   "and again" in {...}
   doAfter { cleanThingsUp() }
 }
 </pre>
-<p><strong>ЗАМЕЧАНИЕ</strong> <code>doBefore</code>/<code>doAfter</code> будут работать только с черновыми примерами.</p>
-<h3>doFirst и doLast</h3>
-<p><code>doFirst</code>/<code>doLast</code> предназначены во время установки (здесь нужен пример, я не использую их)</p>
+<p><strong><span class="caps">NOTE</span></strong> <code>doBefore</code> / <code>doAfter</code> 는 말단 예제에 대해에서만 실행된다.</p>
+<h3>doFirst &amp; doLast</h3>
+<p><code>doFirst</code> / @doLast@는 일회성 설정을 위한 장치이다. (예제가 필요하다. 나(즉, 원저자)는 이를 사용하지 않는다.)</p>
 <pre>
 "Foo" should {
   doFirst { openTheCurtains() }
@@ -135,17 +135,17 @@ object ExecSpec extends Specification {
   doLast { closeTheCurtains() }
 }
 </pre>
-<h2 id="matchers">Конструкции сравнения</h2>
-<p>У вас есть данные, и вы хотите убедиться, что они верные. Давайте рассмотрим наиболее часто используемые конструкции сравнения. (Смотрите также <a href="http://code.google.com/p/specs/wiki/MatchersGuide">Matchers Guide</a>)</p>
+<h2 id="matchers">Matcher(매처)</h2>
+<p>데이터가 있고, 그 데이터가 올바른지 확인할 때 매처를 사용한다. 가장 흔히 사용되는 것들을 살펴보자. (<a href="http://code.google.com/p/specs/wiki/MatchersGuide">매처 가이드</a> 를 살펴 보라)</p>
 <h3>mustEqual</h3>
-<p>Вы уже видели несколько примеров с mustEqual.</p>
+<p>이미 mustEqual 예제는 여러 개 살펴 보았다.</p>
 <pre>
 1 mustEqual 1
 
 "a" mustEqual "a"
 </pre>
-<p>Равенство ссылок, равенство значений.</p>
-<h3>элементы в Sequence</h3>
+<p>동일성에는 참조 동일성과 값 동일성이 있다.</p>
+<h3>열의 원소</h3>
 <pre>
 val numbers = List(1, 2, 3)
 
@@ -157,7 +157,7 @@ numbers must containInOrder(List(1, 2, 3))
 
 List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4), 2, 3), 1))
 </pre>
-<h3>Записи в Map</h3>
+<h3>맵의 원소</h3>
 <pre>
 map must haveKey(k)
 map must notHaveKey(k)
@@ -165,7 +165,7 @@ map must notHaveKey(k)
 map must haveValue(v)
 map must notHaveValue(v)
 </pre>
-<h3>Числа</h3>
+<h3>수</h3>
 <pre>
 a must beGreaterThan(b)
 a must beGreaterThanOrEqualTo(b)
@@ -175,7 +175,7 @@ a must beLessThanOrEqualTo(b)
 
 a must beCloseTo(b, delta)
 </pre>
-<h3>Опции</h3>
+<h3>옵션(Option)</h3>
 <pre>
 a must beNone
 
@@ -189,22 +189,22 @@ a must beSome(value)
 <pre>
 a must throwA[WhateverException]
 </pre>
-<p>Запись короче чем try catch с его попыткой выброса исключения в теле блока.</p>
-<p>Вы можете выдать специальное сообщение</p>
+<p>이렇게 쓰는게 테스트 몸체에서 예외를 캐치해서 실패로 만드는 것 보다 더 짧다.</p>
+<p>또한 특정 예외 메시지를 명시할 수도 있다.</p>
 <pre>
 a must throwA(WhateverException("message"))
 </pre>
-<p>Вы можете также поймать определенное исключение:</p>
+<p>예외의 타입에 대해 매치할 수도 있다.</p>
 <pre>
 a must throwA(new Exception) like {
   case Exception(m) =&gt; m.startsWith("bad")
 }
 </pre>
-<h3>Пишем свои условные конструкции</h3>
+<h3>필요한 매처 만들어내기</h3>
 <pre>
 import org.specs.matcher.Matcher
 </pre>
-<h4>Подобно val</h4>
+<h4>val로 정의하기</h4>
 <pre>
 "A matcher" should {
   "be created as a val" in {
@@ -217,15 +217,15 @@ import org.specs.matcher.Matcher
   }
 }
 </pre>
-<p>Контракт вернет кортеж, содержащий запись о том верно ожидание или нет, и сообщение когда оно верно или наоборот.</p>
-<h4>Подобно case классу</h4>
+<p>매처 정의시 지켜야할 계약은 3-튜플을 반환하는 것이다. 첫 원소에는 예상 결과를 만족하는지 여부, 두번째 원소에는 만족시의 메시지, 마지막 원소에는 실패시의 메시지가 들어가야 한다.</p>
+<h4>케이스 클래스로 정의하기</h4>
 <pre>
 case class beEven(b: Int) extends Matcher[Int]() {
   def apply(n: =&gt; Int) =  (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
 }
 </pre>
-<p>Используя case класс, вы делаете его менее специализированным.</p>
-<h2 id="mocks">Подделки(Mocks)</h2>
+<p>케이스 클래스로 만들면 더 공유하기 쉬워진다.</p>
+<h2 id="mocks">목업</h2>
 <pre>
 import org.specs.Specification
 import org.specs.mock.Mockito
@@ -246,41 +246,41 @@ object MockExampleSpec extends Specification with Mockito {
   there was no(m).get(1)
 }
 </pre>
-<p><strong>Смотрите также:</strong> <a href="http://code.google.com/p/specs/wiki/UsingMockito">Использование Mockito</a></p>
-<h2 id="spies">Шпионы(Spies)</h2>
-<p>Шпионы могут также быть использованы для того, чтобы сделать некоторую &#8220;частичную подделку&#8221; реальных объектов:</p>
+<p><strong>See Also</strong> <a href="http://code.google.com/p/specs/wiki/UsingMockito">Mockito 활용하기</a></p>
+<h2 id="spies">스파이</h2>
+<p>스파이를 사용해 실제 객체를 &#8220;부분적으로 흉내내기&#8221;할 수 있다.</p>
 <pre>
 val list = new LinkedList[String]
 val spiedList = spy(list)
 
-// методы могут выдать ошибку при использовании шпиона
+// methods can be stubbed on a spy
 spiedList.size returns 100
 
-// другие методы также могут быть использованы
+// other methods can also be used
 spiedList.add("one")
 spiedList.add("two")
 
-// и проверка может происходить с помощью шпиона
+// and verification can happen on a spy
 there was one(spiedList).add("one")
 </pre>
-<p>Однако, работа со шпионами может быть сложной:</p>
+<p>하지만, 스파이를 쓰면 때로 문제가 생길 수 있다.</p>
 <pre>
-// если список пуст, то бросается исключение IndexOutOfBoundsException
+// 리스트가 비어있다면, IndexOutOfBoundsException가 발생할 것이다.
 spiedList.get(0) returns "one"
 </pre>
-<p><code>doReturn</code> должен быть исопльзован в этом случае:</p>
+<p>이 경우 <code>doReturn</code> 을 사용해야만 한다.</p>
 <pre>
 doReturn("one").when(spiedList).get(0)
 </pre>
-<h2 id="sbt">Запуск индивидальных спеков(тестов) в sbt</h2>
+<h2 id="sbt">개별 specs를 sbt에서 실행하기</h2>
 <pre>
 &gt; test-only com.twitter.yourservice.UserSpec
 </pre>
-<p>Запустится только данный спек.</p>
+<p>라고 하면 해당 spec을 실행할 것이다.</p>
 <pre>
 &gt; ~ test-only com.twitter.yourservice.UserSpec
 </pre>
-<p>Будет запускаться тест в цикле, с каждой модификацией файла будет срабатывать триггер и будет запускаться тест.</p>
+<p>라고 하면 테스트를 실행하되, 파일이 바뀔 때마다 테스트가 재실행될 것이다.</p>
     </div> <!-- /container -->
 
     <div id="footer">
