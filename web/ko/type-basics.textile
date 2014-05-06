@@ -1,0 +1,326 @@
+---
+prev: pattern-matching-and-functional-composition.textile
+next: advanced-types.textile
+title: 타입과 다형성의 기초
+layout: post
+---
+
+본 강좌에서 다루는 내용은 다음과 같다.
+
+* "정적 타입이 의미하는 것은 무엇인가?":#background
+* "스칼라의 타입":#scala
+* "매개변수 다형성(Parametric Polymorphism)":#parametricpoly
+* "타입 추론(Type inference): 힌들리-밀너(Hindley-Milner) 시스템과 지역 타입 추론의 비교":#inference
+* "공변성(Variance)":#variance
+* "바운드(Bound)":#bounds
+* "한정하기(Quantification)":#quantification
+
+h2(#background). 정적 타입이란 무엇인가? 정적 타입이 유용한 이유는 무엇인가?
+
+피어스(Benjamin C. Pierce, 역주: <a href="http://en.wikipedia.org/wiki/Types_and_Programming_Languages">타입과 프로그래밍 언어</a>라는 책의 저자)는 "타입 시스템은 프로그램 각 부분이 만들어낼 수 있는 값의 종류를 나눔으로써 그 프로그램이 특정 오류 상황을 발생시키지 않는다는 것을 자동으로 검증해주기 위한 문법적 검증 방법"이라 말한다.
+
+타입을 사용하면 함수의 정의역과 공변역을 지정할 수 있다. 예를 들어 아래와 같은 표기를 수학에서 많이 보았을 것이다.
+
+<pre>
+f: R -> N
+</pre>
+
+이는 `f`가 실수(`R`)에 대해 자연수(`N`)를 대응시키는 함수라는 것을 말한다. 
+
+간략히 말하면 이게 _구체적(concrete)_ 타입이 의미하는 바의 전부이다. 하지만, 타입 시스템은 이보다 더 강력하다.
+
+컴파일러는 이런 타입 표시에 기반해 _정적으로_, 즉 컴파일시에, 프로그램이 _건전한지(sound)를_ 판단한다. 즉, 프로그램의 각 구성요소에 표현되어 있는 타입 정보(이는 그 구성요소가 어떤 값을 받고 어떤 값을 출력하는지를 나타내는 제약 조건으로도 볼 수 있다)를 위배하는 프로그램은 컴파일시 실패하며, 컴파일에 성공한 프로그램은 타입을 만족하는 값만을 출력으로 발생시킨다는 의미이다.
+
+일반적으로, _건전하지 못한_ 프로그램은 타입 검사를 통과하지 못하지만, 모든 건전한 프로그램이 타입 검사를 통과하는 것은 아니다. (즉, 타입검사를 통과하면 건전한 프로그램이지만, 타입 오류가 나는 건전한 프로그램도 있을 수 있다.)
+
+타입 시스템의 표현력이 더 풍부해진다면 코드의 신뢰성을 더 높일 수 있다. 왜냐하면 실행해 보기 전에 프로그램이 어떤 값을 가질지를 더 자세히 예상할 수 있기 때문이다. (물론 타입을 잘못 표시해 생기는 문제는 프로그래머 책임이다!) 학계에서는 많은 노력을 하고 있으며, 값에 의존적인 타입(value dependent type) 등이 연구 중이다.
+
+한 가지 더 알아둬야 할 것은 소스코드에 있는 타입 정보는 런타임에는 불필요하기 때문에 컴파일시 제거된다는 점이다(물론 구체적 타입에 따른 자료구조와 각종 변환 코드 등이 대신 바이트코드의 필요한 부분에 들어간다). 이를 타입 소거(type erasure)라 부른다.
+
+h2(#scala). 스칼라의 타입
+
+스칼라의 타입 시스템은 강력하다. 따라서 다양한 표현이 가능하다. 스칼라 타입 시스템의 가장 중요한 특징을 보면 다음과 같다.
+
+* *매개변수 다형성(parametric polymorphism)* 대략, 일반적(generic) 프로그래밍이라 할 수 있다.
+* *(지역) 타입 추론* 간단히 말하자면, <code>val i: Int = 12: Int</code>라고 장황하게 쓰지 않아도 되는 이유라 할 수 있다.
+* *존재 양화(existential quantification)* 대강 설명하면 _어떤_ 타입에 대해서만 값/함수 등을 정의하는 것이다.
+* *뷰(view)* 다음 강의에서 다룰 것이다. 대충 한 타입의 값을 다른 타입으로 "변환할 수 있는지" 여부이다.
+
+(역주: 논리학 용어로 양화란 어떤 대상을 한정짓는 것이다. 존재양화-어떤 명제 p를 만족하는 대상이 대상 집합 안에 있다는 의미-와 전칭 양화-어떤 명체 p를 대상 집합 안의 모든 존재가 만족한다는 의미-가 있다. 일반적인 함수(generic function)의 경우 모든 타입에 대해 해당 함수가 정의되는 것이지만(따라서 이는 전칭 양화가 적용되는 경우라고 볼 수도 있다)., 꼭 그래야 한다는 법은 없다. 특정 조건을 만족하는 타입에 대해서만 정의되는 함수가 없으란 법은 없으니까. 이런 정의를 허용할 경우 타입의 타입이란 개념이 필요해 지고, 타입 추론이 복잡해진다.)
+
+h2(#parametricpoly). 매개변수 다형성(Parametric polymorphism)
+
+(역주: 함수가 값만 받는다고 생각할 지 모르겠지만, 더 일반화 시키자면 매개변수에 값, 타입, 타입의 타입, 타입의 타입의 타입 등이 들어올 수 있다. 값만 넘길 수 있도록 정의된 함수는 보통의 함수가 되고, 구체적 타입과 값을 넘겨야 하는 경우 일반적(제네릭) 함수가 된다.)
+
+매개변수 다형성은 정적 타입의 장점을 포기하지 않으면서 일반적 코드(즉 여러 타입의 값을 처리할 수 있는 코드)를 만들기 위해 사용한다. 
+
+예를 들어 매개변수 다형성이 없었다면 일반적인 리스트 데이터 구조는 다음과 같았을 것이다(제네릭 지원 이전의 자바 리스트가 딱 이랬다).
+
+<pre>
+scala> 2 :: 1 :: "bar" :: "foo" :: Nil
+res5: List[Any] = List(2, 1, bar, foo)
+</pre>
+
+위와 같은 경우 개별 멤버의 타입을 알 수가 없다.
+
+<pre>
+scala> res5.head
+res6: Any = 2
+</pre>
+
+따라서 사용하는 쪽에서는 캐스팅("asInstanceOf[]")을 할 수 밖에 없고, 이는 타입 안전성을 해칠 수 있다(왜냐하면 캐스팅은 모두 동적으로 이뤄지기 때문이다).
+
+다형성은 _타입 변수_를 지정함으로써 이루어진다.
+
+<pre>
+scala> def drop1[A](l: List[A]) = l.tail
+drop1: [A](l: List[A])List[A]
+
+scala> drop1(List(1,2,3))
+res1: List[Int] = List(2, 3)
+</pre>
+
+h3. 스칼라는 1단계(rank-1) 다형성을 지원한다.
+
+대충 설명하자면, 이는 경우에 따라서 너무 일반적이어서 스칼라 컴파일러가 이해할 수 없는 문장이 있을 수 있다는 말이다. 다음을 생각해 보자.
+
+<pre>
+def toList[A](a: A) = List(a)
+</pre>
+
+실은 이 함수를 아래와 같이 일반적으로 써먹고 싶다.
+
+<pre>
+def foo[A, B](f: A => List[A], b: B) = f(b)
+</pre>
+
+위 코드는 컴파일이 되지 않는다. 왜냐하면 모든 타입 변수는 호출하는 시점에 고정되어야 하기 때문이다. 심지어 타입 변수 <code>B</code>를 구체적 타입으로 바꾸더라도 마찬가지이다.
+
+(역주: 호출 시점이란 말을 실제 함수가 런타임시 호출되는 시점과 혼동해서는 안된다. 여기서는 타입변수로 타입이 고정되어야 하는 어떤 코드 조각이 프로그램 코드 내에서 사용되는 시점을 의미한다.) 
+
+<pre>
+def foo[A](f: A => List[A], i: Int) = f(i)
+</pre>
+
+컴파일러는 타입이 맞지 않는다고 오류를 보고할 것이다. 
+
+h2(#inference). 타입 추론(Type inference)
+
+정적 타입 체크에 대한 전형적인 반대 의견 하나는 문법적인 부가비용이 너무 크다는 주장이다. 스칼라는 이런 부담을 _타입 추론_을 통해 줄여준다.
+
+함수 언어에서 전통적인 타입 추론은 _힌들리-밀너(Hindley-Milner)_ 시스템이다. 이는 ML에 가장 먼저 적용되었다.
+
+스칼라의 타입 추론은 조금 다르지만, 기본 착상은 동일하다. 즉, 제약관계를 추론해내서 타입을 단일화 하는 것이다.
+
+예를 들어 스칼라에서는 다음과 같은 일을 할 수 없다.
+
+<pre>
+scala> { x => x }
+<console>:7: error: missing parameter type
+       { x => x }
+</pre>
+
+반면 OCaml에서는 가능하다.
+
+<pre>
+# fun x -> x;;
+- : 'a -> 'a = <fun>
+</pre>
+
+스칼라에서 모든 타입 유추는 _지역적_이다. 스칼라는 한번에 한 식만을 고려한다. 예를 들면 다음과 같다.
+
+<pre>
+scala> def id[T](x: T) = x
+id: [T](x: T)T
+
+scala> val x = id(322)
+x: Int = 322
+
+scala> val x = id("hey")
+x: java.lang.String = hey
+
+scala> val x = id(Array(1,2,3,4))
+x: Array[Int] = Array(1, 2, 3, 4)
+</pre>
+
+이제는 타입이 보존된다. 스칼라는 자동으로 타입을 유추해준다. 또한 반환 타입도 명시적으로 기술할 필요가 없었다는 점에도 유의하라.
+
+h2(#variance). 공변성/반공변성(Variance)
+
+스칼라의 타입 시스템은 다형성 뿐 아니라 클래스 계층관계도 처리해야만 한다. 클래스의 계층은 상/하위 타입 관계를 만든다. OO와 다형성이 합쳐지면서 생기는 핵심문제는 바로 "<tt>T'</tt>가 <tt>T</tt>의 하위클래스일 때, <tt>Container[T']</tt>가 <tt>Container[T]</tt>의 하위클래스인가?"하는 문제이다. 프로그래머는 클래스 계층과 다형성 타입에서 다음과 같은 관계를 공변성 표기를 통해 표시할 수 있다. 
+
+|                |*의미*                     | *스칼라 표기*|
+|*공변성(covariant)*     |C[T']는 C[T]의 하위 클래스이다   | [+T]|
+|*반공변성(contravariant)* |C[T]는 C[T']의 하위 클래스이다   | [-T]|
+|*무공변성(invariant)*     |C[T]와 C[T']는 아무 관계가 없다 | [T]|
+
+하위타입 관계가 실제 의미하는 것은 "어떤 타입 T에 대해 T'이 하위 타입이라면, T'으로 T를 대치할 수 있는가?" 하는 문제이다(역주: 이를 리스코프치환원칙(Liskov Substitution Principle)이라 한다. 이는 상위타입이 쓰이는 곳에는 언제나 하위 타입의 인스턴스를 넣어도 이상이 없이 동작해야 한다는 의미이다. 이를 위해 하위 타입은 상위 타입의 인터페이스(자바의 인터페이스가 아니라 외부와의 접속을 위해 노출시키는 인터페이스)를 모두 지원하고, 상위타입에서 가지고 있는 가정을 어겨서는 안된다).
+
+<pre>
+scala> class Covariant[+A]
+defined class Covariant
+
+scala> val cv: Covariant[AnyRef] = new Covariant[String]
+cv: Covariant[AnyRef] = Covariant@4035acf6
+
+scala> val cv: Covariant[String] = new Covariant[AnyRef]
+<console>:6: error: type mismatch;
+ found   : Covariant[AnyRef]
+ required: Covariant[String]
+       val cv: Covariant[String] = new Covariant[AnyRef]
+                                   ^
+</pre>
+
+<pre>
+scala> class Contravariant[-A]
+defined class Contravariant
+
+scala> val cv: Contravariant[String] = new Contravariant[AnyRef]
+cv: Contravariant[AnyRef] = Contravariant@49fa7ba
+
+scala> val fail: Contravariant[AnyRef] = new Contravariant[String]
+<console>:6: error: type mismatch;
+ found   : Contravariant[String]
+ required: Contravariant[AnyRef]
+       val fail: Contravariant[AnyRef] = new Contravariant[String]
+                                     ^
+</pre>
+
+반공변성은 이상해 보일지 모른다. 언제 반공변성이 사용될까? 약간 놀랄지 모르겠다!
+
+<pre>
+trait Function1 [-T1, +R] extends AnyRef
+</pre>
+
+이를 치환의 관점에서 본다면, 수긍이 된다. 우선 간단한 클래스 계층을 만들어 보자.
+
+<pre>
+scala> class Animal { val sound = "rustle" }
+defined class Animal
+
+scala> class Bird extends Animal { override val sound = "call" }
+defined class Bird
+
+scala> class Chicken extends Bird { override val sound = "cluck" }
+defined class Chicken
+</pre>
+
+이제 <code>Bird</code>를 매개변수로 받는 함수를 만든다.
+
+<pre>
+scala> val getTweet: (Bird => String) = // TODO
+</pre>
+
+표준 동물 라이브러리에도 이런 일을 하는 함수가 있기는 하다. 하지만, 그 함수는 <code>Animal</code>을 매개변수로 받는다.  보통은 "난 ___가 필요한데, ___의 하위 클래스밖에 없네"라는 상황이라도 문제가 되지 않는다. 하지만, 함수 매개변수는 반공변성이다. <code>Bird</code>를 인자로 받는 함수가 필요한 상황에서, <code>Chicken</code>을 받는 함수를 사용했다고 가정하자. 이 경우 인자로 <code>Duck</code>이 들어온다면 문제가 생길 것이다. 하지만, 거기에 <code>Animal</code>을 인자로 받는 함수를 사용한다면 아무 문제가 없을 것이다.
+(역주: 함수 <code>Bird=>String</code>가 있다면 이 함수 내에서는 <code>Bird</code>의 인터페이스를 사용해 무언가를 수행하리라는 것을 예상할 수 있다. 이제 이런 함수를 받아 무언가 동작을 하는 <code>f: (Bird=>String)=>String</code>이라는 타입의 함수가 있고, <code>f</code>의 몸체에서는 <code>Bird=>String</code>함수에 <code>Duck</code> 타입의 값을 전달한다고 생각해 보자. 지금까지는 아무 문제가 없다.
+이제 <code>f</code>에 <code>Chicken=>String</code> 타입의 함수 <code>g</code>를 넘긴다고 생각해 보면 문제가 왜 생기는지 알 수 있다. 이런 경우 <code>g</code>에 <code>Chicken</code>이 아닌 <code>Duck</code>이 전달될 것이다. 하지만, <code>g</code> 안에서는 닭만이 할 수 있는 짓(닭짓?)을 하게 되고, 돼지는 닭짓이 불가능하다. 따라서, 프로그램은 오류가 발행할 수 밖에 없다. 
+반면, <code>f</code>에 <code>Animal=>String</code> 타입의 함수 <code>h</code>를 넘긴다면, <code>h</code>에 <code>Duck</code>이 전달될 것이다. 바람직하게도, <code>h</code> 안에서는 모든 동물이 할 수 있는 짓만을 하기 때문에, 오리도 아무 문제 없이 사용될 수 있다.)
+
+<pre>
+scala> val getTweet: (Bird => String) = ((a: Animal) => a.sound )
+getTweet: Bird => String = <function1>
+</pre>
+
+함수의 반환 값은 공변성이있다. <code>Bird</code>를 반환하는 함수가 필요한데, <code>Chicken</code>을 반환하는 함수가 있다면 아무런 문제가 없다.
+
+<pre>
+scala> val hatch: (() => Bird) = (() => new Chicken )
+hatch: () => Bird = <function0>
+</pre>
+
+h2(#bounds). 바운드(Bound)
+
+스칼라에서는 다형성 변수를 _바운드를_ 사용해 제약할 수 있다. 이런 바운드는 서브타입 관계를 표현한다.
+
+<pre>
+scala> def cacophony[T](things: Seq[T]) = things map (_.sound)
+<console>:7: error: value sound is not a member of type parameter T
+       def cacophony[T](things: Seq[T]) = things map (_.sound)
+                                                        ^
+
+scala> def biophony[T <: Animal](things: Seq[T]) = things map (_.sound)
+biophony: [T <: Animal](things: Seq[T])Seq[java.lang.String]
+
+scala> biophony(Seq(new Chicken, new Bird))
+res5: Seq[java.lang.String] = List(cluck, call)
+</pre>
+
+하위 타입 바운드도 지원된다. 하위 타입 바운드는 반공변성인 경우를 처리하거나 공변성 관계를 좀 더 똑똑하게 처리할 때 유용하다. <code>List[+T]</code>는 공변성이 있다. 새의 리스트는 동물의 리스트이기도 하다. 
+<code>List</code>에는 <code>::(elem T)</code> 연산자가 있다. 이 연산자는 <code>elem</code>이 앞에 붙은 새 <code>List</code>를 반환한다. 이 새 <code>List</code>는 원래의 리스트와 같은 타입이 된다.
+
+<pre>
+scala> val flock = List(new Bird, new Bird)
+flock: List[Bird] = List(Bird@7e1ec70e, Bird@169ea8d2)
+
+scala> new Chicken :: flock
+res53: List[Bird] = List(Chicken@56fbda05, Bird@7e1ec70e, Bird@169ea8d2)
+</pre>
+
+<code>List</code>에는 <code>::[B >: T](x: B)</code>라는 연산자가 _또한_ 있어서 <code>List[B]</code>를 반환한다. <code>B >: T</code> 관계를 보라. 이는 <code>B</code>가 <code>T</code>의 상위 클래스라는 의미이다. 이로 인해 <code>Animal</code>을 <code>List[Bird]</code>의 앞에 붙이는 경우도 제대로 처리할 수 있다.
+
+<pre>
+scala> new Animal :: flock
+res59: List[Animal] = List(Animal@11f8d3a8, Bird@7e1ec70e, Bird@169ea8d2)
+</pre>
+
+이번에는 반환되는 타입이 <code>List[Animal]</code>임에 유의하라.
+
+h2(#quantification). 한정하기(Quantification)
+
+때때로 타입 변수에 어떤 이름이 붙던 상관이 없는 경우가 있다. 예를 들면 다음과 같다.
+
+<pre>
+scala> def count[A](l: List[A]) = l.size
+count: [A](List[A])Int
+</pre>
+
+이런 경우 대신 "와일드카드"를 사용할 수 있다.
+
+<pre>
+scala> def count(l: List[_]) = l.size
+count: (List[_])Int
+</pre>
+
+이는 다음을 짧게 쓴 것이다.
+
+<pre>
+scala> def count(l: List[T forSome { type T }]) = l.size
+count: (List[T forSome { type T }])Int
+</pre>
+
+때때로 한정사가 하는 일이 이해가 안될 때도 있다.
+
+<pre>
+scala> def drop1(l: List[_]) = l.tail
+drop1: (List[_])List[Any]
+</pre>
+
+갑자가 타입 정보가 사라져버렸다! 대체 무슨 일이 벌어진 건지 보려면, 정식 문법으로 다시 돌아가 봐야 한다.
+
+<pre>
+scala> def drop1(l: List[T forSome { type T }]) = l.tail
+drop1: (List[T forSome { type T }])List[T forSome { type T }]
+</pre>
+
+T라는 타입에 대해 이야기할 수 있는 정보가 없다. 왜냐하면 타입 시스템이 이를 허용하지 않기 때문이다.
+
+필요하면 와일드카드 타입 변수도 바운드를 할 수 있다.
+
+<pre>
+scala> def hashcodes(l: Seq[_ <: AnyRef]) = l map (_.hashCode)
+hashcodes: (Seq[_ <: AnyRef])Seq[Int]
+
+scala> hashcodes(Seq(1,2,3))
+<console>:7: error: type mismatch;
+ found   : Int(1)
+ required: AnyRef
+Note: primitive types are not implicitly converted to AnyRef.
+You can safely force boxing by casting x.asInstanceOf[AnyRef].
+       hashcodes(Seq(1,2,3))
+                     ^
+
+scala> hashcodes(Seq("one", "two", "three"))
+res1: Seq[Int] = List(110182, 115276, 110339486)
+</pre>
+
+*See Also* <a href="http://www.drmaciver.com/2008/03/existential-types-in-scala/">맥아이버(D. R. MacIver)가 쓴 '스칼라 특칭 타입'</a>

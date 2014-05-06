@@ -1,0 +1,432 @@
+---
+layout: post
+title: 기초
+next: basics2.textile
+---
+
+이번 강좌에서 다루는 내용은 다음과 같다.
+* "이번 강좌에 대해":#overview
+* "식":#expressions
+* "값":#val
+* "함수":#functions
+* "클래스":#class
+* "상속":#extends
+* "트레잇":#trait
+* "타입":#types
+
+h2(#overview). 이번 강좌에 대해
+
+처음에는 기본적인 문법과 개념을 다룰 것이다. 그 후, 더 많은 연습문제를 통해 점점 범위를 넓힐 것이다. 
+
+예제 중 일부는 인터프리터에서 작성된 것을 보일 것이고, 나머지는 소스파일로 된 것을 보여줄것이다.
+
+인터프리터가 있으면 문제가 되는 부분을 빠르게 찾아나갈 수 있을 것이다.
+
+h3. 스칼라를 사용해야 하는 이유는?
+
+* 풍부한 표현력
+** 1급 함수(First-class function)
+** 클로져(Closure)
+* 간결함
+** 타입 추론
+** 함수 리터럴(Literal)
+* 자바와의 혼용 가능
+** 자바 라이브러리 재사용 가능
+** 자바 도구를 재사용 가능
+** 성능의 손실 없이 사용 가능
+
+h3. 스칼라를 어떻게 쓸 수 있나?
+
+* 자바 바이트코드로 컴파일됨
+* 표준적인 자바 VM에서 잘 동작함
+** 심지어는 달빅(Dalvik)과 같은 비표준 JVM에서도 동작
+** 자바 컴파일러를 만든 사람이 스칼라 컴파일러도 만듦
+
+h3. 스칼라 방식으로 생각하자
+
+스칼라는 단지 "더 나은 자바"가 아니다. 전혀 새로운 마음으로 스칼라를 배우기 바란다. 그래야 이 강좌를 넘어서는 많은 것을 배울 수 있다.
+
+h3. 인터프리터 시작하기
+
+<code>sbt console</code>로 시작하라.
+
+<pre>
+$ sbt console
+
+[...]
+
+Welcome to Scala version 2.8.0.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_20).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala>
+</pre>
+
+
+h2(#expressions). 식
+
+<pre>
+scala> 1 + 1
+res0: Int = 2
+</pre>
+
+식을 입력하면 인터프리터가 결과를 출력한다. 이때, res0는 결과 값에 인터프리터가 부여한 이름이다. 이 값의 타입은 Int이고, 값은 2라는 정수이다.
+
+스칼라의 (거의) 모든 문장은 식이다.
+
+h2(#val). 값
+
+식의 결과에 이름을 붙일 수 있다.
+
+<pre>
+scala> val two = 1 + 1
+two: Int = 2
+</pre>
+
+val로 어떤 값에 이름을 붙인 경우, 이 관계를 변경할 수 없다.
+
+h3. 변수
+
+값과 이름의 관계를 변경할 필요가 있다면, <code>var</code>를 사용해야만 한다.
+
+<pre>
+scala> var name = "steve"
+name: java.lang.String = steve
+
+scala> name = "marius"
+name: java.lang.String = marius
+</pre>
+
+h2(#functions). 함수
+
+def를 사용해 함수를 만들 수 있다.
+
+<pre>
+scala> def addOne(m: Int): Int = m + 1
+addOne: (m: Int)Int
+</pre>
+
+스칼라에서는 함수 인자의 타입을 명시해야 한다. 인터프리터는 기꺼이 타입 시그니쳐를 다시 표시해줄 것이다.
+
+<pre>
+scala> val three = addOne(2)
+three: Int = 3
+</pre>
+
+인자가 없는 함수의 경우 호출시 괄호를 생략할 수도 있다.
+
+<pre>
+scala> def three() = 1 + 2
+three: ()Int
+
+scala> three()
+res2: Int = 3
+
+scala> three
+res3: Int = 3
+</pre>
+
+h3. 이름 없는 함수
+
+이름 없는 함수를 만들 수 있다.
+
+<pre>
+scala> (x: Int) => x + 1
+res2: (Int) => Int = <function1>
+</pre>
+
+위 함수는 x라는 이름의 Int에 1을 더한다.
+
+<pre>
+scala> res2(1)
+res3: Int = 2
+</pre>
+
+이름 없는 함수를 다른 함수나 식에 넘기거나 val에 저장할 수도 있다.
+
+<pre>
+scala> val addOne = (x: Int) => x + 1
+addOne: (Int) => Int = <function1>
+
+scala> addOne(1)
+res4: Int = 2
+</pre>
+
+함수가 여러 식으로 이루어진 경우, {}를 사용해 이를 위한 공간을 만들 수 있다.
+
+<pre>
+def timesTwo(i: Int): Int = {
+  println("hello world")
+  i * 2
+}
+</pre>
+
+이름 없는 함수의 경우도 마찬가지이다.
+
+<pre>
+scala> { i: Int =>
+  println("hello world")
+  i * 2
+}
+res0: (Int) => Int = <function1>
+</pre>
+
+이름 없는 함수를 넘길 때 위와 같은 형태를 자주 보게 될 것이다.
+
+h3. 인자의 일부만 사용해 호출하기(부분 적용, Partial application)
+
+함수 호출시 밑줄(_)을 사용해 일부만 적용할 수 있다. 그렇게 하면 새로운 함수를 얻는다. 스칼라에서 밑줄은 문맥에 따라 의미가 다르다. 하지만 보통 이름 없는 마법의 문자로 생각해도 된다. `{ _ + 2 }` 이라는 문맥에서 밑줄은 이름이 없는 매개변수를 가리킨다. 다음과 같이 이를 사용할 수 있다.
+
+<pre>
+scala> def adder(m: Int, n: Int) = m + n
+adder: (m: Int,n: Int)Int
+</pre>
+
+<pre>
+scala> val add2 = adder(2, _:Int)
+add2: (Int) => Int = <function1>
+
+scala> add2(3)
+res50: Int = 5
+</pre>
+
+인자 중에서 원하는 어떤 것이든 부분 적용이 가능하다. 꼭 맨 마지막 위치가 아니라도 아무 곳에서 밑줄을 넣을 수 있다.
+(역주: 사실은 _는 부분 적용하는 것에서 제외되는 위치가 혼동되지 않도록 표시해주는 역할을 한다. 혼동하면 안되는 것은 _이 부분적용이 아니고, _를 제외하고 호출하는 코드에 적힌 실제 인자가 부분적용의 인자값이라는 것이다. 다만 이 scala school에서는 _를 일관되게 부분 적용이라고 부르고 있지만, 역자 생각에 이는 틀린 것이다. 다만 의미의 혼동을 피하기 위해서 원저자의 표현을 그대로 사용할 것이다.)
+
+h3. 커리 함수(Curried functions)
+
+떄로 함수의 인자중 일부를 적용하고, 나머지는 나중에 적용하게 남겨두는 것이 더 쓸모있는 경우가 있다.
+
+다음은 두 수를 곱하는 곱셈기를 만들 수 있는 함수이다. 첫 호출시 승수를 지정하고, 나중에 피승수를 지정할 수 있다. 
+
+<pre>
+scala> def multiply(m: Int)(n: Int): Int = m * n
+multiply: (m: Int)(n: Int)Int
+</pre>
+
+물론 두 인자를 한꺼번에 적용할 수도 있다.
+
+<pre>
+scala> multiply(2)(3)
+res0: Int = 6
+</pre>
+
+다음과 같이 첫 인자를 채워 넣고 두번째 인자를 부분적용 할 수도 있다.
+
+<pre>
+scala> val timesTwo = multiply(2) _
+timesTwo: (Int) => Int = <function1>
+
+scala> timesTwo(3)
+res1: Int = 6
+</pre>
+
+인자가 여러개 있는 함수를 가지고 커리할 수 있다. 앞에서 본 <code>adder</code>에 적용해 보자.
+
+<pre>
+scala> (adder _).curried
+res1: (Int) => (Int) => Int = <function1>
+</pre>
+
+(연습문제(역자): 어떤 함수 f(x1,x2,....)의 커리화 된 함수를 어떻게 작성할 수 있을까? 이름없는 함수(무명함수 또는 람다식이라고도 한다)를 사용해 이를 구현해 보라.)
+
+h3. 가변 길이 인자
+
+동일한 타입의 매개변수가 반복되는 경우를 처리할 수 있는 특별한 문법이 있다. 여러 문자열에 동시에 `capitalize`를 호출하고 싶을 경우 다음과 같이 쓸 수 있다.
+
+<pre>
+def capitalizeAll(args: String*) = {
+  args.map { arg =>
+    arg.capitalize
+  }
+}
+
+scala> capitalizeAll("rarity", "applejack")
+res2: Seq[String] = ArrayBuffer(Rarity, Applejack)
+</pre>
+
+h2(#class). 클래스
+
+<pre>
+scala> class Calculator {
+     |   val brand: String = "HP"
+     |   def add(m: Int, n: Int): Int = m + n
+     | }
+defined class Calculator
+
+scala> val calc = new Calculator
+calc: Calculator = Calculator@e75a11
+
+scala> calc.add(1, 2)
+res1: Int = 3
+
+scala> calc.brand
+res2: String = "HP"
+</pre>
+
+위 예와 같이 클래스 안에서 메소드는 def로, 필드는 val로 정의한다. 메소드는 단지 클래스(객체)의 상태를 억세스할 수 있는 함수에 지나지 않는다.
+
+h3. 생성자
+
+스칼라에서는 생성자가 특별한 메소드로 따로 존재하지 않는다. 클래스 몸체에서 메소드 정의 부분 밖에 있는 모든 코드가 생성자 코드가 된다. Calculator 예제를 생성자가 인자를 받아 내부 상태를 초기화하도록 변경해 보자.
+
+<pre>
+class Calculator(brand: String) {
+  /**
+   * 생성자
+   */
+  val color: String = if (brand == "TI") {
+    "blue"
+  } else if (brand == "HP") {
+    "black"
+  } else {
+    "white"
+  }
+
+  // 인스턴스 메소드
+  def add(m: Int, n: Int): Int = m + n
+}
+</pre>
+
+주석을 만드는 방법이 두가지 있다는 점에 유의하라.
+
+생성자를 사용해 인스턴스를 만들어낼 수 있다.
+
+<pre>
+scala> val calc = new Calculator("HP")
+calc: Calculator = Calculator@1e64cc4d
+
+scala> calc.color
+res0: String = black
+</pre>
+
+h3. 식
+
+BasicCalculator 예제를 보면 스칼라가 식 중심의 언어란 점을 잘 알 수 있다. color 값은 if/else 식에 의해 초기화되었다. 스칼라는 대부분의 구성 요소가 문(statement, 반환값이 없는 문장)이 아니고 식(expression, 결과를 반환하는 문장)이라는 점에서 식 중심의 언어이다.
+
+h3. 곁다리: 함수 대 메소드
+
+함수와 메소드는 서로 바꿔쓸 수 있는 개념이다. 함수와 메소드는 매우 유사하며, 실제 여러분이 호출 중인 어떤 <em>것</em>이 함수인지 메소드인지를 기억하지 못할 수도 있다. 실제 메소드와 함수의 차이와 마주치게 되면 혼동이 올 수도 있다.
+
+<pre>
+scala> class C {
+     |   var acc = 0
+     |   def minc = { acc += 1 }
+     |   val finc = { () => acc += 1 }
+     | }
+defined class C
+
+scala> val c = new C
+c: C = C@1af1bd6
+
+scala> c.minc // c.minc() 호출함
+
+scala> c.finc // 함수 값(반환값이 아니라 함수 자체)을 반환함
+res2: () => Unit = <function0>
+</pre>
+
+어떤 "함수"를 괄호 없이 호출할 수 있는데, 다른 것은 그렇게 할 수 없다면, <em>어라? 스칼라 함수가 어떻게 돌아가는지 잘 안다고 생각했는데, 안그런 모양이네. 때로 괄호를 꼭 써야하는 경우도 있나?</em>라고 생각할 지 모르겠다. 아마 함수라고 생각하고 있지만, 메소드를 사용하는 것이었을 수도 있다.(역주. 인자가 없는 메소드는 이름만으로 호출 가능하지만, 인자가 없는 함수는 이름만 사용하면 해당 함수를 의미하지, 그 함수를 적용한 값을 의미하지 않는다. )
+
+실제로는 메소드와 함수의 차이를 잘 모르더라도 스칼라로 훌륭한 일을 해낼 수 있다. 스칼라를 처음 접하는 독자가 <a href="https://www.google.com/search?q=difference+scala+function+method">그 둘의 차이에 대한 설명</a>을 보면, 내용을 따라가기 어려울 수도 있다. 하지만 이는 스칼라 언어를 상당히 깊이 파고 들어야 그 둘의 차이를 구분할 수 있을 만큼 함수와 메소드의 차이가 미묘하다는 사실을 보여주는 것 뿐이다. 위 c.finc 부분의 결과를 보면 이를 알 수 있다.)
+
+h2(#extends). 상속
+
+<pre>
+class ScientificCalculator(brand: String) extends Calculator(brand) {
+  def log(m: Double, base: Double) = math.log(m) / math.log(base)
+}
+</pre>
+
+*See Also* "효율적인 스칼라(effective scala)"에서는 하위클래스가 상위클래스와 실제 다르지 않을 경우 <a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">타입 별명</a>이 <code>extends(확장)</code>보다 더 낫다고 말한다. 스칼라 여행(Tour of Scala)에서는 <a href="http://www.scala-lang.org/node/125">상속하기(Subclassing)</a>에 대해 다루고 있다.
+
+h3. 메소드 중복정의(Overloading)
+
+<pre>
+class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
+  def log(m: Int): Double = log(m, math.exp(1))
+}
+</pre>
+
+h3. 추상 클래스
+
+<em>추상 클래스(abstract class)</em>는 메소드 정의는 있지만 구현은 없는 클래스이다. 대신 이를 상속한 하위클래스에서 메소드를 구현하게 된다. 추상 클래스의 인스턴스를 만들 수는 없다.
+
+<pre>
+scala> abstract class Shape {
+     |   def getArea():Int    // 하위클래스에서 이 메소드를 정의해야만 한다
+     | }
+defined class Shape
+
+scala> class Circle(r: Int) extends Shape {
+     |   def getArea():Int = { r * r * 3 }
+     | }
+defined class Circle
+
+scala> val s = new Shape
+<console>:8: error: class Shape is abstract; cannot be instantiated
+       val s = new Shape
+               ^
+
+scala> val c = new Circle(2)
+c: Circle = Circle@65c0035b
+</pre>
+
+h2(#trait). 트레잇(Traits, 특성이라는 뜻)
+
+<code>트레잇(trait)</code>은 다른 클래스가 확장(즉, 상속)하거나 섞어 넣을 수 있는(이를 믹스인Mix in 이라 한다) 필드와 동작의 모음이다.
+
+<pre>
+trait Car {
+  val brand: String
+}
+
+trait Shiny {
+  val shineRefraction: Int
+}
+</pre>
+
+<pre>
+class BMW extends Car {
+  val brand = "BMW"
+}
+</pre>
+
+클래스는 여러 트레잇를 <code>with</code> 키워드를 사용해 확장할 수 있다.
+
+<pre>
+class BMW extends Car with Shiny {
+  val brand = "BMW"
+  val shineRefraction = 12
+}
+</pre>
+
+*See Also* 효율적인 스칼라도 <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">트레잇에</a>대해 다루고 있다.
+.
+
+*추상클래스 대신 트레잇를 사용해야 하는 경우는 언제인가?* 인터페이스 역할을 하는 타입을 설계할 때 트레잇과 추상클래스 중 어떤 것을 골라야할까? 두 가지 다 어떤 동작을 하는 타입을 만들 수 있으며, 확장하는 쪽에서 일부를 구현하도록 요청한다. 중요한 규칙은 다음과 같다.
+
+<ul>
+<li>트레잇을 사용하는 것이 낫다. 클래스는 오직 하나만 상속(extend)할 수 있지만, 트레잇은 여러 가지를 받아 사용할 수 있다.
+<li>생성자 매개변수가 필요한 경우라면 추상 클래스를 사용하라. 추상 클래스의 생성자는 매개변수를 받을 수 있지만, 트레잇의 생성자는 그렇지 않다. 예를 들어 <code>trait t(i: Int) {}</code> 에서 <code>i</code> 매개변수는 허용되지 않는다.
+</ul>
+
+당신이 이런 질문을 한 첫번째 사람은 아니다. 스택 오버플로우에서 "트레잇과 추상 클래스의 비교":http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes, "추상 클래스와 트레잇의 차이":http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait, 
+또는 "스칼라 프로그래밍: 트레잇냐 아니냐 그것이 문제로다?":http://www.artima.com/pins1ed/traits.html#12.7 등을 참조하라.
+
+h2(#types). 타입
+
+앞에서 숫자 타입중 하나인 <code>Int</code>를 인자로 받는 함수를 보았다. 모든 타입의 값을 처리할 수 있는 일반적(generic)인 함수를 만들 수도 있다. 일반적 함수를 만들 때는 각괄호([])안에 타입 매개변수를 추가한다. 아래는 키와 값을 가지는 일반적인 캐시를 보여준다.
+
+<pre>
+trait Cache[K, V] {
+  def get(key: K): V
+  def put(key: K, value: V)
+  def delete(key: K)
+}
+</pre>
+
+메소드에도 타입 매개변수를 추가할 수 있다.
+
+<pre>
+def remove[K](key: K)
+</pre>
