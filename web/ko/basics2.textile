@@ -1,0 +1,329 @@
+---
+prev: basics.textile
+next: collections.textile
+title: 기초(계속)
+layout: post
+---
+
+이번 강좌에서 다루는 내용은 다음과 같다.
+
+* "apply 메소드":#apply
+* "객체":#object
+* "함수도 객체다":#fnobj
+* "패키지":#package
+* "패턴 매치":#match
+* "케이스 클래스":#caseclass
+* "try-catch-finally 예외 처리":#exception
+
+h2(#apply). apply 메소드
+
+apply 메소드를 사용하면 클래스나 객체의 용도가 주로 하나만 있는 경우를 아주 멋지게 표현할 수 있다.
+
+<pre>
+scala> class Foo {}
+defined class Foo
+
+scala> object FooMaker {
+     |   def apply() = new Foo
+     | }
+defined module FooMaker
+
+scala> val newFoo = FooMaker()
+newFoo: Foo = Foo@5b83f762
+</pre>
+
+위와 같이 사용하거나, 다음과 같이 쓸 수 있다.
+
+<pre>
+scala> class Bar {
+     |   def apply() = 0
+     | }
+defined class Bar
+
+scala> val bar = new Bar
+bar: Bar = Bar@47711479
+
+scala> bar()
+res8: Int = 0
+</pre>
+
+apply를 정의하면 메소드를 호출하듯 객체 인스턴스를 호출할 수 있다. 객체 인스턴스를 호출하면 그 객체(클래스)에 정의된 apply()가 호출된다. 자세한 것은 나중에 살펴볼 것이다.
+
+h2(#object). 객체
+
+객체(여기서는 object 키워드로 선언하는 객체를 말함)는 클래스의 유일한 인스턴스를 넣기 위해 사용한다. 보통 팩토리에 사용된다.
+
+<pre>
+object Timer {
+  var count = 0
+
+  def currentCount(): Long = {
+    count += 1
+    count
+  }
+}
+</pre>
+
+위와 같이 정의하면 다음과 같이 사용할 수 있다.
+
+<pre>
+scala> Timer.currentCount()
+res0: Long = 1
+</pre>
+
+클래스와 객체가 같은 이름을 가질 수도 있다. 이런 객체는 '짝 객체(Companion Object)'라 한다. 보통 팩토리를 만들 때 짝 객체를 사용한다.
+
+다음 예는 'new'를 사용하지 않고 새 객체를 만들 수 있음을 보여준다.
+
+<pre>
+class Bar(foo: String)
+
+object Bar {
+  def apply(foo: String) = new Bar(foo)
+}
+</pre>
+
+
+h2(#fnobj). 함수는 객체이다
+
+스칼라에 대해 이야기할 떄, 객체-함수형 프로그래밍이라는 말을 하고는 한다. 그 말이 무슨 뜻일까? 함수란 실제로 무엇일까?
+
+함수는 트레잇의 집합이다. 구체적으로 말하자면, 인자를 하나만 받는 함수는 <code>Function1</code> 트레잇의 인스턴스이다. 이 트레잇에는 앞에서 설명했던 <code>apply()</code>가 정의되어 있다.  따라서 함수를 호출하듯 객체를 호출할 수 있다.
+
+<pre>
+scala> object addOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined module addOne
+
+scala> addOne(1)
+res2: Int = 2
+</pre>
+
+스칼라에는 Function이 1부터 22까지 준비되어 있다. 22인 이유는? 그냥 그렇게 정한 것이다. 저자는 인자가 22개 보다 더 많이 필요한 함수를 본 적이 없다. 22개면 충분하리라 본다. 
+
+apply를 통한 편리 문법(syntactic sugar)을 통해 객체와 함수 프로그래밍 양쪽을 잘 통합할 수 있다. 여러분은 클래스를 여기저기 넘기면서 함수 처럼 호출해 사용할 수 있고, 함수는 한꺼풀 벗겨보면 단지 클래스의 인스턴스일 뿐이다.
+
+그렇다면 클래스의 메소드를 정의할 때마다 실제로 Function*의 인스턴스가 만들어지는 걸까? 아니다. 클래스 내부의 메소드는 메소드이다. repl(read eval print loop. 입력을 받아 값을 계산하고 결과를 출력하는 루프. 스칼라 인터프리터라 생각하면 대략 맞다)에서 정의한 개별 메소드는 Function*의 인스턴스이다.
+
+Function*을 확장한 클래스를 정의할 수도 있다. 물론 이런 클래스도 ()로 호출할 수 있다.
+
+<pre>
+scala> class AddOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined class AddOne
+
+scala> val plusOne = new AddOne()
+plusOne: AddOne = <function1>
+
+scala> plusOne(1)
+res0: Int = 2
+</pre>
+
+<code>extends Function1[Int, Int]</code>는 <code>extends (Int => Int)</code라고 더 알아보기 쉽게 쓸 수 있다.
+
+<pre>
+class AddOne extends (Int => Int) {
+  def apply(m: Int): Int = m + 1
+}
+</pre>
+
+h2(#package). 패키지
+
+코드를 패키지로 구성할 수 있다.
+
+<pre>
+package com.twitter.example
+</pre>
+
+위와 같이 파일의 맨 앞에서 선언하면 파일 내의 모든 것이 위 패키지 안에 포함된다.
+
+값이나 함수는 클래스나 객체 바깥에 존재할 수 없다. 객체(여기서도 object로 선언한 객체를 의미함)를 사용하면 정적인(자바의 정적 함수와 동일) 함수를 관리하기 쉽다.
+
+<pre>
+package com.twitter.example
+
+object colorHolder {
+  val BLUE = "Blue"
+  val RED = "Red"
+}
+</pre>
+
+이제 직접 객체의 멤버를 사용할 수 있다.
+
+<pre>
+println("the color is: " + com.twitter.example.colorHolder.BLUE)
+</pre>
+
+여러분이 이렇게 객체를 정의하면 스칼라 repl은 다음과 같이 표시해준다.
+
+<pre>
+scala> object colorHolder {
+     |   val Blue = "Blue"
+     |   val Red = "Red"
+     | }
+defined module colorHolder
+</pre>
+
+모듈이라고 repl이 응답하는 것에 유의하라. 이는 스칼라 언어를 설계시 객체를 모듈 시스템의 일부로 생각하고 설계했음을 보여준다.
+
+h2(#match). 패턴 매칭
+
+패턴 매치는 스칼라에서 가장 유용한 기능 중 하나이다.
+
+값에 대해 매칭할 수 있다.
+
+<pre>
+val times = 1
+
+times match {
+  case 1 => "one"
+  case 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+가드(조건문)를 사용해 매칭할 수 있다.
+
+<pre>
+times match {
+  case i if i == 1 => "one"
+  case i if i == 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+변수 'i'에 어떻게 값을 잡아 넣었는지 주의깊게 살펴보라.
+
+마지막 경우의 <code>_</code>는 와일드카드이다. 즉, 모든 경우를 처리한다. 만약 이 부분이 없다면 매치되지 않는 값이 들어온 경우 런타임 에러가 발생할 것이다. 이에 대해서는 나중에 살펴보겠다.
+
+*See Also* 효율적인 스칼라에서 <a href="http://twitter.github.com/effectivescala/#Functional programming-Pattern matching">패턴매치를 사용해야 하는 경우</a>와 <a href="http://twitter.github.com/effectivescala/#Formatting-Pattern matching">패턴 매칭을 어떤 형식으로 할지</a>에 대해 설명한다. 스칼라 여행에서도 <a href="http://www.scala-lang.org/node/120">패턴매칭</a>을 다룬다.
+
+h3. 타입에 대해 매치시키기
+
+<code>match</code>를 사용해 타입이 다른 값을 서로 다른 방식으로 처리 가능하다.
+
+<pre>
+def bigger(o: Any): Any = {
+  o match {
+    case i: Int if i < 0 => i - 1
+    case i: Int => i + 1
+    case d: Double if d < 0.0 => d - 0.1
+    case d: Double => d + 0.1
+    case text: String => text + "s"
+  }
+}
+</pre>
+
+h3. 클래스 멤버에 대해 매치시키기
+
+앞에서 봤던 계산기 예제를 다시 떠올려보자.
+
+타입(계산기의 유형)에 따라 계산기를 구분하자.
+
+<pre>
+def calcType(calc: Calculator) = calc match {
+  case calc.brand == "hp" && calc.model == "20B" => "financial"
+  case calc.brand == "hp" && calc.model == "48G" => "scientific"
+  case calc.brand == "hp" && calc.model == "30B" => "business"
+  case _ => "unknown"
+}
+</pre>
+
+아이구, 힘들어 죽겄다. 스칼라는 이런 처리를 쉽게 할 수 있는 도구를 제공한다. 
+
+h2(#caseclass). 케이스 클래스(case class)
+
+케이스 클래스는 손쉽게 내용을 어떤 클래스에 저장하고, 그에 따라 매치를 하고 싶은 경우 사용한다. new를 사용하지 않고도 케이스 클래스의 인스턴스 생성이 가능하다.
+
+<pre>
+scala> case class Calculator(brand: String, model: String)
+defined class Calculator
+
+scala> val hp20b = Calculator("hp", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+</pre>
+
+케이스 클래스는 자동으로 생성자 인자에 따른 동등성 검사를 제공하며, 또한 보기 좋은 toString 메소드도 제공한다.
+
+<pre>
+scala> val hp20b = Calculator("hp", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+scala> val hp20B = Calculator("hp", "20b")
+hp20B: Calculator = Calculator(hp,20b)
+
+scala> hp20b == hp20B
+res6: Boolean = true
+</pre>
+
+케이스 클래스 안에도 일반 클래스와 똑같이 메소드를 정의할 수 있다.
+
+h6. 케이스 클래스와 패턴 매칭
+
+케이스 클래스는 패턴 매치와 사용하기 위해 설계된 것이다. 앞의 계산기 분류 예제를 간략하게 만들어보자.
+
+<pre>
+val hp20b = Calculator("hp", "20B")
+val hp30b = Calculator("hp", "30B")
+
+def calcType(calc: Calculator) = calc match {
+  case Calculator("hp", "20B") => "financial"
+  case Calculator("hp", "48G") => "scientific"
+  case Calculator("hp", "30B") => "business"
+  case Calculator(ourBrand, ourModel) => "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
+}
+</pre>
+
+마지막 매치는 다음과 같이 쓸 수도 있다.
+
+<pre>
+  case Calculator(_, _) => "Calculator of unknown type"
+</pre>
+
+혹은, 그냥 calc가 계산기인지 아닌지도 명시하지 않아도 된다.
+
+<pre>
+  case _ => "Calculator of unknown type"
+</pre>
+
+아니면, 매치된 값에 다른 이름을 붙일 수도 있다.
+
+<pre>
+  case c@Calculator(_, _) => "Calculator: %s of unknown type".format(c)
+</pre>
+
+h2(#exception). 예외
+
+스칼라에서는 예외 처리시 try-catch-finally 문법에 패턴 매치를 사용할 수 있다.
+
+<pre>
+try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+<code>try</code> 역시 식 중심의 구문이다.
+
+<pre>
+val result: Int = try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => {
+    log.error(e, "the remote calculator service is unavailble. should have kept your trustry HP.")
+    0
+  }
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+이렇게 하는게 좋은 프로그램 스타일은 아니다. 위 내용은 단지 다른 대부분의 스칼라 구성 요소와 마찬가지로 try-catch-finally도 결과값을 내는 식임을 보여주기 위한 예일 뿐이다.
+
+finally는 예외가 처리(catch)된 다음에 실행될 것이다. 이 부분은 전체 식의 일부가 아니다. 예외가 발생하지 않으면 try {} 안의 마지막 식의 값이 try-catch-finally 전체의 값이 되고, 예외가 발생하는 경우에는 catch 안의 식의 값이 전체 식의 최종 값이 된다.

@@ -1,0 +1,326 @@
+---
+prev: concurrency.textile
+next: finagle.textile
+title: 자바 + 스칼라
+layout: post
+---
+
+이번 강좌에서는 자바와 함께 사용하는 법에 대해 다룬다.
+
+* Javap
+* 클래스
+* 예외
+* 트레잇
+* 객체
+* 클로져와 함수
+* 공변성
+
+h2. Javap
+
+javap는 JDK에 따라오는 도구이다.(JRE에는 없다) Javap는 클래스 파일을 역컴파일해서 내부를 보여준다. 사용법도 아주 간단하다.
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
+Compiled from "Scalaisms.scala"
+public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
+    public abstract java.lang.String traitName();
+    public abstract java.lang.String upperTraitName();
+}
+</pre>
+
+하드코어 프로그래머라면 직접 바이트코드를 볼 수도 있다.
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap -c MyTrait\$class
+Compiled from "Scalaisms.scala"
+public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
+public static java.lang.String upperTraitName(com.twitter.interop.MyTrait);
+  Code:
+   0:  aload_0
+   1:	invokeinterface	#12,  1; //InterfaceMethod com/twitter/interop/MyTrait.traitName:()Ljava/lang/String;
+   6:	invokevirtual	#17; //Method java/lang/String.toUpperCase:()Ljava/lang/String;
+   9:	areturn
+
+public static void $init$(com.twitter.interop.MyTrait);
+  Code:
+   0:	return
+
+}
+</pre>
+
+자바 세계에서 왜 어떤 코드가 잘 동작하지 않는지 궁금하다면 javap를 한번 써 보라!
+
+h2. 클래스
+
+스칼라 _클래스_ 를 자바에서 사용할 때 고려해야 할 네가지 요소는 다음과 같다.
+
+* 클래스 매개변수
+* 클래스 내의 값(val)
+* 클래스 내의 변수(var)
+* 예외
+
+간단한 스칼라 클래스를 만들고 이런 요소를 모두 다 보여줄 것이다.
+
+
+<pre>
+package com.twitter.interop
+
+import java.io.IOException
+import scala.throws
+import scala.reflect.{BeanProperty, BooleanBeanProperty}
+
+class SimpleClass(name: String, val acc: String, @BeanProperty var mutable: String) {
+  val foo = "foo"
+  var bar = "bar"
+  @BeanProperty
+  val fooBean = "foobean"
+  @BeanProperty
+  var barBean = "barbean"
+  @BooleanBeanProperty
+  var awesome = true
+
+  def dangerFoo() = {
+    throw new IOException("SURPRISE!")
+  }
+
+  @throws(classOf[IOException])
+  def dangerBar() = {
+    throw new IOException("NO SURPRISE!")
+  }
+}
+</pre>
+
+h3. 클래스 매개변수
+
+* 기본적으로 클래스 매개변수는 자바 쪽에서는 생성자 인자로 작용한다. 이는 클래스 외부에서 이를 억세스할 방법은 없다는 뜻이다.
+* 클래스 매개변수를 val이나 var로 지정하는 것은 아래 코드와 동일하다.
+
+<pre>
+class SimpleClass(acc_: String) {
+  val acc = acc_
+}
+</pre>
+따라서 다른 val이나 var와 마찬가지로 자바 코드에서 억세스가 가능하다.
+
+h3. 값(val)
+
+* 모든 값에는 자바에서 억세스할 수 있는 메소드가 있다. 값의 이름이 "foo"였다면 자바 메소드는 "foo()"가 된다.
+
+h3. 변수(var)
+
+* 변수에는 <name>_$eq 라는 메소드가 만들어진다. 다음과 같이 호출해 새 값을 할당할 수 있다(당연히 <name>()라는 메소드로 값을 읽는것도 가능하다).
+
+<pre>
+foo$_eq("newfoo");
+</pre>
+
+h3. BeanProperty
+
+값이나 변수에 @BeanProperty 애노테이션을 할 수 있다. 그러면 POJO 게터/세터 정의와 마찬가지로 게터와 세터를 만들어준다. isFoo와 같은 형태의 게터/세터를 원하면 BooleanBeanProperty 애노테이션을 붙이도록 하라. 그러면 보기 싫은 foo$_eq가 다음과 같이 된다.
+
+<pre>
+setFoo("newfoo");
+getFoo();
+</pre>
+
+
+h3. 예외
+
+스칼라에는 체크드 예외가 없다. 자바에는 있다. 이에 대해서는, 여기서는 설명하지 않겠지만, 철학적인 논쟁이 있어왔다. 하지만, 자바에서 예외를 받으려 한다면 이게 문제가 *된다.* dangerFoo와 dangerBar의 정의는 이를 보여준다. 자바에서는 다음과 같이 할 수 없다.
+
+<pre>
+        // exception erasure!
+        try {
+            s.dangerFoo();
+        } catch (IOException e) {
+            // UGLY
+        }
+
+</pre>
+
+자바는 s.dangerFoo가 IOException를 던지지 않는다고 오류를 표시할 것이다. 이를 Thorwable을 받는 것으로 처리할 수 있긴 하지만, 구차한 일이다.
+
+대신, 착한 스칼라 시민이라면 dangerBar에서처럼 throws 애노테이션을 사용하는 것이 좋다. 그렇게 하면 자바 쪽에서는 체크드 예외로 사용 가능해진다.
+
+h3. 읽을거리
+
+자바와 함께 동작하기 위해 사용할 수 있는 스칼라의 애노테이션 목록이 <a href=http://www.scala-lang.org/node/106">여기</a> 에 있다.
+
+h2. 트레잇
+
+인터페이스와 구현을 한꺼번에 어떻게 가져올 수 있을까? 간단한 트레잇을 하나 정의해서 들여다 보자.
+
+<pre>
+trait MyTrait {
+  def traitName:String
+  def upperTraitName = traitName.toUpperCase
+}
+</pre>
+
+이 트레잇에는 추상 메소드가 하나(traitName), 구현된 메소드가 하나(upperTraitName) 있다. 스칼라가 만들어내는 것은 무엇일까? MyTrait이라는 이름의 인터페이스와 MyTrait$class라 불리는 짝 구현 클래스를 만든다.
+
+MyTrait의 구현은 예상을 벗어나지 않는다.
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
+Compiled from "Scalaisms.scala"
+public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
+    public abstract java.lang.String traitName();
+    public abstract java.lang.String upperTraitName();
+}
+</pre>
+
+MyTrait$class 구현이 더 재미있는 부분이다.
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait\$class
+Compiled from "Scalaisms.scala"
+public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
+    public static java.lang.String upperTraitName(com.twitter.interop.MyTrait);
+    public static void $init$(com.twitter.interop.MyTrait);
+}
+</pre>
+
+MyTrait$class에는 MyTrait의 인스턴스를 받는 정적 메소드만 존재한다. 이 메소드는 자바에서 트레잇을 확장하는 방법을 찾는데 단서가 될 수 있다.
+
+맨 처음에는 아마 다음과 같은 시도를 할 것이다.
+
+<pre>
+package com.twitter.interop;
+
+public class JTraitImpl implements MyTrait {
+    private String name = null;
+
+    public JTraitImpl(String name) {
+        this.name = name;
+    }
+
+    public String traitName() {
+        return name;
+    }
+}
+</pre>
+
+이러면 다음과 같은 오류를 보게 된다.
+
+<pre>
+[info] Compiling main sources...
+[error] /Users/mmcbride/projects/interop/src/main/java/com/twitter/interop/JTraitImpl.java:3: com.twitter.interop.JTraitImpl is not abstract and does not override abstract method upperTraitName() in com.twitter.interop.MyTrait
+[error] public class JTraitImpl implements MyTrait {
+[error]        ^
+</pre>
+
+물론 직접 이 메소드를 구현할 수도 _있었을_ 것이다. 하지만, 더 영리한 방법이 있다.
+<pre>
+package com.twitter.interop;
+
+    public String upperTraitName() {
+        return MyTrait$class.upperTraitName(this);
+    }
+</pre>
+
+단지 스칼라가 만들어 놓은 짝 구현 클래스에 위임하면 끝난다. 원한다면 이를 오버라이드할 수도 있다.
+
+h2.  객체
+
+객체(여기서는 스칼라에서 object로 선언한 싱글턴 객체)는 스칼라에서 정적인 메소드와 싱글턴을 구현하는 방법이다. 자바에서 이를 사용하는 방법은 조금 불편하다. 객체를 사용하는 문법적으로 완벽한 방법은 없다. 하지만 스칼라 2.8의 객체를 자바에서 사용하는 것은 아주 나쁘지는 않다.
+
+스칼라 객체는 끝에 "$"가 붙은 클래스로 컴파일된다. 클래스와 짝 객체를 만들어 보자.
+
+<pre>
+class TraitImpl(name: String) extends MyTrait {
+  def traitName = name
+}
+
+object TraitImpl {
+  def apply = new TraitImpl("foo")
+  def apply(name: String) = new TraitImpl(name)
+}
+</pre>
+
+자바에서는 다음과 같이 억세스할 수 있다.
+
+<pre>
+MyTrait foo = TraitImpl$.MODULE$.apply("foo");
+</pre>
+
+아마도 "뭐지?"라고 스스로에게 물었을 것이다. 그게 당연한 반응이다. 실제 TraitImpl$ 안이 어떻게 되어 있는지 살펴보자.
+
+<pre>
+local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
+Compiled from "Scalaisms.scala"
+public final class com.twitter.interop.TraitImpl$ extends java.lang.Object implements scala.ScalaObject{
+    public static final com.twitter.interop.TraitImpl$ MODULE$;
+    public static {};
+    public com.twitter.interop.TraitImpl apply();
+    public com.twitter.interop.TraitImpl apply(java.lang.String);
+}
+</pre>
+
+정적인 메소드는 없다. 대신에 정적인 멤버 MODULE$이 있다. 메소드 구현은 모두 이 멤버에게 위임한다. 이렇게 하는 것은 억세스할 때 보기 안좋다. 하지만, MODULE$를 사용해야 한다는 사실을 아는 한 잘 동작하긴 한다.
+
+h3.  메소드 전달
+
+스칼라 2.8에서는 객체를 다루는 것이 훨씬 쉬워졌다. 짝 객체와 함께 정의된 클래스를 다루는 경우 2.8 컴파일러는 짝 객체로 전달하기 위한 메소드도 생성해준다. 따라서 스칼라 2.8로 빌드한 경우, TraitImpl에 있는 메소드를 다음과 같이도 호출 가능하다.
+
+<pre>
+MyTrait foo = TraitImpl.apply("foo");
+</pre>
+
+h2. 클로저 함수
+
+스칼라의 가장 중요한 특징 중 하나가 함수를 1등 시민으로 대우한다는 것이다. 함수를 인자로 받는 메소드가 정의된 클래스를 만들자.
+
+<pre>
+class ClosureClass {
+  def printResult[T](f: => T) = {
+    println(f)
+  }
+
+  def printResult[T](f: String => T) = {
+    println(f("HI THERE"))
+  }
+}
+</pre>
+
+스칼라에서는 다음과 같이 호출할 수 있다.
+
+<pre>
+val cc = new ClosureClass
+cc.printResult { "HI MOM" }
+</pre>
+
+자바에서는 쉽지 않지만, 아주 어려운 것도 아니다. ClosureClass가 컴파일된 결과를 살펴보면 다음과 같다.
+
+
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
+Compiled from "Scalaisms.scala"
+public class com.twitter.interop.ClosureClass extends java.lang.Object implements scala.ScalaObject{
+    public void printResult(scala.Function0);
+    public void printResult(scala.Function1);
+    public com.twitter.interop.ClosureClass();
+}
+</pre>
+
+그렇게 이해하기 어렵지는 않다. "f: => T"는 "Function0"로, "f: String => T"는 "Function1"로 번역된다. 스칼라는 Function0부터 Function22까지, 최대 22개의 인자를 지원한다. 그정도 갯수면 충분해야 하리라 본다.
+
+이제 이를 자바에서는 어떻게 사용할 수 있나 보자. 스칼라는 AbstractFunction0과 AbstractFunction1를 제공한다. 따라서 다음과 같이 넘기는 것이 가능하다.
+
+<pre>
+    @Test public void closureTest() {
+        ClosureClass c = new ClosureClass();
+        c.printResult(new AbstractFunction0() {
+                public String apply() {
+                    return "foo";
+                }
+            });
+        c.printResult(new AbstractFunction1<String, String>() {
+                public String apply(String arg) {
+                    return arg + "foo";
+                }
+            });
+    }
+</pre>
+
+인자의 타입을 지정하기 위해 자바의 일반적 함수(제네릭)을 사용했다는 점에 유의하라.
