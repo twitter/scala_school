@@ -379,7 +379,7 @@ h2.  Java ConcurrentHashMap
 Java поставляется с прекрасным потокобезопасным ConcurrentHashMap. К счастью, мы можем использовать JavaConversions, чтобы использовать семантику Scala.
 
 В самом деле, мы можем легко создать новый код, используя потокобезопасный InvertedIndex, как продолжение старого небезопасного.
- 
+
 <pre>
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
@@ -424,7 +424,7 @@ h3.  Решение: Producer/Consumer
 import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
 
 // Concrete producer
-class Producer[T](path: String, queue: BlockingQueue[T]) implements Runnable {
+class Producer[T>:String](path: String, queue: BlockingQueue[T]) extends Runnable {
   public void run() {
     Source.fromFile(path, "utf-8").getLines.foreach { line =>
       queue.put(line)
@@ -444,7 +444,7 @@ abstract class Consumer[T](queue: BlockingQueue[T]) implements Runnable {
   def consume(x: T)
 }
 
-val queue = new LinkedBlockingQueue[String]()
+val q = new LinkedBlockingQueue[String]()
 
 // Один поток для потребителя
 val producer = new Producer[String]("users.txt", q)
@@ -464,8 +464,11 @@ class IndexerConsumer(index: InvertedIndex, queue: BlockingQueue[String]) extend
 val cores = 8
 val pool = Executors.newFixedThreadPool(cores)
 
+val mutable_map = mutable.Map[String, User]()
+val index = new InvertedIndex(mutable_map)
+
 // Распределим по одному потребителю на каждое ядро.
-for (i <- i to cores) {
+for (i <- 1 to cores) {
   pool.submit(new IndexerConsumer[String](index, q))
 }
 </pre>
