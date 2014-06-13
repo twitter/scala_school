@@ -29,7 +29,7 @@ h2. Почему именно SBT?
 
 h2. Давайте начнем
 
-* Загрузите jar-файл :http://code.google.com/p/simple-build-tool/downloads/list
+* "Загрузите jar":http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
 * Создайте sbt шелл-скрипт, который вызывает jar, например
 
 <pre>
