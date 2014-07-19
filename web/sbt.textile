@@ -119,9 +119,9 @@ sbt test
 </pre>
 Note that if a command takes arguments, you need to quote the entire
 argument path, e.g.
-<pre>
-sbt 'test-only com.twitter.sample.SampleSpec'
-</pre>
+
+@sbt 'test-only com.twitter.sample.SampleSpec'@
+
 It's weird that way.
 
 Anyway. To start working with our code, launch sbt
