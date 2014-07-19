@@ -546,7 +546,7 @@ IvySvn Build-DateTime: null
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
 
-And (after some time), we can go to binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ to see our published jar.
+And (after some time), we can go to "binaries.local.twitter.com":http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ to see our published jar.
 
 h2. Adding Tasks
 
