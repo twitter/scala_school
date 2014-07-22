@@ -69,23 +69,22 @@ Note that it's good form to start out with a SNAPSHOT version of your project.
 
 h2. Project Layout
 
-* project - project definition files
-** project/build/<yourproject>.scala - the main project definition file
-** project/build.properties - project, sbt and scala version definitions
-* src/main - your app code goes here, in a subdirectory indicating the
-code's language (e.g. src/main/scala, src/main/java)
-* src/main/resources - static files you want added to your jar
+* @project@ - project definition files
+** @project/build/@ _yourproject_ @.scala@ - the main project definition file
+** @project/build.properties@ - project, sbt and scala version definitions
+* @src/main@ - your app code goes here, in a subdirectory indicating the
+code's language (e.g. @src/main/scala@, @src/main/java@)
+* @src/main/resources@ - static files you want added to your jar
   (e.g. logging config)
-* src/test - like src/main, but for tests
-* lib_managed - the jar files your project depends on. Populated by sbt update
-* target - the destination for generated stuff (e.g. generated thrift
+* @src/test@ - like @src/main@, but for tests
+* @lib_managed@ - the jar files your project depends on. Populated by sbt update
+* @target@ - the destination for generated stuff (e.g. generated thrift
   code, class files, jars)
 
 h2. Adding Some Code
 
-We'll be creating a simple JSON parser for simple tweets.  Add the
-following code to
-src/main/scala/com/twitter/sample/SimpleParser.scala
+We'll be creating a simple JSON parser for simple tweets.  Add the following code to
+@src/main/scala/com/twitter/sample/SimpleParser.scala@
 
 <pre>
 package com.twitter.sample
@@ -120,9 +119,9 @@ sbt test
 </pre>
 Note that if a command takes arguments, you need to quote the entire
 argument path, e.g.
-<pre>
-sbt 'test-only com.twitter.sample.SampleSpec'
-</pre>
+
+@sbt 'test-only com.twitter.sample.SampleSpec'@
+
 It's weird that way.
 
 Anyway. To start working with our code, launch sbt
@@ -547,7 +546,7 @@ IvySvn Build-DateTime: null
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
 
-And (after some time), we can go to binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ to see our published jar.
+And (after some time), we can go to "binaries.local.twitter.com":http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ to see our published jar.
 
 h2. Adding Tasks
 
