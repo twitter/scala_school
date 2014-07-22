@@ -99,24 +99,23 @@ Getting Scala 2.8.1 ...
 <p>Note that it&#8217;s good form to start out with a <span class="caps">SNAPSHOT</span> version of your project.</p>
 <h2>Project Layout</h2>
 <ul>
-	<li>project &#8211; project definition files
+	<li><code>project</code> &#8211; project definition files
 	<ul>
-		<li>project/build/<yourproject>.scala &#8211; the main project definition file</li>
-		<li>project/build.properties &#8211; project, sbt and scala version definitions</li>
+		<li><code>project/build/</code> <em>yourproject</em> <code>.scala</code> &#8211; the main project definition file</li>
+		<li><code>project/build.properties</code> &#8211; project, sbt and scala version definitions</li>
 	</ul></li>
-	<li>src/main &#8211; your app code goes here, in a subdirectory indicating the<br />
-code&#8217;s language (e.g. src/main/scala, src/main/java)</li>
-	<li>src/main/resources &#8211; static files you want added to your jar<br />
+	<li><code>src/main</code> &#8211; your app code goes here, in a subdirectory indicating the<br />
+code&#8217;s language (e.g. <code>src/main/scala</code>, <code>src/main/java</code>)</li>
+	<li><code>src/main/resources</code> &#8211; static files you want added to your jar<br />
   (e.g. logging config)</li>
-	<li>src/test &#8211; like src/main, but for tests</li>
-	<li>lib_managed &#8211; the jar files your project depends on. Populated by sbt update</li>
-	<li>target &#8211; the destination for generated stuff (e.g. generated thrift<br />
+	<li><code>src/test</code> &#8211; like <code>src/main</code>, but for tests</li>
+	<li><code>lib_managed</code> &#8211; the jar files your project depends on. Populated by sbt update</li>
+	<li><code>target</code> &#8211; the destination for generated stuff (e.g. generated thrift<br />
   code, class files, jars)</li>
 </ul>
 <h2>Adding Some Code</h2>
-<p>We&#8217;ll be creating a simple <span class="caps">JSON</span> parser for simple tweets.  Add the<br />
-following code to<br />
-src/main/scala/com/twitter/sample/SimpleParser.scala</p>
+<p>We&#8217;ll be creating a simple <span class="caps">JSON</span> parser for simple tweets.  Add the following code to<br />
+<code>src/main/scala/com/twitter/sample/SimpleParser.scala</code></p>
 <pre>
 package com.twitter.sample
 
@@ -145,11 +144,9 @@ class SimpleParser {
 sbt test
 </pre>
 <p>Note that if a command takes arguments, you need to quote the entire<br />
-argument path, e.g.<br />
-<pre><br />
-sbt &#8216;test-only com.twitter.sample.SampleSpec&#8217;<br />
-</pre><br />
-It&#8217;s weird that way.</p>
+argument path, e.g.</p>
+<p><code>sbt 'test-only com.twitter.sample.SampleSpec'</code></p>
+<p>It&#8217;s weird that way.</p>
 <p>Anyway. To start working with our code, launch sbt</p>
 <pre>
 [local ~/projects/sbt-sample]$ sbt
@@ -529,7 +526,7 @@ IvySvn Build-DateTime: null
 [info] 
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
-<p>And (after some time), we can go to binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-<span class="caps">SNAPSHOT</span>/ to see our published jar.</p>
+<p>And (after some time), we can go to <a href="http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/">binaries.local.twitter.com</a> to see our published jar.</p>
 <h2>Adding Tasks</h2>
 <p>Tasks are Scala functions.  The simplest way to add a task is to include a val in your project definition using the task method, e.g.</p>
 <pre>
