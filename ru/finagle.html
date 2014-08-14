@@ -36,7 +36,7 @@
     </div>
 
     <div class="container" style="padding-top: 60px;">
-      <p><a href="https://github.com/twitter/finagle">Finagle</a> &#8211; это <span class="caps">RPC</span> система от компании Twitter. <a href="http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html">Здесь</a> рассказывается о мотивах и основных принципа дизайна, <a href="https://github.com/twitter/finagle/blob/master/README.md">finagle <span class="caps">README</span></a> содержит больше детальной информации. Finagle помогает просто создавать надежные клиентские и серверные приложения.</p>
+      <p><a href="https://github.com/twitter/finagle">Finagle</a> &#8211; это <span class="caps">RPC</span> система от компании Twitter. <a href="https://blog.twitter.com/2011/finagle-a-protocol-agnostic-rpc-system">Здесь</a> рассказывается о мотивах и основных принципа дизайна, <a href="https://github.com/twitter/finagle/blob/master/README.md">finagle <span class="caps">README</span></a> содержит больше детальной информации. Finagle помогает просто создавать надежные клиентские и серверные приложения.</p>
 <h2>Futures</h2>
 <p>Finagle использует <code>com.twitter.util.Future</code><sup class="footnote" id="fnr1"><a href="#fn1">1</a></sup>, чтобы описать отложенные операции. Futures очень выразительны и компактны, они позволяют кратко описать параллельные и последовательные операции с большой ясностью. Futures управляют значениями, которые еще не доступны, с методами для регистрации обратного вызова, который вызывается, когда значение становится доступным. Они переворачивают с ног на голову &#8220;традиционную&#8221; модель асинхронных вычислений, которые обычно предоставляют <span class="caps">API</span>, похожее на это:</p>
 <pre>
