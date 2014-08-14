@@ -5,7 +5,7 @@ title: An introduction to Finagle
 layout: post
 ---
 
-"Finagle":https://github.com/twitter/finagle is Twitter's RPC system. "This":http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html blog post explains its motivations and core design tenets, the "finagle README":https://github.com/twitter/finagle/blob/master/README.md contains more detailed documentation. Finagle aims to make it easy to build robust clients and servers.
+"Finagle":https://github.com/twitter/finagle is Twitter's RPC system. "This":https://blog.twitter.com/2011/finagle-a-protocol-agnostic-rpc-system blog post explains its motivations and core design tenets, the "finagle README":https://github.com/twitter/finagle/blob/master/README.md contains more detailed documentation. Finagle aims to make it easy to build robust clients and servers.
 
 * "REPL":#repl
 * "Futures":#Future: "Sequential composition":#futsequential, "Concurrent composition":#futconcurrent, "Composition Example: Cached Rate Limit":#combined_combinator_example_cache, "Composition Example: Thumbnail Fetcher":#combined_combinator_thumbnail
