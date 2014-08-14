@@ -5,7 +5,7 @@ title: Введение в Finagle
 layout: post
 ---
 
-"Finagle":https://github.com/twitter/finagle - это RPC система от компании Twitter. "Здесь":http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html рассказывается о мотивах и основных принципа дизайна, "finagle README":https://github.com/twitter/finagle/blob/master/README.md содержит больше детальной информации. Finagle помогает просто создавать надежные клиентские и серверные приложения.
+"Finagle":https://github.com/twitter/finagle - это RPC система от компании Twitter. "Здесь":https://blog.twitter.com/2011/finagle-a-protocol-agnostic-rpc-system рассказывается о мотивах и основных принципа дизайна, "finagle README":https://github.com/twitter/finagle/blob/master/README.md содержит больше детальной информации. Finagle помогает просто создавать надежные клиентские и серверные приложения.
 
 h2. Futures
 

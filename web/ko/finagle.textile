@@ -6,7 +6,7 @@ layout: post
 ---
 
 "피네이글(Finagle)":https://github.com/twitter/finagle 은 트위터의 RPC(원격 프로시져 호출) 시스템이다. 
-"이 블로그 글":http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html 은 만들게 된 동기와 설계 원칙을, "피네이글 README":https://github.com/twitter/finagle/blob/master/README.md 에는 더 자세한 설명이 있다. 피네이글은 튼튼한 클라이언트와 서버를 쉽게 만들려는 목적으로 쓰여졌다.
+"이 블로그 글":https://blog.twitter.com/2011/finagle-a-protocol-agnostic-rpc-system 은 만들게 된 동기와 설계 원칙을, "피네이글 README":https://github.com/twitter/finagle/blob/master/README.md 에는 더 자세한 설명이 있다. 피네이글은 튼튼한 클라이언트와 서버를 쉽게 만들려는 목적으로 쓰여졌다.
 
 * "REPL":#repl
 * "Future":#Future: "순차 합성":#futsequential, "동시 합성":#futconcurrent, "합성 예제: 캐시된 비율 제한":#combined_combinator_example_cache, "합성 예제: 썸네일 페치 장치":#combined_combinator_thumbnail

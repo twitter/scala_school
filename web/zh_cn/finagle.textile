@@ -7,7 +7,7 @@ layout: post
 
 "Finagle":https://github.com/twitter/finagle 是 Twitter 研发的RPC系统。 
 
-"这篇博客":http://engineering.twitter.com/2011/08/finagle-protocol-agnostic-rpc-system.html 解释了其动机和核心设计原则， "finagle README":https://github.com/twitter/finagle/blob/master/README.md 包含更详细的文档。Finagle的目标是方便地建立强大的客户端和服务器。
+"这篇博客":https://blog.twitter.com/2011/finagle-a-protocol-agnostic-rpc-system 解释了其动机和核心设计原则， "finagle README":https://github.com/twitter/finagle/blob/master/README.md 包含更详细的文档。Finagle的目标是方便地建立强大的客户端和服务器。
 
 * "REPL":#repl
 * "Futures":#Future: "顺序组合":#futsequential, "并发组合":#futconcurrent, "组合例子：缓存速率限制":#combined_combinator_example_cache, "组合例子：网络爬虫":#combined_combinator_example_thumbnail 
