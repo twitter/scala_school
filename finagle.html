@@ -538,7 +538,7 @@ class TimeoutFilter[Req, Rep](
   }
 }
 </pre>
-<p>This example shows how you might provide authentication (via an authentication service) in order to convert a <code>Service[AuthHttpReq, HttpRep]</code> into <code>Service[HttpReq, HttpRep]</code>.</p>
+<p>This example shows how you might provide authentication (via an authentication service). The code uses a filter to map an <code>HttpReq</code> to an <code>AuthHttpReq</code>. Afterwards, instead of the service having the type <code>Service[HttpReq, HttpRep]</code>, it now has the type <code>Service[AuthHttpReq, HttpRep]</code>. Hence, the Service now operates on an authenticated request.</p>
 <pre>
 class RequireAuthentication(authService: AuthService)
   extends Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep] {
