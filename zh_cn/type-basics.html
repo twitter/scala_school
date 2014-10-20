@@ -213,7 +213,7 @@ defined class Chicken
 <pre>
 scala&gt; val getTweet: (Bird =&gt; String) = // TODO
 </pre>
-<p>标准动物库有一个函数满足了你的需求，但它的参数是<code>Animal</code>。在大多数情况下，如果你说“我需要一个___，我有一个___的子类”是可以的。但是，在函数参数这里是逆变的。如果你需要一个参数为<code>Bird</code>的函数，并且指向一个参数为<code>Chicken</code>的函数，那么给它传入一个<code>Duck</code>时就会出错。但指向一个参数为<code>Animal</code>的函数就是可以的：</p>
+<p>标准动物库有一个函数满足了你的需求，但它的参数是<code>Animal</code>。在大多数情况下，如果你说“我需要一个___，我有一个___的子类”是可以的。但是，在函数参数这里是逆变的。如果你需要一个接受参数类型<code>Bird</code>的函数变量，但却将这个变量指向了接受参数类型为<code>Chicken</code>的函数，那么给它传入一个<code>Duck</code>时就会出错。然而，如果将该变量指向一个接受参数类型为<code>Animal</code>的函数就不会有这种问题：</p>
 <pre>
 scala&gt; val getTweet: (Bird =&gt; String) = ((a: Animal) =&gt; a.sound )
 getTweet: Bird =&gt; String = &lt;function1&gt;
