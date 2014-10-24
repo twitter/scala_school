@@ -115,7 +115,7 @@ def head : A
 def tail : Traversable[A]
 </pre>
 
-Here are where the Functional Combinators are defined.
+Here is where the Functional Combinators are defined.
 
 <code>
 def map [B] (f: (A) => B) : CC[B]
