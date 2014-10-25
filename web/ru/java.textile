@@ -141,7 +141,7 @@ Java жалуется, что s.dangerFoo никогда не бросает IOE
 
 Вместо этого, для хорошего пользователя Scala достойная идея, это использовать бросания аннотаций, как мы делали в dangerBar. Это позволяет нам продолжить использование отмеченных исключений в Java.
 
-h3. Что еще почитать оп этой теме
+h3. Что еще почитать по этой теме
 
 Полный список Scala аннотаций для поддержки совместимости Java можно найти здесь http://www.scala-lang.org/node/106.
 
@@ -169,7 +169,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 }
 </pre>
 
-Реализация MyTrait$class более интерресна
+Реализация MyTrait$class более интересна
 
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait\$class
@@ -323,5 +323,5 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
     }
 </pre>
 
-Заметьте, что мы можем использовать обобщенные функции, что определить параметры аргументов.
+Заметьте, что мы можем использовать обобщенные функции, чтобы определить параметры аргументов.
 
