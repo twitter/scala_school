@@ -247,7 +247,7 @@ h2(#partition). partition
 
 <pre>
 scala> val numbers = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-scala> numbers.partition(_ %2 == 0)
+scala> numbers.partition(_ % 2 == 0)
 res0: (List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
 </pre>
 
