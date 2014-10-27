@@ -227,7 +227,7 @@ res0: List[(Int, String)] = List((1,a), (2,b), (3,c))
 (역주. 원래 리스트의 모든 원소는 반환되는 두 리스트 중 어느 하나에 꼭 포함되며, 한 원소가 양쪽에 같이 속하는 일도 없다.)</p>
 <pre>
 scala&gt; val numbers = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-scala&gt; numbers.partition(_ %2 == 0)
+scala&gt; numbers.partition(_ % 2 == 0)
 res0: (List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
 </pre>
 <h2 id="find">find</h2>

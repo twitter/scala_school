@@ -160,7 +160,7 @@ getFoo();
 </pre>
 <p>Java жалуется, что s.dangerFoo никогда не бросает IOException. Мы можем попытаться отлавливать Throwable, но это &#8220;хромое&#8221; решение.</p>
 <p>Вместо этого, для хорошего пользователя Scala достойная идея, это использовать бросания аннотаций, как мы делали в dangerBar. Это позволяет нам продолжить использование отмеченных исключений в Java.</p>
-<h3>Что еще почитать оп этой теме</h3>
+<h3>Что еще почитать по этой теме</h3>
 <p>Полный список Scala аннотаций для поддержки совместимости Java можно найти здесь http://www.scala-lang.org/node/106.</p>
 <h2>Трейты</h2>
 <p>Как можно получить интерфейс + реализация? Давайте возьмем простое определение трейта и посмотрим</p>
@@ -180,7 +180,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
     public abstract java.lang.String upperTraitName();
 }
 </pre>
-<p>Реализация MyTrait$class более интерресна</p>
+<p>Реализация MyTrait$class более интересна</p>
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait\$class
 Compiled from "Scalaisms.scala"
@@ -301,7 +301,7 @@ public class com.twitter.interop.ClosureClass extends java.lang.Object implement
             });
     }
 </pre>
-<p>Заметьте, что мы можем использовать обобщенные функции, что определить параметры аргументов.</p>
+<p>Заметьте, что мы можем использовать обобщенные функции, чтобы определить параметры аргументов.</p>
     </div> <!-- /container -->
 
     <div id="footer">
