@@ -272,7 +272,7 @@ scala> calc.brand
 res2: String = "HP"
 </pre>
 
-Contained are examples are defining methods with def and fields with val.  Methods are just functions that can access the state of the class.
+Contained are examples defining methods with def and fields with val.  Methods are just functions that can access the state of the class.
 
 h3. Constructor
 
