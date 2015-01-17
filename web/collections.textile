@@ -185,7 +185,7 @@ scala> numbers.map((i: Int) => i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
-or pass in a function
+or pass in a function (the Scala compiler automatically converts our method to a function)
 
 <pre>
 
