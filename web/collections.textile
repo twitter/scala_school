@@ -130,14 +130,14 @@ Let's look at an example of how Option is used:
 <code>Map.get</code> uses <code>Option</code> for its return type. Option tells you that the method might not return what you're asking for.
 
 <pre>
-scala> val numbers = Map(1 -> "one", 2 -> "two")
-numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
+scala> val numbers = Map("one" -> 1, "two" -> 2)
+numbers: scala.collection.immutable.Map[java.lang.String,Int] = Map(one -> 1, two -> 2)
 
-scala> numbers.get(2)
-res0: Option[java.lang.String] = Some(two)
+scala> numbers.get("two")
+res0: Option[Int] = Some(2)
 
-scala> numbers.get(3)
-res1: Option[java.lang.String] = None
+scala> numbers.get("three")
+res1: Option[Int] = None
 </pre>
 
 Now our data appears trapped in this <code>Option</code>. How do we work with it?

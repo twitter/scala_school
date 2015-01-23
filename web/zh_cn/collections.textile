@@ -130,14 +130,14 @@ Option本身是泛型的，并且有两个子类： <code>Some[T]</code> 或 <co
 <code>Map.get</code> 使用 <code>Option</code> 作为其返回值，表示这个方法也许不会返回你请求的值。
 
 <pre>
-scala> val numbers = Map(1 -> "one", 2 -> "two")
-numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
+scala> val numbers = Map("one" -> 1, "two" -> 2)
+numbers: scala.collection.immutable.Map[java.lang.String,Int] = Map(one -> 1, two -> 2)
 
-scala> numbers.get(2)
-res0: Option[java.lang.String] = Some(two)
+scala> numbers.get("two")
+res0: Option[Int] = Some(2)
 
-scala> numbers.get(3)
-res1: Option[java.lang.String] = None
+scala> numbers.get("three")
+res1: Option[Int] = None
 </pre>
 
 现在我们的数据似乎陷在<code>Option</code>中了，我们怎样获取这个数据呢？
