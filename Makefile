@@ -1,5 +1,5 @@
 all:
-	jekyll web web.out
+	jekyll build --source web --destination web.out
 
 serve:
 	jekyll serve --watch -s web -d web.out
