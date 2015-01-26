@@ -129,14 +129,14 @@ trait Option[T] {
 <code>Map.get</code>은 <code>Option</code>를 반환한다. 옵션을 반환한다는 것은 찾는 값이 없을 수도 있다는 의미이다.
 
 <pre>
-scala> val numbers = Map(1 -> "one", 2 -> "two")
-numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
+scala> val numbers = Map("one" -> 1, "two" -> 2)
+numbers: scala.collection.immutable.Map[java.lang.String,Int] = Map(one -> 1, two -> 2)
 
-scala> numbers.get(2)
-res0: Option[java.lang.String] = Some(two)
+scala> numbers.get("two")
+res0: Option[Int] = Some(2)
 
-scala> numbers.get(3)
-res1: Option[java.lang.String] = None
+scala> numbers.get("three")
+res1: Option[Int] = None
 </pre>
 
 이제 데이터가 <code>Option</code>에 들어가 있을 것이다. 그럼 그 옵션을 가지고는 무얼 할 수 있을까?
