@@ -142,14 +142,14 @@ trait Option[T] {
 <p>我们看一个使用Option的例子：</p>
 <p><code>Map.get</code> 使用 <code>Option</code> 作为其返回值，表示这个方法也许不会返回你请求的值。</p>
 <pre>
-scala&gt; val numbers = Map(1 -&gt; "one", 2 -&gt; "two")
-numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
+scala&gt; val numbers = Map("one" -&gt; 1, "two" -&gt; 2)
+numbers: scala.collection.immutable.Map[java.lang.String,Int] = Map(one -&gt; 1, two -&gt; 2)
 
-scala&gt; numbers.get(2)
-res0: Option[java.lang.String] = Some(two)
+scala&gt; numbers.get("two")
+res0: Option[Int] = Some(2)
 
-scala&gt; numbers.get(3)
-res1: Option[java.lang.String] = None
+scala&gt; numbers.get("three")
+res1: Option[Int] = None
 </pre>
 <p>现在我们的数据似乎陷在<code>Option</code>中了，我们怎样获取这个数据呢？</p>
 <p>直觉上想到的可能是在<code>isDefined</code>方法上使用条件判断来处理。</p>

@@ -141,14 +141,14 @@ trait Option[T] {
 <p>이제 옵션을 어떻게 사용하는지 살펴보자.</p>
 <p><code>Map.get</code>은 <code>Option</code>를 반환한다. 옵션을 반환한다는 것은 찾는 값이 없을 수도 있다는 의미이다.</p>
 <pre>
-scala&gt; val numbers = Map(1 -&gt; "one", 2 -&gt; "two")
-numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
+scala&gt; val numbers = Map("one" -&gt; 1, "two" -&gt; 2)
+numbers: scala.collection.immutable.Map[java.lang.String,Int] = Map(one -&gt; 1, two -&gt; 2)
 
-scala&gt; numbers.get(2)
-res0: Option[java.lang.String] = Some(two)
+scala&gt; numbers.get("two")
+res0: Option[Int] = Some(2)
 
-scala&gt; numbers.get(3)
-res1: Option[java.lang.String] = None
+scala&gt; numbers.get("three")
+res1: Option[Int] = None
 </pre>
 <p>이제 데이터가 <code>Option</code>에 들어가 있을 것이다. 그럼 그 옵션을 가지고는 무얼 할 수 있을까?</p>
 <p>아마도 <code>isDefined</code> 메소드를 사용해 조건부 처리를 하는 것이 가장 먼저 반사적으로 떠오를 것이다.</p>

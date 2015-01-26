@@ -142,14 +142,14 @@ trait Option[T] {
 <p>Let&#8217;s look at an example of how Option is used:</p>
 <p><code>Map.get</code> uses <code>Option</code> for its return type. Option tells you that the method might not return what you&#8217;re asking for.</p>
 <pre>
-scala&gt; val numbers = Map(1 -&gt; "one", 2 -&gt; "two")
-numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
+scala&gt; val numbers = Map("one" -&gt; 1, "two" -&gt; 2)
+numbers: scala.collection.immutable.Map[java.lang.String,Int] = Map(one -&gt; 1, two -&gt; 2)
 
-scala&gt; numbers.get(2)
-res0: Option[java.lang.String] = Some(two)
+scala&gt; numbers.get("two")
+res0: Option[Int] = Some(2)
 
-scala&gt; numbers.get(3)
-res1: Option[java.lang.String] = None
+scala&gt; numbers.get("three")
+res1: Option[Int] = None
 </pre>
 <p>Now our data appears trapped in this <code>Option</code>. How do we work with it?</p>
 <p>A first instinct might be to do something conditionally based on the <code>isDefined</code> method.</p>
@@ -182,13 +182,13 @@ val result = res1 match {
 scala&gt; numbers.map((i: Int) =&gt; i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
-<p>or pass in a partially evaluated function</p>
+<p>or pass in a function (the Scala compiler automatically converts our method to a function)</p>
 <pre>
 
 scala&gt; def timesTwo(i: Int): Int = i * 2
 timesTwo: (i: Int)Int
 
-scala&gt; numbers.map(timesTwo _)
+scala&gt; numbers.map(timesTwo)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 <h2 id="foreach">foreach</h2>
