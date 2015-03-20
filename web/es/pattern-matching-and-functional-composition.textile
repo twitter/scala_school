@@ -1,0 +1,150 @@
+---
+prev: collections.textile
+next: type-basics.textile
+title: Pattern matching y Composición funcional
+layout: post
+---
+
+Está lección cubre los siguientes temas:
+
+* "Composición de una función ":#composition
+** compose
+** andThen
+* "Currying vs Aplicación parcial Partial Application":#curryvspartial
+* "Funciones parciales":#PartialFunction
+** range and domain
+** composition with orElse
+* "¿Qué es una declaración de caso? What is a case statement?":#case
+
+h2(#composition). Function Composition Composición de una Función 
+
+Let's make two aptly-named functions:
+Vamos a hacer dos funciones llamadas:
+
+
+<pre>
+scala> def f(s: String) = "f(" + s + ")"
+f: (String)java.lang.String
+
+scala> def g(s: String) = "g(" + s + ")"
+g: (String)java.lang.String
+</pre>
+
+h3. compose 
+
+<code>compose</code>  hace que una nueva función este compuesta por otras funciones <code>f(g(x))</code>
+
+<pre>
+scala> val fComposeG = f _ compose g _
+fComposeG: (String) => java.lang.String = <function>
+
+scala> fComposeG("yay")
+res0: java.lang.String = f(g(yay))
+</pre>
+
+h3. andThen
+
+<code>andThen</code> es como <code>compose</code>, excepto que llamamos a la primer función y después la segunda, <code>g(f(x))</code>
+
+<pre>
+scala> val fAndThenG = f _ andThen g _
+fAndThenG: (String) => java.lang.String = <function>
+
+scala> fAndThenG("yay")
+res1: java.lang.String = g(f(yay))
+</pre>
+
+h2(#curryvspartial). Currying vs Aplicación parcial
+
+h3. Casos de sentencia
+
+h4. Asi que ¿para que son los casos de sentencia ?
+
+Es una subclase de una función que llama a PartialFunction.
+
+h4. ¿Que es una colección de múltiples casos de sentencia? What is a collection of multiple case statements?
+
+Son múltiples  PartialFunctions compuestas entre si.
+
+h2(#PartialFunction). Entendiendo PartialFunction
+
+Una función trabaja para cada argumento de un tipo definido.En otras palabras,  es una función definida como (Int) => String toma algun entero (Int) y devuelve una cadena (String).
+
+Una Función Parcial esta solo definida por ciertos valores de un tipo definido. Una Función Parcial (Int) => String podría no aceptar cualquier entero (Int)
+
+<code>isDefinedAt</code> Es un método en PartialFunction que puede ser usado para determinar si la PartialFunction aceptara un argumento dado.
+
+__Note__ <code>PartialFunction</code> no esta realacionada a una función parcialmente aplicada de la que hablaremos más adelante.
+
+*Véase también* las opiniones de Effective Scala sobre  <a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.
+
+<pre>
+scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
+one: PartialFunction[Int,String] = <function1>
+
+scala> one.isDefinedAt(1)
+res0: Boolean = true
+
+scala> one.isDefinedAt(2)
+res1: Boolean = false
+</pre>
+
+Puedes aplicar una función parcial.
+
+<pre>
+scala> one(1)
+res2: String = one
+</pre>
+
+PartialFunctions puede estar compuesta con algo nuevo, llamado orElse, que refleja that si la PartialFunction esta definida sobre el argumento proporcionado.
+
+<pre>
+scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
+two: PartialFunction[Int,String] = <function1>
+
+scala> val three: PartialFunction[Int, String] = { case 3 => "three" }
+three: PartialFunction[Int,String] = <function1>
+
+scala> val wildcard: PartialFunction[Int, String] = { case _ => "something else" }
+wildcard: PartialFunction[Int,String] = <function1>
+
+scala> val partial = one orElse two orElse three orElse wildcard
+partial: PartialFunction[Int,String] = <function1>
+
+scala> partial(5)
+res24: String = something else
+
+scala> partial(3)
+res25: String = three
+
+scala> partial(2)
+res26: String = two
+
+scala> partial(1)
+res27: String = one
+
+scala> partial(0)
+res28: String = something else
+</pre>
+
+h3(#case). El misterio de los casos.
+
+La semana pasada vimos algo curioso. vimos una declaración de caso donde una función es normalmente usada.
+
+<pre>
+scala> case class PhoneExt(name: String, ext: Int)
+defined class PhoneExt
+
+scala> val extensions = List(PhoneExt("steve", 100), PhoneExt("robey", 200))
+extensions: List[PhoneExt] = List(PhoneExt(steve,100), PhoneExt(robey,200))
+
+scala> extensions.filter { case PhoneExt(name, extension) => extension < 200 }
+res0: List[PhoneExt] = List(PhoneExt(steve,100))
+</pre>
+
+¿Porque trabaja esto?
+
+toma una función de filtro. En este caso una  función predicado de (PhoneExt) => Boolean.
+
+
+Un PartialFunction es un subtipo de Función a modo de que pueda filtrar y tomar un PartialFunction!
