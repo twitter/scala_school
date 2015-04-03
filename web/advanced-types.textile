@@ -49,7 +49,7 @@ This says that *A* has to be "viewable" as *Int*.  Let's try it.
 scala> (new Container[String]).addIt("123")
 res11: Int = 246
 
-scala> (new Container[Int]).addIt(123) 
+scala> (new Container[Int]).addIt(123)
 res12: Int = 246
 
 scala> (new Container[Float]).addIt(123.2F)
@@ -141,7 +141,7 @@ Scala 2.8 introduced a shorthand for threading through & accessing implicit argu
 scala> def foo[A](implicit x: Ordered[A]) {}
 foo: [A](implicit x: Ordered[A])Unit
 
-scala> def foo[A : Ordered] {}                        
+scala> def foo[A : Ordered] {}
 foo: [A](implicit evidence$1: Ordered[A])Unit
 </pre>
 
@@ -185,7 +185,7 @@ scala> implicit val listContainer = new Container[List] { def put[A](x: A) = Lis
 scala> implicit val optionContainer = new Container[Some] { def put[A](x: A) = Some(x); def get[A](m: Some[A]) = m.get }
 
 scala> def tupleize[M[_]: Container, A, B](fst: M[A], snd: M[B]) = {
-     | val c = implicitly[Container[M]]                             
+     | val c = implicitly[Container[M]]
      | c.put(c.get(fst), c.get(snd))
      | }
 tupleize: [M[_],A,B](fst: M[A],snd: M[B])(implicit evidence$1: Container[M])M[(A, B)]
@@ -205,7 +205,7 @@ Often it's necessary to access a concrete subclass in a (generic) trait. For exa
 trait Container extends Ordered[Container]
 </pre>
 
-However, this now necessitates the compare method
+However, this now necessitates the subclass to implement the compare method
 
 <pre>
 def compare(that: Container): Int
@@ -221,6 +221,28 @@ class MyContainer extends Container {
 
 fails to compile, since we are specifying Ordered for *Container*, not the particular subtype.
 
+Then an alternative solution would be parameterize Container so that we can access the subtype in the subclass.
+
+<pre>
+trait Container[A] extends Ordered[A]
+</pre>
+
+The subclass could now do the following:
+
+<pre>
+class MyContainer extends Container[MyContainer] {
+  def compare(that: MyContainer): Int
+}
+</pre>
+
+But the problem is that the type A is not bounded by anything, and you could potentially do something like this:
+
+<pre>
+class MyContainer extends Container[String] {
+  def compare(that: String): Int
+}
+</pre>
+
 To reconcile this, we instead use F-bounded polymorphism.
 
 <pre>
@@ -229,11 +251,11 @@ trait Container[A <: Container[A]] extends Ordered[A]
 
 Strange type!  But note now how Ordered is parameterized on *A*, which itself is *Container[A]*
 
-So, now 
+So, now
 
 <pre>
-class MyContainer extends Container[MyContainer] { 
-  def compare(that: MyContainer) = 0 
+class MyContainer extends Container[MyContainer] {
+  def compare(that: MyContainer) = 0
 }
 </pre>
 
@@ -253,8 +275,8 @@ Given that they are all subtypes of *Container[_]*, we can define another subcla
 scala> class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
 defined class YourContainer
 
-scala> List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)                   
-res2: List[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]] 
+scala> List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)
+res2: List[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]]
   = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
 </pre>
 
@@ -276,7 +298,7 @@ Scala has support for *structural types* -- type requirements are expressed by i
 scala> def foo(x: { def get: Int }) = 123 + x.get
 foo: (x: AnyRef{def get: Int})Int
 
-scala> foo(new { def get = 10 })                 
+scala> foo(new { def get = 10 })
 res0: Int = 133
 </pre>
 
@@ -290,7 +312,7 @@ In a trait, you can leave type members abstract.
 scala> trait Foo { type A; val x: A; def getX: A = x }
 defined trait Foo
 
-scala> (new Foo { type A = Int; val x = 123 }).getX   
+scala> (new Foo { type A = Int; val x = 123 }).getX
 res3: Int = 123
 
 scala> (new Foo { type A = String; val x = "hey" }).getX
@@ -341,14 +363,14 @@ trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
         })
       }
     }
-    
+
   def andThen(service: Service[ReqOut, RepIn]) = new Service[ReqIn, RepOut] {
     private[this] val refcounted = new RefcountedService(service)
 
     def apply(request: ReqIn) = Filter.this.apply(request, refcounted)
     override def release() = refcounted.release()
     override def isAvailable = refcounted.isAvailable
-  }    
+  }
 }
 </pre>
 
