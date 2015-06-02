@@ -218,8 +218,14 @@ res1: Int = 6
 </pre>
 <p>Вы можете взять любую функцию с множеством аргументов и произвести ее каррирование. Давайте попробуем использовать функцию, которую рассматривали раньше, например <code>adder</code></p>
 <pre>
-scala&gt; (adder _).curried
-res1: (Int) =&gt; (Int) =&gt; Int = &lt;function1&gt;
+scala&gt; val curriedAdd = (adder _).curried
+curriedAdd: Int =&gt; (Int =&gt; Int) = &lt;function1&gt;
+
+scala&gt; val addTwo = curriedAdd(2)
+addTwo: Int =&gt; Int = &lt;function1&gt;
+
+scala&gt; addTwo(4)
+res22: Int = 6
 </pre>
 <p>См. подробнее о <a href="http://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%80%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5">Каррировании</a></p>
 <h3>Использование переменного количества аргументов</h3>
