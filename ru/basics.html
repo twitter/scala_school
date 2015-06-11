@@ -331,6 +331,34 @@ class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(b
   def log(m: Int): Double = log(m, math.exp(1))
 }
 </pre>
+
+<h3>Абстрактные классы</h3>
+<p>
+	Вы можете определять <em>абстрактные классы</em>. Абстракные классы определяют содержат методы, но не реализуют их. 
+	Однако, подклассы, наследующиеся от абстрактного класса, содержат реализацию этих методов.
+	Создать экземпляр абстрактного класса запрещено.
+</p>
+
+<pre>
+	scala&gt; abstract class Shape {
+     	|   def getArea():Int    // subclass should define this
+     	| }
+	defined class Shape
+	
+	scala&gt; class Circle(r: Int) extends Shape {
+	     |   def getArea():Int = { r * r * 3 }
+	     | }
+	defined class Circle
+	
+	scala&gt; val s = new Shape
+	&lt;console&gt;:8: error: class Shape is abstract; cannot be instantiated
+	       val s = new Shape
+	               ^
+	
+	scala&gt; val c = new Circle(2)
+	c: Circle = Circle@65c0035b
+</pre>
+
 <h2 id="trait">Трейты</h2>
 <p><code>Трейты</code> &#8211; это коллекция полей и методов, которые вы можете расширить или примешать к вашему классу.</p>
 <pre>
