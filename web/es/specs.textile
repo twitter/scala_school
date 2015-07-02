@@ -1,72 +1,72 @@
 ---
 prev: coll2.textile
 next: concurrency.textile
-title: Testing with specs
+title: Pruebas con specs
 layout: post
 ---
 
-This lesson covers testing with Specs, a Behavior-Driven Design (BDD) Framework for Scala.
+Esta lección cubre la creación de pruebas con Specs, un Framework de Diseño Dirigido por Comportamiento (Behavior-Driven Design, BDD) para Scala.
 
-* "extends Specification":#example
-** nested examples
-* "Execution Model":#scope
-* "Setup and TearDown":#setup
+* "extendiendo la clase Specification":#example
+** ejemplos anidados
+* "Modelo de Ejecución":#scope
+* "Setup y TearDown":#setup
 ** doFirst
 ** doBefore
 ** doAfter
-* "Matchers":#matchers
+* "Comparadores":#matchers
 ** mustEqual
 ** contains
 ** sameSize?
-** Write your own
+** Escribe tu comparador
 * "Mocks":#mocks
 * "Spies":#spies
-* "run in sbt":#sbt
+* "Ejecución con sbt":#sbt
 
 
-h2(#example). extends Specification
+h2(#example). Extendiendo la clase Specification
 
-Let's just jump in.
+Comencemos.
 
 <pre>
 import org.specs._
 
 object ArithmeticSpec extends Specification {
   "Arithmetic" should {
-    "add two numbers" in {
+    "sumar dos números" in {
       1 + 1 mustEqual 2
     }
-    "add three numbers" in {
+    "sumar tres números" in {
       1 + 1 + 1 mustEqual 3
     }
   }
 }
 </pre>
 
-*Arithmetic* is the *System Under Specification*
+La clase *Arithmetic* es el *Sistema Bajo Especificación*
 
-*add* is a context.
+*sumar* es un contexto.
 
-*add two numbers* and *add three numbers* are examples.
+*sumar dos números* y *sumar tres números* son ejemplos.
 
-@mustEqual@ indicates an *expectation*
+@mustEqual@ indica una *expectativa*
 
-@1 mustEqual 1@ is a common placeholder *expectation* before you start writing real tests.  All examples should have at least one expectation.
+@1 mustEqual 1@ es una referencia de *expectativa* común, que se usa antes de que empieces a escribir pruebas reales. Todos los ejemplos deben tener por lo menos una expectativa.
 
-h3. Duplication
+h3. Duplicación
 
-Notice how two tests both have @add@ in their name?  We can get rid of that by *nesting* expectations.
+¿Te das cuenta como las dos pruebas tienen la palabra @sumar@ en el nombre? Podemos eliminarlas *anidando* expectativas.
 
 <pre>
 import org.specs._
 
 object ArithmeticSpec extends Specification {
   "Arithmetic" should {
-    "add" in {
-      "two numbers" in {
+    "sumar" in {
+      "dos números" in {
         1 + 1 mustEqual 2
       }
-      "three numbers" in {
+      "tres números" in {
         1 + 1 + 1 mustEqual 3
       }
     }
@@ -74,17 +74,17 @@ object ArithmeticSpec extends Specification {
 }
 </pre>
 
-h2(#scope). Execution Model
+h2(#scope). Modelo de ejecución
 
 <pre>
 object ExecSpec extends Specification {
-  "Mutations are isolated" should {
+  "Las modificaciones están aisladas" should {
     var x = 0
-    "x equals 1 if we set it." in {
+    "x solo es igual a 1 si lo cambiamos." in {
       x = 1
       x mustEqual 1
     }
-    "x is the default value if we don't change it" in {
+    "x tendrá el valor por defecto si no lo modificamos" in {
       x mustEqual 0
     }
   }
@@ -96,36 +96,36 @@ h2(#setup). Setup, Teardown
 h3. doBefore & doAfter
 
 <pre>
-"my system" should {
-  doBefore { resetTheSystem() /** user-defined reset function */ }
-  "mess up the system" in {...}
-  "and again" in {...}
+"mi sistema" should {
+  doBefore { resetTheSystem() /** función definida por el usuario para restablecer el sistema */ }
+  "desordenar el sistema" in {...}
+  "una vez más" in {...}
   doAfter { cleanThingsUp() }
 }
 </pre>
 
-*NOTE* @doBefore@/@doAfter@ are only run on leaf examples.
+*NOTA* @doBefore@/@doAfter@ sólo se ejecutan en los ejemplos hoja, no en los anidados.
 
 h3. doFirst & doLast
 
-@doFirst@/@doLast@ is for single-time setup. (need example, I don't use this)
+@doFirst@/@doLast@ se usan para configurar una única vez. (hace falta un ejemplo, yo no uso esto)
 
 <pre>
 "Foo" should {
   doFirst { openTheCurtains() }
-  "test stateless methods" in {...}
-  "test other stateless methods" in {...}
+  "probar métodos sin estado" in {...}
+  "probar otros métodos sin estado" in {...}
   doLast { closeTheCurtains() }
 }
 </pre>
 
-h2(#matchers). Matchers
+h2(#matchers). Comparadores
 
-You have data, you want to make sure it's right. Let's tour the most commonly used matchers. (See Also "Matchers Guide":http://code.google.com/p/specs/wiki/MatchersGuide)
+Tienes datos, y quieres asegurar que son los correctos. Hagamos un tour por los comparadores más conocidos. (Revisa también la "Guía de comparadores":http://code.google.com/p/specs/wiki/MatchersGuide)
 
 h3. mustEqual
 
-We've seen several examples of mustEqual already.
+Ya hemos visto varios ejemplos del comparador mustEqual.
 
 <pre>
 1 mustEqual 1
@@ -133,9 +133,9 @@ We've seen several examples of mustEqual already.
 "a" mustEqual "a"
 </pre>
 
-Reference equality, value equality.
+Igualdad de referencia, igualdad de valor.
 
-h3. elements in a Sequence
+h3. Elementos en una secuencia
 
 <pre>
 val numbers = List(1, 2, 3)
@@ -150,7 +150,7 @@ List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4),
 </pre>
 
 
-h3. Items in a Map
+h3. Elementos en un mapa
 
 <pre>
 map must haveKey(k)
@@ -160,7 +160,7 @@ map must haveValue(v)
 map must notHaveValue(v)
 </pre>
 
-h3. Numbers
+h3. Números
 
 <pre>
 a must beGreaterThan(b)
@@ -173,7 +173,7 @@ a must beCloseTo(b, delta)
 </pre>
 
 
-h3. Options
+h3. Opciones
 
 <pre>
 a must beNone
@@ -191,15 +191,15 @@ h3. throwA
 a must throwA[WhateverException]
 </pre>
 
-This is shorter than a try catch with a fail in the body.
+Es más corto que un try catch con un fail dentro del try.
 
-You can also expect a specific message
+También puedes esperar un mensaje de excepción expecífico
 
 <pre>
 a must throwA(WhateverException("message"))
 </pre>
 
-You can also match on the exception:
+También puedes usar comparadores con la excepción:
 
 <pre>
 a must throwA(new Exception) like {
@@ -208,17 +208,17 @@ a must throwA(new Exception) like {
 </pre>
 
 
-h3. Write your own Matchers
+h3. Escribe tus propios comparadores
 
 <pre>
 import org.specs.matcher.Matcher
 </pre>
 
-h4. As a val
+h4. Como un val
 
 <pre>
-"A matcher" should {
-  "be created as a val" in {
+"Un comparador" should {
+  "poder crearse como un val" in {
     val beEven = new Matcher[Int] {
       def apply(n: => Int) = {
         (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
@@ -229,9 +229,9 @@ h4. As a val
 }
 </pre>
 
-The contract is to return a tuple containing whether the expectation is true, and a message for when it is and isn't true.
+El contrato es devolver una tupla que indique si la comparación resultó verdadera, y dos mensajes uno para el caso verdadero y otro para el falso.
 
-h4. As a case class
+h4. Como una clase case
 
 <pre>
 case class beEven(b: Int) extends Matcher[Int]() {
@@ -239,7 +239,7 @@ case class beEven(b: Int) extends Matcher[Int]() {
 }
 </pre>
 
-Using a case class makes it more shareable.
+Usando una clase caso, el comparador es más fácil de compartir.
 
 h2(#mocks). Mocks
 
@@ -264,53 +264,53 @@ object MockExampleSpec extends Specification with Mockito {
 }
 </pre>
 
-*See Also* "Using Mockito":http://code.google.com/p/specs/wiki/UsingMockito
+*Revisa también* "Cómo usar Mockito":http://code.google.com/p/specs/wiki/UsingMockito
 
 h2(#spies). Spies
 
-Spies can also be used in order to do some "partial mocking" of real objects:
+Los espías se pueden usar para hacer "mocking parcial" de objetos reales:
 
 <pre>
 val list = new LinkedList[String]
 val spiedList = spy(list)
 
-// methods can be stubbed on a spy
+// los métodos también pueden reemplazarse en un espía
 spiedList.size returns 100
 
-// other methods can also be used
+// también se pueden usar otros métodos
 spiedList.add("one")
 spiedList.add("two")
 
-// and verification can happen on a spy
+// también se puede verificar un espía
 there was one(spiedList).add("one")
 </pre>
 
-However, working with spies can be tricky:
+Sin embargo, trabajar con espías puede ser complicado:
 
 <pre>
-// if the list is empty, this will throws an IndexOutOfBoundsException
+// si la lista está vacía, esto lanzará una excepción IndexOutOfBoundsException
 spiedList.get(0) returns "one"
 </pre>
 
-@doReturn@ must be used in that case:
+Se debe usar @doReturn@ en ese caso:
 
 <pre>
 doReturn("one").when(spiedList).get(0)
 </pre>
 
 
-h2(#sbt). Run individual specs in sbt
+h2(#sbt). Ejecuta specs individuales con sbt
 
 
 <pre>
 > test-only com.twitter.yourservice.UserSpec
 </pre>
 
-Will run just that spec.
+Ejecutará sólo es spec.
 
 
 <pre>
 > ~ test-only com.twitter.yourservice.UserSpec
 </pre>
 
-Will run that test in a loop, with each file modification triggering a test run.
+Ejecutará ese test dentro de un ciclo, con cada modificación al archivo, se ejecutará nuevamente la prueba.
