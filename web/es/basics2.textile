@@ -7,11 +7,11 @@ layout: post
 
 Esta lección cubre los siguientes temas:
 * "aplicar":#apply
-* "objectos":#object
+* "objetos":#object
 * "las funciones son objectos":#fnobj
 * "paquetes":#package
 * "coincidencia de patrones":#match
-* "clases de casos":#caseclass
+* "clases caso":#caseclass
 * "try-catch-finally":#exception
 
 h2(#apply). aplicar métodos
@@ -234,9 +234,9 @@ def calcType(calc: Calculator) = calc match {
 
 Wow, eso es dificil. Afortunadamente Scala ofrece algunas herramientas agradables específicamente para esto.
 
-h2(#caseclass). Las clases de casos
+h2(#caseclass). Las clases caso
 
-clases de casos se utilizan para almacenar y combinar convenientemente sobre el contenido de una clase. Usted puede construir esto sin usar new.
+Las clases caso se utilizan para almacenar y combinar convenientemente sobre el contenido de una clase. Usted puede construir esto sin usar new.
 
 <pre>
 scala> case class Calculator(brand: String, model: String)
@@ -247,7 +247,7 @@ hp20b: Calculator = Calculator(hp,20b)
 
 </pre>
 
-clases de casos tienen automáticamente la igualdad y métodos toString basado en los argumentos del constructor.
+las clases caso tienen automáticamente la igualdad y métodos toString basado en los argumentos del constructor.
 
 <pre>
 scala> val hp20b = Calculator("hp", "20b")
@@ -260,11 +260,11 @@ scala> hp20b == hp20B
 res6: Boolean = true
 </pre>
 
-clases de casos pueden tener métodos al igual que las clases normales.
+las clases caso pueden tener métodos al igual que las clases normales.
 
-h6. Las clases de casos con la coincidencia de patrones
+h6. Las clase caso con la coincidencia de patrones
 
-clases de casos se han diseñado para ser utilizado con la coincidencia de patrones. Vamos a simplificar nuestro ejemplo calculadora clasificador de antes.
+las clases caso se han diseñado para ser utilizado con la coincidencia de patrones. Vamos a simplificar nuestro ejemplo calculadora clasificador de antes.
 
 <pre>
 val hp20b = Calculator("hp", "20B")
