@@ -1,7 +1,7 @@
 ---
 prev: basics2.textile
 next: pattern-matching-and-functional-composition.textile
-title: Collections
+title: Colecciones
 layout: post
 ---
 
