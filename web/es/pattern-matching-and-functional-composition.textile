@@ -16,7 +16,7 @@ Está lección cubre los siguientes temas:
 ** composición con orElse
 * "¿Qué son las instrucciones case?":#case
 
-h2(#composition). Composición de una Función 
+h2(#composition). Composición de una Función
 
 Vamos a hacer dos funciones llamadas:
 
@@ -29,9 +29,9 @@ scala> def g(s: String) = "g(" + s + ")"
 g: (String)java.lang.String
 </pre>
 
-h3. compose 
+h3. compose
 
-<code>compose</code>  hace que una nueva función este compuesta por otras funciones <code>f(g(x))</code>
+La función <code>compose</code>  hace que una nueva función sea compuesta a su vez por otras funciones <code>f(g(x))</code>
 
 <pre>
 scala> val fComposeG = f _ compose g _
@@ -43,7 +43,7 @@ res0: java.lang.String = f(g(yay))
 
 h3. andThen
 
-<code>andThen</code> es como <code>compose</code>, excepto que llamamos a la primer función y después la segunda, <code>g(f(x))</code>
+La función <code>andThen</code> es como <code>compose</code>, excepto que llamamos a la primer función y después a la segunda, <code>g(f(x))</code>
 
 <pre>
 scala> val fAndThenG = f _ andThen g _
@@ -55,25 +55,28 @@ res1: java.lang.String = g(f(yay))
 
 h2(#curryvspartial). Currying vs Aplicación parcial
 
-h3. Instrucciones cases
+__Nota de traducción: Currying es una técnica de programación funcional nombrada en honor al matemático y lógico Haskell Curry. Es por eso que no se intentará hacer ninguna traducción sobre el término Currying. Entiendase este como una acción, técnica base de PF. Como una nota al paso, el lenguaje de programación Haskell debe su nombre a este eximio matemático.
+http://docs.scala-lang.org/es/tutorials/tour/currying.html__
 
-h4. Entonces ¿que son las instrucciones case ?
+h3. Instrucciones case
+
+h4. Entonces ¿Qué son las instrucciones case?
 
 Es una subclase de una función que llama a <code>PartialFunction</code>.
 
-h4. ¿Que es una colección de múltiples instrucciones case? 
+h4. ¿Que es una colección de múltiples instrucciones case?
 
-Son múltiples  PartialFunctions compuestas entre si.
+Son <code>PartialFunction</code> múltiples compuestas entre sí.
 
 h2(#PartialFunction). Entendiendo a  PartialFunction
 
-Una función trabaja para cada argumento de un tipo definido.En otras palabras,  es una función definida como <code>(Int) => String</code> toma algun entero (Int) y devuelve una cadena (String).
+Una función trabaja para cada argumento del tipo definido. En otras palabras,  una función definida como <code>(Int) => String</code> toma algun entero (Int) y devuelve una cadena (String).
 
-Una Función Parcial esta solo definida por ciertos valores de un tipo definido. Una Función Parcial(PartialFunction) <code>(Int) => String</code> podría no aceptar cualquier entero (Int)
+Una Función Parcial esta solo definida para ciertos valores del tipo definido. Una Función Parcial(<code>PartialFunction</code>) <code>(Int) => String</code> podría no aceptar cualquier entero (Int)
 
-<code>isDefinedAt</code> Es un método en <code>PartialFunction</code> que puede ser usado para determinar si la <code>PartialFunction</code> aceptara un argumento recibido.
+La función <code>isDefinedAt</code> es un método en <code>PartialFunction</code> que puede ser usado para determinar si la <code>PartialFunction</code> aceptará un argumento recibido.
 
-__Nota__ <code>PartialFunction</code> no esta realacionada a una función parcialmente aplicada de la que hablaremos más adelante.
+__Nota:__ <code>PartialFunction</code> no esta realacionada a una función parcialmente aplicada; de la que hablaremos más adelante.
 
 *Véase también* las opiniones de __Effective Scala__ sobre  <a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.
 
@@ -95,7 +98,7 @@ scala> one(1)
 res2: String = one
 </pre>
 
-<code>PartialFunctions</code> puede estar compuesta con algo nuevo, llamado <code>orElse</code>, que refleja si la <code>PartialFunction</code> esta definida sobre el argumento proporcionado.
+Las Funciones Parciales pueden estar compuestas con algo nuevo, llamado <code>orElse</code>, que refleja si la <code>PartialFunction</code> esta definida sobre el argumento proporcionado.
 
 <pre>
 scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
@@ -143,7 +146,7 @@ res0: List[PhoneExt] = List(PhoneExt(steve,100))
 
 ¿Porque trabaja esto?
 
-toma una función de filtro. En esta caso una  función predicado de <code>(PhoneExt) => Boolean</code>.
+La función <code>Filter</code> toma una función. En esta caso una  función predicado de <code>(PhoneExt) => Boolean</code>.
 
 
-¡Un <code>PartialFunction</code> es un subtipo de Función a modo de que pueda filtrar y tomar un <code>PartialFunction</code>!
+¡Un <code>PartialFunction</code> es un subtipo de Función de modo que pueda filtrar y tomar un <code>PartialFunction</code>!
