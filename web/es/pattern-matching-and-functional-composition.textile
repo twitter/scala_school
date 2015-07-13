@@ -55,8 +55,8 @@ res1: java.lang.String = g(f(yay))
 
 h2(#curryvspartial). Currying vs Aplicación parcial
 
-__Nota de traducción: Currying es una técnica de programación funcional nombrada en honor al matemático y lógico Haskell Curry. Es por eso que no se intentará hacer ninguna traducción sobre el término Currying. Entiendase este como una acción, técnica base de PF. Como una nota al paso, el lenguaje de programación Haskell debe su nombre a este eximio matemático.
-http://docs.scala-lang.org/es/tutorials/tour/currying.html__
+Nota de traducción: __Currying es una técnica de programación funcional nombrada en honor al matemático y lógico Haskell Curry. Es por eso que no se intentará hacer ninguna traducción sobre el término Currying. Entiendase este como una acción, técnica base de PF. Como una nota al paso, el lenguaje de programación Haskell debe su nombre a este eximio matemático__.
+Para mayor información consulte la <a href="http//docs.scala-lang.org/es/tutorials/tour/currying.html">Documentación de Scala</a>
 
 h3. Instrucciones case
 
