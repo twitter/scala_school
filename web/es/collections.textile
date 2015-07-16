@@ -1,64 +1,65 @@
 ---
 prev: basics2.textile
 next: pattern-matching-and-functional-composition.textile
-title: Collections
+title: Colecciones
 layout: post
 ---
 
-This lesson covers:
+Esta lección contempla:
 
 * Basic Data Structures
-** "Lists":#Lists
-** "Sets":#Sets
-** "Tuple":#Tuple
+* Estructuras de Datos básicas
+** "Listas":#Lists
+** "Conjuntos":#Sets
+** "Tupla":#Tuple
 ** "Maps":#Maps
 ** "Option":#Option
-* Functional Combinators
+* Combinadores funcionales
 ** "map":#map
 ** "foreach":#foreach
 ** "filter":#filter
 ** "zip":#zip
 ** "partition":#partition
 ** "find":#find
-** "drop and dropWhile":#drop
-** "foldRight and foldLeft":#fold
+** "drop y dropWhile":#drop
+** "foldLeft y foldRight":#fold
 ** "flatten":#flatten
 ** "flatMap":#flatMap
 ** "Generalized functional combinators":#generalized
 ** "Map?":#vsMap
 
-h1. Basic Data Structures
+h1. Estructuras basicas de datos
 
-Scala provides some nice collections.
+Scala provee algunas colecciones.
 
-*See Also* Effective Scala has opinions about how to use <a href="http://twitter.github.com/effectivescala/#Collections">collections</a>.
+*Véase tambien* en Effective Scala que tiene información acerca de como usar <a href="http://twitter.github.com/effectivescala/#Collections">colecciones</a>.
 
-h2(#Lists). Lists
+h2(#Lists). Listas
 
 <pre>
-scala> val numbers = List(1, 2, 3, 4)
-numbers: List[Int] = List(1, 2, 3, 4)
+scala> val numeros = List(1, 2, 3, 4)
+numeros: List[Int] = List(1, 2, 3, 4)
 </pre>
 
-h2(#Sets). Sets
+h2(#Sets). Conjuntos
 
-Sets have no duplicates
+Los conjuntos no pueden tener duplicados.
 
 <pre>
 scala> Set(1, 1, 2)
 res0: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 
-h2(#Tuple). Tuple
+h2(#Tuple). Tupla
 
-A tuple groups together simple logical collections of items without using a class.
+Una tupla agrupa colecciones lógicas simples de elementos sin usar una clase.
 
 <pre>
 scala> val hostPort = ("localhost", 80)
 hostPort: (String, Int) = (localhost, 80)
 </pre>
 
-Unlike case classes, they don't have named accessors, instead they have accessors that are named by their position and is 1-based rather than 0-based.
+A diferencia de las clases caso, no tienen métodos de acceso nombrados, en su lugar tienen metodos de acceso que son nombrados por su posición y esta basado en índice 1 en vez de 0.
 
 <pre>
 scala> hostPort._1
@@ -68,7 +69,7 @@ scala> hostPort._2
 res1: Int = 80
 </pre>
 
-Tuples fit with pattern matching nicely.
+Las tuplas encajan con "pattern matching" perfectamente.
 
 <pre>
 hostPort match {
@@ -77,29 +78,29 @@ hostPort match {
 }
 </pre>
 
-Tuple has some special sauce for simply making Tuples of 2 values: <code>-></code>
+Las tuplas tienen la facilidad de simplificar su implementación con 2 valores utilizando: <code>-></code>.
 
 <pre>
 scala> 1 -> 2
 res0: (Int, Int) = (1,2)
 </pre>
 
-*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">destructuring bindings</a> ("unpacking" a tuple).
+*Véase tambien* Effective Scala que tiene contenido  acerca de <a href="http://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">como desestructurar enlaces</a> ("desempaquetar una tupla").
 
 h2(#Maps). Maps
 
-It can hold basic datatypes.
+Pueden contener tipos basicos de datos.
 
 <pre>
 Map(1 -> 2)
 Map("foo" -> "bar")
 </pre>
 
-This looks like special syntax but remember back to our discussion of Tuple that <code>-></code> can be use to create Tuples.
+Esto se ve como una sintáxis especial pero recuerda lo que se dijo de la tupla que <code>-></code>  puede ser usado para crear tuplas.
 
-Map() also uses that variable argument syntax we learned back in Lesson #1: <code>Map(1 -> "one", 2 -> "two")</code> which expands into <code>Map((1, "one"), (2, "two"))</code> with the first element being the key and the second being the value of the Map.
+<code>Map()</code> tambien usa la sintáxis de argumentos que aprendimos en la leccion #1: <code> Map(1 -> "one", 2 -> "two") </code> la cual se usa dentro de <code> Map((1, "one"), (2, "two")) </code> con el primer siendo la clave y el segundo siendo el valor del Map.
 
-Maps can themselves contain Maps or even functions as values.
+Los "Maps" tambien pueden contener "Maps" o incluso funciones como valores.
 
 <pre>
 Map(1 -> Map("foo" -> "bar"))
@@ -111,9 +112,9 @@ Map("timesTwo" -> { timesTwo(_) })
 
 h2(#Option). Option
 
-<code>Option</code> is a container that may or may not hold something.
+<code>Option</code> es un contenedor que puede o no contener algún elemento.
 
-The basic interface for Option looks like:
+La interfaz basica de Option se ve así:
 
 <pre>
 trait Option[T] {
@@ -123,26 +124,26 @@ trait Option[T] {
 }
 </pre>
 
-Option itself is generic and has two subclasses: <code>Some[T]</code> or <code>None</code>
+Option en si misma es generica y tiene dos subclases: <code>Some[T]</code> o <code>None</code>.
 
-Let's look at an example of how Option is used:
+Veamos un ejemplo de como se usa Option:
 
-<code>Map.get</code> uses <code>Option</code> for its return type. Option tells you that the method might not return what you're asking for.
+<code>Map.get</code> usa <code>Option</code> como su tipo de retorno. Option te ayuda a saber que el metodo puede no retornar lo que estas solicitando.
 
 <pre>
-scala> val numbers = Map(1 -> "one", 2 -> "two")
-numbers: scala.collection.immutable.Map[Int,String] = Map((1,one), (2,two))
+scala> val numbers = Map("one" -> 1, "two" -> 2)
+numbers: scala.collection.immutable.Map[java.lang.String,Int] = Map(one -> 1, two -> 2)
 
-scala> numbers.get(2)
-res0: Option[java.lang.String] = Some(two)
+scala> numbers.get("two")
+res0: Option[Int] = Some(2)
 
-scala> numbers.get(3)
-res1: Option[java.lang.String] = None
+scala> numbers.get("three")
+res1: Option[Int] = None
 </pre>
 
-Now our data appears trapped in this <code>Option</code>. How do we work with it?
+Ahora nuestros datos aparecen atrapados en <code>Option</code>. ¿Como lidiamos con esto?.
 
-A first instinct might be to do something conditionally based on the <code>isDefined</code> method.
+Un primer instinto podria ser usar un condicional basado en el metodo <code>IsDefined</code>.
 
 <pre>
 // We want to multiply the number by two, otherwise return 0.
@@ -153,15 +154,14 @@ val result = if (res1.isDefined) {
 }
 </pre>
 
-We would suggest that you use either <code>getOrElse</code> or pattern matching to work with this result.
-
-<code>getOrElse</code> lets you easily define a default value.
+Te sugerimos utilizar <code>getOrElse</code> o coincidencia  de patrones (pattern matching) para lidiar con este resultado.
+<code>getOrElse</code> también te permite facilmente definir un valor por defecto.
 
 <pre>
 val result = res1.getOrElse(0) * 2
 </pre>
 
-Pattern matching fits naturally with <code>Option</code>.
+La coincidencia de patrones (pattern matching) se adapta naturalmente con <code>Option</code>.
 
 <pre>
 val result = res1 match {
@@ -170,25 +170,26 @@ val result = res1 match {
 }
 </pre>
 
-*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>.
 
-h1(#combinators). Functional Combinators
+*Véase tambien* en Effective Scala que tiene contenido acerca de <a href="http://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>.
 
-<code>List(1, 2, 3) map squared</code> applies the function <code>squared</code> to the elements of the list, returning a new list, perhaps <code>List(1, 4, 9)</code>. We call operations like <code>map</code> <em>combinators</em>. (If you'd like a better definition, you might like <a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">Explanation of combinators</a> on Stackoverflow.) Their most common use is on the standard data structures.
+
+h1(#combinators). Combinadores funcionales
+
+<code>List(1, 2, 3) map squared</code> aplica la función <code>squared</code> a los elementos de la lista, regresando una nueva lista, por ejemplo <code>List(1, 4, 9)</code>. Llamamos operaciones como <em>combinadores</em> <code>map</code>. Si tu prefieres una mejor definicion, puedes ver  <a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">Explanation of combinators</a> en Stackoverflow. Su uso mas comun es en estructuras de datos  estandar.
 
 h2(#map). map
 
-Evaluates a function over each element in the list, returning a list with the same number of elements.
+Evalua una función sobre cada elemento de la lista, retornando una lista con el mismo numero de elementos.
 
 <pre>
 scala> numbers.map((i: Int) => i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
-or pass in a function (the Scala compiler automatically converts our method to a function)
+o pasa en una función (el compilador de scala automaticamente convierte nuestro metodo a una función).
 
 <pre>
-
 scala> def timesTwo(i: Int): Int = i * 2
 timesTwo: (i: Int)Int
 
@@ -198,15 +199,15 @@ res0: List[Int] = List(2, 4, 6, 8)
 
 h2(#foreach). foreach
 
-foreach is like map but returns nothing. foreach is intended for side-effects only.
+foreach es como map pero no retorna nada. foreach esta destinada unicamente a efectos secundarios.
 
 <pre>
 scala> numbers.foreach((i: Int) => i * 2)
 </pre>
 
-returns nothing.
+La función entonces no retorna nada.
 
-You can try to store the return in a value but it'll be of type Unit (i.e. void)
+tu puedes tratar de guardar lo que retorna en un valor pero sera de tipo Unit (similar a void).
 
 <pre>
 scala> val doubled = numbers.foreach((i: Int) => i * 2)
@@ -215,7 +216,7 @@ doubled: Unit = ()
 
 h2(#filter). filter
 
-removes any elements where the function you pass in evaluates to false.  Functions that return a Boolean are often called predicate functions.
+Elimina cualquier elemento donde la función que pasaste retorna un false. Las funciones que retornan un Boolean son a menudo llamadas funciones predicado y evaluan para la inclusión de los elementos.
 
 <pre>
 scala> numbers.filter((i: Int) => i % 2 == 0)
@@ -227,12 +228,12 @@ scala> def isEven(i: Int): Boolean = i % 2 == 0
 isEven: (i: Int)Boolean
 
 scala> numbers.filter(isEven _)
-res2: List[Int] = List(2, 4)
+res2: List[Int] = List(2, 4
 </pre>
 
 h2(#zip). zip
 
-zip aggregates the contents of two lists into a single list of pairs.
+<code>zip</code> agrega los contenidos de 2 listas en una lista de pares.
 
 <pre>
 scala> List(1, 2, 3).zip(List("a", "b", "c"))
@@ -241,7 +242,7 @@ res0: List[(Int, String)] = List((1,a), (2,b), (3,c))
 
 h2(#partition). partition
 
-<code>partition</code> splits a list based on where it falls with respect to a predicate function.
+<code>partition</code> divide una lista de acuerdo con una función predicado.
 
 <pre>
 scala> val numbers = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
@@ -251,7 +252,7 @@ res0: (List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
 
 h2(#find). find
 
-find returns the first element of a collection that matches a predicate function.
+<code>find</code> regresa el primer elemento de una coleccion que coincide con una función predicado.
 
 <pre>
 scala> numbers.find((i: Int) => i > 5)
@@ -260,31 +261,31 @@ res0: Option[Int] = Some(6)
 
 h2(#drop). drop & dropWhile
 
-<code>drop</code> drops the first i elements
+<code>drop</code> elimina el primer elemento i.
 
 <pre>
 scala> numbers.drop(5)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
 
-<code>dropWhile</code> removes the first elements that match a predicate function. For example, if we <code>dropWhile</code> odd numbers from our list of numbers, <code>1</code> gets dropped (but not <code>3</code> which is "shielded" by <code>2</code>).
+<code>dropwhile</code> elimina los primeros elementos que coinciden con una función predicado mientras sea verdadera. Por ejemplo, si hacemos <code>dropwhile</code> con una función predicado de numeros impares, en nuestra lista de numeros, el numero <code>1</code> se elimina (pero no el <code>3</code>  porque esta protegido por el numero <code>2</code>).
 
 <pre>
 scala> numbers.dropWhile(_ % 2 != 0)
 res0: List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
 </pre>
 
-h2(#fold). foldLeft
+h2(#fold). foldLeft y foldRight
 
+h3. foldLeft
 <pre>
 scala> numbers.foldLeft(0)((m: Int, n: Int) => m + n)
 res0: Int = 55
 </pre>
 
-0 is the starting value (Remember that numbers is a List[Int]), and m
-acts as an accumulator.
+0 es el valor de comienzo (recuerda que los numeros son una lista List[Int]), y m actua como un acumulador.
 
-Seen visually:
+Veámoslo:
 
 <pre>
 scala> numbers.foldLeft(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
@@ -301,9 +302,10 @@ m: 45 n: 10
 res0: Int = 55
 </pre>
 
+
 h3. foldRight
 
-Is the same as foldLeft except it runs in the opposite direction.
+Es lo mismo que foldleft excepto que corre en la direccion opuesta
 
 <pre>
 scala> numbers.foldRight(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
@@ -322,7 +324,7 @@ res0: Int = 55
 
 h2(#flatten). flatten
 
-flatten collapses one level of nested structure.
+<code>flatten</code> colapsa a un nivel una estructura anidada
 
 <pre>
 scala> List(List(1, 2), List(3, 4)).flatten
@@ -331,7 +333,7 @@ res0: List[Int] = List(1, 2, 3, 4)
 
 h2(#flatMap). flatMap
 
-flatMap is a frequently used combinator that combines mapping and flattening. flatMap takes a function that works on the nested lists and then concatenates the results back together.
+<code>flatMap</code> es un combinador frecuentemente usado que combina mapping y flattening. <code>flatMap</code> toma una función que trabaja sobre una la lista anidada y concatena el resultado en una nueva lista
 
 <pre>
 scala> val nestedNumbers = List(List(1, 2), List(3, 4))
@@ -341,24 +343,21 @@ scala> nestedNumbers.flatMap(x => x.map(_ * 2))
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
-Think of it as short-hand for mapping and then flattening:
+Piensa en esto como una forma abreviada para hacer mapping y despues flattening:
 
 <pre>
 scala> nestedNumbers.map((x: List[Int]) => x.map(_ * 2)).flatten
 res1: List[Int] = List(2, 4, 6, 8)
 </pre>
 
-that example calling map and then flatten is an example of the "combinator"-like nature of these functions.
+El ejemplo llamando map y despues flatten es un ejemplo de "combinador" como algo natural de estas funciones.
 
-*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>.
+*Véase tambien* Effective Scala que tiene documentaion acerca de <a href="http://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>.
 
 h2(#generalized). Generalized functional combinators
 
-Now we've learned a grab-bag of functions for working with collections.
-
-What we'd like is to be able to write our own functional combinators.
-
-Interestingly, every functional combinator shown above can be written on top of fold.  Let's see some examples.
+Ahora que hemos aprendido varias funciones para trabajar con colecciones nos gustaria ser capaces de escribir nuestros propios combinadores funcionales.
+Es interesante que cada combinador funcional que se muestra arriba puede ser escrito con funciones <code>fold</code>. Veamos algunos ejemplos:
 
 <pre>
 def ourMap(numbers: List[Int], fn: Int => Int): List[Int] = {
@@ -371,33 +370,33 @@ scala> ourMap(numbers, timesTwo(_))
 res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
 </pre>
 
-Why <tt>List[Int]()</tt>? Scala wasn't smart enough to realize that you wanted an empty list of Ints to accumulate into.
+¿Por qué <code>List[Int]()</code>? Scala no fue lo suficientemente inteligente para notar que tu querías una lista vacia de enteros para acumular informacion.
 
 h2(#vsMap). Map?
 
-All of the functional combinators shown work on Maps, too.  Maps can be thought of as a list of pairs so the functions you write work on a pair of the keys and values in the Map.
+Todos los combinadores funcionales mostrados tambien trabajan sobre Maps, los Maps pueden ser pensados como una lista de pares, así las funciones que escribes trabajan en una pareja de llaves y valores en el Map.
 
 <pre>
 scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
 extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
 </pre>
 
-Now filter out every entry whose phone extension is lower than 200.
+Ahora filtrar cada entrada cuya extensión telefónica es inferior a 200. 
 
 <pre>
 scala> extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>
 
-Because it gives you a tuple, you have to pull out the keys and values with their positional accessors. Yuck!
+Porque le da una tupla, tienes que sacar las claves y valores con sus descriptores de acceso posicionales. ¡Qué asco!
 
-Lucky us, we can actually use a pattern match to extract the key and value nicely.
+Por suerte, podemos usar una coincidencia de patrón para extraer la clave y el valor fácilmente.
 
 <pre>
 scala> extensions.filter({case (name, extension) => extension < 200})
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>
 
-Why does this work? Why can you pass in a partial pattern match?
+¿Por qué funciona esto? ¿Por qué puedes pasar un patrón de coincidencia en un parcial?
 
-Stay tuned for next week!
+permanece al pendiente para la siguiente semana!
