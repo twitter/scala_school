@@ -278,7 +278,7 @@ def calcType(calc: Calculator) = calc match {
 }
 </pre>
 
-Otras alternativas para ese último patron
+Other alternatives for that last match
 
 <pre>
   case Calculator(_, _) => "Calculator of unknown type"
