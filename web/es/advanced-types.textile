@@ -1,6 +1,7 @@
 ---
 prev: type-basics.textile
 next: sbt.textile
+<<<<<<< HEAD
 title: Advanced types
 layout: post
 ---
@@ -21,6 +22,27 @@ h2(#viewbounds). View bounds ("type classes")
 Sometimes you don't need to specify that one type is equal/sub/super another, just that you could fake it with conversions. A view bound specifies a type that can be "viewed as" another. This makes sense for an operation that needs to "read" an object but doesn't modify the object.
 
 *Implicit* functions allow automatic conversion. More precisely, they allow on-demand function application when this can help satisfy type inference. e.g.:
+=======
+title: Tipos Avanzados
+layout: post
+---
+
+Esta lección cubre:
+
+* "Límites de vistas":#viewbounds ("clases tipo")
+* "Otros límites de tipo":#otherbounds
+* "Tipos de orden superior y polimorfismo ad-hoc":#higher
+* "Polimorfismo con límite F / tipos recursivos":#fbounded
+* "Tipos estructurales":#structural
+* "Miembros abstractos de tipos":#abstractmem
+* "Borrado de tipos y manifiestos":#manifest
+* "Caso de estudio:Case study: Finagle":#finagle
+
+h2(#viewbounds). Límites de vistas ("clases tipo")
+
+A veces no necesitas especificar que un tipo es igual/subtipo/supertipo de otro, solo simularlo con conversiones. Un límite de vista especifíca un tipo que puede ser "visto" como otro. Esto tiene sentido en una operación que necesita "leer" un objeto sin modificarlo.
+Las funciones *implícitas* permiten conversiones automáticas. Específicamente permiten que una función se aplique en el momento justo en que ayude a satisfacer la inferencia de tipos, por ejemplo:
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> implicit def strToInt(x: String) = x.toInt
@@ -36,14 +58,22 @@ scala> math.max("123", 111)
 res1: Int = 123
 </pre>
 
+<<<<<<< HEAD
 View bounds, like type bounds demand such a function exists for the given type.  You specify a view bound with <code><%</code> e.g.,
+=======
+Los límites de vistas como los límites de tipo precisan que tal función exista para un tipo especificado. Puedes declarar in límite de vista de la siguiente con este símbolo: <code><%</code> ejemplo:
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> class Container[A <% Int] { def addIt(x: A) = 123 + x }
 defined class Container
 </pre>
 
+<<<<<<< HEAD
 This says that *A* has to be "viewable" as *Int*.  Let's try it.
+=======
+Esto nos dice que *A* tiene que ser "visible" como *Int*.  Intentémoslo:
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> (new Container[String]).addIt("123")
@@ -58,14 +88,23 @@ scala> (new Container[Float]).addIt(123.2F)
         ^
 </pre>
 
+<<<<<<< HEAD
 h2(#otherbounds). Other type bounds
 
 Methods can enforce more complex type bounds via implicit parameters. For example, <code>List</code> supports <code>sum</code> on numeric contents but not on others. Alas, Scala's numeric types don't all share a superclass, so we can't just say <code>T <: Number</code>. Instead, to make this work, Scala's math library <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/">defines an implicit <code>Numeric[T]</code> for the appropriate types T</a>.  Then in <code>List</code>'s definition uses it:
+=======
+h2(#otherbounds). Otros límites de tipo
+
+Los métodos pueden reforzar límites de tipo más complejos por medio de parámetros implícitos. Por ejemplo, <code>List</code>
+
+Los métodos pueden reforzar límites de tipo más complejos, a través de parámetros implícitos. Por ejemplo, <code>List</code> soporta <code>sum</code> en contenidos numéricos pero no en otro tipo de contenidos. Ay, los tipos numéricos de Scala no comparten una superclase en común, por lo que no podemos podemos decir que <code>T <: Number</code>. Para conseguirlo la librería math de Scala  <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/">define un <code>Numeric[T]</code> implícito para los tipos apropiados T</a>. Entonces lo utiliza en la definición de <code>List</code>:
+>>>>>>> traducida sección advanced types
 
 <pre>
 sum[B >: A](implicit num: Numeric[B]): B
 </pre>
 
+<<<<<<< HEAD
 If you invoke <code>List(1,2).sum()</code>, you don't need to pass a _num_ parameter; it's set implicitly. But if you invoke <code>List("whoop").sum()</code>, it complains that it couldn't set <code>num</code>.
 
 Methods may ask for some kinds of specific "evidence" for a type without setting up strange objects as with <code>Numeric</code>. Instead, you can use one of these type-relation operators:
@@ -75,6 +114,17 @@ Methods may ask for some kinds of specific "evidence" for a type without setting
 |A <%< B|A must be viewable as B|
 
 (If you get errors trying to use <:< or <%<, be aware that those went away in Scala 2.10. Scala School examples work with "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html . You can use a newer Scala, but expect errors.)
+=======
+Si invocas <code>List(1,2).sum()</code>, no necesitas pasar un parámetro _num_; puesto que ya está presente de forma implícita. Pero si invocas <code>List("whoop").sum()</code>, el compilador va a quejarse ya que no pudo asignar <code>num</code>
+
+Los métodos pueden requerir algunos tipos de evidencia específica para un tipo, sin meterse con objetos extraños como con <code>Numeric</code>. En su lugar, puedes usar uno de estos operadores de relación de tipos:
+
+|A =:= B|A igual a B|
+|A <:< B|A subtipo de B|
+|A <%< B|A visible como B|
+
+(Si obtienes errores intentando utilizar <:< o <%<, ten cuidado de aquellos errores que desaparecieron en Scala 2.10. Los ejemplos de Scala School funcionan con "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html . Puedes usar una nueva versión de Scala, pero prepárate para algunos errores.)
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
@@ -87,7 +137,11 @@ scala> (new Container("123")).addIt
 <console>:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
 </pre>
 
+<<<<<<< HEAD
 Similarly, given our previous implicit, we can relax the constraint to viewability:
+=======
+De forma similar, dado el valor implícito que acabamos de ver, podemos "relajar" la restricción de visibilidad:
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> class Container[A](value: A) { def addIt(implicit evidence: A <%< Int) = 123 + value }
@@ -97,9 +151,15 @@ scala> (new Container("123")).addIt
 res15: Int = 246
 </pre>
 
+<<<<<<< HEAD
 h3. Generic programming with views
 
 In the Scala standard library, views are primarily used to implement generic functions over collections.  For example, the "min" function (on *Seq[]*), uses this technique:
+=======
+h3. Programación genérica con vistas
+
+En la librería estándar de Scala, las vistas son usadas principalmente para implementar funciones genéricas sobre colecciones. Por ejemplo, la función "min" (en *Seq[]*), usa la siguiente técnica:
+>>>>>>> traducida sección advanced types
 
 <pre>
 def min[B >: A](implicit cmp: Ordering[B]): A = {
@@ -110,10 +170,17 @@ def min[B >: A](implicit cmp: Ordering[B]): A = {
 }
 </pre>
 
+<<<<<<< HEAD
 The main advantages of this are:
 
 * Items in the collections aren't required to implement *Ordered*, but *Ordered* uses are still statically type checked.
 * You can define your own orderings without any additional library support:
+=======
+Las principales ventajas son:
+
+* Los elementos en la colección no necesitan implementar *Ordered*, pero los tipos en cada uso de *Ordered* siguen siendo verificados estáticamente.
+* Puedes definir tus propias ordenaciones sin usar librerías extra: 
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> List(1,2,3,4).min
@@ -123,7 +190,11 @@ scala> List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b com
 res3: Int = 4
 </pre>
 
+<<<<<<< HEAD
 As a sidenote, there are views in the standard library that translates *Ordered* into *Ordering* (and vice versa).
+=======
+Como nota al pié, existen vistas en la librería estándar que traducen *Ordered* en *Ordering* (y vice versa).
+>>>>>>> traducida sección advanced types
 
 <pre>
 trait LowPriorityOrderingImplicits {
@@ -133,9 +204,15 @@ trait LowPriorityOrderingImplicits {
 }
 </pre>
 
+<<<<<<< HEAD
 h4. Context bounds & implicitly[]
 
 Scala 2.8 introduced a shorthand for threading through & accessing implicit arguments.
+=======
+h4. Límites de contexto e implicit[]
+
+Scala 2.8 introdujo un atajo para enhebrar y acceder argumentos implícitos.
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> def foo[A](implicit x: Ordered[A]) {}
@@ -145,13 +222,18 @@ scala> def foo[A : Ordered] {}
 foo: [A](implicit evidence$1: Ordered[A])Unit
 </pre>
 
+<<<<<<< HEAD
 Implicit values may be accessed via *implicitly*
+=======
+Los valores implícitos pueden ser accedidos a través de *implicity*
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> implicitly[Ordering[Int]]
 res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
 </pre>
 
+<<<<<<< HEAD
 Combined, these often result in less code, especially when threading through views.
 
 h2(#higher). Higher-kinded types & ad-hoc polymorphism
@@ -159,6 +241,15 @@ h2(#higher). Higher-kinded types & ad-hoc polymorphism
 Scala can abstract over "higher kinded" types. For example, suppose that you needed to use several types of containers for several types of data. You might define a <code>Container</code> interface that might be implemented by means of several container types: an <code>Option</code>, a <code>List</code>, etc. You want to define an interface for using values in these containers without nailing down the values' type.
 
 This is analogous to function currying. For example, whereas "unary types" have constructors like <code>List[A]</code>, meaning we have to satisfy one "level" of type variables in order to produce a concrete types (just like an uncurried function needs to be supplied by only one argument list to be invoked), a higher-kinded type needs more.
+=======
+Combinados, estas técnicas resultan frecuentemente en menos código, especialmente cuando enhebramos a través de vistas.
+
+h2(#higher). Tipos de orden superior y polimorfismo ad-hoc
+
+Scala puede abstraer tipos de "orden superior". Por ejemplo, supongamos que necesitas usar varios tipos de contenedores para distintos tipos de datos. Para lograrlo podrías definir una interfaz <code>Container</code> que pueda implementarse por diferentes tipos de containers: <code>Option</code>, <code>List</code>, etc. Quieres definir una interfaz para poder utilizar valores en estos contenedores sin estropear el tipo del valor.
+
+Esto es análogo al currying. Por ejemplo, mientras los "tipos unarios" tienen constructores como <code>List[A]</code>, donde tenemos que satisfacer un "nivel" de variables tipo para producir tipos concretos (de la misma forma en que una función a la que no se le ha aplicado currying necesita un solo argumento para ser invocada), los tipos de orden superior necesitan más.
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
@@ -173,9 +264,14 @@ scala> container.put(123)
 res25: List[Int] = List(123)
 </pre>
 
+<<<<<<< HEAD
 Note that *Container* is polymorphic in a parameterized type ("container type").
 
 If we combine using containers with implicits, we get "ad-hoc" polymorphism: the ability to write generic functions over containers.
+=======
+Notemos que el *Container* es polimórfico en un tipo parametrizado ("Tipo contenedor").
+Si combinamos el utilizar containers con implicits obtenemos un polimorfismo "ad-hoc": el poder escribir funciones genéricas en contenedores.
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
@@ -197,21 +293,36 @@ scala> tupleize(List(1), List(2))
 res34: List[(Int, Int)] = List((1,2))
 </pre>
 
+<<<<<<< HEAD
 h2(#fbounded). F-bounded polymorphism
 
 Often it's necessary to access a concrete subclass in a (generic) trait. For example, imagine you had some trait that is generic, but can be compared to a particular subclass of that trait.
+=======
+
+h2(#fbounded). Polimorfismo de límite F (F-bounded polymorphism)
+
+Algunas veces es necesario accesar a una clase concreta en un trait genérico. Por ejemplo, imagina que tienes un trait genérico pero tienes que compararlo con una subclase particular de ese trait.
+>>>>>>> traducida sección advanced types
 
 <pre>
 trait Container extends Ordered[Container]
 </pre>
 
+<<<<<<< HEAD
 However, this now necessitates the compare method
+=======
+De cualquier forma, necesitamos el método compare:
+>>>>>>> traducida sección advanced types
 
 <pre>
 def compare(that: Container): Int
 </pre>
 
+<<<<<<< HEAD
 And so we cannot access the concrete subtype, e.g.:
+=======
+Y entonces no podremos accesar al subtipo concreto, el siguiente código:
+>>>>>>> traducida sección advanced types
 
 <pre>
 class MyContainer extends Container {
@@ -219,17 +330,29 @@ class MyContainer extends Container {
 }
 </pre>
 
+<<<<<<< HEAD
 fails to compile, since we are specifying Ordered for *Container*, not the particular subtype.
 
 To reconcile this, we instead use F-bounded polymorphism.
+=======
+falla al compilar ya que estamos especificando Ordered para un *Container*, no para el subtipo particular.
+
+Para arreglar esto, necesitamos el polimorfismo de límite F.
+>>>>>>> traducida sección advanced types
 
 <pre>
 trait Container[A <: Container[A]] extends Ordered[A]
 </pre>
 
+<<<<<<< HEAD
 Strange type!  But note now how Ordered is parameterized on *A*, which itself is *Container[A]*
 
 So, now 
+=======
+Un poco raro, pero notemos como Ordered esta parametrizado con *A*, lo que en si mismo es un *Container[A]*
+
+Así que ahora
+>>>>>>> traducida sección advanced types
 
 <pre>
 class MyContainer extends Container[MyContainer] { 
@@ -237,7 +360,11 @@ class MyContainer extends Container[MyContainer] {
 }
 </pre>
 
+<<<<<<< HEAD
 They are now ordered:
+=======
+Están ordenados:
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> List(new MyContainer, new MyContainer, new MyContainer)
@@ -247,7 +374,11 @@ scala> List(new MyContainer, new MyContainer, new MyContainer).min
 res4: MyContainer = MyContainer@33dfeb30
 </pre>
 
+<<<<<<< HEAD
 Given that they are all subtypes of *Container[_]*, we can define another subclass & create a mixed list of *Container[_]*:
+=======
+Dado que todos ellos son subtipos de *Container[_]*, podemos definit otra subclase y crear una lista mezclada de *Container[_]*:
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
@@ -266,11 +397,19 @@ Note how the resulting type is now lower-bound by *YourContainer with MyContaine
   Ordering[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]]
 </pre>
 
+<<<<<<< HEAD
 No *Ordered[]* exists for the unified type. Too bad.
 
 h2(#structural). Structural types
 
 Scala has support for *structural types* -- type requirements are expressed by interface _structure_ instead of a concrete type.
+=======
+No existe un *Ordered[]* para tipos unificados. Lamentablemente.
+
+h2(#structural). Tipos estructurales
+
+Scala soporta *tipos estructurados* -- los requerimientos se expresan en la interfaz _structute_ en lugar de de un tipo concreto.
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> def foo(x: { def get: Int }) = 123 + x.get
@@ -280,11 +419,19 @@ scala> foo(new { def get = 10 })
 res0: Int = 133
 </pre>
 
+<<<<<<< HEAD
 This can be quite nice in many situations, but the implementation uses reflection, so be performance-aware!
 
 h2(#abstractmem). Abstract type members
 
 In a trait, you can leave type members abstract.
+=======
+Esto puede ser útil en muchos casos, pero la implementación usa reflexión, así que ten en cuenta la eficiencia.
+
+h2(#abstractmem). Miembros de tipos abstractos
+
+En un trait, puedes dejar que los miembros tipo sean abstract.
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> trait Foo { type A; val x: A; def getX: A = x }
@@ -297,9 +444,15 @@ scala> (new Foo { type A = String; val x = "hey" }).getX
 res4: java.lang.String = hey
 </pre>
 
+<<<<<<< HEAD
 This is often a useful trick when doing dependency injection, etc.
 
 You can refer to an abstract type variable using the hash-operator:
+=======
+Es un truco útil cuando se hace inyección de dependencias por ejemplo.
+
+Puedes referir a una variable de tipo abstracto utilizando el operador hash:
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> trait Foo[M[_]] { type t[A] = M[A] }
@@ -309,10 +462,18 @@ scala> val x: Foo[List]#t[Int] = List(1)
 x: List[Int] = List(1)
 </pre>
 
+<<<<<<< HEAD
 
 h2(#manifest). Type erasures & manifests
 
 As we know, type information is lost at compile time due to _erasure_. Scala features *Manifests*, allowing us to selectively recover type information. Manifests are provided as an implicit value, generated by the compiler as needed.
+=======
+h2(#manifest). Enmendaduras de tipo (erasures) y manifests
+
+ver: https://en.wikipedia.org/wiki/Type_erasure 
+
+Como sabemos, el tipo se pierde en tiempo de compilación debido al _erasure_. Scala soporta *Manifests*, lo que nos permite recuperar el tipo de forma selectiva. Los manifest se proveen como un valor implícito, generado por el compilador cuando se necesita.
+>>>>>>> traducida sección advanced types
 
 <pre>
 scala> class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
@@ -321,9 +482,15 @@ scala> (new MakeFoo[String]).make
 res10: String = ""
 </pre>
 
+<<<<<<< HEAD
 h2(#finagle). Case study: Finagle
 
 See: "https://github.com/twitter/finagle":https://github.com/twitter/finagle
+=======
+h2(#finagle). Caso de estudio: Finagle
+
+Ver: "https://github.com/twitter/finagle":https://github.com/twitter/finagle
+>>>>>>> traducida sección advanced types
 
 <pre>
 trait Service[-Req, +Rep] extends (Req => Future[Rep])
@@ -352,7 +519,11 @@ trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
 }
 </pre>
 
+<<<<<<< HEAD
 A service may authenticate requests with a filter.
+=======
+Un servicio puede autenticar peticiones con un filtro.
+>>>>>>> traducida sección advanced types
 
 <pre>
 trait RequestWithCredentials extends Request {
@@ -373,9 +544,15 @@ class CredentialsFilter(credentialsParser: CredentialsParser)
 }
 </pre>
 
+<<<<<<< HEAD
 Note how the underlying service requires an authenticated request, and that this is statically verified. Filters can thus be thought of as service transformers.
 
 Many filters can be composed together:
+=======
+Notemos como el el servicio subyacente requiere una petición autenticada, y que esté estadísticamente verificada. Por ello los filtros pueden pensarse como transformadores de servicios.
+
+Varios filtros pueden aplicarse al mismo tiempo:
+>>>>>>> traducida sección advanced types
 
 <pre>
 val upFilter =
@@ -387,4 +564,8 @@ val upFilter =
   route
 </pre>
 
+<<<<<<< HEAD
 Type safely!
+=======
+Haz tipos seguros!
+>>>>>>> traducida sección advanced types
