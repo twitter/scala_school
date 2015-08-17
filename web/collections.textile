@@ -181,6 +181,9 @@ h2(#map). map
 Evaluates a function over each element in the list, returning a list with the same number of elements.
 
 <pre>
+scala> val numbers = List(1, 2, 3, 4)
+numbers: List[Int] = List(1, 2, 3, 4)
+
 scala> numbers.map((i: Int) => i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
