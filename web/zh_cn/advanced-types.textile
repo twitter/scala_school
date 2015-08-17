@@ -74,6 +74,8 @@ sum[B >: A](implicit num: Numeric[B]): B
 |A <:< B|A 必须是 B的子类|
 |A <%< B|A 必须可以被看做是 B|
 
+(如果你在使用 <:< 或者 <%< 的时候遇到了错误，请注意你的 Scala 版本，它们在 Scala 2.10 中被移除了。Scala 课堂的例子运行于 "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html 。你可以使用新版本的Scala，但要对错误做好准备)
+
 <pre>
 scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
 defined class Container
