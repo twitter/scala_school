@@ -331,7 +331,7 @@ h2(#solutions). Let's make it safe
 
 In our inverted index example above, userMap is not guaranteed to be safe.  Multiple clients could try to add items at the same time and have the same kinds of visibility errors we saw in our first @Person@ example.
 
-Since userMap isn't thread-safe, how we do we keep only a single thread at a time mutating it?
+Since userMap isn't thread-safe, how do we keep only a single thread at a time mutating it?
 
 You might consider locking on userMap while adding.
 
