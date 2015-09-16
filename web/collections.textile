@@ -247,7 +247,7 @@ res0: List[Int] = List(2, 4)
 scala> def isEven(i: Int): Boolean = i % 2 == 0
 isEven: (i: Int)Boolean
 
-scala> numbers.filter(isEven _)
+scala> numbers.filter(isEven)
 res2: List[Int] = List(2, 4)
 </pre>
 
