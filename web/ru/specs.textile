@@ -247,7 +247,7 @@ h2(#mocks). Подделки(Mocks)
 import org.specs.Specification
 import org.specs.mock.Mockito
 
-class Foo[T] {
+abstract class Foo[T] {
   def get(i: Int): T
 }
 
