@@ -242,21 +242,21 @@ case classes are used to conveniently store and match on the contents of a class
 scala> case class Calculator(brand: String, model: String)
 defined class Calculator
 
-scala> val HP20b = Calculator("HP", "20b")
-HP20b: Calculator = Calculator(HP,20b)
+scala> val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
 
 </pre>
 
 case classes automatically have equality and nice toString methods based on the constructor arguments.
 
 <pre>
-scala> val HP20b = Calculator("HP", "20b")
-HP20b: Calculator = Calculator(HP,20b)
+scala> val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
 
-scala> val HP20B = Calculator("HP", "20b")
-HP20B: Calculator = Calculator(HP,20b)
+scala> val hp20B = Calculator("HP", "20b")
+hp20B: Calculator = Calculator(hp,20b)
 
-scala> HP20b == HP20B
+scala> hp20b == hp20B
 res6: Boolean = true
 </pre>
 
@@ -267,8 +267,8 @@ h6. Case Classes with pattern matching
 case classes are designed to be used with pattern matching.  Let's simplify our calculator classifier example from earlier.
 
 <pre>
-val HP20b = Calculator("HP", "20B")
-val HP30b = Calculator("HP", "30B")
+val hp20b = Calculator("HP", "20B")
+val hp30b = Calculator("HP", "30B")
 
 def calcType(calc: Calculator) = calc match {
   case Calculator("HP", "20B") => "financial"
