@@ -246,20 +246,20 @@ h2(#caseclass). 样本类 Case Classes
 scala> case class Calculator(brand: String, model: String)
 defined class Calculator
 
-scala> val HP20b = Calculator("HP", "20b")
-HP20b: Calculator = Calculator(HP,20b)
+scala> val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
 </pre>
 
 样本类基于构造函数的参数，自动地实现了相等性和易读的toString方法。
 
 <pre>
-scala> val HP20b = Calculator("HP", "20b")
-HP20b: Calculator = Calculator(HP,20b)
+scala> val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
 
-scala> val HP20B = Calculator("HP", "20b")
-HP20B: Calculator = Calculator(HP,20b)
+scala> val hp20B = Calculator("HP", "20b")
+hp20B: Calculator = Calculator(hp,20b)
 
-scala> HP20b == HP20B
+scala> hp20b == hp20B
 res6: Boolean = true
 </pre>
 
@@ -271,8 +271,8 @@ case classes are designed to be used with pattern matching.  Let's simplify our 
 样本类就是被设计用在模式匹配中的。让我们简化之前的计算器分类器的例子。
 
 <pre>
-val HP20b = Calculator("HP", "20B")
-val HP30b = Calculator("HP", "30B")
+val hp20b = Calculator("HP", "20B")
+val hp30b = Calculator("HP", "30B")
 
 def calcType(calc: Calculator) = calc match {
   case Calculator("HP", "20B") => "financial"

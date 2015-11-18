@@ -241,21 +241,21 @@ h2(#caseclass). 케이스 클래스(case class)
 scala> case class Calculator(brand: String, model: String)
 defined class Calculator
 
-scala> val HP20b = Calculator("HP", "20b")
-HP20b: Calculator = Calculator(HP,20b)
+scala> val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
 
 </pre>
 
 케이스 클래스는 자동으로 생성자 인자에 따른 동등성 검사를 제공하며, 또한 보기 좋은 toString 메소드도 제공한다.
 
 <pre>
-scala> val HP20b = Calculator("HP", "20b")
-HP20b: Calculator = Calculator(HP,20b)
+scala> val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
 
-scala> val HP20B = Calculator("HP", "20b")
-HP20B: Calculator = Calculator(HP,20b)
+scala> val hp20B = Calculator("HP", "20b")
+hp20B: Calculator = Calculator(hp,20b)
 
-scala> HP20b == HP20B
+scala> hp20b == hp20B
 res6: Boolean = true
 </pre>
 
@@ -266,8 +266,8 @@ h6. 케이스 클래스와 패턴 매칭
 케이스 클래스는 패턴 매치와 사용하기 위해 설계된 것이다. 앞의 계산기 분류 예제를 간략하게 만들어보자.
 
 <pre>
-val HP20b = Calculator("HP", "20B")
-val HP30b = Calculator("HP", "30B")
+val hp20b = Calculator("HP", "20B")
+val hp30b = Calculator("HP", "30B")
 
 def calcType(calc: Calculator) = calc match {
   case Calculator("HP", "20B") => "financial"
