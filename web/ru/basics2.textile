@@ -232,8 +232,8 @@ Case классы используются для удобного хранен�
 scala> case class Calculator(brand: String, model: String)
 defined class Calculator
 
-scala> val HP20b = Calculator("HP", "20b")
-HP20b: Calculator = Calculator(HP,20b)
+scala> val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
 
 </pre>
 
