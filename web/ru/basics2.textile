@@ -215,9 +215,9 @@ h3. Сопоставление методов класса
 
 <pre>
 def calcType(calc: Calculator) = calc match {
-  case calc.brand == "hp" && calc.model == "20B" => "financial"
-  case calc.brand == "hp" && calc.model == "48G" => "scientific"
-  case calc.brand == "hp" && calc.model == "30B" => "business"
+  case calc.brand == "HP" && calc.model == "20B" => "financial"
+  case calc.brand == "HP" && calc.model == "48G" => "scientific"
+  case calc.brand == "HP" && calc.model == "30B" => "business"
   case _ => "unknown"
 }
 </pre>
@@ -232,7 +232,7 @@ Case классы используются для удобного хранен�
 scala> case class Calculator(brand: String, model: String)
 defined class Calculator
 
-scala> val hp20b = Calculator("hp", "20b")
+scala> val hp20b = Calculator("HP", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
 </pre>
@@ -240,10 +240,10 @@ hp20b: Calculator = Calculator(hp,20b)
 У case классов есть метод ToString, работающий автоматически, и который опирается на аргументы конструктора.
 
 <pre>
-scala> val hp20b = Calculator("hp", "20b")
+scala> val hp20b = Calculator("HP", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
-scala> val hp20B = Calculator("hp", "20b")
+scala> val hp20B = Calculator("HP", "20b")
 hp20B: Calculator = Calculator(hp,20b)
 
 scala> hp20b == hp20B
@@ -257,13 +257,13 @@ h6. Case Классы и сопоставление с образцом
 case классы предназначены для использования вместе с сопоставлением с образцом. Давайте упростим наш классификатор из примера с калькулятором.
 
 <pre>
-val hp20b = Calculator("hp", "20B")
-val hp30b = Calculator("hp", "30B")
+val hp20b = Calculator("HP", "20B")
+val hp30b = Calculator("HP", "30B")
 
 def calcType(calc: Calculator) = calc match {
-  case Calculator("hp", "20B") => "financial"
-  case Calculator("hp", "48G") => "scientific"
-  case Calculator("hp", "30B") => "business"
+  case Calculator("HP", "20B") => "financial"
+  case Calculator("HP", "48G") => "scientific"
+  case Calculator("HP", "30B") => "business"
   case Calculator(ourBrand, ourModel) => "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
 }
 </pre>

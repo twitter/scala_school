@@ -229,9 +229,9 @@ h3. 匹配类成员
 
 <pre>
 def calcType(calc: Calculator) = calc match {
-  case _ if calc.brand == "hp" && calc.model == "20B" => "financial"
-  case _ if calc.brand == "hp" && calc.model == "48G" => "scientific"
-  case _ if calc.brand == "hp" && calc.model == "30B" => "business"
+  case _ if calc.brand == "HP" && calc.model == "20B" => "financial"
+  case _ if calc.brand == "HP" && calc.model == "48G" => "scientific"
+  case _ if calc.brand == "HP" && calc.model == "30B" => "business"
   case _ => "unknown"
 }
 </pre>
@@ -246,17 +246,17 @@ h2(#caseclass). 样本类 Case Classes
 scala> case class Calculator(brand: String, model: String)
 defined class Calculator
 
-scala> val hp20b = Calculator("hp", "20b")
+scala> val hp20b = Calculator("HP", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 </pre>
 
 样本类基于构造函数的参数，自动地实现了相等性和易读的toString方法。
 
 <pre>
-scala> val hp20b = Calculator("hp", "20b")
+scala> val hp20b = Calculator("HP", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
-scala> val hp20B = Calculator("hp", "20b")
+scala> val hp20B = Calculator("HP", "20b")
 hp20B: Calculator = Calculator(hp,20b)
 
 scala> hp20b == hp20B
@@ -271,13 +271,13 @@ case classes are designed to be used with pattern matching.  Let's simplify our 
 样本类就是被设计用在模式匹配中的。让我们简化之前的计算器分类器的例子。
 
 <pre>
-val hp20b = Calculator("hp", "20B")
-val hp30b = Calculator("hp", "30B")
+val hp20b = Calculator("HP", "20B")
+val hp30b = Calculator("HP", "30B")
 
 def calcType(calc: Calculator) = calc match {
-  case Calculator("hp", "20B") => "financial"
-  case Calculator("hp", "48G") => "scientific"
-  case Calculator("hp", "30B") => "business"
+  case Calculator("HP", "20B") => "financial"
+  case Calculator("HP", "48G") => "scientific"
+  case Calculator("HP", "30B") => "business"
   case Calculator(ourBrand, ourModel) => "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
 }
 </pre>
