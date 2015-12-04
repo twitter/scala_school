@@ -28,7 +28,7 @@ public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
 }
 </pre>
 
-Si usted puede ver difícilmente el código en bytes
+Si tú puede ver difícilmente el código en bytes
 
 <pre>
 [local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap -c MyTrait\$class
@@ -48,7 +48,7 @@ public static void $init$(com.twitter.interop.MyTrait);
 }
 </pre>
 
-Si usted comienza a preguntarse por qué las cosas no funciona en el entorno de Java, alcance con javap!
+Si tú comienza a preguntarse por qué las cosas no funciona en el entorno de Java, alcance con javap!
 
 h2. Clases
 
@@ -246,7 +246,7 @@ Nostros podemos ingenuamente acceder a esto como en Java
 MyTrait foo = TraitImpl$.MODULE$.apply("foo");
 </pre>
 
-Ahora usted puede preguntarse, ¿Que diablos es esto? Esta es una respuesta válida. Echemos un vistazo a lo que es en realidad esta pasando dentro de TraitImpl$
+Ahora tú puede preguntarse, ¿Que diablos es esto? Esta es una respuesta válida. Echemos un vistazo a lo que es en realidad esta pasando dentro de TraitImpl$
 
 <pre>
 local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
@@ -263,7 +263,7 @@ Aqui en realidad no hay métodos estáticos. En cambio, tiene un miembro estáti
 
 h3. Métodos de reenvío
 
-En Scala 2.8 trata con Objetos es un poco más fácil. Si usted tiene una clase con un objeto compañero, el compilador 2.8 genera métodos de reenvío en la clase compañera. Así que si usted construyó con 2.8, se puede acceder a los métodos en el Objeto como TraitImpl
+En Scala 2.8 trata con Objetos es un poco más fácil. Si tú tiene una clase con un objeto compañero, el compilador 2.8 genera métodos de reenvío en la clase compañera. Así que si tú construyó con 2.8, se puede acceder a los métodos en el Objeto como TraitImpl
 
 <pre>
 MyTrait foo = TraitImpl.apply("foo");
