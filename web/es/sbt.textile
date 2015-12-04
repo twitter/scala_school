@@ -105,20 +105,28 @@ class SimpleParser {
 
 Es feo y con errores, pero debería compilar
 
-h2. Testing in the Console
+h2. Pruebas en la consola
 
-SBT can be used both as a command line script and as a build console.  We'll be primarily using it as a build console, but most commands can be run standalone by passing the command as an argument to SBT, e.g.
+SBT pede ser usado como script de la line de comandos y como una consola de construccion. Lo estaremos usando en principio como una consola de construccion, pero la mayoria de los comandos pueden ser ejecutados de manera independiente pasando el comando como una arametro a SBT, p. e.
 
 <pre>
 sbt test
 </pre>
-Note that if a command takes arguments, you need to quote the entire
-argument path, e.g.
+Tome en cuenta qe si un comando recibe argumentos, necesita 
+
+SBT can be used both as a command line script and as a build console.  We'll be primarily using it as a build console, but most commands can be run standalone by passing the command as an argument to SBT, p. e.
+
+<pre>
+sbt test
+</pre>
+Tenga en cuenta que si un comando toma argumentos, es necesario poner entre comillas el argumento completo, p. e.
 
 @sbt 'test-only com.twitter.sample.SampleSpec'@
 
+Es extraña esta manera.
 It's weird that way.
 
+De cualquier manera. Para comenzar a trabajar con nustrao codigo, lanzamos SBT.
 Anyway. To start working with our code, launch sbt
 
 <pre>
@@ -127,6 +135,8 @@ Anyway. To start working with our code, launch sbt
 [info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
 > 
 </pre>
+
+SBT le permite iniciar un REPL de Scala con todas las dependencias de su proyecto cargadas.Compila el codigo fuente de su proyecto antes de ejecutar la consola, brindando una forma rapida de probar nuestro procesador.
 
 SBT allows you to start a Scala REPL with all your project
 dependencies loaded. It compiles your project source before launching
@@ -165,6 +175,8 @@ Type :help for more information.
 scala> 
 </pre>
 
+Nuestro código ha compilado, y estamos proporcionando el símbolo típico de Scala. Vamos a crear un nuevo analizador, un tweet de muestra, y asegurarnos de que "funciona"
+
 Our code has compiled, and we're provide the typical Scala prompt.  We'll create a new parser, an exemplar tweet, and ensure it "works"
 
 <pre>
@@ -183,7 +195,7 @@ res0: Option[com.twitter.sample.SimpleParsed] = Some(SimpleParsed(1,"foo"}))
 scala> 
 </pre>
 
-h2. Adding Dependencies
+h2. Agregando Dependencias
 
 Our simple parser works for this very small set of inputs, but we want to add tests and break it.  The first step is adding the specs test library and a real JSON parser to our project.  To do this we have to go beyond the default SBT project layout and create a project.
 
