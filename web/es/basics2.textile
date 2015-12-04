@@ -72,7 +72,7 @@ res0: Long = 1
 
 Las Clases y los Objetos pueden tener el mismo nombre. El <code>object</code> es normalmente llamado "objeto acompañante". Utilizamos comúnmente los objetos acompañantes para las fabricas de objetos.
 
-Aquí está un ejemplo trivial que sólo sirve para eliminar la necesidad de utilizar "nuevo" para crear una instancia.
+Aquí está un ejemplo trivial que sólo sirve para eliminar la necesidad de utilizar "new" para crear una instancia.
 
 <pre>
 class Bar(foo: String)
