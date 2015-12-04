@@ -5,20 +5,20 @@ title: Simple Build Tool
 layout: post
 ---
 
-This lesson covers SBT! Specific topics include:
-* creating an sbt project
-* basic commands
-* the sbt console
-* continuous command execution
-* customizing your project
-* custom commands
-* quick tour of sbt source (if time)
+¡Esta lección cubre SBT! Temas especifícos incluidos:
+* Crear un proyecto SBT
+* Comandos básicos
+* La consola de SBT
+* Ejecución continua de comandos
+* Personalización del proyecto
+* Comandos personalizados
+* Tour rápido por código fuente de SBT
 
-h2. About SBT
+h2. A cerca de SBT
 
-SBT is a modern build tool. While it is written in Scala and provides many Scala conveniences, it is a general purpose build tool.
+SBT es una moderna herramienta de construcción. Aunque está escrita en Scala y brinda muchas comodidades a Scala, es una herramienta de construcción de proposito general.
 
-h2. Why SBT?
+h2. ¿Por qué SBT?
 
 * Sane(ish) dependency management
 ** Ivy for dependency management
@@ -27,17 +27,16 @@ h2. Why SBT?
 * Continuous command execution
 * Launch REPL in project context
 
-h2. Getting Started
-
-* "Download the jar":http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
-* Create an sbt shell script that calls the jar, e.g.
+h2. Iniciando
+* "Descargar la libreria":http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
+* Crear un shell SBT que llame el jar (p. e.)
 
 <pre>
 java -Xmx512M -jar sbt-launch.jar "$@"
 </pre>
 
-* make sure it's executable and in your path
-* run sbt to create your project
+* Asegurece que el ejecutable se encuentre en su path
+* Ejecutar SBT para crear el proyecto
 
 <pre>
 [local ~/projects]$ sbt
@@ -49,42 +48,38 @@ Scala version [2.7.7]: 2.8.1
 sbt version [0.7.4]:      
 Getting Scala 2.7.7 ...
 :: retrieving :: org.scala-tools.sbt#boot-scala
-	confs: [default]
-	2 artifacts copied, 0 already retrieved (9911kB/221ms)
+  confs: [default]
+  2 artifacts copied, 0 already retrieved (9911kB/221ms)
 Getting org.scala-tools.sbt sbt_2.7.7 0.7.4 ...
 :: retrieving :: org.scala-tools.sbt#boot-app
-	confs: [default]
-	15 artifacts copied, 0 already retrieved (4096kB/167ms)
+  confs: [default]
+  15 artifacts copied, 0 already retrieved (4096kB/167ms)
 [success] Successfully initialized directory structure.
 Getting Scala 2.8.1 ...
 :: retrieving :: org.scala-tools.sbt#boot-scala
-	confs: [default]
-	2 artifacts copied, 0 already retrieved (15118kB/386ms)
+  confs: [default]
+  2 artifacts copied, 0 already retrieved (15118kB/386ms)
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
 [info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
 > 
 </pre>
 
-Note that it's good form to start out with a SNAPSHOT version of your project.
+Tenga en cuenta que es una buena practica comenzar su proyecto con una version SNAPSHOT
 
-h2. Project Layout
+h2. Estructura del Proyecto
 
-* @project@ - project definition files
-** @project/build/@ _yourproject_ @.scala@ - the main project definition file
-** @project/build.properties@ - project, sbt and scala version definitions
-* @src/main@ - your app code goes here, in a subdirectory indicating the
-code's language (e.g. @src/main/scala@, @src/main/java@)
-* @src/main/resources@ - static files you want added to your jar
-  (e.g. logging config)
-* @src/test@ - like @src/main@, but for tests
-* @lib_managed@ - the jar files your project depends on. Populated by sbt update
-* @target@ - the destination for generated stuff (e.g. generated thrift
-  code, class files, jars)
+* @project@ - Archivos de definicion del proyecto
+** @project/build/@ _tuproyecto_@.scala@ - El archivo principal de definicion del proyecto
+** @project/buil.properties@ - Definicion de versiones del proyecto, SBT y Scala
+* @src/main@ - Aqui va su codigo, indicando en unsa subcarpeta el lenguaje (p. e. @src/main/scala@, @src/main/java@)
+* @src/main/resources@ - Archivos estaticos que quiera agregar a su jar (p.e. el archivo de configuracion del log)
+* @src/test@ - Es como @src/main@, pero para las pruebas
+* @lib_managed@ - Los archivos jar de los que dependa su projecto. Actualizada por SBT
+* @target@ - El destino de los productos generados (p.e. codigo generado, archivos class, jars)
 
-h2. Adding Some Code
+h2. Agregando algo de código
 
-We'll be creating a simple JSON parser for simple tweets.  Add the following code to
-@src/main/scala/com/twitter/sample/SimpleParser.scala@
+Estaremos creando un procesador JSON sencillo para simples tweets. Agregue el siguiente código a @src/main/scala/com/twitter/sample/SimpleParser.scala@
 
 <pre>
 package com.twitter.sample
@@ -108,7 +103,7 @@ class SimpleParser {
 }
 </pre>
 
-This is ugly and buggy, but should compile.
+Es feo y con errores, pero debería compilar
 
 h2. Testing in the Console
 
