@@ -197,9 +197,9 @@ scala>
 
 h2. Agregando Dependencias
 
-Our simple parser works for this very small set of inputs, but we want to add tests and break it.  The first step is adding the specs test library and a real JSON parser to our project.  To do this we have to go beyond the default SBT project layout and create a project.
+Nuestro procesador funciona para el pequeño conjunto de entradas, pero queremos agregar pruebas y hacerlo fallar. El primer paso es agregar la libreria de especificacion de pruebas y un procesador JSON real a nuestro proyecto. Para esto debemos ir mas alla de la estructura por default de un proyecto SBT y crear uno.
 
-SBT considers Scala files in the project/build directory to be project definitions.  Add the following to project/build/SampleProject.scala
+SBT toma en cuenta los archivos de Scala en la carpeta project/build para configurar el proyecto. agregue lo siguiente a project/build/SampleProject.scala
 
 <pre>
 import sbt._
@@ -210,9 +210,9 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 }
 </pre> 
 
-A project definition is an SBT class.  In our case we extend SBT's DefaultProject.
+Una definicion de proyecto es una clase SBT. En nuestro caso extiene de DefaultProject de SBT.
 
-You declare dependencies by specifying a val that is a dependency.  SBT uses reflection to scan all the dependency vals in your project and build up a dependency tree at build time.  The syntax here may be new, but this is equivalent to the maven dependency
+Declara dependencias especificando un val que es una dependencia. SBT usa reflection para escanear todos los vals de dependencias en el proyecto y crear un arbol de dependencias en tiempo de contruccion. La sintaxis aqui puede ser nueva, pero es equivalente a las dependecnias de maven.
 
 <pre>
 <dependency>
@@ -228,7 +228,7 @@ You declare dependencies by specifying a val that is a dependency.  SBT uses ref
 </dependency>
 </pre>
 
-Now we can pull down dependencies for our project.  From the command line (not the sbt console), run sbt update
+Ahora podemos bajar las dependencias para nuestro proyecto. Desde la linea de comandos (no la consola SBT), ejecute sbt update
 
 <pre>
 [local ~/projects/sbt-sample]$ sbt update
@@ -248,12 +248,11 @@ Now we can pull down dependencies for our project.  From the command line (not t
 [success] Build completed successfully.
 </pre>
 
-You'll see that sbt retrieved the specs library.  You'll now also have a lib_managed directory, and lib_managed/scala_2.8.1/test will have specs_2.8.0-1.6.5.jar
+Vera que sbt recupera la libreria de especificaciones. Tendrá ahora tambien una carpeta lib_managed, y lib_managed/scala_2.8.1/test que tendra el archivo specs_2.8.0-1.6.5.jar
 
-h2. Adding Tests
+h2. Agregando Pruebas
 
-Now that we have a test library added, put the following code in
-src/test/scala/com/twitter/sample/SimpleParserSpec.scala
+Ahora que tenemos la libreria de pruebas añadida, punga el siguiente codigo en src/test/scala/com/twitter/sambpe/SimpleParcerSpec.scala
 
 <pre>
 package com.twitter.sample
@@ -277,7 +276,7 @@ object SimpleParserSpec extends Specification {
 }
 </pre>
 
-In the sbt console, run test
+En la consola SBT, ejecutar test
 
 <pre>
 > test
@@ -331,7 +330,7 @@ In the sbt console, run test
 > 
 </pre>
 
-Our test works!  Now we can add more.  One of the nice things SBT provides is a way to run triggered actions.  Prefacing an action with a tilde starts up a loop that runs the action any time source files change.  Lets run ~test and see what happens.
+¡Nuestro test funciona! Ahora podemos agregar mas. Una de las cosas buenas que tiene SBT es una forma de ejecutar acciones activadas. Anteponiendo a una accion una tilde inicia un ciclo que ejecuta la accion cada que los archivos de codigo fuente cambien. Vamos a ejecutar ~test y veamos que sucede.
 
 <pre>
 [info] == test ==
@@ -341,7 +340,7 @@ Our test works!  Now we can add more.  One of the nice things SBT provides is a 
 1. Waiting for source changes... (press enter to interrupt)
 </pre>
 
-Now let's add the following test cases
+Ahora vamos a agregar el sigueinte caso de prueba
 
 <pre>
     "reject a non-JSON tweet" in {
@@ -372,7 +371,7 @@ Now let's add the following test cases
     }
 </pre>
 
-After we save our file, SBT detects our changes, runs tests, and informs us our parser is lame
+Despues de guardar nuestro archivo, SBT detecta nuestros cambios, ejecuta las pruebas, y nos informa que nuestro procesador es defectuoso
 
 <pre>
 [info] == com.twitter.sample.SimpleParserSpec ==
@@ -386,7 +385,7 @@ After we save our file, SBT detects our changes, runs tests, and informs us our 
 [info]   + fail on partial content
 </pre>
 
-So let's rework our JSON parser to be real
+Asi que vamos a hacer retrabajo en nuestro procesador JSON para ser real.
 
 <pre>
 package com.twitter.sample
@@ -434,7 +433,8 @@ class SimpleParser {
 }
 </pre>
 
-This is a simple Jackson parser.  When we save, SBT recompiles our code and reruns our tests.  Getting better!
+Este es un simpre procesador Jackson, cuando guardemos, SBT recopila nuestro codigo y re-ejecuta nuestras pruebas. ¡Mejor!
+
 
 <pre>
 info] SimpleParser should
@@ -446,8 +446,7 @@ info] SimpleParser should
 [info] == com.twitter.sample.SimpleParserSpec ==
 </pre>
 
-Uh oh.  We need to check for nested objects.  Let's add some ugly
-guards to our token reading loop.
+Oh, Oh. Necesitamos comprobar si hay objetos anidados. Vamos a agregar algunos guardias feos a nuestro bucle de lectura de tokens.
 
 <pre>
   def parse(str: String) = {
@@ -488,13 +487,13 @@ guards to our token reading loop.
   }
 </pre>
 
-And... it works!
+Y... ¡Funciona!
 
-h2. Packaging and Publishing
+h2. Enpaquetando y publicando
 
-At this point we can run the package command to generate a jar file.  However we may want to share our jar with other teams.  To do this we'll build on StandardProject, which gives us a big head start.
+En este punto podemos ejecutar el comando package para generar el archivo jar. Sin embargo podriamos querer compartir nuestro jar con otros equipos. Para ello lo construiremos sobre StandardProject, el cual nos da una gran ventaja.
 
-The first step is include StandardProject as an SBT plugin.  Plugins are a way to introduce dependencies to your build, rather than your project.  These dependencies are defined in project/plugins/Plugins.scala.  Add the following to the Plugins.scala file.
+El primer paso es incluir StandardProject como un plugin de SBT. Los plugins son una forma de introducir dependencias a su entregable en lugar del proyecto. Estas dependencias son definidas en project/plugins/Plugins.scala. Agregue lo siguiente al archivo Plugins.scala
 
 <pre>
 import sbt._
@@ -505,9 +504,9 @@ class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
 }
 </pre>
 
-Note that we've specified a maven repository as well as a dependency.  That's because the standard project library is hosted by us, which isn't one of the default repos sbt checks.
+Tenga en cuenta que hemos especificado un repositorio maven asi como una dependencia. Esto es porque la libreria de projetos standar esta hospedada por nosotros, por lo cual no es uno de los repositorios por default que SBT verifica.
 
-We'll also update our project definition to extend StandardProject, include an SVN publishing trait, and define the repository we wish to publish to.  Alter SampleProject.scala to the following
+Tambien actualizaremos nuestra definicion del proyecto para extender StandardProject, incluir una caracteristica de publicacion en SVN, y definir el repositorio al que deseamos publicarlo. Modificar SampleProject.scala con lo siguiente:
 
 <pre>
 import sbt._
@@ -521,7 +520,7 @@ class SampleProject(info: ProjectInfo) extends StandardProject(info) with Subver
 }
 </pre>
 
-Now if we run the publish action we'll see the following
+Ahora si ejecutamos la accion publish veremos lo siguiente
 
 <pre>
 [info] == deliver ==
@@ -553,23 +552,23 @@ IvySvn Build-DateTime: null
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
 
-And (after some time), we can go to "binaries.local.twitter.com":http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ to see our published jar.
+Y (despues de cierto tiempo), podemos ir a "binaries.local.twitter.com":http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ para ver nuestro jar publicado.
 
-h2. Adding Tasks
+h2. Agregando tareas
 
-Tasks are Scala functions.  The simplest way to add a task is to include a val in your project definition using the task method, e.g.
+Las tareas son funciones de Scala. La manera mas facil de agregar tareas es incluir un val en su definicion de proyecto usando el metodo task, p. e.
 
 <pre>
 lazy val print = task {log.info("a test action"); None}
 </pre>
 
-If you want dependencies and a description you can add them like this
+Si quieres dependencias y una descripcion puede agregarlas como se muestra a continuacion
 
 <pre>
 lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
 </pre>
 
-If we reload our project and run the print action we'll see the following
+Si recargamos nuestro projecto y ejecutamos la accion print veremos lo siguiente
 
 <pre>
 > print
@@ -583,7 +582,7 @@ If we reload our project and run the print action we'll see the following
 > 
 </pre>
 
-So it works.  If you're defining a task in a single project this works just fine.  However if you're defining this in a plugin it's fairly inflexible.  I may want to
+Asi funciona. Si esta definiendo una tarea en un proyecto simple esto funcionara bien. Sin embargo si esta definiendo esta en un plugin es bastante inflexible. Podria querer:
 
 <pre>
 lazy val print = printAction
@@ -591,34 +590,34 @@ def printAction = printTask.dependsOn(compile) describedAs("prints a line after 
 def printTask = task {log.info("a test action"); None}
 </pre>
 
-This allows consumers to override the task itself, the dependencies and/or description of the task, or the action.  Most built in SBT actions follow this pattern.  As an example, we can modify the builtin package task to print the current timestamp by doing the following
+Esto permite a losconsumidores anular la tarea en si. Las dependencias y/o descripciones de la tarea o accion. La mayoria de las acciones construidas en SBT siguen este patron. Como ejemplo podemos modificar la tarea interna package para imprimir la fecha y hora actual haciendo lo siguiente
 
 <pre>
 lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
 override def packageAction = super.packageAction.dependsOn(printTimestamp)
 </pre>
 
-There are many examples in StandardProject of tweaking SBT defaults and adding custom tasks.
+Hay muchos ejemplos en standarProject de ajustar los valores predeterminados de SBT y agregar tareas personalizadas.
 
-h2. Quick Reference
+h2. Referencia rapida
 
-h3. Common Commands
+h3. Comandos comunes
 
-* actions - show actions available for this project
-* update - downloads dependencies
-* compile - compiles source
-* test - runs tests
-* package - creates a publishable jar file
-* publish-local - installs the built jar in your local ivy cache
-* publish - pushes your jar to a remote repo (if configured)
+* actions - muestra la acciones disponibles para el proyecto
+* update - descarga las dependencias del proyecto
+* compile - compila el codigo fuente
+* test - ejecuta las pruebas
+* package - crea archivo jar publicable
+* publish-local - instala el jar construido en su cache ivy local
+* publish - envia su jar a un repositorio remoto (Si esta configurado)
 
-h3. Moar Commands
+h3. Comandos Moar
 
-* test-failed - run any specs that failed
-* test-quick - run any specs that failed and/or had dependencies updated
-* clean-cache - remove all sorts of sbt cached stuff.  Like clean for sbt
-* clean-lib - remove everything in lib_managed
+* test-failed - ejecuta cualquier especificacion fallida
+* test-quick - ejecuta cualquier especificacion fallida y/o tenga dependencias actualizadas
+* clean-cache - eliminar todo tipo de cosas en caché de SBT. Como clean para sbt
+* clean-lib - elimina todo en la carpeta lib_managed
 
-h3. Project Layout
+h3. Estructura del proyecto
 
 TBD
