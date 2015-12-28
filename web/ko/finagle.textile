@@ -27,6 +27,7 @@ h2(#repl). 피네이글 환경의 REPL
 
 <pre>
 $ cd finagle
+$ git checkout master
 $ ./sbt "project finagle-http" console
  ...build output...
 scala>
