@@ -5,20 +5,20 @@ title: Simple Build Tool
 layout: post
 ---
 
-This lesson covers SBT! Specific topics include:
-* creating an sbt project
-* basic commands
-* the sbt console
-* continuous command execution
-* customizing your project
-* custom commands
-* quick tour of sbt source (if time)
+¡Esta lección cubre SBT! Temas especifícos incluidos:
+* Crear un proyecto SBT
+* Comandos básicos
+* La consola de SBT
+* Ejecución continua de comandos
+* Personalización del proyecto
+* Comandos personalizados
+* Tour rápido por código fuente de SBT
 
-h2. About SBT
+h2. A cerca de SBT
 
-SBT is a modern build tool. While it is written in Scala and provides many Scala conveniences, it is a general purpose build tool.
+SBT es una moderna herramienta de construcción. Aunque está escrita en Scala y brinda muchas comodidades a Scala, es una herramienta de construcción de proposito general.
 
-h2. Why SBT?
+h2. ¿Por qué SBT?
 
 * Sane(ish) dependency management
 ** Ivy for dependency management
@@ -27,17 +27,16 @@ h2. Why SBT?
 * Continuous command execution
 * Launch REPL in project context
 
-h2. Getting Started
-
-* "Download the jar":http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
-* Create an sbt shell script that calls the jar, e.g.
+h2. Iniciando
+* "Descargar la libreria":http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
+* Crear un shell SBT que llame el jar (p. e.)
 
 <pre>
 java -Xmx512M -jar sbt-launch.jar "$@"
 </pre>
 
-* make sure it's executable and in your path
-* run sbt to create your project
+* Asegurece que el ejecutable se encuentre en su path
+* Ejecutar SBT para crear el proyecto
 
 <pre>
 [local ~/projects]$ sbt
@@ -49,42 +48,38 @@ Scala version [2.7.7]: 2.8.1
 sbt version [0.7.4]:      
 Getting Scala 2.7.7 ...
 :: retrieving :: org.scala-tools.sbt#boot-scala
-	confs: [default]
-	2 artifacts copied, 0 already retrieved (9911kB/221ms)
+  confs: [default]
+  2 artifacts copied, 0 already retrieved (9911kB/221ms)
 Getting org.scala-tools.sbt sbt_2.7.7 0.7.4 ...
 :: retrieving :: org.scala-tools.sbt#boot-app
-	confs: [default]
-	15 artifacts copied, 0 already retrieved (4096kB/167ms)
+  confs: [default]
+  15 artifacts copied, 0 already retrieved (4096kB/167ms)
 [success] Successfully initialized directory structure.
 Getting Scala 2.8.1 ...
 :: retrieving :: org.scala-tools.sbt#boot-scala
-	confs: [default]
-	2 artifacts copied, 0 already retrieved (15118kB/386ms)
+  confs: [default]
+  2 artifacts copied, 0 already retrieved (15118kB/386ms)
 [info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
 [info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
 > 
 </pre>
 
-Note that it's good form to start out with a SNAPSHOT version of your project.
+Tenga en cuenta que es una buena practica comenzar su proyecto con una version SNAPSHOT
 
-h2. Project Layout
+h2. Estructura del Proyecto
 
-* @project@ - project definition files
-** @project/build/@ _yourproject_ @.scala@ - the main project definition file
-** @project/build.properties@ - project, sbt and scala version definitions
-* @src/main@ - your app code goes here, in a subdirectory indicating the
-code's language (e.g. @src/main/scala@, @src/main/java@)
-* @src/main/resources@ - static files you want added to your jar
-  (e.g. logging config)
-* @src/test@ - like @src/main@, but for tests
-* @lib_managed@ - the jar files your project depends on. Populated by sbt update
-* @target@ - the destination for generated stuff (e.g. generated thrift
-  code, class files, jars)
+* @project@ - Archivos de definicion del proyecto
+** @project/build/@ _tuproyecto_@.scala@ - El archivo principal de definicion del proyecto
+** @project/buil.properties@ - Definicion de versiones del proyecto, SBT y Scala
+* @src/main@ - Aqui va su codigo, indicando en unsa subcarpeta el lenguaje (p. e. @src/main/scala@, @src/main/java@)
+* @src/main/resources@ - Archivos estaticos que quiera agregar a su jar (p.e. el archivo de configuracion del log)
+* @src/test@ - Es como @src/main@, pero para las pruebas
+* @lib_managed@ - Los archivos jar de los que dependa su projecto. Actualizada por SBT
+* @target@ - El destino de los productos generados (p.e. codigo generado, archivos class, jars)
 
-h2. Adding Some Code
+h2. Agregando algo de código
 
-We'll be creating a simple JSON parser for simple tweets.  Add the following code to
-@src/main/scala/com/twitter/sample/SimpleParser.scala@
+Estaremos creando un procesador JSON sencillo para simples tweets. Agregue el siguiente código a @src/main/scala/com/twitter/sample/SimpleParser.scala@
 
 <pre>
 package com.twitter.sample
@@ -108,22 +103,30 @@ class SimpleParser {
 }
 </pre>
 
-This is ugly and buggy, but should compile.
+Es feo y con errores, pero debería compilar
 
-h2. Testing in the Console
+h2. Pruebas en la consola
 
-SBT can be used both as a command line script and as a build console.  We'll be primarily using it as a build console, but most commands can be run standalone by passing the command as an argument to SBT, e.g.
+SBT pede ser usado como script de la line de comandos y como una consola de construccion. Lo estaremos usando en principio como una consola de construccion, pero la mayoria de los comandos pueden ser ejecutados de manera independiente pasando el comando como una arametro a SBT, p. e.
 
 <pre>
 sbt test
 </pre>
-Note that if a command takes arguments, you need to quote the entire
-argument path, e.g.
+Tome en cuenta qe si un comando recibe argumentos, necesita 
+
+SBT can be used both as a command line script and as a build console.  We'll be primarily using it as a build console, but most commands can be run standalone by passing the command as an argument to SBT, p. e.
+
+<pre>
+sbt test
+</pre>
+Tenga en cuenta que si un comando toma argumentos, es necesario poner entre comillas el argumento completo, p. e.
 
 @sbt 'test-only com.twitter.sample.SampleSpec'@
 
+Es extraña esta manera.
 It's weird that way.
 
+De cualquier manera. Para comenzar a trabajar con nustrao codigo, lanzamos SBT.
 Anyway. To start working with our code, launch sbt
 
 <pre>
@@ -132,6 +135,8 @@ Anyway. To start working with our code, launch sbt
 [info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
 > 
 </pre>
+
+SBT le permite iniciar un REPL de Scala con todas las dependencias de su proyecto cargadas.Compila el codigo fuente de su proyecto antes de ejecutar la consola, brindando una forma rapida de probar nuestro procesador.
 
 SBT allows you to start a Scala REPL with all your project
 dependencies loaded. It compiles your project source before launching
@@ -170,6 +175,8 @@ Type :help for more information.
 scala> 
 </pre>
 
+Nuestro código ha compilado, y estamos proporcionando el símbolo típico de Scala. Vamos a crear un nuevo analizador, un tweet de muestra, y asegurarnos de que "funciona"
+
 Our code has compiled, and we're provide the typical Scala prompt.  We'll create a new parser, an exemplar tweet, and ensure it "works"
 
 <pre>
@@ -188,11 +195,11 @@ res0: Option[com.twitter.sample.SimpleParsed] = Some(SimpleParsed(1,"foo"}))
 scala> 
 </pre>
 
-h2. Adding Dependencies
+h2. Agregando Dependencias
 
-Our simple parser works for this very small set of inputs, but we want to add tests and break it.  The first step is adding the specs test library and a real JSON parser to our project.  To do this we have to go beyond the default SBT project layout and create a project.
+Nuestro procesador funciona para el pequeño conjunto de entradas, pero queremos agregar pruebas y hacerlo fallar. El primer paso es agregar la libreria de especificacion de pruebas y un procesador JSON real a nuestro proyecto. Para esto debemos ir mas alla de la estructura por default de un proyecto SBT y crear uno.
 
-SBT considers Scala files in the project/build directory to be project definitions.  Add the following to project/build/SampleProject.scala
+SBT toma en cuenta los archivos de Scala en la carpeta project/build para configurar el proyecto. agregue lo siguiente a project/build/SampleProject.scala
 
 <pre>
 import sbt._
@@ -203,9 +210,9 @@ class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
 }
 </pre> 
 
-A project definition is an SBT class.  In our case we extend SBT's DefaultProject.
+Una definicion de proyecto es una clase SBT. En nuestro caso extiene de DefaultProject de SBT.
 
-You declare dependencies by specifying a val that is a dependency.  SBT uses reflection to scan all the dependency vals in your project and build up a dependency tree at build time.  The syntax here may be new, but this is equivalent to the maven dependency
+Declara dependencias especificando un val que es una dependencia. SBT usa reflection para escanear todos los vals de dependencias en el proyecto y crear un arbol de dependencias en tiempo de contruccion. La sintaxis aqui puede ser nueva, pero es equivalente a las dependecnias de maven.
 
 <pre>
 <dependency>
@@ -221,7 +228,7 @@ You declare dependencies by specifying a val that is a dependency.  SBT uses ref
 </dependency>
 </pre>
 
-Now we can pull down dependencies for our project.  From the command line (not the sbt console), run sbt update
+Ahora podemos bajar las dependencias para nuestro proyecto. Desde la linea de comandos (no la consola SBT), ejecute sbt update
 
 <pre>
 [local ~/projects/sbt-sample]$ sbt update
@@ -241,12 +248,11 @@ Now we can pull down dependencies for our project.  From the command line (not t
 [success] Build completed successfully.
 </pre>
 
-You'll see that sbt retrieved the specs library.  You'll now also have a lib_managed directory, and lib_managed/scala_2.8.1/test will have specs_2.8.0-1.6.5.jar
+Vera que sbt recupera la libreria de especificaciones. Tendrá ahora tambien una carpeta lib_managed, y lib_managed/scala_2.8.1/test que tendra el archivo specs_2.8.0-1.6.5.jar
 
-h2. Adding Tests
+h2. Agregando Pruebas
 
-Now that we have a test library added, put the following code in
-src/test/scala/com/twitter/sample/SimpleParserSpec.scala
+Ahora que tenemos la libreria de pruebas añadida, punga el siguiente codigo en src/test/scala/com/twitter/sambpe/SimpleParcerSpec.scala
 
 <pre>
 package com.twitter.sample
@@ -270,7 +276,7 @@ object SimpleParserSpec extends Specification {
 }
 </pre>
 
-In the sbt console, run test
+En la consola SBT, ejecutar test
 
 <pre>
 > test
@@ -324,7 +330,7 @@ In the sbt console, run test
 > 
 </pre>
 
-Our test works!  Now we can add more.  One of the nice things SBT provides is a way to run triggered actions.  Prefacing an action with a tilde starts up a loop that runs the action any time source files change.  Lets run ~test and see what happens.
+¡Nuestro test funciona! Ahora podemos agregar mas. Una de las cosas buenas que tiene SBT es una forma de ejecutar acciones activadas. Anteponiendo a una accion una tilde inicia un ciclo que ejecuta la accion cada que los archivos de codigo fuente cambien. Vamos a ejecutar ~test y veamos que sucede.
 
 <pre>
 [info] == test ==
@@ -334,7 +340,7 @@ Our test works!  Now we can add more.  One of the nice things SBT provides is a 
 1. Waiting for source changes... (press enter to interrupt)
 </pre>
 
-Now let's add the following test cases
+Ahora vamos a agregar el sigueinte caso de prueba
 
 <pre>
     "reject a non-JSON tweet" in {
@@ -365,7 +371,7 @@ Now let's add the following test cases
     }
 </pre>
 
-After we save our file, SBT detects our changes, runs tests, and informs us our parser is lame
+Despues de guardar nuestro archivo, SBT detecta nuestros cambios, ejecuta las pruebas, y nos informa que nuestro procesador es defectuoso
 
 <pre>
 [info] == com.twitter.sample.SimpleParserSpec ==
@@ -379,7 +385,7 @@ After we save our file, SBT detects our changes, runs tests, and informs us our 
 [info]   + fail on partial content
 </pre>
 
-So let's rework our JSON parser to be real
+Asi que vamos a hacer retrabajo en nuestro procesador JSON para ser real.
 
 <pre>
 package com.twitter.sample
@@ -427,7 +433,8 @@ class SimpleParser {
 }
 </pre>
 
-This is a simple Jackson parser.  When we save, SBT recompiles our code and reruns our tests.  Getting better!
+Este es un simpre procesador Jackson, cuando guardemos, SBT recopila nuestro codigo y re-ejecuta nuestras pruebas. ¡Mejor!
+
 
 <pre>
 info] SimpleParser should
@@ -439,8 +446,7 @@ info] SimpleParser should
 [info] == com.twitter.sample.SimpleParserSpec ==
 </pre>
 
-Uh oh.  We need to check for nested objects.  Let's add some ugly
-guards to our token reading loop.
+Oh, Oh. Necesitamos comprobar si hay objetos anidados. Vamos a agregar algunos guardias feos a nuestro bucle de lectura de tokens.
 
 <pre>
   def parse(str: String) = {
@@ -481,13 +487,13 @@ guards to our token reading loop.
   }
 </pre>
 
-And... it works!
+Y... ¡Funciona!
 
-h2. Packaging and Publishing
+h2. Enpaquetando y publicando
 
-At this point we can run the package command to generate a jar file.  However we may want to share our jar with other teams.  To do this we'll build on StandardProject, which gives us a big head start.
+En este punto podemos ejecutar el comando package para generar el archivo jar. Sin embargo podriamos querer compartir nuestro jar con otros equipos. Para ello lo construiremos sobre StandardProject, el cual nos da una gran ventaja.
 
-The first step is include StandardProject as an SBT plugin.  Plugins are a way to introduce dependencies to your build, rather than your project.  These dependencies are defined in project/plugins/Plugins.scala.  Add the following to the Plugins.scala file.
+El primer paso es incluir StandardProject como un plugin de SBT. Los plugins son una forma de introducir dependencias a su entregable en lugar del proyecto. Estas dependencias son definidas en project/plugins/Plugins.scala. Agregue lo siguiente al archivo Plugins.scala
 
 <pre>
 import sbt._
@@ -498,9 +504,9 @@ class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
 }
 </pre>
 
-Note that we've specified a maven repository as well as a dependency.  That's because the standard project library is hosted by us, which isn't one of the default repos sbt checks.
+Tenga en cuenta que hemos especificado un repositorio maven asi como una dependencia. Esto es porque la libreria de projetos standar esta hospedada por nosotros, por lo cual no es uno de los repositorios por default que SBT verifica.
 
-We'll also update our project definition to extend StandardProject, include an SVN publishing trait, and define the repository we wish to publish to.  Alter SampleProject.scala to the following
+Tambien actualizaremos nuestra definicion del proyecto para extender StandardProject, incluir una caracteristica de publicacion en SVN, y definir el repositorio al que deseamos publicarlo. Modificar SampleProject.scala con lo siguiente:
 
 <pre>
 import sbt._
@@ -514,7 +520,7 @@ class SampleProject(info: ProjectInfo) extends StandardProject(info) with Subver
 }
 </pre>
 
-Now if we run the publish action we'll see the following
+Ahora si ejecutamos la accion publish veremos lo siguiente
 
 <pre>
 [info] == deliver ==
@@ -546,23 +552,23 @@ IvySvn Build-DateTime: null
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
 
-And (after some time), we can go to "binaries.local.twitter.com":http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ to see our published jar.
+Y (despues de cierto tiempo), podemos ir a "binaries.local.twitter.com":http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ para ver nuestro jar publicado.
 
-h2. Adding Tasks
+h2. Agregando tareas
 
-Tasks are Scala functions.  The simplest way to add a task is to include a val in your project definition using the task method, e.g.
+Las tareas son funciones de Scala. La manera mas facil de agregar tareas es incluir un val en su definicion de proyecto usando el metodo task, p. e.
 
 <pre>
 lazy val print = task {log.info("a test action"); None}
 </pre>
 
-If you want dependencies and a description you can add them like this
+Si quieres dependencias y una descripcion puede agregarlas como se muestra a continuacion
 
 <pre>
 lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
 </pre>
 
-If we reload our project and run the print action we'll see the following
+Si recargamos nuestro projecto y ejecutamos la accion print veremos lo siguiente
 
 <pre>
 > print
@@ -576,7 +582,7 @@ If we reload our project and run the print action we'll see the following
 > 
 </pre>
 
-So it works.  If you're defining a task in a single project this works just fine.  However if you're defining this in a plugin it's fairly inflexible.  I may want to
+Asi funciona. Si esta definiendo una tarea en un proyecto simple esto funcionara bien. Sin embargo si esta definiendo esta en un plugin es bastante inflexible. Podria querer:
 
 <pre>
 lazy val print = printAction
@@ -584,34 +590,34 @@ def printAction = printTask.dependsOn(compile) describedAs("prints a line after 
 def printTask = task {log.info("a test action"); None}
 </pre>
 
-This allows consumers to override the task itself, the dependencies and/or description of the task, or the action.  Most built in SBT actions follow this pattern.  As an example, we can modify the builtin package task to print the current timestamp by doing the following
+Esto permite a losconsumidores anular la tarea en si. Las dependencias y/o descripciones de la tarea o accion. La mayoria de las acciones construidas en SBT siguen este patron. Como ejemplo podemos modificar la tarea interna package para imprimir la fecha y hora actual haciendo lo siguiente
 
 <pre>
 lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
 override def packageAction = super.packageAction.dependsOn(printTimestamp)
 </pre>
 
-There are many examples in StandardProject of tweaking SBT defaults and adding custom tasks.
+Hay muchos ejemplos en standarProject de ajustar los valores predeterminados de SBT y agregar tareas personalizadas.
 
-h2. Quick Reference
+h2. Referencia rapida
 
-h3. Common Commands
+h3. Comandos comunes
 
-* actions - show actions available for this project
-* update - downloads dependencies
-* compile - compiles source
-* test - runs tests
-* package - creates a publishable jar file
-* publish-local - installs the built jar in your local ivy cache
-* publish - pushes your jar to a remote repo (if configured)
+* actions - muestra la acciones disponibles para el proyecto
+* update - descarga las dependencias del proyecto
+* compile - compila el codigo fuente
+* test - ejecuta las pruebas
+* package - crea archivo jar publicable
+* publish-local - instala el jar construido en su cache ivy local
+* publish - envia su jar a un repositorio remoto (Si esta configurado)
 
-h3. Moar Commands
+h3. Comandos Moar
 
-* test-failed - run any specs that failed
-* test-quick - run any specs that failed and/or had dependencies updated
-* clean-cache - remove all sorts of sbt cached stuff.  Like clean for sbt
-* clean-lib - remove everything in lib_managed
+* test-failed - ejecuta cualquier especificacion fallida
+* test-quick - ejecuta cualquier especificacion fallida y/o tenga dependencias actualizadas
+* clean-cache - eliminar todo tipo de cosas en caché de SBT. Como clean para sbt
+* clean-lib - elimina todo en la carpeta lib_managed
 
-h3. Project Layout
+h3. Estructura del proyecto
 
 TBD
