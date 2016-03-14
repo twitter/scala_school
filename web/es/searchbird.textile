@@ -10,7 +10,7 @@ h3. Metas de diseño: la gran imagen.
 
 De manera general, nuestras metas de diseño incluyen _abstracción_ (la habilidad de usar el sistema resultante sin conocer todos sus detalles internos); _modularidad_ (la habilidad de factorizar el sistema en piezas más pequeñas y simples que pueden ser más fácilmente entendidas y/o reemplazadas por otras piezas); y _escalabilidad_ (la habilidad de aumentar la capacidad del sistema de una manera directa).
 
-El sistema que vamos a describir tiene tres piezas: (1) _clientes_ que hacen peticiones a (2) _servidores_, quienes envían respuestas a la petición; y un mecanismo de (3) _transporte_ que empaqueta estas comunicaciones. POr lo regular el cliente y el servidor estarían ubicados en diferentes máquinas y se comunicarían a través de una red en un "_puerto_":http://en.wikipedia.org/wiki/Port_(computer_networking) numérico en particular, pero en este ejemplo, ambos correran en la misma máquina (y se seguiran comunicando usando puertos). En nuestro ejemplo, clientes y servidores estarán escritos en Scala, y el transporte sera manejado usando "Thrift":http://thrift.apache.org/. El propósito principal de este tutorial es mostrar un servidor simple y un cliente que puede ser extendido para proveer desempeño escalable.
+El sistema que vamos a describir tiene tres piezas: (1) _clientes_ que hacen peticiones a (2) _servidores_, quienes envían respuestas a la petición; y un mecanismo de (3) _transporte_ que empaqueta estas comunicaciones. Por lo regular el cliente y el servidor estarían ubicados en diferentes máquinas y se comunicarían a través de una red en un "_puerto_":http://en.wikipedia.org/wiki/Port_(computer_networking) numérico en particular, pero en este ejemplo, ambos correran en la misma máquina (y se seguiran comunicando usando puertos). En nuestro ejemplo, clientes y servidores estarán escritos en Scala, y el transporte sera manejado usando "Thrift":http://thrift.apache.org/. El propósito principal de este tutorial es mostrar un servidor simple y un cliente que puede ser extendido para proveer desempeño escalable.
 
 
 h3. Explorando el proyecto bootstrapper por defecto.
@@ -45,7 +45,7 @@ writing src/test/scala/com/twitter/searchbird/SearchbirdServiceSpec.scala
 writing TUTORIAL.md
 </pre>
 
-Exploremos primero el proyecto por defecto que @scala-bootstrapper@ crea por nosotros. El proyecto está pensado como una plantilla. Terminaremos sustituyendo la mayoría de él, pero sirve como una base conveniente. Define un almacenamiento tipo llave-valo simple (pero completo). Incluye Configuración, una interfaz de thrift, exportación de estadísticas y registro.
+Exploremos primero el proyecto por defecto que @scala-bootstrapper@ creado por nosotros. El proyecto está pensado como una plantilla. Terminaremos sustituyendo la mayoría de él, pero sirve como una base conveniente. Define un almacenamiento tipo llave-valor simple (pero completo). Incluye Configuración, una interfaz de thrift, exportación de estadísticas y registro.
 
 Antes de ver el código, vamos a ejecutar un cliente y un servidor para ver cómo funciona. Esto es lo que estamos construyendo:
 
@@ -67,8 +67,8 @@ Esto es muy sencillo: nuestro servicio @SearchbirdService@ exporta dos métodos 
 
 Ahora ejecutemos el servicio por defecto y un cliente que se conecte a este servicio, y los exploraremos a través de esta interfaz. Abre dos ventanas, una para el servidor y una para el cliente.
 
-En la primera ventana, inicia sbt en modo interactivo (ejecuta @./sbt@ desde la línea de comandos[1]) 
-y luego construye y ejecuta el proyecto desde sbt. Esto ejecuta la rutina @main@ en @Main.scala@. 
+En la primera ventana, inicia sbt en modo interactivo (ejecuta @./sbt@ desde la línea de comandos[1])
+y luego construye y ejecuta el proyecto desde sbt. Esto ejecuta la rutina @main@ en @Main.scala@.
 
 <pre>
 $ ./sbt
@@ -88,7 +88,7 @@ $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
 
-finagle-client> 
+finagle-client>
 </pre>
 
 El objeto cliente @client@ ahora está conectado al puerto 9999 de nuestra computadora local, y puede comunicarse con el servicio que previamente comenzamos en ese puerto. Enviamos algunas peticiones:
@@ -107,7 +107,7 @@ scala> client.get("marius").get()
 res3: String = Marius Eriksen
 </pre>
 
-(La segunda llamada a @get()@ resuelve @Future@ que es el tipo de retorno de @client.get()@ bloqueando hasta que el valor esté listo.) 
+(La segunda llamada a @get()@ resuelve @Future@ que es el tipo de retorno de @client.get()@ bloqueando hasta que el valor esté listo.)
 
 El servidor también exporta varias estadísticas del tiempo de ejecución (el archivo de configuración especifica que estas pueden ser encontradas en el puerto 9900). Estas son convenientes tanto para inspeccionar servidores individuales como para recolectar las estadísticas globales de los servicios. (una interfaz JSON legible para la máquina también es proporcionada). Abre una tercera ventana y revisa estas estadísticas:
 
@@ -158,11 +158,11 @@ Ahora veamos el código que implementa la configuración, el servidor, y el clie
 
 h5. .../config/SearchbirdServiceConfig.scala
 
-Una configuración es un trait de Scala que tiene un método @apply: RuntimeEnvironment => T@ para algunos @T@ que queremos crear. 
+Una configuración es un trait de Scala que tiene un método @apply: RuntimeEnvironment => T@ para algunos @T@ que queremos crear.
 
-En este sentido, las configuraciones son "fábricas". EN tiempo de ejecución, un archivo de configuración es evaluado como un script (usando el compilador de Scala como una biblioteca), y se espera que produzca un objeto de configuración. Un @RuntimeEnvironment@ es un objeto el cual es consultado consultado por varios parámetros del tiempo de ejecución (banderas de la línea de comandos, versión de la JVM, marcas de tiempo de construcción, etc.).
+En este sentido, las configuraciones son "fábricas". En tiempo de ejecución, un archivo de configuración es evaluado como un script (usando el compilador de Scala como una biblioteca), y se espera que produzca un objeto de configuración. Un @RuntimeEnvironment@ es un objeto el cual es consultado por varios parámetros del tiempo de ejecución (banderas de la línea de comandos, versión de la JVM, marcas de tiempo de construcción, etc.).
 
-La clase @SearchbirdServiceConfig@ específica este tipo de clase. Especifica los parámetros de configuración en conjunto con sus valores por defecto. (Finagle es compatible con un sistema de rastreo genérico que podemos ignorar para los propositos de este tutorial; el sistema de rastreo distribuido "Zipkin":https://github.com/twitter/zipkin es un recolector/acumulador de estos rastros).
+La clase @SearchbirdServiceConfig@ específica este tipo de clase. Especifica los parámetros de configuración en conjunto con sus valores por defecto. (Finagle es compatible con un sistema de rastreo genérico que podemos ignorar para los propósitos de este tutorial; el sistema de rastreo distribuido "Zipkin":https://github.com/twitter/zipkin es un recolector/acumulador de estos rastros).
 
 <pre>
 class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
@@ -275,7 +275,7 @@ h5. .../SearchbirdServiceImpl.scala
 
 La mayoría de nuestros cambios se realizan en este archivo.
 
-La tabla hash actual @database@ guarda un índice directo que hace un mapa de una llave a un documento. cambiamos su nombre a @forward@ y agregamos un segundo mapa al índice en @reverse@ (que hace un mapa de un token a un conjunto de documentos que contienen ese token). Así que dentro de @SearchbirdServiceImpl.scala@, reemplazamos la definición de @database@ con:
+La tabla hash actual @database@ guarda un índice directo que hace un mapa de una llave a un documento. Cambiamos su nombre a @forward@ y agregamos un segundo mapa al índice en @reverse@ (que hace un mapa de un token a un conjunto de documentos que contienen ese token). Así que dentro de @SearchbirdServiceImpl.scala@, reemplazamos la definición de @database@ con:
 
 <pre>
 val forward = new mutable.HashMap[String, String]
@@ -289,7 +289,7 @@ Dentro de la llamada de @get@, reemplaza @database@ con @forward@. Fuera de eso,
 <pre>
 def put(key: String, value: String) = {
   log.debug("put %s", key)
-  
+
   forward(key) = value
 
   // serialize updaters
@@ -306,7 +306,7 @@ def put(key: String, value: String) = {
 
 Toma en cuenta que (a pesar de que @HashMap@ es seguro para subprocesos) sólo un subproceso a la vez puede actualizar el mapa @reverse@ para asegurarse que la lectura-modificación-escritura de una entrada en particular del mapa sea una operación atómica. (El código es demasiado conservador; bloquea el mapa entero en lugar de bloquear cada operación individual de consulta-modificación-escritura.) También toma en cuenta el uso de @Set@ como estructura de datos; esto asegura que si el mismo token aparece dos veces en un documento, solo será procesado por el ciclo @foreach@ una vez.
 
-La implementación aún tiene un detalle que se queda como ejercicio al lector: cuando sobreescribimos una llave con un nuevo documento, no removemos ninguna referencia al documento anterior el el índice en reversa.
+La implementación aún tiene un detalle que se queda como ejercicio al lector: cuando sobreescribimos una llave con un nuevo documento, no removemos ninguna referencia al documento anterior el índice en reversa.
 
 Ahora al punto medular del motor de búsqueda: el nuevo método @search@. Este método debe dividir en tokens la consulta, buscar todos los documento que coincidan, y después interceptar estas listas. Esto produce la lista de documentos que contienen todos los tokens en la consulta. Esto es muy directo de expresar en Scala; agrega esto a la clase @SearchbirdServiceImpl@:
 
@@ -353,7 +353,7 @@ $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
 
-finagle-client> 
+finagle-client>
 </pre>
 
 Pega las siguientes descripciones en la consola:
@@ -467,7 +467,7 @@ class ResidentIndex extends Index {
 
   def put(key: String, value: String) = {
     log.debug("put %s", key)
-    
+
     forward(key) = value
 
     // admit only one updater.
@@ -559,13 +559,12 @@ class CompositeIndex(indices: Seq[Index]) extends Index {
 </pre>
 
 El índice compuesto está conformado por instancias subyacentes de @Index@. Toma en cuenta que no importa cómo estén implementados. Este tipo de composición nos da una gran flexibilidad en construir varios esquemas de consulta. No definimos un esquema de fragmentación, de manera que el índice compuesto no soporta operaciones @put@. En cambio, estas operaciones son manejadas por los nodos hijo. @get@ se implementa mediante la consulta de todos los nodos hijo y eligiendo el primer resultado exitoso. Si no hay alguno, regresa una excepción. Toma en cuenta que si la ausencia de un valor se comunica a través de una excepción, esta se maneja en el @Future@, convirtiendo cualquier excepción en un valor @None@. En un sistema real, probablemente tendríamos códigos de error apropiados para valores inexistentes, en lugar de usar excepciones. Las excepciones son convenientes y oportunas para prototipar, pero se componen de manera pobre. Para poder distinguir entre una excepción real y la falta de un valor, tenemos que examinar la excepción misma. En su lugar, tiene un mejor estilo incrustar esta distinción directamente en el tipo del valor regresado.
-type of the returned value.
 
 <!-- *_HELP Esta implementación no parece dar más escalabilidad que el esquema previo; ya que el índice parece estar replicado en todas las máquinas cliente, no podemos almacenar una cantidad mayor de datos. Necesitaríamos un esquema de @put()@ más sofisticado que puts distribuidos a un solo índice, ¿no creen?. Otra forma es mejorar el rendimiento enviando solo peticiones @get()@ a un nodo en lugar de a todos los nodos._* -->
 
 @search@ funciona de un modo similar al anterior. En lugar de elegir el primer resultado, los combina, asegurando su unicidad construyendo un @Set@.
 
-@RemoteIndex@ provee una interfaz de @Index@ a un servidor remoto. 
+@RemoteIndex@ provee una interfaz de @Index@ a un servidor remoto.
 
 <pre>
 class RemoteIndex(hosts: String) extends Index {
@@ -706,12 +705,12 @@ finagle-client> client.search("value").get()
 res5: Seq[String] = ArrayBuffer(fromShardA, fromShardB)
 </pre>
 
-Este diseño tiene múltiples abstracciones de datos que permiten una implementación más escalable y modular: 
+Este diseño tiene múltiples abstracciones de datos que permiten una implementación más escalable y modular:
 
 * La estructura de datos @ResidentIndex@ no tiene conocimiento de la red, los servidores o los clientes.
 * El @CompositeIndex@ no tiene conocimiento de cómo son implementados los índices o sus estructuras de datos subyacentes; simplemente distribuye las peticiones a ellos.
-* La misma interfaz (rasgo) @search@ para servidores permite a un servidor consultar sus estructura de datos local(@ResidentIndex@) o distribuir consultas a otros servidores (@CompositeIndex@) sin necesidad de conocer esta distinción, la cual está escondida de llamador. 
-* @SearchbirdServiceImpl@ y @Index@ ahora son módulos separados, permitiendo una implementación simple de el servicio y separando la implementación de la estructura de datos del servicio que accede a ella. 
+* La misma interfaz (rasgo) @search@ para servidores permite a un servidor consultar sus estructura de datos local(@ResidentIndex@) o distribuir consultas a otros servidores (@CompositeIndex@) sin necesidad de conocer esta distinción, la cual está escondida de llamador.
+* @SearchbirdServiceImpl@ y @Index@ ahora son módulos separados, permitiendo una implementación simple de el servicio y separando la implementación de la estructura de datos del servicio que accede a ella.
 *El diseño es lo suficientemente flexible para permitir uno o más índices remotos, localizado en la máquina local o en máquinas remotas.
 
 <!-- *_HELP ¿Son posibles las siguientes mejoras?_* -->
@@ -727,5 +726,3 @@ fn1. El script local @./sbt@ simplemente garantiza que la versión de sbt es con
 fn2. En @target/gen-scala/com/twitter/searchbird/SearchbirdService.scala@.
 
 fn3. Mira el "README":https://github.com/twitter/ostrich/blob/master/README.md de Ostrich para mas información.
-
-
