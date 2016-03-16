@@ -182,7 +182,7 @@ scala> val parser = new SimpleParser
 parser: com.twitter.sample.SimpleParser = com.twitter.sample.SimpleParser@71060c3e
 
 scala> parser.parse(tweet)                    
-res0: Option[com.twitter.sample.SimpleParsed] = Some(SimpleParsed(1,"foo"}))
+res0: Option[com.twitter.sample.SimpleParsed] = Some(SimpleParsed(1,"foo"))
 
 scala> 
 </pre>
