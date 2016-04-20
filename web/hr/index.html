@@ -1,0 +1,56 @@
+---
+layout: default
+title: Scala školica
+---
+
+      <div class="hero-unit">
+        <h1>Scala školica!</h1>
+        <p>Od &empty; do Distribuiranog Servisa</p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span8">
+
+          <p><b>Ostali jezici:</b></p>
+                <ul style="list-style-type: none;">
+                <li><a href="../index.html">English</a></li>
+                <li><a href="../ko/index.html">한국어</a>
+                <li><a href="../ru/index.html">Русский</a>
+                <li><a href="../zh_cn/index.html">简体中文</a></b>
+          </ul>
+
+          <h2>Kratki info</h2>
+          <p>Scala škola je započela kao serija lekcija na Twitter-u kako bi pripremila iskusne inženjere da postanu produktivni <a href="http://www.scala-lang.org/">Scala</a> programeri. Scala je relativno novi jezik, ali se temelji na mnogim poznatim konceptima. Zbog toga se pretpostavlja da Vi, draga publiko ;), poznajete osnovne koncepte OOP na kojima se temelji Scala. Na taj način ćete brže svladati osnove Scala programskog jezika.
+          </p>
+
+          <h2>Pristup</h2>
+          <p>Smatramo da je najbolje prići učenju Scale ne kao da se radi o poboljšanoj verziji Jave, nego kao da se radi o potpuno novom jeziku. Iskustvo u Javi se ne očekuje. Fokus će biti na interpreter-u i na objektno-funkcijskom stilu kao i na stilu programiranja. Naglasak će biti na održivosti, jasnoći izraza i utjecaju type sustava.</p>
+          <p>Većina lekcija zahtjeva samo SCALA REPL. Čitatelja se potiče da prati lekcije, ali i da dodatno proširuje svoje znanje o Scali! Koristite ove lekcije kao početnu točku za daljnje istraživanje Scale.</p>
+
+          <h2>Ostalo</h2>
+          <p>Dodatni sadržaji za učenje:
+          <ul>
+          <li><strong><a href="http://twitter.github.com/effectivescala/">Efektivna Scala</a></strong> Twitter "najbolje prakse" za Scalu. Korisno za razumijevanje idioma u Twitter kodu.</li>
+          <li><strong><a href="http://docs.scala-lang.org">scala-lang.org dokumentacija</a></strong> Linkovi do tutoriala, manuala, API reference dokumentacije, knjiga, ...</li>
+          <li><strong><a href="http://www.scala-lang.org/api/">Scala API dokumentacija</a></strong></li>
+          </ul>
+
+        </div>
+        <div class="span6">
+          <h2>Lekcije</h2>
+            <dl>
+              {% for lesson in site.lessons %}
+                <dt><a href="{{ lesson.url }}">{{ lesson.title }}</a></dt>
+                <dd>{{ lesson.desc }}</dd>
+              {% endfor %}
+            </dl>
+       </div>
+      </div>
+    </div> <!-- /container -->
+
+    <!-- banner -->
+    <a href="https://github.com/twitter/scala_school"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+  </body>
+</html>
