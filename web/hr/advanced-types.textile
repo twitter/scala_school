@@ -1,0 +1,413 @@
+---
+prev: type-basics.textile
+next: sbt.textile
+title: Napredni tipovi
+layout: post
+---
+
+Ova lekcija sadržava sljedeće teme:
+
+* "Pregled granica":#viewbounds ("tipovi klasa")
+* "Drugi tipovi granica":#otherbounds
+* "Higher kinded tipovi & ad-hoc polimorfizam":#higher
+* "F-bounded polimorfizam / rekurzivni tipovi":#fbounded
+* "Strukturalni tipovi":#structural
+* "Abstraktni tipovi":#abstractmem
+* "Tipovi brisanja & manifest":#manifest
+* "Case studija: Finagle":#finagle
+
+h2(#viewbounds). Pregled granica ("tipovi klasa")
+
+Ponekad ne morate definirati da je jedan tip jednak/inferioran/nadmoćan prema drugome, samo da bi ga mogli fake-ati sa konverzijama. Pregled granica specificira tip koji može biti "kao" neki drugi tip. Ovo ima smisla za operacije kod kojih je potrebno čitati objekte ali ne i mijenjati ih.
+
+*Implicitne* funkcije dopuštaju automatsku konverziju. Preciznije, one dopuštaju on-demand funkciju kada to može pomoći zadovoljiti type inference. e.g.:
+
+<pre>
+scala> implicit def strToInt(x: String) = x.toInt
+strToInt: (x: String)Int
+
+scala> "123"
+res0: java.lang.String = 123
+
+scala> val y: Int = "123"
+y: Int = 123
+
+scala> math.max("123", 111)
+res1: Int = 123
+</pre>
+
+Za tip granice koji zahtjeva da funkcija postoji za dani tip možete definirati pregled granice sa <code><%</code> npr.
+
+<pre>
+scala> class Container[A <% Int] { def addIt(x: A) = 123 + x }
+defined class Container
+</pre>
+
+Ovo govori da *A* mora biti vidljiv kao *Int*. Pa hajDm0 probati:
+
+<pre>
+scala> (new Container[String]).addIt("123")
+res11: Int = 246
+
+scala> (new Container[Int]).addIt(123)
+res12: Int = 246
+
+scala> (new Container[Float]).addIt(123.2F)
+<console>:8: error: could not find implicit value for evidence parameter of type (Float) => Int
+       (new Container[Float]).addIt(123.2)
+        ^
+</pre>
+
+h2(#otherbounds). Ostali tipovi granica
+
+Metode mogu primijeniti još složenije tipove granica kroz implicitne parametre. Npr. <code>List</code> podržava <code>sum</code> na numeričkom sadržaju ali ne i na drugom tipu sadržaja. Svi Scala numerički tipovi ne dijele nadklase pa za to ne možemo samo reći <code>T <: Number</code>. Umjesto toga, Scala math biblioteka <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/"> definira implicitni tip <code>Numeric[T]</code> za prikladan T</a> tip. Zatim ga <code>List</code> definicija koristi:
+
+<pre>
+sum[B >: A](implicit num: Numeric[B]): B
+</pre>
+
+Ako pozovete <code>List(1,2).sum()</code>, ne morate proslijediti _num_ parameter; on je postavljen implicitno. Ali ako pozovete <code>List("whoop").sum()</code>, iz nekog razloga se žali da ne može postaviti <code>num</code>.
+
+Metode mogu pitati za neku vrstu specifičnog "dokaza" za tip bez postavljanja čudnih objekata kao <code>Numeric</code>. Umjesto toga, možete koristiti jedan od ovih type-relation operatora:
+
+|A =:= B|A must be equal to B|
+|A <:< B|A must be a subtype of B|
+|A <%< B|A must be viewable as B|
+
+(Ako dobijete pogreške pokušavajući koristiti <:< ili <%<, znajte da toga više nema u Scali 2.10. Bye, bye, nema više. Primjeri Scala Školice rade sa "Scalom 2.9.x":http://www.scala-lang.org/download/2.9.3.html Možete koristiti noviju verziju Scale, ali očekujte pogreške.
+
+<pre>
+scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
+defined class Container
+
+scala> (new Container(123)).addIt
+res11: Int = 246
+
+scala> (new Container("123")).addIt
+<console>:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
+</pre>
+
+Slično, gledajući naš prijašnji implicit, možemo napraviti sljedeće:
+
+<pre>
+scala> class Container[A](value: A) { def addIt(implicit evidence: A <%< Int) = 123 + value }
+defined class Container
+
+scala> (new Container("123")).addIt
+res15: Int = 246
+</pre>
+
+h3. Generičko programiranje sa view-ima
+
+In da Scala standard library, view-si se primarno koriste za implementaciju generičkih funkcija naspram kolekcija.
+Npr. "min" funkcija (nad *Seq[]*), koristi ovu tehniku:
+
+<pre>
+def min[B >: A](implicit cmp: Ordering[B]): A = {
+  if (isEmpty)
+    throw new UnsupportedOperationException("empty.min")
+
+  reduceLeft((x, y) => if (cmp.lteq(x, y)) x else y)
+}
+</pre>
+
+Glavne prednosti ovoga su:
+
+* Item-si u kolekcijama nisu potrebni za implementaciju *Ordered*, ali *Ordered* se koristi kao statičko type check-iranje.
+* Možete definirati svoje vlastito order-iranje bez dodatne podrške biblioteka:
+
+<pre>
+scala> List(1,2,3,4).min
+res0: Int = 1
+
+scala> List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b compare a })
+res3: Int = 4
+</pre>
+
+Kao napomena, postoje view-si u standardnom library-u koji prevode *Ordered* u *Ordering* (i obrnuto).
+
+<pre>
+trait LowPriorityOrderingImplicits {
+  implicit def ordered[A <: Ordered[A]]: Ordering[A] = new Ordering[A] {
+    def compare(x: A, y: A) = x.compare(y)
+  }
+}
+</pre>
+
+h4. Kontekst granica & implicitly[]
+
+U Scali 2.8 uvedena je kratica za thread-ing pristupne implicitne argumente.
+
+<pre>
+scala> def foo[A](implicit x: Ordered[A]) {}
+foo: [A](implicit x: Ordered[A])Unit
+
+scala> def foo[A : Ordered] {}
+foo: [A](implicit evidence$1: Ordered[A])Unit
+</pre>
+
+Implicitnim vrijednostima se može pristupiti putem *implicitly*
+
+<pre>
+scala> implicitly[Ordering[Int]]
+res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
+</pre>
+
+Kombinirano, ovo obično rezultira sa sažimanjem koda (less code), pogotovo kada se thread-a kroz view-se.
+
+h2(#higher). Higher-kinded tipovi & ad-hoc polimorfizam
+
+Scala može abstraktirati (ajme koji prijevod) iznad "higher kinded" tipova. Npr. pretpostavimo da morate koristiti nekoliko tipova kontenjera (ali ne onih za odlaganje otpada...) za više tipova podataka. Možete definirati <code>Container</code> interface koji može biti implementiran kao <code>Option</code>, <code>List</code> itd. Želite definirati interface za korištenje određenih vrijednosti u tim kontenjerima bez "zaključavanja" vrijednosnih (value) tipova.
+
+Ovo je analogno funkcijskom čišćenju (kao da se funkcija more analogno očistiti, prije digitalno...lala). Npr. gdje "unarni tip" ima konstruktore <code>List[A]</code>, što znači da moramo zadovoljiti jednu "razinu" tipova varijabli kako bi kreirali konkretni tip (baš kao što "prljava" funkcija treba biti opskrbljena samo jednom listom argumenata kako bi bila pozvana), higher-kinded tip treba više, naravno, zato jer je higher-kinded pa je zahtjevan.
+
+<pre>
+scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala> val container = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+container: java.lang.Object with Container[List] = $anon$1@7c8e3f75
+
+scala> container.put("hey")
+res24: List[java.lang.String] = List(hey)
+
+scala> container.put(123)
+res25: List[Int] = List(123)
+</pre>
+
+Napomena da je *Container* "polimorf" u parametriziranom tipu ("container type").
+
+Ako kombiniramo kontenjere sa implicitima, dobijemo "ad-hoc" polimorfizam: mogućnost pisanja generičkih funkcija preko kontenjera.
+
+<pre>
+scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala> implicit val listContainer = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+
+scala> implicit val optionContainer = new Container[Some] { def put[A](x: A) = Some(x); def get[A](m: Some[A]) = m.get }
+
+scala> def tupleize[M[_]: Container, A, B](fst: M[A], snd: M[B]) = {
+     | val c = implicitly[Container[M]]
+     | c.put(c.get(fst), c.get(snd))
+     | }
+tupleize: [M[_],A,B](fst: M[A],snd: M[B])(implicit evidence$1: Container[M])M[(A, B)]
+
+scala> tupleize(Some(1), Some(2))
+res33: Some[(Int, Int)] = Some((1,2))
+
+scala> tupleize(List(1), List(2))
+res34: List[(Int, Int)] = List((1,2))
+</pre>
+
+h2(#fbounded). F-bounded polimorfizam
+
+Često je potrebno pristupiti određenoj podklasi u (generičkom) trait-u. Npr. zamislite da imate neki trait koji je generički, ali može biti uspoređivan sa određenom podkalsom tog trait-a.
+
+<pre>
+trait Container extends Ordered[Container]
+</pre>
+
+To zahtjeva od podklase da implementira compare metodu
+
+<pre>
+def compare(that: Container): Int
+</pre>
+
+I zato ne možemo pristupiti konkretnom podtipu, npr.:
+
+<pre>
+class MyContainer extends Container {
+  def compare(that: MyContainer): Int
+}
+</pre>
+
+jer se ne može kompajlirati, budući da smo definirali Ordered za *Container*, a ne određeni podtip.
+
+Alternativno rješenje bi bilo parametrizirati Container tako da možemo pristupiti podtipu u podklasi.
+
+<pre>
+trait Container[A] extends Ordered[A]
+</pre>
+
+Podklasa sada može:
+
+<pre>
+class MyContainer extends Container[MyContainer] {
+  def compare(that: MyContainer): Int
+}
+</pre>
+
+Ali problem je da tip A nije ograničen ničime i potencijalno možete napraviti:
+
+<pre>
+class MyContainer extends Container[String] {
+  def compare(that: String): Int
+}
+</pre>
+
+Kako bi to izbjegli koristimo F-bounded polimorfizam.
+
+<pre>
+trait Container[A <: Container[A]] extends Ordered[A]
+</pre>
+
+Čudan tip! Ali primijetite da je Ordered parametriziran na *A*, koji je sam *Container[A]*
+
+Sada:
+
+<pre>
+class MyContainer extends Container[MyContainer] {
+  def compare(that: MyContainer) = 0
+}
+</pre>
+
+Sada su posloženi:
+
+<pre>
+scala> List(new MyContainer, new MyContainer, new MyContainer)
+res3: List[MyContainer] = List(MyContainer@30f02a6d, MyContainer@67717334, MyContainer@49428ffa)
+
+scala> List(new MyContainer, new MyContainer, new MyContainer).min
+res4: MyContainer = MyContainer@33dfeb30
+</pre>
+
+Budući da su svi podtipovi *Container[_]*, možemo definirati drugu podklasu & kreirati miješanu (ali ne pizzu) listu *Container[_]*:
+
+<pre>
+scala> class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
+defined class YourContainer
+
+scala> List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)
+res2: List[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]]
+  = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
+</pre>
+
+Primijetite kako je tip rezultata sada ograničen sa *YourContainer with MyContainer*. Ovo je rad type inferencer-a. Zanimljivo- ovaj tip ne mora imati smisla, on samo pruža logički viši-niži graničnik (jeste se malo izgubili, viši, niži, dajte se odlučite) za unificirani tip liste. Što se događa ako pokušamo koristiti *Ordered*?
+
+<pre>
+(new MyContainer, new MyContainer, new MyContainer, new YourContainer).min
+<console>:9: error: could not find implicit value for parameter cmp:
+  Ordering[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]]
+</pre>
+
+Ne postoji *Ordered[]* za unificirani tip. Šteta.
+
+h2(#structural). Strukturalni tipovi
+
+Scala ima podršku za strukturalne tipove* -- zahtjevi tipa su izraženi sa interface _structure_ naspram konkretnog tipa.
+
+<pre>
+scala> def foo(x: { def get: Int }) = 123 + x.get
+foo: (x: AnyRef{def get: Int})Int
+
+scala> foo(new { def get = 10 })
+res0: Int = 133
+</pre>
+
+Ovo može biti korisno u mnogim situacijama, ali implementacija koristi refleksiju, zato budite performance-aware!
+
+h2(#abstractmem). Abstraktni tipovi članova
+
+U trait-u, možete ostaviti type članove abstraktnima.
+
+<pre>
+scala> trait Foo { type A; val x: A; def getX: A = x }
+defined trait Foo
+
+scala> (new Foo { type A = Int; val x = 123 }).getX
+res3: Int = 123
+
+scala> (new Foo { type A = String; val x = "hey" }).getX
+res4: java.lang.String = hey
+</pre>
+
+To je koristan trik kada radite dependency injection itd.
+
+Možete se referencirati prema abstraktnom tipu varijable koristeći hash operator:
+
+<pre>
+scala> trait Foo[M[_]] { type t[A] = M[A] }
+defined trait Foo
+
+scala> val x: Foo[List]#t[Int] = List(1)
+x: List[Int] = List(1)
+</pre>
+
+
+h2(#manifest). Tipovi brisanja & manifesti
+
+Koliko je nama poznato, tip informacije je izgubljen na compile time-u zbog _erasure_. Scala ima *Manifests*, što nam dopušta selektivno vraćanje tipa informacija. Manifesti su implicitne vrijednosti, generirani od strane kompajlera prema potrebi.
+
+<pre>
+scala> class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
+
+scala> (new MakeFoo[String]).make
+res10: String = ""
+</pre>
+
+h2(#finagle). Case studija: Finagle
+
+Pogledajte: "https://github.com/twitter/finagle":https://github.com/twitter/finagle
+
+<pre>
+trait Service[-Req, +Rep] extends (Req => Future[Rep])
+
+trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
+  extends ((ReqIn, Service[ReqOut, RepIn]) => Future[RepOut])
+{
+  def andThen[Req2, Rep2](next: Filter[ReqOut, RepIn, Req2, Rep2]) =
+    new Filter[ReqIn, RepOut, Req2, Rep2] {
+      def apply(request: ReqIn, service: Service[Req2, Rep2]) = {
+        Filter.this.apply(request, new Service[ReqOut, RepIn] {
+          def apply(request: ReqOut): Future[RepIn] = next(request, service)
+          override def release() = service.release()
+          override def isAvailable = service.isAvailable
+        })
+      }
+    }
+
+  def andThen(service: Service[ReqOut, RepIn]) = new Service[ReqIn, RepOut] {
+    private[this] val refcounted = new RefcountedService(service)
+
+    def apply(request: ReqIn) = Filter.this.apply(request, refcounted)
+    override def release() = refcounted.release()
+    override def isAvailable = refcounted.isAvailable
+  }
+}
+</pre>
+
+Servis može autorizirati zahtjeve putem filtera.
+
+<pre>
+trait RequestWithCredentials extends Request {
+  def credentials: Credentials
+}
+
+class CredentialsFilter(credentialsParser: CredentialsParser)
+  extends Filter[Request, Response, RequestWithCredentials, Response]
+{
+  def apply(request: Request, service: Service[RequestWithCredentials, Response]): Future[Response] = {
+    val requestWithCredentials = new RequestWrapper with RequestWithCredentials {
+      val underlying = request
+      val credentials = credentialsParser(request) getOrElse NullCredentials
+    }
+
+    service(requestWithCredentials)
+  }
+}
+</pre>
+
+Primijetite kako pozadinski servis zahtjeva autorizirani zahtjev i da je to statički verificirano. Filteri stoga mogu biti smatrani kao servis transformeri. Transformer...
+
+Mnogi filteri se mogu koristiti zajedno:
+
+<pre>
+val upFilter =
+  logTransaction     andThen
+  handleExceptions   andThen
+  extractCredentials andThen
+  homeUser           andThen
+  authenticate       andThen
+  route
+</pre>
+
+Tipkajte sigurno (Type safely)!
