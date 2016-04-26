@@ -74,7 +74,7 @@ Metode mogu pitati za neku vrstu specifičnog "dokaza" za tip bez postavljanja �
 |A <:< B|A must be a subtype of B|
 |A <%< B|A must be viewable as B|
 
-(Ako dobijete pogreške pokušavajući koristiti <:< ili <%<, znajte da toga više nema u Scali 2.10. Bye, bye, nema više. Primjeri Scala Školice rade sa "Scalom 2.9.x":http://www.scala-lang.org/download/2.9.3.html Možete koristiti noviju verziju Scale, ali očekujte pogreške.
+Ako dobijete pogreške pokušavajući koristiti <:< ili <%<, znajte da toga više nema u Scali 2.10. Bye, bye, nema više. Primjeri Scala Školice rade sa "Scalom 2.9.x":http://www.scala-lang.org/download/2.9.3.html Možete koristiti noviju verziju Scale, ali očekujte pogreške.
 
 <pre>
 scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
@@ -200,7 +200,7 @@ res34: List[(Int, Int)] = List((1,2))
 
 h2(#fbounded). F-bounded polimorfizam
 
-Često je potrebno pristupiti određenoj podklasi u (generičkom) trait-u. Npr. zamislite da imate neki trait koji je generički, ali može biti uspoređivan sa određenom podkalsom tog trait-a.
+Često je potrebno pristupiti određenoj podklasi u (generičkom) trait-u. Npr. zamislite da imate neki trait koji je generički, ali može biti uspoređivan sa određenom podklasom tog trait-a.
 
 <pre>
 trait Container extends Ordered[Container]

@@ -1,0 +1,437 @@
+---
+layout: post
+title: Osnove
+next: basics2.textile
+---
+
+Ova lekcija sadržava:
+* "O ovoj lekciji":#overview
+* "expressions":#expressions
+* "values":#val
+* "funkcije":#functions
+* "klase":#class
+* "osnovno nasljeđivanje":#extends
+* "trait-ovi":#trait
+* "tipovi":#types
+
+h2(#overview). O ovoj lekciji
+
+U nekoliko prvih tjedana proći ćemo kroz osnovne koncepte i sintaksu, zatim ćemo proširivati znanje koristeći primjere.
+
+Neki primjeri će biti u obliku izvornog koda, dok će drugi biti pisani u obliku interpretera, za svakog ponešto, lalal
+
+Preporučamo da imate dostupan interpreter, to će vam olakšati baratanje primjerima, yeah.
+
+h3. Zašto Scala?
+
+* Ekspresivan
+** Funkcije prvog reda (first-class functions)
+** Closures
+* Sažet
+** Type inference
+** Dosljedna sintaksa za kreiranje funkcija
+* Java interoperabilinost
+** Mogućnost iskorištavanja Java biblioteka
+** Mogućnost iskorištavanja Java alata
+** Bez penala što se tiče performansi
+
+h3. Kako sa Scala-om?
+
+* Kompajlira se u Java bytecode
+* Radi sa standardnim JVM-om
+** I čak sa nekim nestandardnim JVM-ima kao što je Dalvik
+** Scala kompajler je napisao lik koji je autor Java kompajlera, idesh
+
+h3. Misli kao Scalaš
+
+Scala nije samo ljepša Java. Trebate ju učiti otvorenog uma, tak je bolje, vjerujte nam na riječ, časna pionirska.
+
+h3. Daj mi Scalu
+
+Primjeri Scala školice rade sa "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html
+Ako koristite Scalu 2.10.x ili noviju, _većina_ primjera će raditi ali ne svi, sori, takav je život.
+
+h3. Pokrenimo Interpreter
+
+Pokrenite <code>sbt console</code>.
+
+<pre>
+$ sbt console
+
+[...]
+
+Welcome to Scala version 2.8.0.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_20).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala>
+</pre>
+
+
+h2(#expressions). Expressions
+
+<pre>
+scala> 1 + 1
+res0: Int = 2
+</pre>
+
+res0 je automatski kreirana vrijednost koju je izdao interpreter kao rezultat vašeg izraza. res0 je tipa Int i sadrži Integer 2.
+
+Gotovo sve u Scali je izraz.
+
+h2(#val). Values
+
+Rezultatu vašeg izraza možete dati ime, idesh, cool.
+
+<pre>
+scala> val two = 1 + 1
+two: Int = 2
+</pre>
+
+h3. Varijable
+
+Var nam služi za, hm, varijabilne vrijednosti, tko bi rekao, <code>var</code>.
+
+<pre>
+scala> var name = "steve"
+name: java.lang.String = steve
+
+scala> name = "marius"
+name: java.lang.String = marius
+</pre>
+
+h2(#functions). Funkcije
+
+Možete kreirati funkcije pomoću def.
+
+<pre>
+scala> def addOne(m: Int): Int = m + 1
+addOne: (m: Int)Int
+</pre>
+
+U Scali, morate definirati tip potpisa za funkcijske parametre. Interpreter vam vraća type signature dok si rekao keks, keks, keks.
+
+<pre>
+scala> val three = addOne(2)
+three: Int = 3
+</pre>
+
+Funkcije možete ostaviti bez argumenata, neće se ljutiti.
+
+<pre>
+scala> def three() = 1 + 2
+three: ()Int
+
+scala> three()
+res2: Int = 3
+
+scala> three
+res3: Int = 3
+</pre>
+
+h3. Anonimne funkcije
+
+Možete kreirati anonimne funkcije.
+
+<pre>
+scala> (x: Int) => x + 1
+res2: (Int) => Int = <function1>
+</pre>
+
+Ova funkcija dodaje 1 Int-u naziva x.
+
+<pre>
+scala> res2(1)
+res3: Int = 2
+</pre>
+
+Možete proslijeđivati anonimne funkcije ili ih spremiti kao vrijednosti u val.
+
+<pre>
+scala> val addOne = (x: Int) => x + 1
+addOne: (Int) => Int = <function1>
+
+scala> addOne(1)
+res4: Int = 2
+</pre>
+
+Ako se vaša funkcija sastoji od mnoštva izraza, možete koristiti {}
+
+<pre>
+def timesTwo(i: Int): Int = {
+  println("hello world")
+  i * 2
+}
+</pre>
+
+Isto vrijedi i za anonimne funkcije.
+
+<pre>
+scala> { i: Int =>
+  println("hello world")
+  i * 2
+}
+res0: (Int) => Int = <function1>
+</pre>
+
+Primijetiti ćete da se ova sintaksa koristi kada se anonimna funkcija prenosi kao argument.
+
+h3. Partial application
+
+Funkciju možete definirati sa _ znakom, što vam daje drugu funkciju. Scala koristi _ znak sa raznim značenjima i u raznim kontekstima, ali _ možete zamisliti kao neimenovani magični wildcard. U kontekstu <code>{ _ + 2 }</code> znači: neimenovani parametar. Možete ga koristiti kao:
+
+<pre>
+scala> def adder(m: Int, n: Int) = m + n
+adder: (m: Int,n: Int)Int
+</pre>
+
+<pre>
+scala> val add2 = adder(2, _:Int)
+add2: (Int) => Int = <function1>
+
+scala> add2(3)
+res50: Int = 5
+</pre>
+
+Možete djelomično pridružiti bilo koji argument u listi argumenata, ne samo jedan.
+
+h3. Curried funkcije
+
+Ponekad ima smisla dopustiti ljudima pristup pridruživanju nekih argumenata vašim funkcijama sada i ostalim likovima dopustiti to isto nešto kasnije.
+
+Ovdje je primjer funkcije koja vam dopušta napraviti množenje dva broja (back to the elementary school, lalal).
+U jednom pozivu odlučujete koji lik je množitelj (tužitelj) a koji množenik (tuženik).
+
+<pre>
+scala> def multiply(m: Int)(n: Int): Int = m * n
+multiply: (m: Int)(n: Int)Int
+</pre>
+
+Možete pozvati direktno sa oba parametra.
+
+<pre>
+scala> multiply(2)(3)
+res0: Int = 6
+</pre>
+
+Možete popuniti prvi parametar i djelomično pridružiti drugi.
+
+<pre>
+scala> val timesTwo = multiply(2) _
+timesTwo: (Int) => Int = <function1>
+
+scala> timesTwo(3)
+res1: Int = 6
+</pre>
+
+Možete uzeti bilo koju funkciju sa više argumenata i curry-ati ga. Pokušajmo sa <code>adder</code>
+
+<pre>
+scala> val curriedAdd = (adder _).curried
+curriedAdd: Int => (Int => Int) = <function1>
+
+scala> val addTwo = curriedAdd(2)
+addTwo: Int => Int = <function1>
+
+scala> addTwo(4)
+res22: Int = 6
+</pre>
+
+h3. Varijabilna duljina argumenata
+
+Postoji posebna sintaksa za metode koje mogu primati parametre ponavljajućeg tipa. Kako bi primijenili String <code>capitalize</code> funkciju na više stringova, možete napisati:
+
+<pre>
+def capitalizeAll(args: String*) = {
+  args.map { arg =>
+    arg.capitalize
+  }
+}
+
+scala> capitalizeAll("rarity", "applejack")
+res2: Seq[String] = ArrayBuffer(Rarity, Applejack)
+</pre>
+
+h2(#class). Klase
+
+<pre>
+scala> class Calculator {
+     |   val brand: String = "HP"
+     |   def add(m: Int, n: Int): Int = m + n
+     | }
+defined class Calculator
+
+scala> val calc = new Calculator
+calc: Calculator = Calculator@e75a11
+
+scala> calc.add(1, 2)
+res1: Int = 3
+
+scala> calc.brand
+res2: String = "HP"
+</pre>
+
+Prikazani su primjeri u kojima se definiraju metode sa def i polja sa val. Metode su samo funkcije koje mogu pristupati stanjima klase.
+
+h3. Konstruktor
+
+Konstruktori nisu posebne metode, oni su kod koji je van definicije metoda u vašoj klasi. Proširimo naš Calculator primjer kako bi uzeli konstruktor argument i zatim ga iskoristili kako bi inicijalizirali interno stanje.
+
+<pre>
+class Calculator(brand: String) {
+  /**
+   * A constructor.
+   */
+  val color: String = if (brand == "TI") {
+    "blue"
+  } else if (brand == "HP") {
+    "black"
+  } else {
+    "white"
+  }
+
+  // An instance method.
+  def add(m: Int, n: Int): Int = m + n
+}
+</pre>
+
+Primijetite dva različita stila komentara.
+
+Možete koristiti konstruktor kako bi konstruirali instancu:
+
+<pre>
+scala> val calc = new Calculator("HP")
+calc: Calculator = Calculator@1e64cc4d
+
+scala> calc.color
+res0: String = black
+</pre>
+
+h3. Expressions
+
+Naš Calculator primjer prikazuje kako je Scala expression-orijentirana. Boja vrijednosti (value color) je ograničena ovisno o if/else izrazu. Scala je expression-orijentirana: većina stvari su expression-i više nego statement-i.
+
+h3. Funkcije će se potući sa Metodama iliti Functions vs Methods
+
+Funkcije i metode su većinom razmjenjive (interchangeable). Zato jer su funkcije i metode toliko slične, možda niste zapamtili da pozivate <em>thing</em> bez obzira radi li se o funkciji ili metodi. Kada uskočite u dubinu različitosti metoda i funkcija, možda ostanete paf tj. možda vas te razlike zbune, uh.
+
+<pre>
+scala> class C {
+     |   var acc = 0
+     |   def minc = { acc += 1 }
+     |   val finc = { () => acc += 1 }
+     | }
+defined class C
+
+scala> val c = new C
+c: C = C@1af1bd6
+
+scala> c.minc // calls c.minc()
+
+scala> c.finc // returns the function as a value:
+res2: () => Unit = <function0>
+</pre>
+
+Kada zovete jednu "funkciju" bez zagrada ali drugu sa zagradama, možete pomisliti <em>Uppsss, mislio sam da sam znao kako Scala funkcije rade, ali očito šipak, niš od toga. Možda onda ponekad zatrebate zagrade?</em> Možda razumijete funkcije, ali koristite metodu.
+
+U praksi, možete raditi sjajne stvari u Scali ostajući u magli promatrajući razlike između metoda i funkcija. Ako ste novi u Scali i čitate <a href="https://www.google.com/search?q=difference+scala+function+method">explanations of the differences</a>, možda ćete imati problema pratiti razlike. To ne znači da ćete imati problema u korištenju Scale. To samo znači da je razlika između funkcija i metoda jako, jako, prepredena iliti lukava.
+
+h2(#extends). Nasljeđivanje
+
+<pre>
+class ScientificCalculator(brand: String) extends Calculator(brand) {
+  def log(m: Double, base: Double) = math.log(m) / math.log(base)
+}
+</pre>
+
+*Dobro je pogledati* Efektivna Scala pokazuje da je <a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">Type alias</a> bolji od <code>extends</code> kada podklasa nije zapravo različita od nadklase. Tura kroz Scalu opisuje <a href="http://www.scala-lang.org/node/125">Subclassing</a>.
+
+h3. Overloading metode
+
+<pre>
+class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
+  def log(m: Int): Double = log(m, math.exp(1))
+}
+</pre>
+
+h3. Abstraktne klase
+
+Možete definirati <em>abstract class</em>, klasu koja definira neke metode ali ih ne implementira. Podklase extend-aju abstraktne klase i definiraju te metode. Ne možete kreirati instancu abstraktne klase.
+
+<pre>
+scala> abstract class Shape {
+     |   def getArea():Int    // subclass should define this
+     | }
+defined class Shape
+
+scala> class Circle(r: Int) extends Shape {
+     |   def getArea():Int = { r * r * 3 }
+     | }
+defined class Circle
+
+scala> val s = new Shape
+<console>:8: error: class Shape is abstract; cannot be instantiated
+       val s = new Shape
+               ^
+
+scala> val c = new Circle(2)
+c: Circle = Circle@65c0035b
+</pre>
+
+h2(#trait). Traits
+
+<code>traits</code> su kolekcije polja i ponašanja koja možete extend-ati ili miješati sa vašim klasama.
+
+<pre>
+trait Car {
+  val brand: String
+}
+
+trait Shiny {
+  val shineRefraction: Int
+}
+</pre>
+
+<pre>
+class BMW extends Car {
+  val brand = "BMW"
+}
+</pre>
+
+Jedna klasa može extend-ati više trait-ova koristeći <code>with</code> ključnu riječ:
+
+<pre>
+class BMW extends Car with Shiny {
+  val brand = "BMW"
+  val shineRefraction = 12
+}
+</pre>
+
+*Dobro je pogledati* Efektivna Scala ima mišljenja o <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">trait-ovima</a>.
+
+*Kada želite Trait umjesto abstraktne klase?* Ako želite definirati interface-like tip, možda ćete teže izabrati između trait-a i abstraktne klase. Oba vam pružaju mogućnost definiranja tipa sa određenim ponašanjem, pitajući extender-e da definiraju neko drugo ponašanje. Kratke napomene:
+
+<ul>
+<li>Prednosti korištenja trait-ova. Korisno je da klasa može extend-ati više trait-ova; klasa može extend-ati samo jednu klasu.
+<li>Ako trebate konstruktor parametar, koristite abstraktnu klasu. Konstruktori abstraktne klase mogu primati parametre; trait konstruktori ne mogu. Npr. ne možete: <code>trait t(i: Int) {}</code>; <code>i</code> parametar je ilegalan.
+</ul>
+
+Niste prva osoba koja pita ovo pitanje. Vidite pune odgovore na "stackoverflow:Scala traits vs abstract classes":http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes, "Difference between Abstract Class and Trait":http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait i "Programming in Scala: To trait, or not to trait?":http://www.artima.com/pins1ed/traits.html#12.7
+
+h2(#types). Tipovi
+
+Ranije ste vidjeli da smo definirali funkciju koja uzima <code>Int</code> koji je podtip Number tipa. Funkcije također mogu biti generičke i bilo kojeg tipa. Kada se to dogodi, vidjeti ćete type parametar sa square bracket sintaksom. Slijedi primjer:
+
+<pre>
+trait Cache[K, V] {
+  def get(key: K): V
+  def put(key: K, value: V)
+  def delete(key: K)
+}
+</pre>
+
+Metode također mogu imati type parametre.
+
+<pre>
+def remove[K](key: K)
+</pre>
