@@ -72,7 +72,7 @@ res0: Long = 1
 
 Klase i Objekti mogu imati jednako ime. Objekt se zove 'Companion Object'.
 
-SLijedi jednostavan primjer kojemu je jedina svrha ukloniti potrebu korištenja 'new' kako bi kreirali instancu.
+Slijedi jednostavan primjer kojemu je jedina svrha ukloniti potrebu korištenja 'new' kako bi kreirali instancu.
 
 <pre>
 class Bar(foo: String)
@@ -87,7 +87,7 @@ h2(#fnobj). Funkcije su Objekti
 
 U Scali, često pričamo o objektno-funkcionalnom programiranju. Što to znači? Što je zapravo Funkcija?
 
-Funkcija je set trait-ova. Točnije, funkcija koja uzima jedan argument je instanca Function1 trait-a. Ova jtrait definira <code>apply()</code> sintatik šugar koji smo spominjali ranije, dopuštajući vam da pozovete objekt kao što bi zvali funkciju.
+Funkcija je set trait-ova. Točnije, funkcija koja uzima jedan argument je instanca Function1 trait-a. Ovaj trait definira <code>apply()</code> sintatik šugar koji smo spominjali ranije, dopuštajući vam da pozovete objekt kao što bi zvali funkciju.
 
 <pre>
 scala> object addOne extends Function1[Int, Int] {
@@ -247,7 +247,7 @@ hp20b: Calculator = Calculator(hp,20b)
 
 </pre>
 
-case klase automatski imaju jednakost i lijepu ToString metodu baziranu na argumentima konstruktora.
+case klase automatski imaju jednakost i lijepu toString metodu baziranu na argumentima konstruktora.
 
 <pre>
 scala> val hp20b = Calculator("HP", "20b")
@@ -310,7 +310,7 @@ try {
 }
 </pre>
 
-<code>try</code>s su također expression-orijentirane
+<code>try</code>-evi su također expression-orijentirani
 
 <pre>
 val result: Int = try {
