@@ -20,7 +20,7 @@ h2(#viewbounds). Pregled granica ("tipovi klasa")
 
 Ponekad ne morate definirati da je jedan tip jednak/inferioran/nadmoćan prema drugome, samo da bi ga mogli fake-ati sa konverzijama. Pregled granica specificira tip koji može biti "kao" neki drugi tip. Ovo ima smisla za operacije kod kojih je potrebno čitati objekte ali ne i mijenjati ih.
 
-*Implicitne* funkcije dopuštaju automatsku konverziju. Preciznije, one dopuštaju on-demand funkciju kada to može pomoći zadovoljiti type inference. e.g.:
+*Implicitne* funkcije dopuštaju automatsku konverziju. Preciznije, one dopuštaju on-demand funkciju kada to može pomoći zadovoljiti type inference. Npr.
 
 <pre>
 scala> implicit def strToInt(x: String) = x.toInt
@@ -60,7 +60,7 @@ scala> (new Container[Float]).addIt(123.2F)
 
 h2(#otherbounds). Ostali tipovi granica
 
-Metode mogu primijeniti još složenije tipove granica kroz implicitne parametre. Npr. <code>List</code> podržava <code>sum</code> na numeričkom sadržaju ali ne i na drugom tipu sadržaja. Svi Scala numerički tipovi ne dijele nadklase pa za to ne možemo samo reći <code>T <: Number</code>. Umjesto toga, Scala math biblioteka <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/"> definira implicitni tip <code>Numeric[T]</code> za prikladan T</a> tip. Zatim ga <code>List</code> definicija koristi:
+Metode mogu primijeniti još složenije tipove granica kroz implicitne parametre. Npr. <code>List</code> podržava <code>sum</code> na numeričkom sadržaju ali ne i na drugom tipu sadržaja. Svi Scala numerički tipovi ne dijele nadklase pa zato ne možemo samo reći <code>T <: Number</code>. Umjesto toga, Scala math biblioteka <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/"> definira implicitni tip <code>Numeric[T]</code> za prikladan T</a> tip. Zatim ga <code>List</code> definicija koristi:
 
 <pre>
 sum[B >: A](implicit num: Numeric[B]): B
