@@ -302,7 +302,7 @@ res0: String = black
 
 h3. 식
 
-BasicCalculator 예제를 보면 스칼라가 식 중심의 언어란 점을 잘 알 수 있다. color 값은 if/else 식에 의해 초기화되었다. 스칼라는 대부분의 구성 요소가 문(statement, 반환값이 없는 문장)이 아니고 식(expression, 결과를 반환하는 문장)이라는 점에서 식 중심의 언어이다.
+Calculator 예제를 보면 스칼라가 식 중심의 언어란 점을 잘 알 수 있다. color 값은 if/else 식에 의해 초기화되었다. 스칼라는 대부분의 구성 요소가 문(statement, 반환값이 없는 문장)이 아니고 식(expression, 결과를 반환하는 문장)이라는 점에서 식 중심의 언어이다.
 
 h3. 곁다리: 함수 대 메소드
 
@@ -400,10 +400,10 @@ class BMW extends Car with Shiny {
 }
 </pre>
 
-*See Also* 효율적인 스칼라도 <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">트레잇에</a>대해 다루고 있다.
+*See Also* 효율적인 스칼라도 <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">트레잇에</a> 대해 다루고 있다.
 .
 
-*추상클래스 대신 트레잇를 사용해야 하는 경우는 언제인가?* 인터페이스 역할을 하는 타입을 설계할 때 트레잇과 추상클래스 중 어떤 것을 골라야할까? 두 가지 다 어떤 동작을 하는 타입을 만들 수 있으며, 확장하는 쪽에서 일부를 구현하도록 요청한다. 중요한 규칙은 다음과 같다.
+*추상클래스 대신 트레잇를 사용해야 하는 경우는 언제인가?* 인터페이스 역할을 하는 타입을 설계할 때 트레잇과 추상클래스 중 어떤 것을 골라야 할까? 두 가지 다 어떤 동작을 하는 타입을 만들 수 있으며, 확장하는 쪽에서 일부를 구현하도록 요청한다. 중요한 규칙은 다음과 같다.
 
 <ul>
 <li>트레잇을 사용하는 것이 낫다. 클래스는 오직 하나만 상속(extend)할 수 있지만, 트레잇은 여러 가지를 받아 사용할 수 있다.
