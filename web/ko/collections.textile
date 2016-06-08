@@ -382,6 +382,7 @@ h2(#vsMap). Map?
 
 앞에서 본 모든 함수 콤비네이터는 맵에서도 사용 가능하다. 맵을 키와 값을 쌍으로 하는 원소를 가지는 리스트로 생각한다면, 앞의 모든 함수들은 그 위에 동작할 수 있다.
 (역주: 여러 콤비네이터는 스칼라 컬렉션의 대부분의 클래스에서 사용 가능하다. 이에 대해서는 <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.package">스칼라 API문서의 컬렉션 부분</a>이나 <a href="http://docs.scala-lang.org/overviews/collections/introduction.html">스칼라 컬렉션 가이드</a>를 참조하라.)
+
 <pre>
 scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
 extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
