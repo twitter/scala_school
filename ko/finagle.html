@@ -45,7 +45,7 @@
     </div>
 
     <div class="container" style="padding-top: 60px;">
-      <p><a href="https://github.com/twitter/finagle" title="Finagle">피네이글</a> 은 트위터의 <acronym title="원격 프로시져 호출"><span class="caps">RPC</span></acronym> 시스템이다. <br />
+      <p><a href="https://github.com/twitter/finagle" title="Finagle">피네이글</a> 은 트위터의 <acronym title="원격 프로시져 호출"><span class="caps">RPC</span></acronym> 시스템이다.<br />
 <a href="https://blog.twitter.com/2011/finagle-a-protocol-agnostic-rpc-system">이 블로그 글</a> 은 만들게 된 동기와 설계 원칙을, <a href="https://github.com/twitter/finagle/blob/master/README.md">피네이글 <span class="caps">README</span></a> 에는 더 자세한 설명이 있다. 피네이글은 튼튼한 클라이언트와 서버를 쉽게 만들려는 목적으로 쓰여졌다.</p>
 <ul>
 	<li><a href="#repl"><span class="caps">REPL</span></a></li>
@@ -72,7 +72,7 @@ scala&gt;
 <pre>
 val myFuture = MySlowService(request) // returns right away
    ...do other things...
-val serviceResult = myFuture.get() // blocks until service "fills in" myFuture
+val serviceResult = Await.result(myFuture) // blocks until service "fills in" myFuture
 </pre>
 <p>실제 상황에서는 요청을 보내고 바로 몇 문장 아래에서 <code>myFuture.get</code>를 호출하지는 않는다. Future에는 콜백을 등록하는 메소드가 있다. 값이 사용 가능해지면 이 콜백이 호출된다.</p>
 <p>다른 비동기 API를 써 본 사람이라면 바로 위의 &quot;콜백&quot;이라는 문장을 본 순간 움츠러들었을지도 모르겠다. 그런 사람은 &quot;콜백&quot;이란 단어를 어떤 함수가 실제 등록되는 시점에서 멀리 떨어진 다른 곳에 숨어있어서 거의 프로그램의 흐름 판독이 불가능했던 코드를 떠올렸으리라. 하지만 스칼라가 제공하는 1등 함수를 사용하면 Future를 사용하면서도 흐름을 파악하기 좋은 코드를 만들 수 있다. 간단한 처리 함수를 <span class="caps">API</span> 호출 시점에 바로 만들어서 넘길 수 있다.</p>
@@ -85,33 +85,33 @@ future onSuccess { reply =&gt; // when the future gets "filled", use its value
 </pre>
 <p>REPL에서 Future를 가지고 장난을 쳐 볼 수 있다. 실제 코드에서의 사용법을 배우기에 좋은 방법은 아니다. 하지만, API를 이해하는 데는 도움이 된다. REPL을 사용하면 Promise를 쉽게 사용할 수 있다. Promise는 추상 Future 클래스의 구체적인 하위 클래스이다. Promise를 사용해 아직 값이 없는 Future를 만들 수 있다.</p>
 <pre>
-scala&gt; import com.twitter.util.{Future,Promise}
-import com.twitter.util.{Future, Promise}
+scala&gt; import com.twitter.util.{Await, Future,Promise}
+import com.twitter.util.{Await, Future, Promise}
 
 scala&gt; val f6 = Future.value(6) // create already-resolved future
 f6: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@c63a8af
 
-scala&gt; f6.get()
+scala&gt; Await.result(f6)
 res0: Int = 6
 
 scala&gt; val fex = Future.exception(new Exception) // create resolved sad future
 fex: com.twitter.util.Future[Nothing] = com.twitter.util.ConstFuture@38ddab20
 
-scala&gt; fex.get()
+scala&gt; Await.result(fex)
 java.lang.Exception
   ... stack trace ...
 
 scala&gt; val pr7 = new Promise[Int] // create unresolved future
 pr7: com.twitter.util.Promise[Int] = Promise@1994943491(...)
 
-scala&gt; pr7.get()
+scala&gt; Await.result(pr7)
   ...console hangs, waiting for future to resolve...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; pr7.setValue(7)
 
-scala&gt; pr7.get()
+scala&gt; Await.result(pr7)
 res1: Int = 7
 
 scala&gt;
@@ -119,22 +119,22 @@ scala&gt;
 <p>실제 코드에서 Future를 사용할 때는 보통 <code>get</code>을 호출하지 않는다. 대신 콜백 함수를 사용한다. <code>get</code>은 REPL에서 이것저것 두드려볼 때나 손쉽게 쓸 수 있는 것이다.</p>
 <p><a name="futsequential">&nbsp;</a></p>
 <h3>순차 합성(Sequential composition)</h3>
-<p>Future에도 <a href="collections.html#combinators">컬렉션 API의 콤비네이터와와 유사한</a> 콤비네이터가 있다(예: map, flatMap). <br />
+<p>Future에도 <a href="collections.html#combinators">컬렉션 API의 콤비네이터와와 유사한</a> 콤비네이터가 있다(예: map, flatMap).<br />
 기억을 되살려 보자. 컬렉션의 콤비네이터를 사용하면 &#8220;정수의 리스트와 정수를 제곱하는 <tt>squre</tt>함수가 있다. 그 함수를 내 정수 리스트에 적용해서 제곱된 값의 리스트를 구하자&#8221; 같은 표현이 가능하다. 아주 깔끔하다. 콤비네이터 함수와 다른 함수들을 함께 조합하면 새로운 함수를 정의하는 효과를 얻는다. Future 콤비네이터로는 &#8220;나는 미래에 정수가 될 Future가 있고, <tt>squire</tt>가 있다. 이 함수를 Future에 적용해서 이 미래에 정수가 될 잠재적 정수의 제곱을 구하자&#8221;라고 할 수 있다.</p>
 <p>만약 비동기 API를 정의한다면, 요청 값이 API에 들어오고, API는 Future로 둘러싸인 응답을 돌려줄 것이다. 따라서 입력과 함수를 Future로 바꿔주는 콤비네이터가 있다면 아주 유용할 것이다. 이를 사용하면 비동기 API를 다른 동기식 API를 기반으로 정의할 수 있기 때문이다.</p>
 <p>가장 중요한 <code>Future</code> 콤비네이터는 <code>flatMap</code><sup class="footnote" id="fnr2"><a href="#fn2">2</a></sup> 이다.</p>
 <blockquote>
 <p><code>def Future[A].flatMap[B](f: A =&gt; Future[B]): Future[B]</code></p>
 </blockquote>
-<p><code>flatMap</code>은 두 Future를 순서대로 연결한다. 즉, 한 Future와 비동기식 함수를 받아서 다른 Future를 반환한다. flatMap 메소드의 시그니쳐가 말하는 바 대로이다. <br />
-앞의 Future가 성공해서 값을 반환하면, 함수 <code>f</code>는 다음 <code>Future</code>를 제공한다. <br />
+<p><code>flatMap</code>은 두 Future를 순서대로 연결한다. 즉, 한 Future와 비동기식 함수를 받아서 다른 Future를 반환한다. flatMap 메소드의 시그니쳐가 말하는 바 대로이다.<br />
+앞의 Future가 성공해서 값을 반환하면, 함수 <code>f</code>는 다음 <code>Future</code>를 제공한다.<br />
 <code>flatMap</code>은 입력 Future가 성공적으로 완료된 경우에 자동으로 <code>f</code>를 호출한다. 이 호출의 결과는 새로운 <code>Future</code>이며, 이는 두 Future(입력 Future와 비동기 함수)가 모두 성공적으로 완료된 경우에만 완료된다.<br />
 두 <code>Future</code>중 하나라도 실패하면 flatMap의 결과값으로 나온 <code>Future</code>도 또한 실패할 것이다.<br />
 묵시적으로 오류를 넘기는 것을 통해 의미상 중요한 경우에만 오류를 처리할 수 있다. <code>flatMap</code>은 이런 의미를 가지는 콤비네이터를 정의할 때 표준적으로 사용하는 이름이다.</p>
 <p>Future가 있고, 그 결과에 비동기 API를 젹용할 생각이면 <tt>flatMap</tt>을 써라. 예를 들어 Future[User]가 있고 어떤 사용자 계정이 사용중지되었는지를 표시하는 Future[Boolean]이 필요하다 하자. 어떤 사용자가 사용정지상태인지를 파악하는 <code>isBanned</code> API가 있을 것이다. 그런데, 이 함수가 비동기적이라 하자. 이럴 때 flatMap을 쓸 수 있다.</p>
 <pre>
-scala&gt; import com.twitter.util.{Future,Promise}
-import com.twitter.util.{Future, Promise}
+scala&gt; import com.twitter.util.{Await, Future,Promise}
+import com.twitter.util.{Await, Future, Promise}
 
 scala&gt; class User(n: String) { val name = n }
 defined class User
@@ -148,19 +148,19 @@ pru: com.twitter.util.Promise[User] = Promise@897588993(...)
 scala&gt; val futBan = pru flatMap isBanned // apply isBanned to future
 futBan: com.twitter.util.Future[Boolean] = Promise@1733189548(...)
 
-scala&gt; futBan.get()
+scala&gt; Await.result(futBan)
   ...REPL hangs, futBan not resolved yet...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; pru.setValue(new User("prudence"))
 
-scala&gt; futBan.get()
+scala&gt; Await.result(futBan)
 res45: Boolean = false
 
 scala&gt;
 </pre>
-<p>이와 비슷하게 <em>동기식</em> 함수를 Future에 적용하려면 <tt>map</tt>을 사용하면 된다. <br />
+<p>이와 비슷하게 <em>동기식</em> 함수를 Future에 적용하려면 <tt>map</tt>을 사용하면 된다.<br />
 예를 들어 Future[RawCredentials]가 있고 Future[Credentials]이 필요하다 치자. 동기식 함수 <code>normalize</code>가 RawCredentials를 Credentials로 바꿔준다면 <code>map</code>을 쓸 수 있다.</p>
 <pre>
 scala&gt; class RawCredentials(u: String, pw: String) {
@@ -186,19 +186,19 @@ praw: com.twitter.util.Promise[RawCredentials] = Promise@1341283926(...)
 scala&gt; val fcred = praw map normalize // apply normalize to future
 fcred: com.twitter.util.Future[Credentials] = Promise@1309582018(...)
 
-scala&gt; fcred.get()
+scala&gt; Await.result(fcred)
    ...REPL hangs, fcred doesn't have a value yet...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; praw.setValue(new RawCredentials("Florence", "nightingale"))
 
-scala&gt; fcred.get().username
+scala&gt; Await.result(fcred).username
 res48: String = florence
 
 scala&gt;
 </pre>
-<p>스칼라에는 flatMap을 호출하는 것을 문법적으로 간편하게 해주는 <code>for</code> 컴프리헨션이 있다. <br />
+<p>스칼라에는 flatMap을 호출하는 것을 문법적으로 간편하게 해주는 <code>for</code> 컴프리헨션이 있다.<br />
 로그인 요청을 비동기 API를 통해 인증하고 해당 사용자가 사용 정지 중인지를 비동기 API를 통해 검사한다 하자. 컴프리헨션을 사용하면 다음과 같이 쓸 수 있다.</p>
 <pre>
 scala&gt; def authenticate(req: LoginRequest) = {
@@ -242,7 +242,7 @@ f23: com.twitter.util.Future[Seq[Int]] = Promise@635209178(...)
 scala&gt; val f5 = f23 map (_.sum)
 f5: com.twitter.util.Future[Int] = Promise@1954478838(...)
 
-scala&gt; f5.get()
+scala&gt; Await.result(f5)
 res9: Int = 5
 
 </pre>
@@ -251,7 +251,7 @@ res9: Int = 5
 scala&gt; val ready = Future.join(Seq(f2, f3))
 ready: com.twitter.util.Future[Unit] = Promise@699347471(...)
 
-scala&gt; ready.get() // doesn't ret value, but I know my futures are done
+scala&gt; Await.result(ready) // doesn't ret value, but I know my futures are done
 
 scala&gt;
 </pre>
@@ -263,21 +263,21 @@ pr7: com.twitter.util.Promise[Int] = Promise@1608532943(...)
 scala&gt; val sel = Future.select(Seq(f2, pr7)) // select from 2 futs, one resolved
 sel: com.twitter.util.Future[...] = Promise@1003382737(...)
 
-scala&gt; val(complete, stragglers) = sel.get()
+scala&gt; val(complete, stragglers) = Await.result(sel)
 complete: com.twitter.util.Try[Int] = Return(2)
 stragglers: Seq[...] = List(...)
 
-scala&gt; complete.get()
+scala&gt; Await.result(complete)
 res110: Int = 2
 
-scala&gt; stragglers(0).get() // our list of not-yet-finished futures has one item
-  ...get() hangs the REPL because this straggling future is not finished...
+scala&gt; Await.result(stragglers(0)) // our list of not-yet-finished futures has one item
+  ...Await.result() hangs the REPL because this straggling future is not finished...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; pr7.setValue(7)
 
-scala&gt; stragglers(0).get()
+scala&gt; Await.result(stragglers(0))
 res113: Int = 7
 
 scala&gt;
@@ -286,7 +286,7 @@ scala&gt;
 <h3>합성 예제: 캐시 비율 제한</h3>
 <p>이런 콤비네이터들은 네트워크 서비스에 있어 전형적인 연산을 표현한다. 다음의 (가상의) 코드는 사용자 대신 요청을 뒷단에 디스패치하면서 동시에 비율 제한(지역 비율 제한 캐시를 유지하기 위해 사용함)을 수행한다.</p>
 <pre>
-// 사용자가 비율 제한에 걸렸는지를 본다. 이 과정은 시간이 오래 걸릴 수 있다. 
+// 사용자가 비율 제한에 걸렸는지를 본다. 이 과정은 시간이 오래 걸릴 수 있다.
 // 원격 서버에게 사용자의 제한 여부를 물어봐야 하기 때문이다
 def isRateLimited(u: User): Future[Boolean] = {
   ...
@@ -295,7 +295,7 @@ def isRateLimited(u: User): Future[Boolean] = {
 // 이 구현을 들어내고 다른 더 제약이 많은 정책을 구현하도록 할 수 있는지 한번 생각해 보라
 
 // 캐시를 검사해 사용자가 비율 제한에 걸렸는지를 본다. 캐시는 단순한 맵으로 되어 있다.
-// 따라서 값을 바로 반환한다. 하지만, 혹시 나중에 더 느린 캐시 구현을 사용할 수도 있으므로 
+// 따라서 값을 바로 반환한다. 하지만, 혹시 나중에 더 느린 캐시 구현을 사용할 수도 있으므로
 // 어쨌든 Future를 반환하도록 한다
 def isLimitedByCache(u: User): Future[Boolean] =  Future.value(limitCache(u))
 
@@ -613,7 +613,7 @@ val  server = ServerBuilder()
 //  .readTimeout(2.minutes)
   .build(filteredService)
 </pre>
-<p>이렇게 하면 <var>port</var> 상에, <var>service</var>로 요청을 전달하는 Thrift 서버를 만들게 된다. <code>hostConnectionMaxLifeTime</code>부분의 주석을 제거하면 각 연결이 최대 5분간만 살아있도록 제한하게 된다. <br />
+<p>이렇게 하면 <var>port</var> 상에, <var>service</var>로 요청을 전달하는 Thrift 서버를 만들게 된다. <code>hostConnectionMaxLifeTime</code>부분의 주석을 제거하면 각 연결이 최대 5분간만 살아있도록 제한하게 된다.<br />
 <code>readTimeout</code>의 주석을 제거하면, 요청이 2분 이내에 들어와야만 처리하게 된다. 필수적인 <code>ServerBuilder</code> 옵션은 <code>name</code>, <code>bindTo</code>, <code>codec</code>이다.</p>
 <h2 id="DontBlock">블록하지 말자(제대로 하는게 아니라면)</h2>
 <p>피네이글은 서비스가 부드럽게 동작하도록 자동으로 쓰레드를 관리한다. 어느 한 서비스가 블록되면 모든 피네이글 쓰레드가 블록된다.</p>

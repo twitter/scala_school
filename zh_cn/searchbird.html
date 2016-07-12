@@ -106,7 +106,7 @@ $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
 
-finagle-client&gt; 
+finagle-client&gt;
 </pre>
 <p>客户端对象 <code>client</code> 现在连接到本地计算机上的9999端口，并可以跟服务交互了。接下来我们发送一些请求：</p>
 <pre>
@@ -119,10 +119,10 @@ res1: ...
 scala&gt; client.get("marius")
 res2: com.twitter.util.Future[String] = ...
 
-scala&gt; client.get("marius").get()
+scala&gt; Await.result(client.get("marius"))
 res3: String = Marius Eriksen
 </pre>
-<p>（第二个 <code>get()</code> 调用解析 <code>client.get()</code> 返回的 <code>Future</code> 类型值，阻塞直到该值准备好。）</p>
+<p>（第二个 <code>Await.result()</code> 调用解析 <code>client.get()</code> 返回的 <code>Future</code> 类型值，阻塞直到该值准备好。）</p>
 <p>该服务器还输出运行统计（配置文件中指定这些信息在9900端口）。这不仅方便对各个服务器进行检查，也利于聚集全局的服务统计（以机器可读的JSON接口）。打开第三个窗口来查看这些统计：</p>
 <pre>
 $ curl localhost:9900/stats.txt
@@ -270,7 +270,7 @@ val reverse = new mutable.HashMap[String, Set[String]]
 <pre>
 def put(key: String, value: String) = {
   log.debug("put %s", key)
-  
+
   forward(key) = value
 
   // serialize updaters
@@ -323,7 +323,7 @@ $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
 
-finagle-client&gt; 
+finagle-client&gt;
 </pre>
 <p>粘贴以下说明到控制台：</p>
 <p><!--
@@ -351,33 +351,33 @@ client.put("searchbird", " building a distributed search engine using")
 </pre>
 <p>现在，我们可以执行一些搜索，返回包含搜索词的文件的键。</p>
 <pre>
-&gt; client.search("functions").get()
+&gt; Await.result(client.search("functions"))
 res12: Seq[String] = ArrayBuffer(basics)
 
-&gt; client.search("java").get()
+&gt; Await.result(client.search("java"))
 res13: Seq[String] = ArrayBuffer(java)
 
-&gt; client.search("java scala").get()
+&gt; Await.result(client.search("java scala"))
 res14: Seq[String] = ArrayBuffer(java)
 
-&gt; client.search("functional").get()
+&gt; Await.result(client.search("functional"))
 res15: Seq[String] = ArrayBuffer(collections)
 
-&gt; client.search("sbt").get()
+&gt; Await.result(client.search("sbt"))
 res16: Seq[String] = ArrayBuffer(simple)
 
-&gt; client.search("types").get()
+&gt; Await.result(client.search("types"))
 res17: Seq[String] = ArrayBuffer(type, advanced)
 </pre>
 <p>回想一下，如果调用返回一个 <code>Future</code> ，我们必须使用一个阻塞的 <code>get()</code> 来获取其中包含的值。我们可以使用 <code>Future.collect</code> 命令来创建多个并发请求，并等待所有请求成功返回：</p>
 <pre>
 &gt; import com.twitter.util.Future
 ...
-&gt; Future.collect(Seq(
+&gt; Await.result(Future.collect(Seq(
     client.search("types"),
     client.search("sbt"),
     client.search("functional")
-  )).get()
+  )))
 res18: Seq[Seq[String]] = ArrayBuffer(ArrayBuffer(type, advanced), ArrayBuffer(simple), ArrayBuffer(collections))
 </pre>
 <h2>分发我们的服务</h2>
@@ -423,7 +423,7 @@ class ResidentIndex extends Index {
 
   def put(key: String, value: String) = {
     log.debug("put %s", key)
-    
+
     forward(key) = value
 
     // admit only one updater.
@@ -604,23 +604,23 @@ $ ./console localhost 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient localhost 9999
 'client' is bound to your thrift client.
 
-finagle-client&gt; client.get("hello").get()
+finagle-client&gt; Await.result(client.get("hello"))
 res0: String = world
 
-finagle-client&gt; client.get("fromShardC").get()
+finagle-client&gt; Await.result(client.get("fromShardC"))
 SearchbirdException(No such key)
 ...
 
-finagle-client&gt; client.get("fromShardA").get()
+finagle-client&gt; Await.result(client.get("fromShardA"))
 res2: String = a value from SHARD_A
 
-finagle-client&gt; client.search("hello").get()
+finagle-client&gt; Await.result(client.search("hello"))
 res3: Seq[String] = ArrayBuffer()
 
-finagle-client&gt; client.search("world").get()
+finagle-client&gt; Await.result(client.search("world"))
 res4: Seq[String] = ArrayBuffer(hello)
 
-finagle-client&gt; client.search("value").get()
+finagle-client&gt; Await.result(client.search("value"))
 res5: Seq[String] = ArrayBuffer(fromShardA, fromShardB)
 </pre>
 <p>这个设计有多个数据抽象，允许更加模块化和可扩展的实现：</p>

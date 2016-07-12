@@ -71,9 +71,9 @@ scala&gt;
 <pre>
 val myFuture = MySlowService(request) // returns right away
    ...do other things...
-val serviceResult = myFuture.get() // blocks until service "fills in" myFuture
+val serviceResult = Await.result(myFuture) // blocks until service "fills in" myFuture
 </pre>
-<p>In practice, you won&#8217;t write code that sends a request and then calls <code>myFuture.get</code> a few statements later. A Future has methods to register callbacks to invoke when the value becomes available.</p>
+<p>In practice, you won&#8217;t write code that sends a request and then calls <code>Await.result()/code&gt; a few statements later. A Future has methods to register callbacks to invoke when the value becomes available.</p>
 <p>If you&#8217;ve used other asynchronous APIs, you perhaps cringed when you saw the word &#8220;callbacks&#8221; just now. You might associate them with illegible code flows, functions hiding far from where they&#8217;re invoked. But Futures can take advantage of Scala&#8217;s first-class functions to present a more-readable code flow. You can define a simpler handler function in the place where it&#8217;s invoked.</p>
 <p>For example to, write code that dispatches a request and then &#8220;handles&#8221; the response, you can keep the code together:</p>
 <pre>
@@ -84,38 +84,38 @@ future onSuccess { reply =&gt; // when the future gets "filled", use its value
 </pre>
 <p>You can play with Futures in the <span class="caps">REPL</span>. This is a bad way to learn how you will use them in real code, but can help with understanding the <span class="caps">API</span>. When you use the <span class="caps">REPL</span>, Promise is a handy class. It&#8217;s a concrete subclass of the abstract Future class. You can use it to create a Future that has no value yet.</p>
 <pre>
-scala&gt; import com.twitter.util.{Future,Promise}
-import com.twitter.util.{Future, Promise}
+scala&gt; import com.twitter.util.{Await, Future,Promise}
+import com.twitter.util.{Await, Future, Promise}
 
 scala&gt; val f6 = Future.value(6) // create already-resolved future
 f6: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@c63a8af
 
-scala&gt; f6.get()
+scala&gt; Await.result(f6)
 res0: Int = 6
 
 scala&gt; val fex = Future.exception(new Exception) // create resolved sad future
 fex: com.twitter.util.Future[Nothing] = com.twitter.util.ConstFuture@38ddab20
 
-scala&gt; fex.get()
+scala&gt; Await.result(fex)
 java.lang.Exception
   ... stack trace ...
 
 scala&gt; val pr7 = new Promise[Int] // create unresolved future
 pr7: com.twitter.util.Promise[Int] = Promise@1994943491(...)
 
-scala&gt; pr7.get()
+scala&gt; Await.result(pr7)
   ...console hangs, waiting for future to resolve...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; pr7.setValue(7)
 
-scala&gt; pr7.get()
+scala&gt; Await.result(pr7)
 res1: Int = 7
 
 scala&gt;
 </pre>
-<p>When you use Futures in real code, you normally don&#8217;t call <code>get</code>; you use callback functions instead. <code>get</code> is just handy for <span class="caps">REPL</span> tinkering.</p>
+<p>When you use Futures in real code, you normally don&#8217;t call <code>Await.result()</code>; you use callback functions instead. <code>Await.result()</code> is just handy for <span class="caps">REPL</span> tinkering.</p>
 <p><a name="futsequential">&nbsp;</a></p>
 <h3>Sequential composition</h3>
 <p>Futures have combinators <a href="collections.html#combinators">similar to those in the collections APIs</a> (e.g., map, flatMap). A collection-combinator, you recall, lets you express things like &#8220;I have a List of integers and a <tt>square</tt> function: map that to the List of the squares of my integers.&#8221; This is neat; you can put together the combinator-function with another function to effectively define a new function. A Future-combinator lets you express things like &#8220;I have a Future hypothetical-integer and a <tt>square</tt> function: map that to the Future square of my hypothetical-integer.&#8221;</p>
@@ -127,8 +127,8 @@ scala&gt;
 <p><code>flatMap</code> sequences two futures. That is, it takes a Future and an asynchronous function and returns another Future. The method signature tells the story: given the successful value of a future, the function <code>f</code> provides the next <code>Future</code>. <code>flatMap</code> automatically calls <code>f</code> if/when the input <code>Future</code> completes successfully. The result of this operation is another <code>Future</code> that is complete only when both of these futures have completed. If either <code>Future</code> fails, the given <code>Future</code> will also fail. This implicit interleaving of errors allow us to handle errors only in those places where they are semantically significant. <code>flatMap</code> is the standard name for the combinator with these semantics.</p>
 <p>If you have a Future and you want apply an asynchronous <span class="caps">API</span> to its value, use <tt>flatMap</tt>. For example, suppose you have a Future[User] and need a Future[Boolean] indicating whether the enclosed User has been banned. There is an <code>isBanned</code> <span class="caps">API</span> to determine whether a User has been banned, but it is asynchronous. You can use flatMap:</p>
 <pre>
-scala&gt; import com.twitter.util.{Future,Promise}
-import com.twitter.util.{Future, Promise}
+scala&gt; import com.twitter.util.{Await, Future,Promise}
+import com.twitter.util.{Await, Future, Promise}
 
 scala&gt; class User(n: String) { val name = n }
 defined class User
@@ -142,14 +142,14 @@ pru: com.twitter.util.Promise[User] = Promise@897588993(...)
 scala&gt; val futBan = pru flatMap isBanned // apply isBanned to future
 futBan: com.twitter.util.Future[Boolean] = Promise@1733189548(...)
 
-scala&gt; futBan.get()
+scala&gt; Await.result(futBan)
   ...REPL hangs, futBan not resolved yet...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; pru.setValue(new User("prudence"))
 
-scala&gt; futBan.get()
+scala&gt; Await.result(futBan)
 res45: Boolean = false
 
 scala&gt;
@@ -179,14 +179,14 @@ praw: com.twitter.util.Promise[RawCredentials] = Promise@1341283926(...)
 scala&gt; val fcred = praw map normalize // apply normalize to future
 fcred: com.twitter.util.Future[Credentials] = Promise@1309582018(...)
 
-scala&gt; fcred.get()
+scala&gt; Await.result(fcred)
    ...REPL hangs, fcred doesn't have a value yet...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; praw.setValue(new RawCredentials("Florence", "nightingale"))
 
-scala&gt; fcred.get().username
+scala&gt; Await.result(fcred).username
 res48: String = florence
 
 scala&gt;
@@ -234,7 +234,7 @@ f23: com.twitter.util.Future[Seq[Int]] = Promise@635209178(...)
 scala&gt; val f5 = f23 map (_.sum)
 f5: com.twitter.util.Future[Int] = Promise@1954478838(...)
 
-scala&gt; f5.get()
+scala&gt; Await.result(f5)
 res9: Int = 5
 
 </pre>
@@ -243,7 +243,7 @@ res9: Int = 5
 scala&gt; val ready = Future.join(Seq(f2, f3))
 ready: com.twitter.util.Future[Unit] = Promise@699347471(...)
 
-scala&gt; ready.get() // doesn't ret value, but I know my futures are done
+scala&gt; Await.result(ready) // doesn't ret value, but I know my futures are done
 
 scala&gt;
 </pre>
@@ -255,21 +255,21 @@ pr7: com.twitter.util.Promise[Int] = Promise@1608532943(...)
 scala&gt; val sel = Future.select(Seq(f2, pr7)) // select from 2 futs, one resolved
 sel: com.twitter.util.Future[...] = Promise@1003382737(...)
 
-scala&gt; val(complete, stragglers) = sel.get()
+scala&gt; val(complete, stragglers) = Await.result(sel)
 complete: com.twitter.util.Try[Int] = Return(2)
 stragglers: Seq[...] = List(...)
 
-scala&gt; complete.get()
+scala&gt; Await.result(complete)
 res110: Int = 2
 
-scala&gt; stragglers(0).get() // our list of not-yet-finished futures has one item
-  ...get() hangs the REPL because this straggling future is not finished...
+scala&gt; Await.result(stragglers(0)) // our list of not-yet-finished futures has one item
+  ...Await.result() hangs the REPL because this straggling future is not finished...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; pr7.setValue(7)
 
-scala&gt; stragglers(0).get()
+scala&gt; Await.result(stragglers(0))
 res113: Int = 7
 
 scala&gt;

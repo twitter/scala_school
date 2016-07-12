@@ -82,7 +82,7 @@ defined class Container
 scala&gt; (new Container[String]).addIt("123")
 res11: Int = 246
 
-scala&gt; (new Container[Int]).addIt(123) 
+scala&gt; (new Container[Int]).addIt(123)
 res12: Int = 246
 
 scala&gt; (new Container[Float]).addIt(123.2F)
@@ -166,7 +166,7 @@ trait LowPriorityOrderingImplicits {
 scala&gt; def foo[A](implicit x: Ordered[A]) {}
 foo: [A](implicit x: Ordered[A])Unit
 
-scala&gt; def foo[A : Ordered] {}                        
+scala&gt; def foo[A : Ordered] {}
 foo: [A](implicit evidence$1: Ordered[A])Unit
 </pre>
 <p>Implicit values may be accessed via <strong>implicitly</strong></p>
@@ -200,7 +200,7 @@ scala&gt; implicit val listContainer = new Container[List] { def put[A](x: A) = 
 scala&gt; implicit val optionContainer = new Container[Some] { def put[A](x: A) = Some(x); def get[A](m: Some[A]) = m.get }
 
 scala&gt; def tupleize[M[_]: Container, A, B](fst: M[A], snd: M[B]) = {
-     | val c = implicitly[Container[M]]                             
+     | val c = implicitly[Container[M]]
      | c.put(c.get(fst), c.get(snd))
      | }
 tupleize: [M[_],A,B](fst: M[A],snd: M[B])(implicit evidence$1: Container[M])M[(A, B)]
@@ -216,7 +216,7 @@ res34: List[(Int, Int)] = List((1,2))
 <pre>
 trait Container extends Ordered[Container]
 </pre>
-<p>However, this now necessitates the compare method</p>
+<p>However, this now necessitates the subclass to implement the compare method</p>
 <pre>
 def compare(that: Container): Int
 </pre>
@@ -227,6 +227,22 @@ class MyContainer extends Container {
 }
 </pre>
 <p>fails to compile, since we are specifying Ordered for <strong>Container</strong>, not the particular subtype.</p>
+<p>Then an alternative solution would be parameterize Container so that we can access the subtype in the subclass.</p>
+<pre>
+trait Container[A] extends Ordered[A]
+</pre>
+<p>The subclass could now do the following:</p>
+<pre>
+class MyContainer extends Container[MyContainer] {
+  def compare(that: MyContainer): Int
+}
+</pre>
+<p>But the problem is that the type A is not bounded by anything, and you could potentially do something like this:</p>
+<pre>
+class MyContainer extends Container[String] {
+  def compare(that: String): Int
+}
+</pre>
 <p>To reconcile this, we instead use F-bounded polymorphism.</p>
 <pre>
 trait Container[A &lt;: Container[A]] extends Ordered[A]
@@ -234,8 +250,8 @@ trait Container[A &lt;: Container[A]] extends Ordered[A]
 <p>Strange type!  But note now how Ordered is parameterized on <strong>A</strong>, which itself is <strong>Container[A]</strong></p>
 <p>So, now</p>
 <pre>
-class MyContainer extends Container[MyContainer] { 
-  def compare(that: MyContainer) = 0 
+class MyContainer extends Container[MyContainer] {
+  def compare(that: MyContainer) = 0
 }
 </pre>
 <p>They are now ordered:</p>
@@ -251,8 +267,8 @@ res4: MyContainer = MyContainer@33dfeb30
 scala&gt; class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
 defined class YourContainer
 
-scala&gt; List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)                   
-res2: List[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &gt;: YourContainer with MyContainer &lt;: ScalaObject]]] 
+scala&gt; List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)
+res2: List[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &gt;: YourContainer with MyContainer &lt;: ScalaObject]]]
   = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
 </pre>
 <p>Note how the resulting type is now lower-bound by <strong>YourContainer with MyContainer</strong>. This is the work of the type inferencer. Interestingly- this type doesn&#8217;t even need to make sense, it only provides a logical greatest lower bound for the unified type of the list. What happens if we try to use <strong>Ordered</strong> now?</p>
@@ -268,7 +284,7 @@ res2: List[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &g
 scala&gt; def foo(x: { def get: Int }) = 123 + x.get
 foo: (x: AnyRef{def get: Int})Int
 
-scala&gt; foo(new { def get = 10 })                 
+scala&gt; foo(new { def get = 10 })
 res0: Int = 133
 </pre>
 <p>This can be quite nice in many situations, but the implementation uses reflection, so be performance-aware!</p>
@@ -278,7 +294,7 @@ res0: Int = 133
 scala&gt; trait Foo { type A; val x: A; def getX: A = x }
 defined trait Foo
 
-scala&gt; (new Foo { type A = Int; val x = 123 }).getX   
+scala&gt; (new Foo { type A = Int; val x = 123 }).getX
 res3: Int = 123
 
 scala&gt; (new Foo { type A = String; val x = "hey" }).getX
@@ -319,14 +335,14 @@ trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
         })
       }
     }
-    
+
   def andThen(service: Service[ReqOut, RepIn]) = new Service[ReqIn, RepOut] {
     private[this] val refcounted = new RefcountedService(service)
 
     def apply(request: ReqIn) = Filter.this.apply(request, refcounted)
     override def release() = refcounted.release()
     override def isAvailable = refcounted.isAvailable
-  }    
+  }
 }
 </pre>
 <p>A service may authenticate requests with a filter.</p>

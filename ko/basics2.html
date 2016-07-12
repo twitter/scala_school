@@ -212,9 +212,9 @@ def bigger(o: Any): Any = {
 <p>타입(계산기의 유형)에 따라 계산기를 구분하자.</p>
 <pre>
 def calcType(calc: Calculator) = calc match {
-  case calc.brand == "hp" &amp;&amp; calc.model == "20B" =&gt; "financial"
-  case calc.brand == "hp" &amp;&amp; calc.model == "48G" =&gt; "scientific"
-  case calc.brand == "hp" &amp;&amp; calc.model == "30B" =&gt; "business"
+  case calc.brand == "HP" &amp;&amp; calc.model == "20B" =&gt; "financial"
+  case calc.brand == "HP" &amp;&amp; calc.model == "48G" =&gt; "scientific"
+  case calc.brand == "HP" &amp;&amp; calc.model == "30B" =&gt; "business"
   case _ =&gt; "unknown"
 }
 </pre>
@@ -225,16 +225,16 @@ def calcType(calc: Calculator) = calc match {
 scala&gt; case class Calculator(brand: String, model: String)
 defined class Calculator
 
-scala&gt; val hp20b = Calculator("hp", "20b")
+scala&gt; val hp20b = Calculator("HP", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
 </pre>
 <p>케이스 클래스는 자동으로 생성자 인자에 따른 동등성 검사를 제공하며, 또한 보기 좋은 toString 메소드도 제공한다.</p>
 <pre>
-scala&gt; val hp20b = Calculator("hp", "20b")
+scala&gt; val hp20b = Calculator("HP", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
-scala&gt; val hp20B = Calculator("hp", "20b")
+scala&gt; val hp20B = Calculator("HP", "20b")
 hp20B: Calculator = Calculator(hp,20b)
 
 scala&gt; hp20b == hp20B
@@ -244,13 +244,13 @@ res6: Boolean = true
 <h6>케이스 클래스와 패턴 매칭</h6>
 <p>케이스 클래스는 패턴 매치와 사용하기 위해 설계된 것이다. 앞의 계산기 분류 예제를 간략하게 만들어보자.</p>
 <pre>
-val hp20b = Calculator("hp", "20B")
-val hp30b = Calculator("hp", "30B")
+val hp20b = Calculator("HP", "20B")
+val hp30b = Calculator("HP", "30B")
 
 def calcType(calc: Calculator) = calc match {
-  case Calculator("hp", "20B") =&gt; "financial"
-  case Calculator("hp", "48G") =&gt; "scientific"
-  case Calculator("hp", "30B") =&gt; "business"
+  case Calculator("HP", "20B") =&gt; "financial"
+  case Calculator("HP", "48G") =&gt; "scientific"
+  case Calculator("HP", "30B") =&gt; "business"
   case Calculator(ourBrand, ourModel) =&gt; "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
 }
 </pre>

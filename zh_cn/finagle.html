@@ -72,7 +72,7 @@ scala&gt;
 <pre>
 val myFuture = MySlowService(request) // returns right away
    ...do other things...
-val serviceResult = myFuture.get() // blocks until service "fills in" myFuture
+val serviceResult = Await.result(myFuture) // blocks until service "fills in" myFuture
 </pre>
 <p>在实践中，你不会发送一个请求，然后在几行代码后调用<code>myFuture.get</code>。Future提供了注册回调的方法，在值变得可用时会调用注册的回调函数。</p>
 <p>如果你用过其他异步API，当看到“回调”你也许会畏缩。你可能会联想到他们难以辨认的代码流，被调用的函数藏在离调用处远远的地方。但是，Future可以利用Scala中“函数是一等公民”的特性编写出更可读的代码流。你可以在调用它的地方简单地定义一个处理函数。</p>
@@ -85,33 +85,33 @@ future onSuccess { reply =&gt; // when the future gets "filled", use its value
 </pre>
 <p>你可以在REPL中用体验一下Future。虽然不是学习如何在实际代码中使用他们的好方法，但可以帮助理解API。当你使用REPL，Promise是一个方便的类。它是Future抽象类的一个具体子类。你可以用它来创建一个还没有值的Future。</p>
 <pre>
-scala&gt; import com.twitter.util.{Future,Promise}
-import com.twitter.util.{Future, Promise}
+scala&gt; import com.twitter.util.{Await, Future,Promise}
+import com.twitter.util.{Await, Future, Promise}
 
 scala&gt; val f6 = Future.value(6) // create already-resolved future
 f6: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@c63a8af
 
-scala&gt; f6.get()
+scala&gt; Await.result(f6)
 res0: Int = 6
 
 scala&gt; val fex = Future.exception(new Exception) // create resolved sad future
 fex: com.twitter.util.Future[Nothing] = com.twitter.util.ConstFuture@38ddab20
 
-scala&gt; fex.get()
+scala&gt; Await.result(fex)
 java.lang.Exception
   ... stack trace ...
 
 scala&gt; val pr7 = new Promise[Int] // create unresolved future
 pr7: com.twitter.util.Promise[Int] = Promise@1994943491(...)
 
-scala&gt; pr7.get()
+scala&gt; Await.result(pr7)
   ...console hangs, waiting for future to resolve...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; pr7.setValue(7)
 
-scala&gt; pr7.get()
+scala&gt; Await.result(pr7)
 res1: Int = 7
 
 scala&gt;
@@ -128,8 +128,8 @@ scala&gt;
 <p><code>flatMap</code> 序列化两个Future。即，它接受一个Future和一个异步函数，并返回另一个Future。方法签名中是这样写的：给定一个Future成功的值，函数<code>f</code>提供下一个<code>Future</code>。如果/当输入的<code>Future</code> 成功完成，<code>flatMap</code>自动调用<code>f</code>。只有当这两个Future都已完成，此操作所代表的<code>Future</code>才算完成。如果任何一个<code>Future</code>失败，则操作确定的 <code>Future</code>也将失败。这种隐交织的错误让我们只需要在必要时来处理错误，所以语法意义很大。<code>flatMap</code>是这些语义组合子的标准名称。</p>
 <p>如果你有一个Future并且想在异步API使用其值，使用<tt>flatMap</tt>。例如，假设你有一个Future[User]，需要一个Future[Boolean]表示用户是否已被禁止。有一个<code>isBanned</code> 的异步API来判断一个用户是否已被禁止。此时可以使用flatMap ：</p>
 <pre>
-scala&gt; import com.twitter.util.{Future,Promise}
-import com.twitter.util.{Future, Promise}
+scala&gt; import com.twitter.util.{Await, Future,Promise}
+import com.twitter.util.{Await, Future, Promise}
 
 scala&gt; class User(n: String) { val name = n }
 defined class User
@@ -143,14 +143,14 @@ pru: com.twitter.util.Promise[User] = Promise@897588993(...)
 scala&gt; val futBan = pru flatMap isBanned // apply isBanned to future
 futBan: com.twitter.util.Future[Boolean] = Promise@1733189548(...)
 
-scala&gt; futBan.get()
+scala&gt; Await.result(futBan)
   ...REPL hangs, futBan not resolved yet...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; pru.setValue(new User("prudence"))
 
-scala&gt; futBan.get()
+scala&gt; Await.result(futBan)
 res45: Boolean = false
 
 scala&gt;
@@ -180,14 +180,14 @@ praw: com.twitter.util.Promise[RawCredentials] = Promise@1341283926(...)
 scala&gt; val fcred = praw map normalize // apply normalize to future
 fcred: com.twitter.util.Future[Credentials] = Promise@1309582018(...)
 
-scala&gt; fcred.get()
+scala&gt; Await.result(fcred)
    ...REPL hangs, fcred doesn't have a value yet...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; praw.setValue(new RawCredentials("Florence", "nightingale"))
 
-scala&gt; fcred.get().username
+scala&gt; Await.result(fcred).username
 res48: String = florence
 
 scala&gt;
@@ -236,7 +236,7 @@ f23: com.twitter.util.Future[Seq[Int]] = Promise@635209178(...)
 scala&gt; val f5 = f23 map (_.sum)
 f5: com.twitter.util.Future[Int] = Promise@1954478838(...)
 
-scala&gt; f5.get()
+scala&gt; Await.result(f5)
 res9: Int = 5
 
 </pre>
@@ -245,7 +245,7 @@ res9: Int = 5
 scala&gt; val ready = Future.join(Seq(f2, f3))
 ready: com.twitter.util.Future[Unit] = Promise@699347471(...)
 
-scala&gt; ready.get() // doesn't ret value, but I know my futures are done
+scala&gt; Await.result(ready) // doesn't ret value, but I know my futures are done
 
 scala&gt;
 </pre>
@@ -257,21 +257,21 @@ pr7: com.twitter.util.Promise[Int] = Promise@1608532943(...)
 scala&gt; val sel = Future.select(Seq(f2, pr7)) // select from 2 futs, one resolved
 sel: com.twitter.util.Future[...] = Promise@1003382737(...)
 
-scala&gt; val(complete, stragglers) = sel.get()
+scala&gt; val(complete, stragglers) = Await.result(sel)
 complete: com.twitter.util.Try[Int] = Return(2)
 stragglers: Seq[...] = List(...)
 
-scala&gt; complete.get()
+scala&gt; Await.result(complete)
 res110: Int = 2
 
-scala&gt; stragglers(0).get() // our list of not-yet-finished futures has one item
-  ...get() hangs the REPL because this straggling future is not finished...
+scala&gt; Await.result(stragglers(0)) // our list of not-yet-finished futures has one item
+  ...Await.result() hangs the REPL because this straggling future is not finished...
 Ctrl-C
 Execution interrupted by signal.
 
 scala&gt; pr7.setValue(7)
 
-scala&gt; stragglers(0).get()
+scala&gt; Await.result(stragglers(0))
 res113: Int = 7
 
 scala&gt;

@@ -188,7 +188,7 @@ executor.execute(future)
 </pre>
 <p>现在我需要结果，所以阻塞直到其完成。</p>
 <pre>
-val blockingResult = future.get()
+val blockingResult = Await.result(future)
 </pre>
 <p><strong>参考</strong> <a href="finagle.html">Scala School的Finagle介绍</a>中大量使用了<code>Future</code>，包括一些把它们结合起来的不错的方法。以及 Effective Scala 对<a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a>的意见。</p>
 <h2 id="danger">线程安全问题</h2>

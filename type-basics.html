@@ -213,7 +213,7 @@ defined class Chicken
 <pre>
 scala&gt; val getTweet: (Bird =&gt; String) = // TODO
 </pre>
-<p>The standard animal library has a function that does what you want, but it takes an <code>Animal</code> parameter instead.  In most situations, if you say &#8220;I need a ___, I have a subclass of ___&#8221;, you&#8217;re OK. But function parameters are contravariant. If you need a function that takes a <code>Bird</code> and you have a function that takes an <code>Chicken</code>, that function would choke on a <code>Duck</code>. But a function that takes an <code>Animal</code> is OK:</p>
+<p>The standard animal library has a function that does what you want, but it takes an <code>Animal</code> parameter instead.  In most situations, if you say &#8220;I need a ___, I have a subclass of ___&#8221;, you&#8217;re OK. But function parameters are contravariant. If you need a function that takes a <code>Bird</code> and you have a function that takes a <code>Chicken</code>, that function would choke on a <code>Duck</code>. But a function that takes an <code>Animal</code> is OK:</p>
 <pre>
 scala&gt; val getTweet: (Bird =&gt; String) = ((a: Animal) =&gt; a.sound )
 getTweet: Bird =&gt; String = &lt;function1&gt;

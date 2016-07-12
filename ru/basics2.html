@@ -206,9 +206,9 @@ def bigger(o: Any): Any = {
 <p>Давайте проведем классификацию по типам.</p>
 <pre>
 def calcType(calc: Calculator) = calc match {
-  case calc.brand == "hp" &amp;&amp; calc.model == "20B" =&gt; "financial"
-  case calc.brand == "hp" &amp;&amp; calc.model == "48G" =&gt; "scientific"
-  case calc.brand == "hp" &amp;&amp; calc.model == "30B" =&gt; "business"
+  case calc.brand == "HP" &amp;&amp; calc.model == "20B" =&gt; "financial"
+  case calc.brand == "HP" &amp;&amp; calc.model == "48G" =&gt; "scientific"
+  case calc.brand == "HP" &amp;&amp; calc.model == "30B" =&gt; "business"
   case _ =&gt; "unknown"
 }
 </pre>
@@ -219,16 +219,16 @@ def calcType(calc: Calculator) = calc match {
 scala&gt; case class Calculator(brand: String, model: String)
 defined class Calculator
 
-scala&gt; val hp20b = Calculator("hp", "20b")
+scala&gt; val hp20b = Calculator("HP", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
 </pre>
 <p>У case классов есть метод ToString, работающий автоматически, и который опирается на аргументы конструктора.</p>
 <pre>
-scala&gt; val hp20b = Calculator("hp", "20b")
+scala&gt; val hp20b = Calculator("HP", "20b")
 hp20b: Calculator = Calculator(hp,20b)
 
-scala&gt; val hp20B = Calculator("hp", "20b")
+scala&gt; val hp20B = Calculator("HP", "20b")
 hp20B: Calculator = Calculator(hp,20b)
 
 scala&gt; hp20b == hp20B
@@ -238,13 +238,13 @@ res6: Boolean = true
 <h6>Case Классы и сопоставление с образцом</h6>
 <p>case классы предназначены для использования вместе с сопоставлением с образцом. Давайте упростим наш классификатор из примера с калькулятором.</p>
 <pre>
-val hp20b = Calculator("hp", "20B")
-val hp30b = Calculator("hp", "30B")
+val hp20b = Calculator("HP", "20B")
+val hp30b = Calculator("HP", "30B")
 
 def calcType(calc: Calculator) = calc match {
-  case Calculator("hp", "20B") =&gt; "financial"
-  case Calculator("hp", "48G") =&gt; "scientific"
-  case Calculator("hp", "30B") =&gt; "business"
+  case Calculator("HP", "20B") =&gt; "financial"
+  case Calculator("HP", "48G") =&gt; "scientific"
+  case Calculator("HP", "30B") =&gt; "business"
   case Calculator(ourBrand, ourModel) =&gt; "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
 }
 </pre>

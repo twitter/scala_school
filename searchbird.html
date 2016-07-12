@@ -106,7 +106,7 @@ $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
 
-finagle-client&gt; 
+finagle-client&gt;
 </pre>
 <p>The client object <code>client</code> is now connected to port 9999 on our local computer, and can talk to the service that we previously started on that port. So let&#8217;s send it some requests:</p>
 <pre>
@@ -119,10 +119,10 @@ res1: ...
 scala&gt; client.get("marius")
 res2: com.twitter.util.Future[String] = ...
 
-scala&gt; client.get("marius").get()
+scala&gt; Await.result(client.get("marius"))
 res3: String = Marius Eriksen
 </pre>
-<p>(The second <code>get()</code> call resolves the <code>Future</code> that is the return type of <code>client.get()</code> by blocking until the value is ready.)</p>
+<p>(The <code>Await.result()</code> call resolves the <code>Future</code> that is the return type of <code>client.get()</code> by blocking until the value is ready.)</p>
 <p>The server also exports runtime statistics (the configuration file specifies these can be found at port 9900). These are convenient both for inspecting individual servers as well as aggregating into global service statistics (a machine-readable <span class="caps">JSON</span> interface is also provided). Open a third window and check those stats:</p>
 <pre>
 $ curl localhost:9900/stats.txt
@@ -270,7 +270,7 @@ val reverse = new mutable.HashMap[String, Set[String]]
 <pre>
 def put(key: String, value: String) = {
   log.debug("put %s", key)
-  
+
   forward(key) = value
 
   // serialize updaters
@@ -323,7 +323,7 @@ $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
 
-finagle-client&gt; 
+finagle-client&gt;
 </pre>
 <p>Paste the following lecture descriptions into the console:</p>
 <p><!--
@@ -351,33 +351,33 @@ client.put("searchbird", " building a distributed search engine using")
 </pre>
 <p>We can now perform some searches, which return the keys of the documents that contain the search terms.</p>
 <pre>
-&gt; client.search("functions").get()
+&gt; Await.result(client.search("functions"))
 res12: Seq[String] = ArrayBuffer(basics)
 
-&gt; client.search("java").get()
+&gt; Await.result(client.search("java"))
 res13: Seq[String] = ArrayBuffer(java)
 
-&gt; client.search("java scala").get()
+&gt; Await.result(client.search("java scala"))
 res14: Seq[String] = ArrayBuffer(java)
 
-&gt; client.search("functional").get()
+&gt; Await.result(client.search("functional"))
 res15: Seq[String] = ArrayBuffer(collections)
 
-&gt; client.search("sbt").get()
+&gt; Await.result(client.search("sbt"))
 res16: Seq[String] = ArrayBuffer(simple)
 
-&gt; client.search("types").get()
+&gt; Await.result(client.search("types"))
 res17: Seq[String] = ArrayBuffer(type, advanced)
 </pre>
-<p>Recall that if the call returns a <code>Future</code>, we have to use a blocking <code>get()</code> call to resolve the value contained within that future. We can use the <code>Future.collect</code> command to make multiple concurrent requests and wait for all of them to succeed:</p>
+<p>Recall that if the call returns a <code>Future</code>, we have to use a blocking <code>Await.result()</code> call to resolve the value contained within that future. We can use the <code>Future.collect</code> command to make multiple concurrent requests and wait for all of them to succeed:</p>
 <pre>
-&gt; import com.twitter.util.Future
+&gt; import com.twitter.util.{Await, Future}
 ...
-&gt; Future.collect(Seq(
+&gt; Await.result(Future.collect(Seq(
     client.search("types"),
     client.search("sbt"),
     client.search("functional")
-  )).get()
+  )))
 res18: Seq[Seq[String]] = ArrayBuffer(ArrayBuffer(type, advanced), ArrayBuffer(simple), ArrayBuffer(collections))
 </pre>
 <h2>Distributing our service</h2>
@@ -423,7 +423,7 @@ class ResidentIndex extends Index {
 
   def put(key: String, value: String) = {
     log.debug("put %s", key)
-    
+
     forward(key) = value
 
     // admit only one updater.
@@ -604,23 +604,23 @@ $ ./console localhost 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient localhost 9999
 'client' is bound to your thrift client.
 
-finagle-client&gt; client.get("hello").get()
+finagle-client&gt; Await.result(client.get("hello"))
 res0: String = world
 
-finagle-client&gt; client.get("fromShardC").get()
+finagle-client&gt; Await.result(client.get("fromShardC"))
 SearchbirdException(No such key)
 ...
 
-finagle-client&gt; client.get("fromShardA").get()
+finagle-client&gt; Await.result(client.get("fromShardA"))
 res2: String = a value from SHARD_A
 
-finagle-client&gt; client.search("hello").get()
+finagle-client&gt; Await.result(client.search("hello"))
 res3: Seq[String] = ArrayBuffer()
 
-finagle-client&gt; client.search("world").get()
+finagle-client&gt; Await.result(client.search("world"))
 res4: Seq[String] = ArrayBuffer(hello)
 
-finagle-client&gt; client.search("value").get()
+finagle-client&gt; Await.result(client.search("value"))
 res5: Seq[String] = ArrayBuffer(fromShardA, fromShardB)
 </pre>
 <p>This design has multiple data abstractions that allow a more modular and scalable implementation:</p>

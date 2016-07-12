@@ -239,7 +239,7 @@ case class beEven(b: Int) extends Matcher[Int]() {
 import org.specs.Specification
 import org.specs.mock.Mockito
 
-class Foo[T] {
+abstract class Foo[T] {
   def get(i: Int): T
 }
 

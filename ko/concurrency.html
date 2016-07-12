@@ -177,7 +177,7 @@ $ nc localhost 2020
 pool-1-thread-2
 </pre>
 <h2 id="Future">Future</h2>
-<p><code>Future</code> 는 비동기적 연산을 나타낸다. 필요한 계산을 Future로 감싼 다음 결과가 필요할 때 그 Future의 <code>get()</code> 메소드를 호출하면 된다. 이 <code>get()</code> 메소드는 블록킹 메소드이다. <br />
+<p><code>Future</code> 는 비동기적 연산을 나타낸다. 필요한 계산을 Future로 감싼 다음 결과가 필요할 때 그 Future의 <code>get()</code> 메소드를 호출하면 된다. 이 <code>get()</code> 메소드는 블록킹 메소드이다.<br />
 <code>Executor</code> 는 <code>Future</code> 를 반환한다. Finagle <span class="caps">RPC</span> 시스템을 사용한다면 <code>Future</code> 인스턴스에 결과를 담는다. 결과는 경우에 따라 아직 도착하지 않았을 수도 있다.</p>
 <p><code>FutureTask</code> 는 Runnable이며 <code>Executor</code> 가 실행하도록 설계되었다.</p>
 <pre>
@@ -189,7 +189,7 @@ executor.execute(future)
 </pre>
 <p>이제 결과가 필요해졌다. 결과가 나올때까지 블록시키도록 하자.</p>
 <pre>
-val blockingResult = future.get()
+val blockingResult = Await.result(future)
 </pre>
 <p><strong>See Also</strong> <a href="finagle.html">스칼라 학교의 Finagle 페이지</a>에는 <code>Future</code>를 사용한 예제가 많이 있다. 그 중에는 Future를 서로 엮는 멋진 방법을 보여주는 것들도 있다.  효율적 스칼라에서도 <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Future</a>에 대해 다룬다.</p>
 <h2 id="danger">쓰레드 안전성 문제</h2>

@@ -177,7 +177,7 @@ $ nc localhost 2020
 pool-1-thread-2
 </pre>
 <h2 id="Future">Futures</h2>
-<p>A <code>Future</code> represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking <code>get()</code> method on it.  An <code>Executor</code> returns a <code>Future</code>. If you use the Finagle <span class="caps">RPC</span> system, you use <code>Future</code> instances to hold results that might not have arrived yet.</p>
+<p>A <code>Future</code> represents an asynchronous computation.  You can wrap your computation in a Future and when you need the result, you simply call a blocking <code>Await.result()</code> method on it.  An <code>Executor</code> returns a <code>Future</code>. If you use the Finagle <span class="caps">RPC</span> system, you use <code>Future</code> instances to hold results that might not have arrived yet.</p>
 <p>A <code>FutureTask</code> is a Runnable and is designed to be run by an <code>Executor</code></p>
 <pre>
 val future = new FutureTask[String](new Callable[String]() {
@@ -188,7 +188,7 @@ executor.execute(future)
 </pre>
 <p>Now I need the results so let&#8217;s block until its done.</p>
 <pre>
-val blockingResult = future.get()
+val blockingResult = Await.result(future)
 </pre>
 <p><strong>See Also</strong> <a href="finagle.html">Scala School&#8217;s Finagle page</a> has plenty of examples of using <code>Future</code>s, including some nice ways to combine them. Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .</p>
 <h2 id="danger">Thread Safety Problem</h2>
@@ -291,7 +291,7 @@ class InvertedIndex(val userMap: mutable.Map[String, User]) {
 <p>I&#8217;ve left out how to get users out of our index for now.  We&#8217;ll get to that later.</p>
 <h2 id="solutions">Let&#8217;s make it safe</h2>
 <p>In our inverted index example above, userMap is not guaranteed to be safe.  Multiple clients could try to add items at the same time and have the same kinds of visibility errors we saw in our first <code>Person</code> example.</p>
-<p>Since userMap isn&#8217;t thread-safe, how we do we keep only a single thread at a time mutating it?</p>
+<p>Since userMap isn&#8217;t thread-safe, how do we keep only a single thread at a time mutating it?</p>
 <p>You might consider locking on userMap while adding.</p>
 <pre>
 def add(user: User) {

@@ -49,6 +49,7 @@
 <ul>
 	<li>Basic Data Structures
 	<ul>
+		<li><a href="#Arrays">Arrays</a></li>
 		<li><a href="#Lists">Lists</a></li>
 		<li><a href="#Sets">Sets</a></li>
 		<li><a href="#Tuple">Tuple</a></li>
@@ -74,16 +75,29 @@
 <h1>Basic Data Structures</h1>
 <p>Scala provides some nice collections.</p>
 <p><strong>See Also</strong> Effective Scala has opinions about how to use <a href="http://twitter.github.com/effectivescala/#Collections">collections</a>.</p>
-<h2 id="Lists">Lists</h2>
+<h2 id="Arrays">Arrays</h2>
+<p>Arrays preserve order, can contain duplicates, and are mutable.</p>
 <pre>
-scala&gt; val numbers = List(1, 2, 3, 4)
-numbers: List[Int] = List(1, 2, 3, 4)
+scala&gt; val numbers = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: Array[Int] = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala&gt; numbers(3) = 10
+</pre>
+<h2 id="Lists">Lists</h2>
+<p>Lists preserve order, can contain duplicates, and are immutable.</p>
+<pre>
+scala&gt; val numbers = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: List[Int] = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala&gt; numbers(3) = 10
+&lt;console&gt;:9: error: value update is not a member of List[Int]
+              numbers(3) = 10
 </pre>
 <h2 id="Sets">Sets</h2>
-<p>Sets have no duplicates</p>
+<p>Sets do not preserve order and have no duplicates</p>
 <pre>
-scala&gt; Set(1, 1, 2)
-res0: scala.collection.immutable.Set[Int] = Set(1, 2)
+scala&gt; val numbers = Set(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: scala.collection.immutable.Set[Int] = Set(5, 1, 2, 3, 4)
 </pre>
 <h2 id="Tuple">Tuple</h2>
 <p>A tuple groups together simple logical collections of items without using a class.</p>
@@ -179,6 +193,9 @@ val result = res1 match {
 <h2 id="map">map</h2>
 <p>Evaluates a function over each element in the list, returning a list with the same number of elements.</p>
 <pre>
+scala&gt; val numbers = List(1, 2, 3, 4)
+numbers: List[Int] = List(1, 2, 3, 4)
+
 scala&gt; numbers.map((i: Int) =&gt; i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
@@ -213,7 +230,7 @@ res0: List[Int] = List(2, 4)
 scala&gt; def isEven(i: Int): Boolean = i % 2 == 0
 isEven: (i: Int)Boolean
 
-scala&gt; numbers.filter(isEven _)
+scala&gt; numbers.filter(isEven)
 res2: List[Int] = List(2, 4)
 </pre>
 <h2 id="zip">zip</h2>
