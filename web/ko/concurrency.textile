@@ -36,7 +36,7 @@ h2(#Thread). Thread
 
 스칼라 동시성은 자바 동시성 모델 위에 구현되어 있다.
 
-Sun의 JVM에서 IO-작업 부하가 큰 경우 한 기계 위에 수만개의 쓰레드를 실행할 수 있다. 
+Sun의 JVM에서 IO-작업 부하가 큰 경우 한 기계 위에 수만개의 쓰레드를 실행할 수 있다.
 
 Thread는 Runnable을 받는다. Thread가 Runnable을 실행하게 만들려면 Thread의 @start@ 를 호출해야 한다.
 
@@ -92,7 +92,7 @@ class Handler(socket: Socket) extends Runnable {
 
 이 프로그램의 가장 큰 문제점은 한번에 한 요청밖에 처리하지 못한다는 점이다!
 
-각각의 요청을 쓰레드에 넣었다면 더 좋았을 것이다. 단지 아래 부분을 
+각각의 요청을 쓰레드에 넣었다면 더 좋았을 것이다. 단지 아래 부분을
 
 <pre>
 (new Handler(socket)).run()
@@ -167,7 +167,7 @@ pool-1-thread-2
 
 h2(#Future). Future
 
-@Future@ 는 비동기적 연산을 나타낸다. 필요한 계산을 Future로 감싼 다음 결과가 필요할 때 그 Future의 @get()@ 메소드를 호출하면 된다. 이 @get()@ 메소드는 블록킹 메소드이다. 
+@Future@ 는 비동기적 연산을 나타낸다. 필요한 계산을 Future로 감싼 다음 결과가 필요할 때 그 Future의 @get()@ 메소드를 호출하면 된다. 이 @get()@ 메소드는 블록킹 메소드이다.
 @Executor@ 는 @Future@ 를 반환한다. Finagle RPC 시스템을 사용한다면 @Future@ 인스턴스에 결과를 담는다. 결과는 경우에 따라 아직 도착하지 않았을 수도 있다.
 
 @FutureTask@ 는 Runnable이며 @Executor@ 가 실행하도록 설계되었다.
@@ -183,7 +183,7 @@ executor.execute(future)
 이제 결과가 필요해졌다. 결과가 나올때까지 블록시키도록 하자.
 
 <pre>
-val blockingResult = future.get()
+val blockingResult = Await.result(future)
 </pre>
 
 *See Also* <a href="finagle.html">스칼라 학교의 Finagle 페이지</a>에는 <code>Future</code>를 사용한 예제가 많이 있다. 그 중에는 Future를 서로 엮는 멋진 방법을 보여주는 것들도 있다.  효율적 스칼라에서도 <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Future</a>에 대해 다룬다.
@@ -296,7 +296,7 @@ h2(#example). 안전하지 않은 검색 엔진을 만들자
 
 여기 쓰레드 안전성이 없는 역 인덱스가 있다. 이 역 인덱스는 이름의 일부에 대해 사용자를 연결해준다.
 
-오직 한 쓰레드만 억세스할 수 있다는 순진한 가정하에 작성되어 있다. 
+오직 한 쓰레드만 억세스할 수 있다는 순진한 가정하에 작성되어 있다.
 
 @mutable.HashMap@ 를 사용하게 되어 있는 추가 기본 생성자 @this()@ 에 유의하라.
 
@@ -421,7 +421,7 @@ class FileRecordProducer(path: String) extends UserMaker {
 
 h3.  해결책: 생산자/소비자
 
-비동기적 계산에서 공통된 패턴은 생산자와 소비자를 분리해 둘 사이에는 @Queue@ 를 사용한 통신만 허용하는 것이다. 앞의 검색엔진 인덱스 프로그램에 이를 어떻게 적용할 수 있나 살펴보자. 
+비동기적 계산에서 공통된 패턴은 생산자와 소비자를 분리해 둘 사이에는 @Queue@ 를 사용한 통신만 허용하는 것이다. 앞의 검색엔진 인덱스 프로그램에 이를 어떻게 적용할 수 있나 살펴보자.
 
 <pre>
 import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}

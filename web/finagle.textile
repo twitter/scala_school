@@ -38,10 +38,10 @@ Finagle uses <code>com.twitter.util.Future</code>[1] to encode delayed operation
 <pre>
 val myFuture = MySlowService(request) // returns right away
    ...do other things...
-val serviceResult = myFuture.get() // blocks until service "fills in" myFuture
+val serviceResult = Await.result(myFuture) // blocks until service "fills in" myFuture
 </pre>
 
-In practice, you won't write code that sends a request and then calls <code>myFuture.get</code> a few statements later. A Future has methods to register callbacks to invoke when the value becomes available.
+In practice, you won't write code that sends a request and then calls <code>Await.result()/code> a few statements later. A Future has methods to register callbacks to invoke when the value becomes available.
 
 If you've used other asynchronous APIs, you perhaps cringed when you saw the word "callbacks" just now. You might associate them with illegible code flows, functions hiding far from where they're invoked. But Futures can take advantage of Scala's first-class functions to present a more-readable code flow. You can define a simpler handler function in the place where it's invoked.
 
@@ -57,39 +57,39 @@ future onSuccess { reply => // when the future gets "filled", use its value
 You can play with Futures in the REPL. This is a bad way to learn how you will use them in real code, but can help with understanding the API. When you use the REPL, Promise is a handy class. It's a concrete subclass of the abstract Future class. You can use it to create a Future that has no value yet.
 
 <pre>
-scala> import com.twitter.util.{Future,Promise}
-import com.twitter.util.{Future, Promise}
+scala> import com.twitter.util.{Await, Future,Promise}
+import com.twitter.util.{Await, Future, Promise}
 
 scala> val f6 = Future.value(6) // create already-resolved future
 f6: com.twitter.util.Future[Int] = com.twitter.util.ConstFuture@c63a8af
 
-scala> f6.get()
+scala> Await.result(f6)
 res0: Int = 6
 
 scala> val fex = Future.exception(new Exception) // create resolved sad future
 fex: com.twitter.util.Future[Nothing] = com.twitter.util.ConstFuture@38ddab20
 
-scala> fex.get()
+scala> Await.result(fex)
 java.lang.Exception
   ... stack trace ...
 
 scala> val pr7 = new Promise[Int] // create unresolved future
 pr7: com.twitter.util.Promise[Int] = Promise@1994943491(...)
 
-scala> pr7.get()
+scala> Await.result(pr7)
   ...console hangs, waiting for future to resolve...
 Ctrl-C
 Execution interrupted by signal.
 
 scala> pr7.setValue(7)
 
-scala> pr7.get()
+scala> Await.result(pr7)
 res1: Int = 7
 
 scala>
 </pre>
 
-When you use Futures in real code, you normally don't call <code>get</code>; you use callback functions instead. <code>get</code> is just handy for REPL tinkering.
+When you use Futures in real code, you normally don't call <code>Await.result()</code>; you use callback functions instead. <code>Await.result()</code> is just handy for REPL tinkering.
 
 <a name="futsequential">&nbsp;</a>
 
@@ -110,8 +110,8 @@ The most important <code>Future</code> combinator is <code>flatMap</code>[2]:
 If you have a Future and you want apply an asynchronous API to its value, use <tt>flatMap</tt>. For example, suppose you have a Future[User] and need a Future[Boolean] indicating whether the enclosed User has been banned. There is an <code>isBanned</code> API to determine whether a User has been banned, but it is asynchronous. You can use flatMap:
 
 <pre>
-scala> import com.twitter.util.{Future,Promise}
-import com.twitter.util.{Future, Promise}
+scala> import com.twitter.util.{Await, Future,Promise}
+import com.twitter.util.{Await, Future, Promise}
 
 scala> class User(n: String) { val name = n }
 defined class User
@@ -125,14 +125,14 @@ pru: com.twitter.util.Promise[User] = Promise@897588993(...)
 scala> val futBan = pru flatMap isBanned // apply isBanned to future
 futBan: com.twitter.util.Future[Boolean] = Promise@1733189548(...)
 
-scala> futBan.get()
+scala> Await.result(futBan)
   ...REPL hangs, futBan not resolved yet...
 Ctrl-C
 Execution interrupted by signal.
 
 scala> pru.setValue(new User("prudence"))
 
-scala> futBan.get()
+scala> Await.result(futBan)
 res45: Boolean = false
 
 scala>
@@ -164,14 +164,14 @@ praw: com.twitter.util.Promise[RawCredentials] = Promise@1341283926(...)
 scala> val fcred = praw map normalize // apply normalize to future
 fcred: com.twitter.util.Future[Credentials] = Promise@1309582018(...)
 
-scala> fcred.get()
+scala> Await.result(fcred)
    ...REPL hangs, fcred doesn't have a value yet...
 Ctrl-C
 Execution interrupted by signal.
 
 scala> praw.setValue(new RawCredentials("Florence", "nightingale"))
 
-scala> fcred.get().username
+scala> Await.result(fcred).username
 res48: String = florence
 
 scala>
@@ -229,7 +229,7 @@ f23: com.twitter.util.Future[Seq[Int]] = Promise@635209178(...)
 scala> val f5 = f23 map (_.sum)
 f5: com.twitter.util.Future[Int] = Promise@1954478838(...)
 
-scala> f5.get()
+scala> Await.result(f5)
 res9: Int = 5
 
 </pre>
@@ -240,7 +240,7 @@ res9: Int = 5
 scala> val ready = Future.join(Seq(f2, f3))
 ready: com.twitter.util.Future[Unit] = Promise@699347471(...)
 
-scala> ready.get() // doesn't ret value, but I know my futures are done
+scala> Await.result(ready) // doesn't ret value, but I know my futures are done
 
 scala>
 </pre>
@@ -254,21 +254,21 @@ pr7: com.twitter.util.Promise[Int] = Promise@1608532943(...)
 scala> val sel = Future.select(Seq(f2, pr7)) // select from 2 futs, one resolved
 sel: com.twitter.util.Future[...] = Promise@1003382737(...)
 
-scala> val(complete, stragglers) = sel.get()
+scala> val(complete, stragglers) = Await.result(sel)
 complete: com.twitter.util.Try[Int] = Return(2)
 stragglers: Seq[...] = List(...)
 
-scala> complete.get()
+scala> Await.result(complete)
 res110: Int = 2
 
-scala> stragglers(0).get() // our list of not-yet-finished futures has one item
-  ...get() hangs the REPL because this straggling future is not finished...
+scala> Await.result(stragglers(0)) // our list of not-yet-finished futures has one item
+  ...Await.result() hangs the REPL because this straggling future is not finished...
 Ctrl-C
 Execution interrupted by signal.
 
 scala> pr7.setValue(7)
 
-scala> stragglers(0).get()
+scala> Await.result(stragglers(0))
 res113: Int = 7
 
 scala>

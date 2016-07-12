@@ -14,7 +14,7 @@ h3. 설계 목표: 전체 그림
 
 h3. 기본 시작 프로젝트 살펴보기
 
-우선, 뼈대 프로젝트("Searchbird")를 "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper 를 이용해 만들자. 이 명령어는 메모리 내장 키-값 저장소를 외부로 노출시키는 간단한 "피네이글":http://twitter.github.com/finagle/ 기반 스칼라 서비스를 만든다. 이를 사용해 값을 검색하도록 확장할 것이다. 그리고 다시 이를 여러 프로세스들이 제공하는 여러 메모리 저장소에서 검색 가능  하도록 확장할 것이다. 
+우선, 뼈대 프로젝트("Searchbird")를 "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper 를 이용해 만들자. 이 명령어는 메모리 내장 키-값 저장소를 외부로 노출시키는 간단한 "피네이글":http://twitter.github.com/finagle/ 기반 스칼라 서비스를 만든다. 이를 사용해 값을 검색하도록 확장할 것이다. 그리고 다시 이를 여러 프로세스들이 제공하는 여러 메모리 저장소에서 검색 가능  하도록 확장할 것이다.
 
 <pre>
 $ mkdir searchbird ; cd searchbird
@@ -62,7 +62,7 @@ service SearchbirdService {
 }
 </pre>
 
-이 부부은 아주 단순하다. 서비스 @SearchbirdService@ 는 2개의 RPC 메소드 @get@ 과  @put@ 을 노출한다. 이 둘은 간단한 키-값 저장소의 인터페이스를 구성한다. 
+이 부부은 아주 단순하다. 서비스 @SearchbirdService@ 는 2개의 RPC 메소드 @get@ 과  @put@ 을 노출한다. 이 둘은 간단한 키-값 저장소의 인터페이스를 구성한다.
 
 이제 기본 서비스를 실행하고, 그 서비스에 접속하는 클라이언트를 실행하자. 그리고 위의 인터페이스를 통해 서비스를 탐험해 보자. 창을 두개 열어서 하나는 서버, 하나는 클라이언트를 실행할 것이다.
 
@@ -86,7 +86,7 @@ $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
 
-finagle-client> 
+finagle-client>
 </pre>
 
 클라이언트 객체 @client@는 이제 9999 포트에 접속했으며, 앞에서 같은 포트에 실행했던 서버와 통신이 가능하다. 이제 요청을 몇 개 보내 보자.
@@ -101,13 +101,13 @@ res1: ...
 scala> client.get("marius")
 res2: com.twitter.util.Future[String] = ...
 
-scala> client.get("marius").get()
+scala> Await.result(client.get("marius"))
 res3: String = Marius Eriksen
 </pre>
 
-(마지막 줄의 두번째 @get()@ 호출은 @client.get()@의 결과인 @Future@ 타입의 객체를 값이 준비될 때까지 블록시킨다.) 
+(마지막 줄의 두번째 @Await.result()@ 호출은 @client.get()@의 결과인 @Future@ 타입의 객체를 값이 준비될 때까지 블록시킨다.)
 
-서버는 런타임 통계 정보도 제공한다(설정 파일에는 9000번 포트에서 이를 찾도록 되어 있다). 이 통계는 개별 서버를 관찰하거나, 전체 서비스의 통계를 내기 위해 통합될 수 있다(이를 위해 기계가 읽을 수 있는 JSON 인터페이스도 제공한다).  세번째 창을 열어서 이 통계를 확인해 보자. 
+서버는 런타임 통계 정보도 제공한다(설정 파일에는 9000번 포트에서 이를 찾도록 되어 있다). 이 통계는 개별 서버를 관찰하거나, 전체 서비스의 통계를 내기 위해 통합될 수 있다(이를 위해 기계가 읽을 수 있는 JSON 인터페이스도 제공한다).  세번째 창을 열어서 이 통계를 확인해 보자.
 
 <pre>
 $ curl localhost:9900/stats.txt
@@ -168,11 +168,11 @@ class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServe
 }
 </pre>
 
-여기서 우리는 @SearchbirdService.ThriftServer@ 를 만들고 싶다. 이는 쓰리프트 코드 생성자[2]가 만들어주는 서버 타입이다. 
+여기서 우리는 @SearchbirdService.ThriftServer@ 를 만들고 싶다. 이는 쓰리프트 코드 생성자[2]가 만들어주는 서버 타입이다.
 
 h5. .../Main.scala
 
-"run"을 sbt 콘솔에서 입력하면 @main@을 호출한다. @main@은 서버를 설정하고 서버 인스턴스를 만든다. 설정 정보(@development.scala@에 지정되거나 "run" 명령의 인자로 넘길 수 있음)를 읽고, @SearchbirdService.ThriftServer@를 만들고, 시작한다. @RuntimeEnvironment.loadRuntimeConfig@ 는 설정을 평가(컴파일 및 실행)하고, 그 설정의 @apply@ 메소드에 자기 자신을 넘긴다. 
+"run"을 sbt 콘솔에서 입력하면 @main@을 호출한다. @main@은 서버를 설정하고 서버 인스턴스를 만든다. 설정 정보(@development.scala@에 지정되거나 "run" 명령의 인자로 넘길 수 있음)를 읽고, @SearchbirdService.ThriftServer@를 만들고, 시작한다. @RuntimeEnvironment.loadRuntimeConfig@ 는 설정을 평가(컴파일 및 실행)하고, 그 설정의 @apply@ 메소드에 자기 자신을 넘긴다.
 
 <pre>
 object Main {
@@ -205,7 +205,7 @@ trait SearchbirdService {
 }
 </pre>
 
-@Future[Value]@ 라는 형태의 값이 Value 대신 쓰이는 이유는 계산이 지연될 수 있기 때문이다(피네이글의 "문서":finagle.html 에서 @Future@ 에 대해 더 자세히 다룬다). 이번 강좌에서는 @Future@ 가 있으면 그 값을 나중에 @get()@ 을 사용해 얻을 수 있다는 것만 알면 충분하다. 
+@Future[Value]@ 라는 형태의 값이 Value 대신 쓰이는 이유는 계산이 지연될 수 있기 때문이다(피네이글의 "문서":finagle.html 에서 @Future@ 에 대해 더 자세히 다룬다). 이번 강좌에서는 @Future@ 가 있으면 그 값을 나중에 @get()@ 을 사용해 얻을 수 있다는 것만 알면 충분하다.
 
 @scala-bootstrapper@ 가 제공하는 키-값 저장소의 기본 구현은 단순하다. @database@ 데이터 구조를 가지고 있고, @get@ 과 @put@ 호출은 이 데이터 구조를 읽거나 쓴다.
 
@@ -244,7 +244,7 @@ class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdS
 
 h2. 간단한 검색 엔진
 
-이제 우리 예제를 확장해 간단한 검색 엔진을 만들자. 그 검색엔진을 더 확장해서 기계 한 대에 넣을 수 없을 정도로 큰 검색어 목록도 처리할 수 있도록 _분산_ 검색 엔진을 만들 것이다. 
+이제 우리 예제를 확장해 간단한 검색 엔진을 만들자. 그 검색엔진을 더 확장해서 기계 한 대에 넣을 수 없을 정도로 큰 검색어 목록도 처리할 수 있도록 _분산_ 검색 엔진을 만들 것이다.
 
 단순화하기 위해 현재의 쓰리프트 서비스를 가능한 적게 고쳐서 검색 연산을 지원하게 하자. 사용 모델은 @put@ 으로 문서를 검색 엔진에 넣는다. 이때 각 문서는 토큰(단어)을 여럿 포함한다. 검색시에는 여러 토큰으로 구성된 문자열을 사용하여 모든 토큰이 포함된 문서를 반환할 것이다. 기본 구조는 앞의 예제와 같지만, 추가로 @search@ 호출을 사용한다.
 
@@ -284,7 +284,7 @@ val reverse = new mutable.HashMap[String, Set[String]]
 <pre>
 def put(key: String, value: String) = {
   log.debug("put %s", key)
-  
+
   forward(key) = value
 
   // serialize updaters
@@ -314,7 +314,7 @@ def search(query: String) = Future.value {
 }
 </pre>
 
-이 길지 않은 코드에서도 알아둘만한 사항이 몇 가지 있다. hits 목록을 만들 때 키(@token@)가 없다면 @getOrElse@의 두번째 인자가 기본 값으로 제공된다(여기서는 빈 @Set@이다). 실제 교집합은 왼쪽 리듀스(left reduce)로 구한다. 특히 @reduceLeftOption@는 @hits@가 비어있는 경우 리듀스를 시도하지 않고 대신 @None@을 반환한다. 따라서 예외를 겪지 않고 기본 값을 제공할 수 있다. 실제 이는 다음과 동일하다. 
+이 길지 않은 코드에서도 알아둘만한 사항이 몇 가지 있다. hits 목록을 만들 때 키(@token@)가 없다면 @getOrElse@의 두번째 인자가 기본 값으로 제공된다(여기서는 빈 @Set@이다). 실제 교집합은 왼쪽 리듀스(left reduce)로 구한다. 특히 @reduceLeftOption@는 @hits@가 비어있는 경우 리듀스를 시도하지 않고 대신 @None@을 반환한다. 따라서 예외를 겪지 않고 기본 값을 제공할 수 있다. 실제 이는 다음과 동일하다.
 
 <pre>
 def search(query: String) = Future.value {
@@ -348,7 +348,7 @@ $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
 
-finagle-client> 
+finagle-client>
 </pre>
 
 다음 본 학교의 강의 목록을 콘솔에 붙여넣도록 하라.
@@ -381,35 +381,35 @@ client.put("searchbird", " building a distributed search engine using")
 이제 검색을 해볼 수 있다. 설명에 검색어를 포함하고 있는 모든 강의의 키를 반환한다.
 
 <pre>
-> client.search("functions").get()
+> Await.result(client.search("functions"))
 res12: Seq[String] = ArrayBuffer(basics)
 
-> client.search("java").get()
+> Await.result(client.search("java"))
 res13: Seq[String] = ArrayBuffer(java)
 
-> client.search("java scala").get()
+> Await.result(client.search("java scala"))
 res14: Seq[String] = ArrayBuffer(java)
 
-> client.search("functional").get()
+> Await.result(client.search("functional"))
 res15: Seq[String] = ArrayBuffer(collections)
 
-> client.search("sbt").get()
+> Await.result(client.search("sbt"))
 res16: Seq[String] = ArrayBuffer(simple)
 
-> client.search("types").get()
+> Await.result(client.search("types"))
 res17: Seq[String] = ArrayBuffer(type, advanced)
 </pre>
 
 호출이 @Future@를 반환하면 @get()@을 사용해 블록해야만 해당 future에서 값을 얻어올 수 있다는 사실을 잊지 마라. 또한 @Future.collect@를 사용해 여러 요청을 동시에 처리하고, 모든 요청이 성공할 때까지 기다릴 수 있다.
 
 <pre>
-> import com.twitter.util.Future
+> import com.twitter.util.{Await, Future}
 ...
-> Future.collect(Seq(
+> Await.result(Future.collect(Seq(
     client.search("types"),
     client.search("sbt"),
     client.search("functional")
-  )).get()
+  )))
 res18: Seq[Seq[String]] = ArrayBuffer(ArrayBuffer(type, advanced), ArrayBuffer(simple), ArrayBuffer(collections))
 </pre>
 
@@ -462,7 +462,7 @@ class ResidentIndex extends Index {
 
   def put(key: String, value: String) = {
     log.debug("put %s", key)
-    
+
     forward(key) = value
 
     // admit only one updater.
@@ -485,7 +485,7 @@ class ResidentIndex extends Index {
 }
 </pre>
 
-이제 우리가 개발한 쓰리프트 서비스를 간단한 디스패치 메카니즘으로 변경하자. 이제는 모든 @Index@ 인스턴스에 대해 쓰리프트 인터페이스를 제공하게 될것이다. 이렇게 추상화 하는 것은 매우 유용하다. 왜냐하면 이렇게 하면 서비스 구현과 색인 구현을 분리할 구 있기 때문이다. 서비스는 더 이상 색인의 내부에 대해 알 필요가 없다. 색인의 위치는 로컬이나 원격 어느곳에나 있을 수 있고, 경우에 따라서는 여러 원격 색인을 조합한 것일 수도 있다. 하지만, 서비스가 이를 신경쓸 필요가 없다. 또한 색인을 변경하더라도 서비스를 변경할 필요는 없다. 
+이제 우리가 개발한 쓰리프트 서비스를 간단한 디스패치 메카니즘으로 변경하자. 이제는 모든 @Index@ 인스턴스에 대해 쓰리프트 인터페이스를 제공하게 될것이다. 이렇게 추상화 하는 것은 매우 유용하다. 왜냐하면 이렇게 하면 서비스 구현과 색인 구현을 분리할 구 있기 때문이다. 서비스는 더 이상 색인의 내부에 대해 알 필요가 없다. 색인의 위치는 로컬이나 원격 어느곳에나 있을 수 있고, 경우에 따라서는 여러 원격 색인을 조합한 것일 수도 있다. 하지만, 서비스가 이를 신경쓸 필요가 없다. 또한 색인을 변경하더라도 서비스를 변경할 필요는 없다.
 
 기존 @SearchbirdServiceImpl@ 클래스 정의를 다음의 (색인에 대한 정의를 포함하지 않아서 더 간단한) 정의로 바꾸자. 이제 서버를 초기화하기 위해서는 두번째 인자 @Index@가 필요하다는 사실에 유의하라.
 
@@ -615,7 +615,7 @@ class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServe
 }
 </pre>
 
-이제 설정을 조정하자. "shards" 목록을 @SearchbirdServiceConfig@ 인스턴스에서 초기화하게 하자(샤드 0번은 포트 9000, 1번은 9001 등의 순서로 접속하게 할 것이다). 
+이제 설정을 조정하자. "shards" 목록을 @SearchbirdServiceConfig@ 인스턴스에서 초기화하게 하자(샤드 0번은 포트 9000, 1번은 9001 등의 순서로 접속하게 할 것이다).
 
 h5. config/development.scala
 
@@ -657,7 +657,7 @@ $ ./sbt 'run -f config/development.scala'
 
 이 셋을 각각 다른 창에서 실행할 수도 있고, (한 창에서) 한 명령어씩 실행해서 ctrl-z를 눌러 작업을 일지중지시킨 후, @bg@를 사용해 백그라운드 작업으로 돌리는 방식으로 실행할 수도 있다.
 
-이제 콘솔을 사용해 이 서비스를 사용해 보자. 우선 두 샤드 노드에 데이터를 집어넣어야 한다. 검색조 디렉터리에서 다음과 같이 실행하자. 
+이제 콘솔을 사용해 이 서비스를 사용해 보자. 우선 두 샤드 노드에 데이터를 집어넣어야 한다. 검색조 디렉터리에서 다음과 같이 실행하자.
 
 <pre>
 $ ./console localhost 9000
@@ -679,23 +679,23 @@ $ ./console localhost 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient localhost 9999
 'client' is bound to your thrift client.
 
-finagle-client> client.get("hello").get()
+finagle-client> Await.result(client.get("hello"))
 res0: String = world
 
-finagle-client> client.get("fromShardC").get()
+finagle-client> Await.result(client.get("fromShardC"))
 SearchbirdException(No such key)
 ...
 
-finagle-client> client.get("fromShardA").get()
+finagle-client> Await.result(client.get("fromShardA"))
 res2: String = a value from SHARD_A
 
-finagle-client> client.search("hello").get()
+finagle-client> Await.result(client.search("hello"))
 res3: Seq[String] = ArrayBuffer()
 
-finagle-client> client.search("world").get()
+finagle-client> Await.result(client.search("world"))
 res4: Seq[String] = ArrayBuffer(hello)
 
-finagle-client> client.search("value").get()
+finagle-client> Await.result(client.search("value"))
 res5: Seq[String] = ArrayBuffer(fromShardA, fromShardB)
 </pre>
 

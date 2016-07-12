@@ -50,7 +50,7 @@ writing TUTORIAL.md
 
 !searchbird-1.svg(Searchbird implementation, revision 1)!
 
-а вот интерфейс, который экспортирует наш сервис. Поскольку сервис Searchbird это "Thrift":http://thrift.apache.org/ сервис (как и большинство наших сервисов), его внешний интерфейс определен в Thrift IDL ("язык описания интерфейса"). 
+а вот интерфейс, который экспортирует наш сервис. Поскольку сервис Searchbird это "Thrift":http://thrift.apache.org/ сервис (как и большинство наших сервисов), его внешний интерфейс определен в Thrift IDL ("язык описания интерфейса").
 
 h5. src/main/thrift/searchbird.thrift
 
@@ -86,7 +86,7 @@ $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
 
-finagle-client> 
+finagle-client>
 </pre>
 
 Клиентский объект @client@ теперь подключен к порту 9999 на нашем локальном компьютере и может общаться с сервисом, который мы ранее запустили на этом порту. Теперь давайте отправим несколько запросов:
@@ -101,11 +101,11 @@ res1: ...
 scala> client.get("marius")
 res2: com.twitter.util.Future[String] = ...
 
-scala> client.get("marius").get()
+scala> Await.result(client.get("marius"))
 res3: String = Marius Eriksen
 </pre>
 
-(Второй вызов @get()@ создает @Future@, который является возвращаемым типом @client.get()@, блокируя процесс до того, пока не будет получено значение.)
+(Второй вызов @Await.result()@ создает @Future@, который является возвращаемым типом @client.get()@, блокируя процесс до того, пока не будет получено значение.)
 
 Сервер также экспортирует статистику времени выполнения (файл конфигурации определяет для этого порт 9900). Это удобно как для проверки отдельных серверов, а также для объединения в глобальную статистику сервиса (предоставляется также машиночитаемый JSON интерфейс). Откройте третье окно и проверьте эту статистику:
 
@@ -153,7 +153,7 @@ metrics:
 
 В дополнение к нашей статистике сервиса, мы также получаем общую статистику JVM, которая часто полезна.
 
-Теперь давайте заглянем в код, который реализует конфигурацию, сервер и клиент. 
+Теперь давайте заглянем в код, который реализует конфигурацию, сервер и клиент.
 
 h5. .../config/SearchbirdServiceConfig.scala
 
@@ -170,7 +170,7 @@ class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServe
 }
 </pre>
 
-В нашем случае, мы хотим создать @SearchbirdService.ThriftServer@. Он является серверным типом, который создается thrift-ым генератором кода [2]. 
+В нашем случае, мы хотим создать @SearchbirdService.ThriftServer@. Он является серверным типом, который создается thrift-ым генератором кода [2].
 
 h5. .../Main.scala
 
@@ -267,7 +267,7 @@ service SearchbirdService {
 </pre>
 
 Мы добавили метод @search@, который ищет в текущей хеш-таблице, возвращая список ключей, значения которых соответствуют запросу. Реализация также проста:
- 
+
 h5. .../SearchbirdServiceImpl.scala
 
 Большинство наших изменения происходят в этом файле.
@@ -286,7 +286,7 @@ val reverse = new mutable.HashMap[String, Set[String]]
 <pre>
 def put(key: String, value: String) = {
   log.debug("put %s", key)
-  
+
   forward(key) = value
 
   // serialize updaters
@@ -350,7 +350,7 @@ $ ./console 127.0.0.1 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
 'client' is bound to your thrift client.
 
-finagle-client> 
+finagle-client>
 </pre>
 
 Вставьте следующее описание лекции в консоль:
@@ -383,35 +383,35 @@ client.put("searchbird", " building a distributed search engine using")
 Теперь мы можем выполнить несколько запросов, которые возвращают ключи документов, которые содержат условия поиска.
 
 <pre>
-> client.search("functions").get()
+> Await.result(client.search("functions"))
 res12: Seq[String] = ArrayBuffer(basics)
 
-> client.search("java").get()
+> Await.result(client.search("java"))
 res13: Seq[String] = ArrayBuffer(java)
 
-> client.search("java scala").get()
+> Await.result(client.search("java scala"))
 res14: Seq[String] = ArrayBuffer(java)
 
-> client.search("functional").get()
+> Await.result(client.search("functional"))
 res15: Seq[String] = ArrayBuffer(collections)
 
-> client.search("sbt").get()
+> Await.result(client.search("sbt"))
 res16: Seq[String] = ArrayBuffer(simple)
 
-> client.search("types").get()
+> Await.result(client.search("types"))
 res17: Seq[String] = ArrayBuffer(type, advanced)
 </pre>
 
 Напомним, что если вызов возвращает @Future@, мы должны использовать блокировку вызова @get()@ для получения значения, содержащегося в этом future. Мы можем использовать команду @Future.collect@, чтобы сделать несколько одновременных запросов и подождать, пока все они завершатся успешно:
 
 <pre>
-> import com.twitter.util.Future
+> import com.twitter.util.{Await, Future}
 ...
-> Future.collect(Seq(
+> Await.result(Future.collect(Seq(
     client.search("types"),
     client.search("sbt"),
     client.search("functional")
-  )).get()
+  )))
 res18: Seq[Seq[String]] = ArrayBuffer(ArrayBuffer(type, advanced), ArrayBuffer(simple), ArrayBuffer(collections))
 </pre>
 
@@ -464,7 +464,7 @@ class ResidentIndex extends Index {
 
   def put(key: String, value: String) = {
     log.debug("put %s", key)
-    
+
     forward(key) = value
 
     // admit only one updater.
@@ -562,7 +562,7 @@ class CompositeIndex(indices: Seq[Index]) extends Index {
 
 @search@ работает похожим образом, как и раньше. Вместо того, чтобы взять первый результат, мы объединяем их, обеспечивая их уникальность с помощью конструкции @Set@.
 
-@RemoteIndex@ предоставляет интерфейс @Index@ для удаленного сервера. 
+@RemoteIndex@ предоставляет интерфейс @Index@ для удаленного сервера.
 
 <pre>
 class RemoteIndex(hosts: String) extends Index {
@@ -618,7 +618,7 @@ class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServe
 }
 </pre>
 
-Теперь будем настраивать свою конфигурацию: добавляем инициализацию "шардов" в экземпляр @SearchbirdServiceConfig@ (мы можем общаться с шардом 0 через порт 9000, с шардом 1 через порт 9001, и так далее). 
+Теперь будем настраивать свою конфигурацию: добавляем инициализацию "шардов" в экземпляр @SearchbirdServiceConfig@ (мы можем общаться с шардом 0 через порт 9000, с шардом 1 через порт 9001, и так далее).
 
 h5. config/development.scala
 
@@ -658,7 +658,7 @@ $ ./sbt 'run -f config/development.scala -D shard=1'
 $ ./sbt 'run -f config/development.scala'
 </pre>
 
-Вы можете запустить их либо в 3 различных окнах, либо (в одном окне) каждый будет ждать своей очереди для запуска, нажмите Ctrl-Z, если вы хотите приостановить сервис, или используйте @bg@, чтобы запустить его в фоновом режиме. 
+Вы можете запустить их либо в 3 различных окнах, либо (в одном окне) каждый будет ждать своей очереди для запуска, нажмите Ctrl-Z, если вы хотите приостановить сервис, или используйте @bg@, чтобы запустить его в фоновом режиме.
 
 Мы будем взаимодействовать с ним через консоль. Во-первых, давайте заполним данные на двух шардах. Запускаем из директории searchbird:
 
@@ -682,23 +682,23 @@ $ ./console localhost 9999
 [info] Running com.twitter.searchbird.SearchbirdConsoleClient localhost 9999
 'client' is bound to your thrift client.
 
-finagle-client> client.get("hello").get()
+finagle-client> Await.result(client.get("hello"))
 res0: String = world
 
-finagle-client> client.get("fromShardC").get()
+finagle-client> Await.result(client.get("fromShardC"))
 SearchbirdException(No such key)
 ...
 
-finagle-client> client.get("fromShardA").get()
+finagle-client> Await.result(client.get("fromShardA"))
 res2: String = a value from SHARD_A
 
-finagle-client> client.search("hello").get()
+finagle-client> Await.result(client.search("hello"))
 res3: Seq[String] = ArrayBuffer()
 
-finagle-client> client.search("world").get()
+finagle-client> Await.result(client.search("world"))
 res4: Seq[String] = ArrayBuffer(hello)
 
-finagle-client> client.search("value").get()
+finagle-client> Await.result(client.search("value"))
 res5: Seq[String] = ArrayBuffer(fromShardA, fromShardB)
 </pre>
 
