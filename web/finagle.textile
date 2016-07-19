@@ -41,7 +41,7 @@ val myFuture = MySlowService(request) // returns right away
 val serviceResult = Await.result(myFuture) // blocks until service "fills in" myFuture
 </pre>
 
-In practice, you won't write code that sends a request and then calls <code>Await.result()/code> a few statements later. A Future has methods to register callbacks to invoke when the value becomes available.
+In practice, you won't write code that sends a request and then calls <code>Await.result()</code> a few statements later. A Future has methods to register callbacks to invoke when the value becomes available.
 
 If you've used other asynchronous APIs, you perhaps cringed when you saw the word "callbacks" just now. You might associate them with illegible code flows, functions hiding far from where they're invoked. But Futures can take advantage of Scala's first-class functions to present a more-readable code flow. You can define a simpler handler function in the place where it's invoked.
 
