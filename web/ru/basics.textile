@@ -249,7 +249,7 @@ scala> class Calculator {
      |   def add(m: Int, n: Int): Int = m + n
      | }
 
-Здесь мы объявили класс Calculator
+// Здесь мы объявили класс Calculator
 
 scala> val calc = new Calculator
 calc: Calculator = Calculator@e75a11
