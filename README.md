@@ -9,6 +9,7 @@ should do. Now, build the site with `make`. This will create a copy of the lesso
 For development, you'll also need to install [RedCloth](http://redcloth.org/).
 
 	$ gem install RedCloth
+    $ gem install jekyll-textile-converter
 
 Then `make serve` will launch `jekyll` in serving mode: a web server will be launched on port 4000, and changing files will automatically rebuild the site.
 
