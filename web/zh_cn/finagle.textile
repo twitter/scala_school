@@ -28,6 +28,7 @@ h2(#repl). Finagle-Friendly REPL
 
 <pre>
 $ cd finagle
+$ git checkout master
 $ ./sbt "project finagle-http" console
  ...build output...
 scala>
