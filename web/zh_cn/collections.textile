@@ -8,8 +8,9 @@ layout: post
 课程内容:
 
 * 基本数据结构
+** "数组 Array":#Arrays
 ** "列表 List":#Lists
-** "集 Set":#Sets
+** "集合 Set":#Sets
 ** "元组 Tuple":#Tuple
 ** "映射 Map":#Maps
 ** "选项 Option":#Option
@@ -31,27 +32,44 @@ h1. 基本数据结构
 
 Scala提供了一些不错的集合。
 
-*参考* Effective Scala 对怎样使用 <a href="http://twitter.github.com/effectivescala/#Collections">集合</a>的观点。
+*参考* Effective Scala 对怎样使用<a href="http://twitter.github.com/effectivescala/#Collections">集合</a>的观点。
+
+h2(#Arrays). 数组 Array
+
+数组是有序的，可以包含重复项，并且可变。
+
+<pre>
+scala> val numbers = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: Array[Int] = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala> numbers(3) = 10
+</pre>
 
 h2(#Lists). 列表 List
 
+列表是有序的，可以包含重复项，不可变。
+
 <pre>
-scala> val numbers = List(1, 2, 3, 4)
-numbers: List[Int] = List(1, 2, 3, 4)
+scala> val numbers = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: List[Int] = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala> numbers(3) = 10
+<console>:9: error: value update is not a member of List[Int]
+              numbers(3) = 10
 </pre>
 
-h2(#Sets). 集 Set
+h2(#Sets). 集合 Set
 
-集没有重复
+集合无序且不可包含重复项。
 
 <pre>
-scala> Set(1, 1, 2)
-res0: scala.collection.immutable.Set[Int] = Set(1, 2)
+scala> val numbers = Set(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: scala.collection.immutable.Set[Int] = Set(5, 1, 2, 3, 4)
 </pre>
 
 h2(#Tuple). 元组 Tuple
 
-元组是在不使用类的前提下，将元素组合起来形成简单的逻辑集合。
+元组在不使用类的情况下，将元素组合起来形成简单的逻辑集合。
 
 <pre>
 scala> val hostPort = ("localhost", 80)
@@ -97,9 +115,9 @@ Map("foo" -> "bar")
 
 这看起来像是特殊的语法，不过不要忘了上文讨论的<code>-></code>可以用来创建二元组。
 
-Map()方法也使用了从第一节课学到的变参列表：<code>Map(1 -> "one", 2 -> "two")</code>将变为 <code>Map((1, "one"), (2, "two"))</code>，其中第一个参数是映射的键，第二个参数是映射的值。
+Map()方法也使用了从第一节课学到的变参列表：<code>Map(1 -> "one", 2 -> "two")</code>将变为 <code>Map((1, "one"), (2, "two"))</code>，其中第一个元素是映射的键，第二个元素是映射的值。
 
-映射的值可以是映射甚或是函数。
+映射的值可以是映射甚至是函数。
 
 <pre>
 Map(1 -> Map("foo" -> "bar"))
@@ -142,7 +160,7 @@ res1: Option[Int] = None
 
 现在我们的数据似乎陷在<code>Option</code>中了，我们怎样获取这个数据呢？
 
-直觉上想到的可能是在<code>isDefined</code>方法上使用条件判断来处理。
+直觉上想到的可能是基于<code>isDefined</code>方法进行条件判断。
 
 <pre>
 // We want to multiply the number by two, otherwise return 0.
@@ -157,9 +175,9 @@ val result = if (res1.isDefined) {
 
 <code>getOrElse</code> 让你轻松地定义一个默认值。
 
-<code>
+<pre>
 val result = res1.getOrElse(0) * 2
-</code>
+</pre>
 
 模式匹配能自然地配合<code>Option</code>使用。
 
@@ -174,24 +192,27 @@ val result = res1 match {
 
 h1(#combinators). 函数组合子（Functional Combinators）
 
-<code>List(1, 2, 3) map squared</code>对列表中的每一个元素都应用了<code>squared</code>平方函数，并返回一个新的列表<code>List(1, 4, 9)</code>。我们称这个操作<code>map</code> <em>组合子</em>。 （如果想要更好的定义，你可能会喜欢Stackoverflow上对<a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">组合子的说明</a>。）他们常被用在标准的数据结构上。
+<code>List(1, 2, 3) map squared</code>对列表中的每一个元素都应用了<code>squared</code>平方函数，并返回一个新的列表<code>List(1, 4, 9)</code>。我们把类似于<code>map</code>的操作称作<em>组合子</em>。 （如果想要更好的定义，你可以看看Stackoverflow上对<a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">组合子的说明</a>。）他们常被用在标准的数据结构上。
 
 h2(#map). map
 
 <code>map</code>对列表中的每个元素应用一个函数，返回应用后的元素所组成的列表。
 
 <pre>
+scala> val numbers = List(1, 2, 3, 4)
+numbers: List[Int] = List(1, 2, 3, 4)
+
 scala> numbers.map((i: Int) => i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
-或传入一个部分应用函数
+或传入一个函数 (Scala编译器自动把我们的方法转换为函数)
 
 <pre>
 scala> def timesTwo(i: Int): Int = i * 2
 timesTwo: (i: Int)Int
 
-scala> numbers.map(timesTwo _)
+scala> numbers.map(timesTwo)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
@@ -225,7 +246,7 @@ res0: List[Int] = List(2, 4)
 scala> def isEven(i: Int): Boolean = i % 2 == 0
 isEven: (i: Int)Boolean
 
-scala> numbers.filter(isEven _)
+scala> numbers.filter(isEven)
 res2: List[Int] = List(2, 4)
 </pre>
 
@@ -266,7 +287,7 @@ scala> numbers.drop(5)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
 
-<code>dropWhile</code> 将删除元素直到找到第一个匹配谓词函数的元素。例如，如果我们在numbers列表上使用<code>dropWhile</code>奇数的函数, <code>1</code>将被丢弃（但<code>3</code>不会被丢弃，因为他被<code>2</code>“保护”了）。
+<code>dropWhile</code> 将删除匹配谓词函数的第一个元素。例如，如果我们在numbers列表上使用<code>dropWhile</code>函数来去除奇数, <code>1</code>将被丢弃（但<code>3</code>不会被丢弃，因为他被<code>2</code>“保护”了）。
 
 <pre>
 scala> numbers.dropWhile(_ % 2 != 0)
@@ -282,7 +303,7 @@ res0: Int = 55
 
 0为初始值（记住numbers是List[Int]类型），m作为一个累加器。
 
-直接观察运行过程：
+可视化观察运行过程：
 
 <pre>
 scala> numbers.foldLeft(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
@@ -320,7 +341,7 @@ res0: Int = 55
 
 h2(#flatten). flatten
 
-<code>flatten</code>将嵌套结构扁平化为一个层次的集合。
+<code>flatten</code>将嵌套结构扁平化一个层级。
 
 <pre>
 scala> List(List(1, 2), List(3, 4)).flatten
@@ -346,7 +367,7 @@ scala> nestedNumbers.map((x: List[Int]) => x.map(_ * 2)).flatten
 res1: List[Int] = List(2, 4, 6, 8)
 </pre>
 
-这个例子先调用map，然后可以马上调用flatten，这就是“组合子”的特征，也是这些函数的本质。
+这个例子先调用map，然后调用flatten，这就是“组合子”的特征，也是这些函数的本质。
 
 *参考* Effective Scala 对<a href="http://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>的意见。
 
