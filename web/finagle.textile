@@ -26,6 +26,7 @@ If you have the Finagle source code in a directory named <code>finagle</code>, y
 
 <pre>
 $ cd finagle
+$ git checkout master
 $ ./sbt "project finagle-http" console
  ...build output...
 scala>
@@ -679,6 +680,6 @@ Finagle automatically juggles threads to keep your service running smoothly. How
 * If your code calls a blocking operation (<code>apply</code> or <code>get</code>), use a <a href="https://github.com/twitter/finagle#Using%20Future%20Pools">Future Pool</a> to wrap the blocking code. This runs the blocking operation in its own thread pool, giving you a Future for the completion (or failure) of that operation which you can compose with other Futures.
 * If your code uses sequential composition of Futures, don't worry that it's "blocking" on those Futures.
 
-fn1. Careful, there are other "Future" classes out there. Don't confuse <code>com.twitter.util.Future</code> with <code>scala.actor.Future</code> or <code>java.util.concurrent.Future</code>!
+fn1. Careful, there are other "Future" classes out there. Don't confuse <code>com.twitter.util.Future</code> with <code>scala.concurrent.Future</code> or <code>java.util.concurrent.Future</code>!
 
 fn2. If you study type systems and/or category theory, you'll be glad to learn that <code>flatMap</code> is equivalent to a monadic bind.

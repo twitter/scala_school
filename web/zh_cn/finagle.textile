@@ -28,6 +28,7 @@ h2(#repl). Finagle-Friendly REPL
 
 <pre>
 $ cd finagle
+$ git checkout master
 $ ./sbt "project finagle-http" console
  ...build output...
 scala>
@@ -689,6 +690,6 @@ Finagle 自动操纵线程来保证服务顺利运行。但是，如果你的服
 
 * 如果你的代码中使用Future的顺序组合，不用担心它会“阻塞”组合中的Future。
 
-fn1. 小心，还有其它“Future”类。不要将<code>com.twitter.util.Future</code> 和<code>scala.actor.Future</code> 或 <code>java.util.concurrent.Future</code>混淆起来！
+fn1. 小心，还有其它“Future”类。不要将<code>com.twitter.util.Future</code> 和<code>scala.concurrent.Future</code> 或 <code>java.util.concurrent.Future</code>混淆起来！
 
 fn2. 如果你学习类型系统和/或分类理论，你会高兴地发现<code>flatMap</code>相当于一元绑定。

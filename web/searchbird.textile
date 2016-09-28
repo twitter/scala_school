@@ -291,7 +291,7 @@ def put(key: String, value: String) = {
 
   // serialize updaters
   synchronized {
-    value.split(" ").toSet foreach { token =>
+    value.split(" ").toSet[String] foreach { token =>
       val current = reverse.getOrElse(token, Set())
       reverse(token) = current + key
     }

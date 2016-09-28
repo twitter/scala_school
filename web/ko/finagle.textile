@@ -27,6 +27,7 @@ h2(#repl). 피네이글 환경의 REPL
 
 <pre>
 $ cd finagle
+$ git checkout master
 $ ./sbt "project finagle-http" console
  ...build output...
 scala>
@@ -689,6 +690,6 @@ h2(#DontBlock). 블록하지 말자(제대로 하는게 아니라면)
 
 * Future의 순차 합성을 사용한다면 Future중이 블록되는게 있는지 우려할 필요가 없다.
 
-fn1. 경고. 다른 "Future" 클래스도 존재한다. <code>com.twitter.util.Future</code>을 <code>scala.actor.Future</code>나 <code>java.util.concurrent.Future</code>와 혼동하지 말라!
+fn1. 경고. 다른 "Future" 클래스도 존재한다. <code>com.twitter.util.Future</code>을 <code>scala.concurrent.Future</code>나 <code>java.util.concurrent.Future</code>와 혼동하지 말라!
 
 fn2. <code>flatMap</code>이 모나드의 바인드(bind) 연산이다. 타입 시스템이나 카테고리 이론을 공부하는 독자라면 이해하리라 본다.
