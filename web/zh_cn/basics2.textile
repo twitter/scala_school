@@ -88,7 +88,7 @@ h2(#fnobj). 函数即对象
 
 在Scala中，我们经常谈论对象的函数式编程。这是什么意思？到底什么是函数呢？
 
-函数是一些特质的集合。具体来说，具有一个参数的函数是Function1特质的一个实例。这个特征定义了<code>apply()</code>语法糖，让你调用一个对象时就像你在调用一个函数。
+函数是一些特质的集合。具体来说，具有一个参数的函数是Function1特质的一个实例。这个特质定义了<code>apply()</code>语法糖，让你调用一个对象时就像你在调用一个函数。
 
 <pre>
 scala> object addOne extends Function1[Int, Int] {
@@ -195,7 +195,7 @@ times match {
 }
 </pre>
 
-注意我们是怎样将值赋给变量'i'的。
+注意我们是怎样获取变量'i'的值的。
 
 在最后一行指令中的<code>_</code>是一个通配符；它保证了我们可以处理所有的情况。
 否则当传进一个不能被匹配的数字的时候，你将获得一个运行时错误。我们以后会继续讨论这个话题的。
@@ -240,7 +240,7 @@ def calcType(calc: Calculator) = calc match {
 
 h2(#caseclass). 样本类 Case Classes
 
-使用样本类可以方便得存储和匹配类的内容。你不用new关键字就可以创建它们。
+使用样本类可以方便得存储和匹配类的内容。不用<code>new</code>关键字就可以创建它们。
 
 <pre>
 scala> case class Calculator(brand: String, model: String)
@@ -265,9 +265,8 @@ res6: Boolean = true
 
 样本类也可以像普通类那样拥有方法。
 
-h6. 使用样本类进行模式匹配
+h3. 使用样本类进行模式匹配
 
-case classes are designed to be used with pattern matching.  Let's simplify our calculator classifier example from earlier.
 样本类就是被设计用在模式匹配中的。让我们简化之前的计算器分类器的例子。
 
 <pre>
