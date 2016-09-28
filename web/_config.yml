@@ -1,3 +1,5 @@
+gems:
+- jekyll-textile-converter
 permalink: none
 lessons:
   - 
