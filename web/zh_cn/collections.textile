@@ -43,6 +43,9 @@ scala> val numbers = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
 numbers: Array[Int] = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
 
 scala> numbers(3) = 10
+
+scala> numbers
+numbers: Array[Int] = Array(1, 2, 3, 10, 5, 1, 2, 3, 4, 5)
 </pre>
 
 h2(#Lists). 列表 List
