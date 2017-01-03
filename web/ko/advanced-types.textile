@@ -125,6 +125,7 @@ res3: Int = 4
 
 한가지 덧붙이자면,표준 라이브러리에는 *Ordered* 와 *Ordering* 을 상호 변환하는 뷰가 있다.
 (역주: Ordered와 Ordering의 차이는 자바 Comparable과 Comparator의 차이와 유사하다. 둘다 순서관계(partial ordering)를 지정하는 함수를 제공하는 역할을 하지만, Ordered는 주로 클래스에서 상속해 사용해 기본 대소비교를 담당하는 역할에 사용되고, Ordering은 명시적으로 두 값의 대소를 비교하는 연산을 정의해서 넘겨야 하는 경우 사용된다. 예를 들어 scala.util.Sorting에 있는 정렬 함수들에 컬렉션 객체만을 넘기면 컬렉션 원소의 Ordered 트레잇에 의해 정렬이 수행되고, 직접 Ordering을 넘기면 그 순서에 의해 정렬이 수행된다.)
+
 <pre>
 trait LowPriorityOrderingImplicits {
   implicit def ordered[A <: Ordered[A]]: Ordering[A] = new Ordering[A] {

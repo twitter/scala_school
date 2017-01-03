@@ -29,8 +29,7 @@ h2. SBT를 쓰는 이유는?
 * 프로젝트 문맥(환경)하에서 REPL 실행 가능
 
 h2. 시작하기
-
-* jar를 다운로드하라(http://code.google.com/p/simple-build-tool/downloads/list).
+* "jar를 다운로드하라":http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
 * 아래 예와 같이 다운로드 받은 jar를 호출하는 셀 스크립트를 작성하라. 
 
 <pre>

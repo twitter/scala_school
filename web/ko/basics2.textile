@@ -121,7 +121,7 @@ scala> plusOne(1)
 res0: Int = 2
 </pre>
 
-<code>extends Function1[Int, Int]</code>는 <code>extends (Int => Int)</code라고 더 알아보기 쉽게 쓸 수 있다.
+<code>extends Function1[Int, Int]</code>는 <code>extends (Int => Int)</code>라고 더 알아보기 쉽게 쓸 수 있다.
 
 <pre>
 class AddOne extends (Int => Int) {
