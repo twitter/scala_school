@@ -164,8 +164,9 @@ A first instinct might be to do something conditionally based on the <code>isDef
 
 <pre>
 // We want to multiply the number by two, otherwise return 0.
-val result = if (res1.isDefined) {
-  res1.get * 2
+val k = 1
+val result = if (res1.isDefined(k)) {
+  res1.get(k) * 2
 } else {
   0
 }
@@ -176,7 +177,8 @@ We would suggest that you use either <code>getOrElse</code> or pattern matching 
 <code>getOrElse</code> lets you easily define a default value.
 
 <pre>
-val result = res1.getOrElse(0) * 2
+val k = 1
+val result = res1.getOrElse(k, 0) * 2
 </pre>
 
 Pattern matching fits naturally with <code>Option</code>.

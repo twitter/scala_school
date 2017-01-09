@@ -167,8 +167,9 @@ res1: Option[Int] = None
 
 <pre>
 // We want to multiply the number by two, otherwise return 0.
-val result = if (res1.isDefined) {
-  res1.get * 2
+val k = 1
+val result = if (res1.isDefined(k)) {
+  res1.get(k) * 2
 } else {
   0
 }
@@ -179,7 +180,8 @@ val result = if (res1.isDefined) {
 <code>getOrElse</code> 让你轻松地定义一个默认值。
 
 <pre>
-val result = res1.getOrElse(0) * 2
+val k = 1
+val result = res1.getOrElse(k, 0) * 2
 </pre>
 
 模式匹配能自然地配合<code>Option</code>使用。

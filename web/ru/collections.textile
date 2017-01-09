@@ -145,8 +145,9 @@ res1: Option[Int] = None
 
 <code>
 // Мы хотим умножить число на 2 или возвратить 0.
-val result = if (res1.isDefined) {
-  res1.get * 2
+val k = 1
+val result = if (res1.isDefined(k)) {
+  res1.get(k) * 2
 } else {
   0
 }
@@ -157,7 +158,8 @@ val result = if (res1.isDefined) {
 <code>getOrElse</code> дает вам легкий способ объявить стандартное значение.
 
 <code>
-val result = res1.getOrElse(0) * 2
+val k = 1
+val result = res1.getOrElse(k, 0) * 2
 </code>
 
 <code>Option</code> прекрасно работает вместе с сопоставлением с образцом.
