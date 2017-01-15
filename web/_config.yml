@@ -2,132 +2,157 @@ gems:
 - jekyll-textile-converter
 permalink: none
 lessons:
-  - 
+  -
     title: Basics
     title_ko: 기초
     title_ru: Основы
     title_zh_cn: 基础
+    title_pt_br: Básico
     url: basics.html
     desc: Values, functions, classes, methods, inheritance, try-catch-finally. Expression-oriented programming
     desc_ko: 값, 함수, 클래스, 메소드, 상속, try-catch-finally. 식 중심의 프로그래밍
     desc_ru: Переменные, функции, классы, методы, наследование, try-catch-finally. Программирование ориентированное на выражения
     desc_zh_cn: 值，函数，类，方法，继承，try-catch-finally。面向表达式编程
+    desc_pt_br: Variáveis, funções, classes, métodos, herança, try-catch-finally. Programação orientada a expressões
   -
     title: Basics continued
     title_ko: 기초(계속)
     title_ru: Основы языка. Продолжение
     title_zh_cn: 基础知识（续）
+    title_pt_br: Básico (continuação)
     url: basics2.html
     desc: Case classes, objects, packages, apply, update, Functions are Objects (uniform access principle), pattern matching.
     desc_ko: 케이스 클래스, 객체, 패키지, apply, update, 함수는 객체이다(동일한 억세스 원칙), 패턴 매치
     desc_ru: Case классы, объекты, пакеты, apply, update, Функции как Объекты (единый принцип доступа), сопоставление с образцом.
     desc_zh_cn: 样本类，对象，包，应用，更新，函数即对象（统一访问原则），模式匹配。
+    desc_pt_br: Case classes, objetos, pacotes, apply, update, 'Funções são Objetos' (princípio do acesso uniforme), pattern matching
   -
     title: Collections
     title_ko: 컬렉션
     title_ru: Коллекции
     title_zh_cn: 集合
+    title_pt_br: Coleções
     url: collections.html
     desc: Lists, Maps, functional combinators (map, foreach, filter, zip, folds)
     desc_ko: 리스트, 맵, 함수 콤비네이터(map, foreach, filter, zip, fold들)
     desc_ru: Списки, Карты, функциональные комбинаторы (map, foreach, filter, zip, folds)
     desc_zh_cn: 列表，映射，功能组合(map, foreach, filter, zip, folds)
+    desc_pt_br: Listas, mapas, combinadores funcionais (map, foreach, filter, zip, folds)
   -
     title: Pattern matching & functional composition
     title_ko: 패턴 매치와 함수 합성
     title_ru: Сопоставление с образцом и функкциональная композиция
     title_zh_cn: 模式匹配与函数组合
+    title_pt_br: Pattern matching e composição funcional
     url: pattern-matching-and-functional-composition.html
     desc: More functions! PartialFunctions, more Pattern Matching
     desc_ko: 함수에 대한 추가 설명, 부분함수, 패턴 매치에 대한 설명
     desc_ru: Еще больше функций! Частичные функции, еще больше сопоставления с образцом
     desc_zh_cn: 更多函数！偏函数，更多模式匹配
+    desc_pt_br: Mais funções! PartialFunctions e mais Pattern Matching
   -
     title: Type & polymorphism basics
     title_ko: 타입과 다형성의 기초
     title_ru: Основы типов и полиморфизма
     title_zh_cn: 类型和多态基础
+    title_pt_br: Básico sobre tipos e polimorfismo
     url: type-basics.html
     desc: Basic Types and type polymorphism, type inference, variance, bounds, quantification
     desc_ko: 기본 타입, 타입 다형성, 타입 추론, 공변성, 바운드, 한정하기
     desc_ru: Основные типы и полиморфизм типов, вывод типов, изменчивость, пределы, квантификация
     desc_zh_cn: 基本类型和类型多态性，类型推断，变性，边界，量化
+    desc_pt_br: Tipos básicos, polimorfismo, inferência de tipos, variação, bounds e quantificação
   -
     title: Advanced types
     title_ko: 타입(고급 주제)
     title_ru: Дополнительные типы
     title_zh_cn: 高级类型
+    title_pt_br: Tipos avançados
     url: advanced-types.html
     desc: Advanced Types, view bounds, higher-kinded types, recursive types, structural types
     desc_ko: 타입에 대한 추가 설명, 뷰 바운드, 상류 타입, 재귀적 타입, 구조적 타입
     desc_ru: Дополнительные типы, видимое ограничение, типы высшего порядка, рекурсивные типы, структурные типы
     desc_zh_cn: 高级类型，视界，更高级多态性类型，递归类型，结构类型
+    desc_pt_br: Tipos avançados, view bounds, tipos higher-kinded, tipos recursivos, tipos estruturais
   -
     title: Simple Build Tool
     title_ko: SBT
     title_ru: Simple Build Tool
     title_zh_cn: 简单构建工具
+    title_pt_br: SBT
     url: sbt.html
     desc: All about SBT, the standard Scala build tool
     desc_ko: 표준 스칼라 빌드 도구인 SBT에 대한 설명
     desc_ru: Все о SBT, Стандартное средство сборки приложений для Scala
     desc_zh_cn: 关于SBT——标准的Scala构建工具
+    desc_pt_br: Tudo sobre o SBT, a ferramenta de build padrão do Scala
   -
     title: More collections
     title_ko: 컬렉션(계속)
     title_ru: Подробнее о коллекциях
     title_zh_cn: 更多的集合
+    title_pt_br: Mais coleções
     url: coll2.html
     desc: Tour of the Scala Collections library
     desc_ko: 스칼라 컬렉션 라이브러리 소개
     desc_ru: Рассказ о библиотеке коллекций Scala
     desc_zh_cn: Scala Collections库指南
+    desc_pt_br: Um tour pela biblioteca de coleções do Scala
   -
     title: Testing with specs
     title_ko: specs로 테스트하기
     title_ru: Тестирование с помощью specs
     title_zh_cn: 使用specs测试
+    title_pt_br: Testando com Specs
     url: specs.html
     desc_ko: Scala 테스트 프레임워크 Specs로 테스트하기
     desc_ru: Написание тестов с помощью Specs, Scala BDD фреймфорк для тестирования
+    desc_pt_br: Framework BDD para Scala
   -
     title: Concurrency in Scala
     title_ko: 스칼라의 동시성
     title_ru: Параллельность в Scala
     title_zh_cn: Scala 并发编程
+    title_pt_br: Concorrência em Scala
     url: concurrency.html
     desc: Runnable, Callable, threads, Futures
     desc_ko: Runnable, Callable, 쓰레드, Future
     desc_ru: Runnable, Callable, потоки, Futures
     desc_zh_cn: Runnable, Callable, 线程, Futures
+    desc_pt_br: Runnable, Callable, threads, Futures
   -
     title: Java + Scala
     title_ko: Java + Scala
     title_ru: Java + Scala
     title_zh_cn: Java + Scala
+    title_pt_br: Java + Scala
     url: java.html
     desc: 'Java interop: Using Scala from Java'
     desc_ko: '자바에서 스칼라 사용하기'
     desc_ru:  'Java совместимость: Использование Scala из Java'
     desc_zh_cn:  'Java跨平台交互：在Java中使用Scala'
+    desc_pt_br: 'Interoperabilidade: use Scala a partir do Java'
   -
     title: An introduction to Finagle
     title_ko: 피네이글(Finagle) 소개
     title_ru: Введение в Finagle
     title_zh_cn: Finagle介绍
+    title_pt_br: Uma introdução ao Finagle
     url: finagle.html
     desc: 'Finagle primitives: Future, Service, Filter, Builder'
     desc_ko: '피네이글 기본 요소: Future, Servie, Filter, Builder'
     desc_ru: 'Finagle примитивы: Future, Service, Filter, Builder'
     desc_zh_cn: 'Finagle原语：Future, Service, Filter, Builder'
+    desc_pt_br: 'Elementos básicos: Future, Service, Filter, Builder'
   -
     title: Searchbird
     title_ko: 검색조(Searchbird)
     title_ru: Searchbird
     title_zh_cn: Searchbird
+    title_pt_br: Searchbird
     url: searchbird.html
     desc: Building a distributed search engine using Finagle
     desc_ko: 피네이글로 분산 검색 엔진 만들기
     desc_ru: Создание распределенного поискового движка, используя Finagle
     desc_zh_cn: 利用Finagle构建一个分布式搜索引擎
-
+    desc_pt_br: Construindo um motor de busca distribuído com Finagle
