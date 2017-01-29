@@ -1,0 +1,438 @@
+---
+layout: post
+title: Basics
+next: basics2.textile
+---
+
+This lesson covers:
+* "About this class":#overview
+* "expressions":#expressions
+* "values":#val
+* "functions":#functions
+* "classes":#class
+* "basic inheritance":#extends
+* "traits":#trait
+* "types":#types
+
+h2(#overview). About this class
+
+The first few weeks will cover basic syntax and concepts, then we'll start to open it up with more exercises.
+
+Some examples will be given as if written in the interpreter and others as if written in a source file.
+
+Having an interpreter available makes it easy to explore a problem space.
+
+
+h3. Why Scala?
+
+* Expressive
+** First-class functions
+** Closures
+* Concise
+** Type inference
+** Literal syntax for function creation
+* Java interoperability
+** Can reuse java libraries
+** Can reuse java tools
+** No performance penalty
+
+h3. How Scala?
+
+* Compiles to java bytecode
+* Works with any standard JVM
+** Or even some non-standard JVMs like Dalvik
+** Scala compiler written by author of Java compiler
+
+h3. Think Scala
+
+Scala is not just a nicer Java.  You should learn it with a fresh mind- you will get more out of these classes.
+
+h3. Get Scala
+
+Scala School's examples work with "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html . If you use Scala 2.10.x or newer, _most_ examples work OK, but not all.
+
+h3. Start the Interpreter
+
+Start the included <code>sbt console</code>.
+
+<pre>
+$ sbt console
+
+[...]
+
+Welcome to Scala version 2.8.0.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_20).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala>
+</pre>
+
+
+h2(#expressions). Expressions
+
+<pre>
+scala> 1 + 1
+res0: Int = 2
+</pre>
+
+res0 is an automatically created value name given by the interpreter to the result of your expression.  It has the type Int and contains the Integer 2.
+
+(Almost) everything in Scala is an expression.
+
+h2(#val). Values
+
+You can give the result of an expression a name.
+
+<pre>
+scala> val two = 1 + 1
+two: Int = 2
+</pre>
+
+You cannot change the binding to a val.
+
+h3. Variables
+
+If you need to change the binding, you can use a <code>var</code> instead.
+
+<pre>
+scala> var name = "steve"
+name: java.lang.String = steve
+
+scala> name = "marius"
+name: java.lang.String = marius
+</pre>
+
+h2(#functions). Functions
+
+You can create functions with def.
+
+<pre>
+scala> def addOne(m: Int): Int = m + 1
+addOne: (m: Int)Int
+</pre>
+
+In Scala, you need to specify the type signature for function parameters.  The interpreter happily repeats the type signature back to you.
+
+<pre>
+scala> val three = addOne(2)
+three: Int = 3
+</pre>
+
+You can leave off parens on functions with no arguments.
+
+<pre>
+scala> def three() = 1 + 2
+three: ()Int
+
+scala> three()
+res2: Int = 3
+
+scala> three
+res3: Int = 3
+</pre>
+
+h3. Anonymous Functions
+
+You can create anonymous functions.
+
+<pre>
+scala> (x: Int) => x + 1
+res2: (Int) => Int = <function1>
+</pre>
+
+This function adds 1 to an Int named x.
+
+<pre>
+scala> res2(1)
+res3: Int = 2
+</pre>
+
+You can pass anonymous functions around or save them into vals.
+
+<pre>
+scala> val addOne = (x: Int) => x + 1
+addOne: (Int) => Int = <function1>
+
+scala> addOne(1)
+res4: Int = 2
+</pre>
+
+If your function is made up of many expressions, you can use {} to give yourself some breathing room.
+
+<pre>
+def timesTwo(i: Int): Int = {
+  println("hello world")
+  i * 2
+}
+</pre>
+
+This is also true of an anonymous function.
+
+<pre>
+scala> { i: Int =>
+  println("hello world")
+  i * 2
+}
+res0: (Int) => Int = <function1>
+</pre>
+
+You will see this syntax often used when passing an anonymous function as an argument.
+
+h3. Partial application
+
+You can partially apply a function with an underscore, which gives you another function. Scala uses the underscore to mean different things in different contexts, but you can usually think of it as an unnamed magical wildcard. In the context of <code>{ _ + 2 }</code> it means an unnamed parameter. You can use it like so:
+
+<pre>
+scala> def adder(m: Int, n: Int) = m + n
+adder: (m: Int,n: Int)Int
+</pre>
+
+<pre>
+scala> val add2 = adder(2, _:Int)
+add2: (Int) => Int = <function1>
+
+scala> add2(3)
+res50: Int = 5
+</pre>
+
+You can partially apply any argument in the argument list, not just the last one.
+
+h3. Curried functions
+
+Sometimes it makes sense to let people apply some arguments to your function now and others later.
+
+Here's an example of a function that lets you build multipliers of two numbers together. At one call site, you'll decide which is the multiplier and at a later call site, you'll choose a multiplicand.
+
+<pre>
+scala> def multiply(m: Int)(n: Int): Int = m * n
+multiply: (m: Int)(n: Int)Int
+</pre>
+
+You can call it directly with both arguments.
+
+<pre>
+scala> multiply(2)(3)
+res0: Int = 6
+</pre>
+
+You can fill in the first parameter and partially apply the second.
+
+<pre>
+scala> val timesTwo = multiply(2) _
+timesTwo: (Int) => Int = <function1>
+
+scala> timesTwo(3)
+res1: Int = 6
+</pre>
+
+You can take any function of multiple arguments and curry it. Let's try with our earlier <code>adder</code>
+
+<pre>
+scala> val curriedAdd = (adder _).curried
+curriedAdd: Int => (Int => Int) = <function1>
+
+scala> val addTwo = curriedAdd(2)
+addTwo: Int => Int = <function1>
+
+scala> addTwo(4)
+res22: Int = 6
+</pre>
+
+h3. Variable length arguments
+
+There is a special syntax for methods that can take parameters of a repeated type. To apply String's <code>capitalize</code> function to several strings, you might write:
+
+<pre>
+def capitalizeAll(args: String*) = {
+  args.map { arg =>
+    arg.capitalize
+  }
+}
+
+scala> capitalizeAll("rarity", "applejack")
+res2: Seq[String] = ArrayBuffer(Rarity, Applejack)
+</pre>
+
+h2(#class). Classes
+
+<pre>
+scala> class Calculator {
+     |   val brand: String = "HP"
+     |   def add(m: Int, n: Int): Int = m + n
+     | }
+defined class Calculator
+
+scala> val calc = new Calculator
+calc: Calculator = Calculator@e75a11
+
+scala> calc.add(1, 2)
+res1: Int = 3
+
+scala> calc.brand
+res2: String = "HP"
+</pre>
+
+Contained are examples defining methods with def and fields with val.  Methods are just functions that can access the state of the class.
+
+h3. Constructor
+
+Constructors aren't special methods, they are the code outside of method definitions in your class.  Let's extend our Calculator example to take a constructor argument and use it to initialize internal state.
+
+<pre>
+class Calculator(brand: String) {
+  /**
+   * A constructor.
+   */
+  val color: String = if (brand == "TI") {
+    "blue"
+  } else if (brand == "HP") {
+    "black"
+  } else {
+    "white"
+  }
+
+  // An instance method.
+  def add(m: Int, n: Int): Int = m + n
+}
+</pre>
+
+Note the two different styles of comments.
+
+You can use the constructor to construct an instance:
+
+<pre>
+scala> val calc = new Calculator("HP")
+calc: Calculator = Calculator@1e64cc4d
+
+scala> calc.color
+res0: String = black
+</pre>
+
+h3. Expressions
+
+Our Calculator example gave an example of how Scala is expression-oriented.  The value color was bound based on an if/else expression. Scala is highly expression-oriented: most things are expressions rather than statements.
+
+h3. Aside: Functions vs Methods
+
+Functions and methods are largely interchangeable. Because functions and methods are so similar, you might not remember whether that <em>thing</em> you call is a function or a method. When you bump into a difference between methods and functions, it might confuse you.
+
+<pre>
+scala> class C {
+     |   var acc = 0
+     |   def minc = { acc += 1 }
+     |   val finc = { () => acc += 1 }
+     | }
+defined class C
+
+scala> val c = new C
+c: C = C@1af1bd6
+
+scala> c.minc // calls c.minc()
+
+scala> c.finc // returns the function as a value:
+res2: () => Unit = <function0>
+</pre>
+
+When you can call one "function" without parentheses but not another, you might think <em>Whoops, I thought I knew how Scala functions worked, but I guess not. Maybe they sometimes need parentheses?</em> You might understand functions, but be using a method.
+
+In practice, you can do great things in Scala while remaining hazy on the difference between methods and functions. If you're new to Scala and read <a href="https://www.google.com/search?q=difference+scala+function+method">explanations of the differences</a>, you might have trouble following them. That doesn't mean you're going to have trouble using Scala. It just means that the difference between functions and methods is subtle enough such that explanations tend to dig into deep parts of the language.
+
+h2(#extends). Inheritance
+
+<pre>
+class ScientificCalculator(brand: String) extends Calculator(brand) {
+  def log(m: Double, base: Double) = math.log(m) / math.log(base)
+}
+</pre>
+
+*See Also* Effective Scala points out that a <a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">Type alias</a> is better than <code>extends</code> if the subclass isn't actually different from the superclass. A Tour of Scala describes <a href="http://www.scala-lang.org/node/125">Subclassing</a>.
+
+h3. Overloading methods
+
+<pre>
+class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
+  def log(m: Int): Double = log(m, math.exp(1))
+}
+</pre>
+
+h3. Abstract Classes
+
+You can define an <em>abstract class</em>, a class that defines some methods but does not implement them. Instead, subclasses that extend the abstract class define these methods. You can't create an instance of an abstract class.
+
+<pre>
+scala> abstract class Shape {
+     |   def getArea():Int    // subclass should define this
+     | }
+defined class Shape
+
+scala> class Circle(r: Int) extends Shape {
+     |   def getArea():Int = { r * r * 3 }
+     | }
+defined class Circle
+
+scala> val s = new Shape
+<console>:8: error: class Shape is abstract; cannot be instantiated
+       val s = new Shape
+               ^
+
+scala> val c = new Circle(2)
+c: Circle = Circle@65c0035b
+</pre>
+
+h2(#trait). Traits
+
+<code>traits</code> are collections of fields and behaviors that you can extend or mixin to your classes.
+
+<pre>
+trait Car {
+  val brand: String
+}
+
+trait Shiny {
+  val shineRefraction: Int
+}
+</pre>
+
+<pre>
+class BMW extends Car {
+  val brand = "BMW"
+}
+</pre>
+
+One class can extend several traits using the <code>with</code> keyword:
+
+<pre>
+class BMW extends Car with Shiny {
+  val brand = "BMW"
+  val shineRefraction = 12
+}
+</pre>
+
+*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">trait</a>.
+
+*When do you want a Trait instead of an Abstract Class?* If you want to define an interface-like type, you might find it difficult to choose between a trait or an abstract class. Either one lets you define a type with some behavior, asking extenders to define some other behavior. Some rules of thumb:
+
+<ul>
+<li>Favor using traits. It's handy that a class can extend several traits; a class can extend only one class.
+<li>If you need a constructor parameter, use an abstract class. Abstract class constructors can take parameters; trait constructors can't. For example, you can't say <code>trait t(i: Int) {}</code>; the <code>i</code> parameter is illegal.
+</ul>
+
+You are not the first person to ask this question. See fuller answers at "stackoverflow:Scala traits vs abstract classes":http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes, "Difference between Abstract Class and Trait":http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait, and "Programming in Scala: To trait, or not to trait?":http://www.artima.com/pins1ed/traits.html#12.7
+
+h2(#types). Types
+
+Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you'll see a type parameter introduced with the square bracket syntax. Here's an example of a Cache of generic Keys and Values.
+
+<pre>
+trait Cache[K, V] {
+  def get(key: K): V
+  def put(key: K, value: V)
+  def delete(key: K)
+}
+</pre>
+
+Methods can also have type parameters introduced.
+
+<pre>
+def remove[K](key: K)
+</pre>
