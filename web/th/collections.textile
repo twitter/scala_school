@@ -5,9 +5,9 @@ title: Collections
 layout: post
 ---
 
-This lesson covers:
+ในบทนี้เนื้อหาจะครอบคลุมถึง:
 
-* Basic Data Structures
+* โครงสร้างข้อมูลเบื้องต้น
 ** "Arrays":#Arrays
 ** "Lists":#Lists
 ** "Sets":#Sets
@@ -28,15 +28,15 @@ This lesson covers:
 ** "Generalized functional combinators":#generalized
 ** "Map?":#vsMap
 
-h1. Basic Data Structures
+h1. โครงสร้างข้อมูลเบื้องต้น
 
-Scala provides some nice collections.
+Scala มีคอลเลกชันเจ๋งๆ ให้ใช้
 
-*See Also* Effective Scala has opinions about how to use <a href="http://twitter.github.com/effectivescala/#Collections">collections</a>.
+*อ่านด้วย* Effective Scala ให้ความเห็นเกี่ยวกับวิธีใช้ <a href="http://twitter.github.com/effectivescala/#Collections">collections</a>.
 
 h2(#Arrays). Arrays
 
-Arrays preserve order, can contain duplicates, and are mutable.
+Array จะยังคงลำดับของมันเอาไว้ มันสามารถซ้ำกันได้และก็มีลักษณะ multable (เปลี่ยนค่าได้ ตัวนี้รายละเอียดเยอะมากรู้แค่นี้ก่อนดีแล้ว)
 
 <pre>
 scala> val numbers = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
@@ -47,7 +47,7 @@ scala> numbers(3) = 10
 
 h2(#Lists). Lists
 
-Lists preserve order, can contain duplicates, and are immutable.
+List จะยังคงลำดับของมันเอาไว้ มันสามารถซ้ำกันได้และก็มีลักษณะ immultable (เปลี่ยนค่าไม่ได้)
 
 <pre>
 scala> val numbers = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
@@ -60,7 +60,7 @@ scala> numbers(3) = 10
 
 h2(#Sets). Sets
 
-Sets do not preserve order and have no duplicates
+Set ไม่มีการเรียงลำดับและก็ไม่สามารถใส่ข้อมูลซ้ำกันได้
 
 <pre>
 scala> val numbers = Set(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
@@ -69,14 +69,14 @@ numbers: scala.collection.immutable.Set[Int] = Set(5, 1, 2, 3, 4)
 
 h2(#Tuple). Tuple
 
-A tuple groups together simple logical collections of items without using a class.
+Tuble จะเป็นการรวมกลุ่มของข้อมูลในเชิงตรรกะเอาไว้ด้วยกันแบบง่ายๆโดนไม่ต้องใช้คลาส
 
 <pre>
 scala> val hostPort = ("localhost", 80)
 hostPort: (String, Int) = (localhost, 80)
 </pre>
 
-Unlike case classes, they don't have named accessors, instead they have accessors that are named by their position and is 1-based rather than 0-based.
+ไม่เหมือนกับ Case classes นะเพราะ Case classes ไม่มีตัวเข้าถึงข้อมูลหรือ accessors แต่กับตัว Tuple นั้นมี accessors ที่มีชื่อตามตำแหน่งของมันซึ่งจะเริ่มจากตำแหน่ง 1
 
 <pre>
 scala> hostPort._1
@@ -86,7 +86,7 @@ scala> hostPort._2
 res1: Int = 80
 </pre>
 
-Tuples fit with pattern matching nicely.
+Tuple สามารถเข้ากับ Pattern matching ได้อย่างดี
 
 <pre>
 hostPort match {
@@ -95,29 +95,30 @@ hostPort match {
 }
 </pre>
 
-Tuple has some special sauce for simply making Tuples of 2 values: <code>-></code>
+Tuple มีวิธีการง่ายๆในการสร้าง Tuple ของ 2 ค่าโดยการเรียกใช้ <code>-></code>
+
 
 <pre>
 scala> 1 -> 2
 res0: (Int, Int) = (1,2)
 </pre>
 
-*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">destructuring bindings</a> ("unpacking" a tuple).
+*อ่านด้วย* Effective Scala ให้ความเห็นเกี่ยวกับ <a href="http://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">destructuring bindings</a> ("unpacking" a tuple).
 
 h2(#Maps). Maps
 
-It can hold basic datatypes.
+ตัวมันสามารถเก็บชนิดของข้อมูลไว้ได้
 
 <pre>
 Map(1 -> 2)
 Map("foo" -> "bar")
 </pre>
 
-This looks like special syntax but remember back to our discussion of Tuple that <code>-></code> can be used to create Tuples.
+มันดูเหมอนกับเครื่องหมายพิเศษที่เราเอาไว้สร้าง Tuple ใช่ไหมหล่ะตรงเครื่องหมาย <code>-></code> หน่ะถ้าย้อนกลับไปดู
 
-Map() also uses that variable argument syntax we learned back in Lesson #1: <code>Map(1 -> "one", 2 -> "two")</code> which expands into <code>Map((1, "one"), (2, "two"))</code> with the first element being the key and the second being the value of the Map.
+Map() ก็ใช้เครื่องหมายเดียวกันนี้ในการที่จะทำให้ข้อมูลอยู่ในลักษณะ Map ซึ่งถ้ายย้อนกลับไปดูที่บทแรก #1: <code>Map(1 -> "one", 2 -> "two")</code> มันจะถูกที่ให้อยู่ในรูปของ <code>Map((1, "one"), (2, "two"))</code> ตัวข้อมูลใน Map ตัวแรกเราจะเรียกมันว่าคีย์ (Key) ส่วนตัวที่สองเราจะเรียกมันว่าค่า (Value) ของแมพ
 
-Maps can themselves contain Maps or even functions as values.
+Map โดยตัวของมันเองแล้วมันยังสามารถที่จะเก็บ Map ได้ด้วย หรือแม้กระทั้งค่าที่เป็นฟังก์ชันเลยก็ยังไหว
 
 <pre>
 Map(1 -> Map("foo" -> "bar"))
@@ -129,9 +130,9 @@ Map("timesTwo" -> { timesTwo(_) })
 
 h2(#Option). Option
 
-<code>Option</code> is a container that may or may not hold something.
+<code>Option</code> มันเป็นเหมือนคอนเทนเนอร์ที่จะใช้เก็บของหรือไม่เก็บก็ได้ (ฝรั่งชอบใช้คำว่าคอนเทนเนอร์แต่ถ้าบอกว่ามันเป็นกล่องคิดว่าจะเข้าใจได้ง่ายกว่า)
 
-The basic interface for Option looks like:
+เบื้องต้นแล้ว Interface ของ Option จะมีหน้าตาเหมือนกับโค้ดนี้:
 
 <pre>
 trait Option[T] {
@@ -141,11 +142,11 @@ trait Option[T] {
 }
 </pre>
 
-Option itself is generic and has two subclasses: <code>Some[T]</code> or <code>None</code>
+Option โดยตัวมันเองแล้วมันเป็น Generic (มี [T] ปะอยู่) ซึ่งมี subclasses หรือคลาสลูกอยู่สองตัวคือ <code>Some[T]</code> กับ <code>None</code>
 
-Let's look at an example of how Option is used:
+เราจะพาไปดูตัวอย่างของการใช้งานกันว่า Option มันใช้งานยังไง
 
-<code>Map.get</code> uses <code>Option</code> for its return type. Option tells you that the method might not return what you're asking for.
+<code>Map.get</code> ใช้ <code>Option</code> เป็นชนิดของตัวแปรที่รีเทิร์นกลับออกมา นั่นคือ Option เอาไว้บอกว่าเมธอตอาจจะไม่ได้รีเทิร์นค่าที่เราถามกลับออกมาก็ได้นะ
 
 <pre>
 scala> val numbers = Map("one" -> 1, "two" -> 2)
@@ -158,9 +159,9 @@ scala> numbers.get("three")
 res1: Option[Int] = None
 </pre>
 
-Now our data appears trapped in this <code>Option</code>. How do we work with it?
+ตอนนี้ดูเหมือนว่าข้อมูลของเราจะถูกดักไว้ใน <code>Option</code> แล้วเราจะทำงานกับมันได้ยังไง ?
 
-A first instinct might be to do something conditionally based on the <code>isDefined</code> method.
+จากสัญชาตญาณแล้วเราอาจจะทำอะไรบางอย่างกับเงื่อนไขขึ้นอยู่กับเมธอต <code>isDefined</code>
 
 <pre>
 // We want to multiply the number by two, otherwise return 0.
@@ -171,15 +172,15 @@ val result = if (res1.isDefined) {
 }
 </pre>
 
-We would suggest that you use either <code>getOrElse</code> or pattern matching to work with this result.
+เราขอแนะนำให้คุณใช้ <code>getOrElse</code> หรือใช้ Pattern Matching เพื่อที่จะทำงานกับผลลัพธ์
 
-<code>getOrElse</code> lets you easily define a default value.
+<code>getOrElse</code> จะช่วยให้คุณสามารถที่จะกำนดค่าเริ่มต้นได้ง่าย
 
 <pre>
 val result = res1.getOrElse(0) * 2
 </pre>
 
-Pattern matching fits naturally with <code>Option</code>.
+Pattern matching ใช้กับ <code>Option</code> ได้อย่างลื่นไหลเป็นธรรมชาติ
 
 <pre>
 val result = res1 match {
@@ -188,15 +189,15 @@ val result = res1 match {
 }
 </pre>
 
-*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>.
+*อ่านด้วย* Effective Scala มีความเห็นเกี่ยวกับ <a href="http://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>.
 
 h1(#combinators). Functional Combinators
 
-<code>List(1, 2, 3) map squared</code> applies the function <code>squared</code> to the elements of the list, returning a new list, perhaps <code>List(1, 4, 9)</code>. We call operations like <code>map</code> <em>combinators</em>. (If you'd like a better definition, you might like <a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">Explanation of combinators</a> on Stackoverflow.) Their most common use is on the standard data structures.
+<code>List(1, 2, 3) map squared</code> เรียกใช้ฟังก์ชัน <code>squared</code> กับสมาชิกใน List ซึ่งจะคือ List ใหม่ออกมาได้เป็น <code>List(1, 4, 9)</code> เราเรียกว่า <code>map</code> <em>combinators</em>. (ถ้าคุณอยากได้นิยามที่ดีกว่านี้คุณอาจจะชอบ <a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">Explanation of combinators</a> บน Stackoverflow) พวกนั้นส่วนใหญ่จะใช้งานทั่วไปบนโครงสร้างข้อมูลที่ธรรมดา
 
 h2(#map). map
 
-Evaluates a function over each element in the list, returning a list with the same number of elements.
+ทำฟังก์ชันบนสมาชิกแต่ละตัวของ List แล้วจึงคืนค่า List ที่มีจำนวนเท่ากันกลับออกมา
 
 <pre>
 scala> val numbers = List(1, 2, 3, 4)
@@ -206,7 +207,7 @@ scala> numbers.map((i: Int) => i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
-or pass in a function (the Scala compiler automatically converts our method to a function)
+หรือจะส่งมันในรูปแบบของฟังก์ชันเลยก็ได้ (ตัว Scala compiler จะแปลงเมธอตให้เป็นฟังก์ชันอัตโนมัต)
 
 <pre>
 
@@ -219,15 +220,15 @@ res0: List[Int] = List(2, 4, 6, 8)
 
 h2(#foreach). foreach
 
-foreach is like map but returns nothing. foreach is intended for side-effects only.
+foreach ก็คล้ายๆกับ map แต่ไจะไม่คืนค่าอะไรกลับออกมา foreach ตังใจว่าจะทำ side-effects เท่านั้น
 
 <pre>
 scala> numbers.foreach((i: Int) => i * 2)
 </pre>
 
-returns nothing.
+ไม่คืนค่าอะไรออกมา
 
-You can try to store the return in a value but it'll be of type Unit (i.e. void)
+คุณสามารถที่จะลองเก็บค่ารีเทิร์นแต่คุณก็จะเห็นชนิดของมันเป็น Unit (นึกถึง void ไว้)
 
 <pre>
 scala> val doubled = numbers.foreach((i: Int) => i * 2)
@@ -236,7 +237,7 @@ doubled: Unit = ()
 
 h2(#filter). filter
 
-removes any elements where the function you pass in evaluates to false.  Functions that return a Boolean are often called predicate functions.
+filter จะกรองเราสมาชิกใดๆก็ตามที่ไม่สามารถผ่านฟังก์ชันกรองที่ส่งให้ออกไป บ่อยครั้งที่ฟังก์ชันที่คืนค่าเป็น Boolean กลับมาจะถูกเรียกว่าฟังก์ชัน Predicate
 
 <pre>
 scala> numbers.filter((i: Int) => i % 2 == 0)
@@ -253,7 +254,7 @@ res2: List[Int] = List(2, 4)
 
 h2(#zip). zip
 
-zip aggregates the contents of two lists into a single list of pairs.
+Zip จะเป็นการรวมเอาเนื้อหาของ List สองตัวเข้ามาเป็นคู่คีย์แพร์ของ List ตัวเดียว
 
 <pre>
 scala> List(1, 2, 3).zip(List("a", "b", "c"))
@@ -262,7 +263,7 @@ res0: List[(Int, String)] = List((1,a), (2,b), (3,c))
 
 h2(#partition). partition
 
-<code>partition</code> splits a list based on where it falls with respect to a predicate function.
+<code>partition</code> จะแบ่ง List ตามที่เรากำหนดไว้ใน predicate functions
 
 <pre>
 scala> val numbers = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
@@ -272,7 +273,7 @@ res0: (List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
 
 h2(#find). find
 
-find returns the first element of a collection that matches a predicate function.
+find จะคืนค่าของสมาชิกตัวแรกที่เจอใน Collection ที่ตรงตามเงื่อนไขค่าหรือ predicate functions ที่กำหนด
 
 <pre>
 scala> numbers.find((i: Int) => i > 5)
@@ -281,14 +282,14 @@ res0: Option[Int] = Some(6)
 
 h2(#drop). drop & dropWhile
 
-<code>drop</code> drops the first i elements
+<code>drop</code> จะลบสมาชิกจำนวนตามพารามิเตอร์โดยเริ่มจากตัวแรก
 
 <pre>
 scala> numbers.drop(5)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
 
-<code>dropWhile</code> removes the first element that match a predicate function. For example, if we <code>dropWhile</code> odd numbers from our list of numbers, <code>1</code> gets dropped (but not <code>3</code> which is "shielded" by <code>2</code>).
+<code>dropWhile</code> จะลบสมาชิกตัวแรกที่ตรงตามเงื่อนไขของ predicate functions ยกตัวอย่าถ้าเราจะ <code>dropWhile</code> จำนวนคี่จาก List ชื่อ number ที่เราเคยกำหนดไว้ <code>1</code> จะถูกตัดทิ้งไป (แต่ในกรณีของ <code>3</code> จะถูก "shielded" หรือคั่นด้วย <code>2</code>)
 
 <pre>
 scala> numbers.dropWhile(_ % 2 != 0)
@@ -302,10 +303,9 @@ scala> numbers.foldLeft(0)((m: Int, n: Int) => m + n)
 res0: Int = 55
 </pre>
 
-0 is the starting value (Remember that numbers is a List[Int]), and m
-acts as an accumulator.
+0 เป็นพารามิอเตอร์ที่บอกว่าค่าเริ่มต้น (พึงระลึกไว้ว่าตัวแปร numbers เป็น List[Int]) แบะตัว m เป็นลักษณะของตัวเพิ่มค่า
 
-Seen visually:
+เพื่อให้เห็นภาพเราขยายการดำเนินการออกมาได้ดังนี้
 
 <pre>
 scala> numbers.foldLeft(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
@@ -324,7 +324,7 @@ res0: Int = 55
 
 h3. foldRight
 
-Is the same as foldLeft except it runs in the opposite direction.
+คล้ายๆ กับ foldLeft ยกเว้นแต่ว่ามันทำในทิศทางตรงกันข้าม
 
 <pre>
 scala> numbers.foldRight(0) { (m: Int, n: Int) => println("m: " + m + " n: " + n); m + n }
@@ -343,7 +343,7 @@ res0: Int = 55
 
 h2(#flatten). flatten
 
-flatten collapses one level of nested structure.
+flatten ใช้เพื่อทำลายระดับของโครงสร้างข้อมูลให้แบนเป็นระนาวเดียว
 
 <pre>
 scala> List(List(1, 2), List(3, 4)).flatten
@@ -352,7 +352,7 @@ res0: List[Int] = List(1, 2, 3, 4)
 
 h2(#flatMap). flatMap
 
-flatMap is a frequently used combinator that combines mapping and flattening. flatMap takes a function that works on the nested lists and then concatenates the results back together.
+flatMap ถูกใช้บ่อยๆ เพื่อเป็น combinator หรือตัวรวมซึ่งทำหน้าที่ร่วมกันระหว่า Mapping และ Flattening ดังนั้น flatMap จึงสามารถทำงานได้บน Nested list หรือ List หลายระดับแล้วจึงรวมกลับมาเชื่อมต่อกันหลังจากที่ได้ผลลัพธ์กลับมาแล้ว
 
 <pre>
 scala> val nestedNumbers = List(List(1, 2), List(3, 4))
@@ -362,24 +362,24 @@ scala> nestedNumbers.flatMap(x => x.map(_ * 2))
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 
-Think of it as short-hand for mapping and then flattening:
+คิดง่ายๆ ได้ว่ามันเป็นวิธีลัดของการใช้ Map และ Flatten ก็ได้ ไม่งั้นแล้ว
 
 <pre>
 scala> nestedNumbers.map((x: List[Int]) => x.map(_ * 2)).flatten
 res1: List[Int] = List(2, 4, 6, 8)
 </pre>
 
-that example calling map and then flatten is an example of the "combinator"-like nature of these functions.
+ตัวอย่างนี้แสดงถึงการเรียกใช้ Map แล้วจากนั้น Flatten แถมตัวอย่างนี้ยังเป็นลักษณะคล้าย combinator ซึ่งเป็นลักษณะตามธรรมชาติของฟังก์ชันพวกนี้
 
-*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>.
+*อ่านด้วย* Effective Scala มีความเห็นเกี่ยวกับ <a href="http://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>.
 
 h2(#generalized). Generalized functional combinators
 
-Now we've learned a grab-bag of functions for working with collections.
+ถึงตอนนี้เรารู้จักฟังก์ชันที่จะทำงานกับ Collection แล้ว
 
-What we'd like is to be able to write our own functional combinators.
+อะไรที่ทำให้เราอยากเขียนฟังก์ชัน combinators เอง
 
-Interestingly, every functional combinator shown above can be written on top of fold.  Let's see some examples.
+น่าสนใจมากว่าทำไมทุกๆ combinators ที่เราเคยพูดถึงนั้นมันถึงเขียนอยู่บน fold อย่างตัวอย่างนี้
 
 <pre>
 def ourMap(numbers: List[Int], fn: Int => Int): List[Int] = {
@@ -392,33 +392,33 @@ scala> ourMap(numbers, timesTwo(_))
 res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
 </pre>
 
-Why <tt>List[Int]()</tt>? Scala wasn't smart enough to realize that you wanted an empty list of Ints to accumulate into.
+ทำไม <tt>List[Int]()</tt>? Scala ไม่ได้ฉลาดพอที่จะรู้ว่าเราต้องการ List เปล่าของ Int เพื่อบวกรวมเข้าไป
 
 h2(#vsMap). Map?
 
-All of the functional combinators shown work on Maps, too.  Maps can be thought of as a list of pairs so the functions you write work on a pair of the keys and values in the Map.
+ทุกฟังก์ชัน combinators ที่เราแสดงให้ดูใช้ Map ประกอบการทำงานเช่นเดียวกันกับ Fold โดยที่ตัว Map นั้นสามารถคิดได้ว่ามันเป็น List ของแพร์ดังนั้นฟังก์ชันที่เราเขียนจะทำงานบนแพร์คู่ Key กับ Value ของ Map นี่เอง
 
 <pre>
 scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)
 extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
 </pre>
 
-Now filter out every entry whose phone extension is lower than 200.
+จากนั้นลอง filter ทุกๆ ตัวที่มันมีส่วนขยายเบอร์โทรศัพท์น้อยกว่า 200
 
 <pre>
 scala> extensions.filter((namePhone: (String, Int)) => namePhone._2 < 200)
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>
 
-Because it gives you a tuple, you have to pull out the keys and values with their positional accessors. Yuck!
+เพราะว่ามันให้ Tuple ออกมา เราจึงสามารถดึง Key กับ Value ของมันออกมาได้ตามตำแหน่งของคู่แพร์ผ่ามตัว Accessor
 
-Lucky us, we can actually use a pattern match to extract the key and value nicely.
+โชคดีมาก เราเลยสามารถใช้ Pattern matching ในการแตก Key กับ Value ได้อย่างสวยงาม
 
 <pre>
 scala> extensions.filter({case (name, extension) => extension < 200})
 res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>
 
-Why does this work? Why can you pass in a partial pattern match?
+ทำไมเราถึงทำแบบนี้ได้? ทำไมเราสามารถส่ง Pattern matching แต่บางส่วน
 
-Stay tuned for next week!
+รอมาเรียนสัปดาห์หน้า!
