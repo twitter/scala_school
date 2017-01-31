@@ -5,7 +5,7 @@ title: Pattern matching & functional composition
 layout: post
 ---
 
-This lesson covers:
+เนื้อหาในบทนี้จะครอบคลุมถึง:
 
 * "Function Composition":#composition
 ** compose
@@ -18,7 +18,7 @@ This lesson covers:
 
 h2(#composition). Function Composition
 
-Let's make two aptly-named functions:
+ลองสร้างฟังก์ชันขึ้นมาเป็น aptly-named functions
 
 <pre>
 scala> def f(s: String) = "f(" + s + ")"
@@ -30,7 +30,7 @@ g: (String)java.lang.String
 
 h3. compose
 
-<code>compose</code> makes a new function that composes other functions <code>f(g(x))</code>
+<code>compose</code> ทำให้ฟังก์ชันสามารถรวมกันฟังก์ชันอื่นได้ <code>f(g(x))</code>
 
 <pre>
 scala> val fComposeG = f _ compose g _
@@ -42,7 +42,7 @@ res0: java.lang.String = f(g(yay))
 
 h3. andThen
 
-<code>andThen</code> is like <code>compose</code>, but calls the first function and then the second, <code>g(f(x))</code>
+<code>andThen</code> เหมือนกับ <code>compose</code> แต่จะเรียกฟังก์ชันแรกก่อนถึงจะเรียกฟังก์ชันที่สอง <code>g(f(x))</code>
 
 <pre>
 scala> val fAndThenG = f _ andThen g _
@@ -56,25 +56,25 @@ h2(#curryvspartial). Currying vs Partial Application
 
 h3. case statements
 
-h4. So just what are case statements?
+h4. อะไรคือ case statements หว่ะ?
 
-It's a subclass of function called a PartialFunction.
+มันเป็น Subclass ของฟังก์ชันที่มีชื่อว่า PartialFunction
 
-h4. What is a collection of multiple case statements?
+h4. อะไรคือ Collection ของ Case statements หลายๆ ตัว?
 
-They are multiple PartialFunctions composed together.
+ก็พวกมันมี PartialFunction หลายๆตัวมา compose เข้าด้วยกันหน่ะซิ
 
-h2(#PartialFunction). Understanding PartialFunction
+h2(#PartialFunction). ทำความเข้าใจกับ PartialFunction
 
-A function works for every argument of the defined type. In other words, a function defined as (Int) => String takes any Int and returns a String.
+ฟังก์ชันจะทำงานสำหรับทุกๆ อาร์กิวเมนต์ที่กำหนดตามชนิดของมัน อีกความหมายหนึ่งก็คือฟังก์ชันที่กำหนดเป็น (Int) => String นั่นก็คือมันรับ Int แล้วรีเทิร์นเป็น String กลับออกมา
 
-A Partial Function is only defined for certain values of the defined type.  A Partial Function (Int) => String might not accept every Int.
+ตัว Partial Fuction หรือฟังก์ชันแบบบางส่วนจะถูกกำหนดว่ามีเฉพาะค่าบางค่าของชนิดตัวแปรที่กำหนดเท่านั้นทีทำงานได้ อย่างเช่นถ้าเป็นฟังก์ชันแบบบางส่วนของ (Int) => String นั่นก็ไม่ได้หมายความว่าจะใส่ Int อะไรเข้ามามันก็ทำงาน มันทำงานแค่กับบาง Int เท่านั้น
 
-<code>isDefinedAt</code> is a method on PartialFunction that can be used to determine if the PartialFunction will accept a given argument.
+<code>isDefinedAt</code> เป็นเมธอตที่อยู่บน PartialFunction ซึ่งสามารถที่จะใช้ทดสอบดูว่าอาร์กิวเมนต์ไหนบ้างที่จะยอมรับใน PartialFunction นั้น
 
-__Note__ <code>PartialFunction</code> is unrelated to a partially applied function that we talked about earlier.
+__Note__ <code>PartialFunction</code> ไม่เกี่ยวกันกับ partially applied function ที่เราเคยคุยกันมาก่อนหน้า
 
-*See Also* Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.
+*อ่านด้วย* Effective Scala มีความเห็นเกี่ยวกับ <a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.
 
 <pre>
 scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
@@ -87,14 +87,14 @@ scala> one.isDefinedAt(2)
 res1: Boolean = false
 </pre>
 
-You can apply a partial function.
+เราสามารถใช้ฟังก์ชันได้
 
 <pre>
 scala> one(1)
 res2: String = one
 </pre>
 
-PartialFunctions can be composed with something new, called orElse, that reflects whether the PartialFunction is defined over the supplied argument.
+PartialFunctions สามารถรวมกับอะไรใหม่ๆที่เราจะคุยกันนี้ก็คือ orElse ซึ่งมันจะเป็นตัวสะท้อนว่าเรากำหนดอาร์กิวเมนต์ของ PartialFunction เกินกว่าที่มันมีให้ใช้ได้หรือเปล่า
 
 <pre>
 scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
@@ -125,9 +125,9 @@ scala> partial(0)
 res28: String = something else
 </pre>
 
-h3(#case). The mystery of case.
+h3(#case). ความลึกลับของ case.
 
-Last week we saw something curious. We saw a case statement used where a function is normally used.
+สัปดาห์ที่แล้วเรามีความอยากรู้อยากเห็น จากการที่เราเห็นแล้วว่า case statement ถูกใช้งานกับฟังก์ชันทั่วๆ ไป
 
 <pre>
 scala> case class PhoneExt(name: String, ext: Int)
@@ -140,8 +140,8 @@ scala> extensions.filter { case PhoneExt(name, extension) => extension < 200 }
 res0: List[PhoneExt] = List(PhoneExt(steve,100))
 </pre>
 
-Why does this work?
+มันทำงานยังไงนะ?
 
-filter takes a function. In this case a predicate function of (PhoneExt) => Boolean.
+filter ใช้ฟังก์ชัน ในกรณีนี้เป็น Predicate function ของ (PhoneExt) => Boolean
 
-A PartialFunction is a subtype of Function so filter can also take a PartialFunction!
+ตัว PartialFunction เป็น subtype ของ Function ดังนั้นแล้ว filter จังสามารถรับเอา PartialFunction ได้!
