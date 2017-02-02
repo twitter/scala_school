@@ -1,70 +1,73 @@
 ---
 prev: pattern-matching-and-functional-composition.textile
 next: advanced-types.textile
-title: Type & polymorphism basics
+title: ประเภทตัวแปรและ Polymorphism เบื้องต้น
 layout: post
 ---
 
-This lesson covers:
+เนื้อหาในบนนี้จะครอบคลุมถึง:
 
-* "What are static types?":#background
-* "Types in Scala":#scala
+* "อะไรคือ static types?":#background
+* "ชนิดของตัวแปรใน Scala":#scala
 * "Parametric Polymorphism":#parametricpoly
 * "Type inference: Hindley-Milner vs. local type inference":#inference
 * "Variance":#variance
 * "Bounds":#bounds
 * "Quantification":#quantification
 
-h2(#background). What are static types?  Why are they useful?
+h2(#background). อะไรคือชนิดขอตัวแปรแบบ static types? ทำไมพวกมันถึงมีประโยชน์?
 
-According to Pierce: "A type system is a syntactic method for automatically checking the absence of certain erroneous behaviors by classifying program phrases according to the kinds of values they compute."
+จากคำกล่าวของ Pierce: "ระบบชนิดของตัวแปรเป็นวิธีการที่ใช้ไวยากรณ์เพื่อตรวจสอบพฤติกรรมบางอย่างที่ผิดพลาดโดยการจำแนกประเภทวลีของโปรแกรมตามประเภทของค่าที่พวกมันคำนวณ"
 
-Types allow you to denote function domain & codomains. For example, from mathematics, we are used to seeing:
+ชนิดของตัวแปรอนุญาตให้คุณแสดงฟังก์ชันโดเมนและโคโดเมน ยกตัวอย่างกรณีของคณิตศาสตร์เราจะใช้ประมาณนี้:
 
 <pre>
 f: R -> N
 </pre>
 
-this tells us that function "f" maps values from the set of real numbers to values of the set of natural numbers.
+โค้ดด้านบนบอกเราว่าฟังก์ชัน "f" Map ค่าจากเซ็ตของจำนวนจริงไปเป็นจค่าของเซ็ตของจำนวนธรรมชาติ
 
-In the abstract, this is exactly what _concrete_ types are.  Type systems give us some more powerful ways to express these sets.
+โดยทั่วๆ ไปแล้วนี่คือสิ่งที่จริงๆ แล้วชนิตัวแปรที่หนักแน่น ระบบชนิดตัวแปรทำให้เราสามารถแสดงอะไรบางอย่างเจ๋งๆ บนเซ็ตเหล่านั้นได้
 
-Given these annotations, the compiler can now _statically_ (at compile time) verify that the program is _sound_. That is, compilation will fail if values (at runtime) will not comply to the constraints imposed by the program.
+จากการกำหนด Annotation ทำให้ compiler สามารถตรวจสอบโปรแกรม _แบบคงที่_ ในขณะที่คอมไพล์ (statically at compile time) เพื่อดูว่ามัน _สมบูรณ์_ หรือเปล่า นั่นคือการคอมไพล์จะไม่ผ่านถ้าค่าใน (ตอน runtime) จะไม่เป็นไปตามที่ถูกกำหนดบังคับไว้ในตัวโปรแกรม
 
-Generally speaking, the typechecker can only guarantee that _unsound_ programs do not compile. It cannot guarantee that every sound program _will_ compile.
+พูดในเชิงทั่วไป ตัวตรวจสอบชนิดของตัวแปรสามารถรับรองได้ว่าโปรแกรมที่ _ไม่สมบูรณ์_ จะไม่ถูกคอมไพล์ แต่มันก็ไม่ได้รับรองว่าโปรแกรมที่สมบูรณ์ทุกตัว _จะ_ คอมไฟล์
 
-With increasing expressiveness in type systems, we can produce more reliable code because it allows us to prove invariants about our program before it even runs (modulo bugs in the types themselves, of course!). Academia is pushing the limits of expressiveness very hard, including value-dependent types!
+เพื่อมความความเข้าใจให้ลึกซึ่งเกี่ยวกับระบบชนิดของตัวแปร เราสามารถเพิ่มความเชื่อมั่นให้กัยโค้ดเราได้เพราะว่าระบบมันอนุญาตให้เราสามารถพิสูจน์ค่าคงที่ที่เกี่ยวกับโปรแกรมของเราได้แม้เราจะยังไม่ได้รัน (ลดข้อผิดพลาดโดยตัวของมันเอง - modulo bugs in the types themselves, of course!) สถาบันการศึกษาพยายามที่จะจำกัดความลึกซึ้งของมันไม่ให้ยากมากเกินไป รวมทั้งตัวแปรชนิดที่มีการขึ้นต่อกันของค่าด้วย
 
-Note that all type information is removed at compile time. It is no longer needed. This is called erasure.
+โปรกทราบไว้ว่าข้อมูลชนิดของตัวแประจะถูกลบทิ้งในขั้นตอนการคอมไพล์ เนื่องจากมันไม้มีความจำเป็นที่ต้องใช้อีกต่อไปเราเรียกว่าเกิดการลบ (erasure)
 
-h2(#scala). Types in Scala
 
-Scala's powerful type system allows for very rich expression. Some of its chief features are:
+h2(#scala). ชนิดของตัวแปรใน Scala
 
-* *parametric polymorphism* roughly, generic programming
-* *(local) type inference* roughly, why you needn't say <code>val i: Int = 12: Int</code>
-* *existential quantification* roughly, defining something _for some_ unnamed type
-* *views* we'll learn these next week; roughly, "castability" of values of one type to another
+Scala มีระบบชนิดตัวแปรที่ทรงประสิทธิภาพซึ่งอนุญาตให้ดำเนินการกับสิ่งที่เต็มไปด้วยนิพจน์ ฟีเจอร์ที่สำคัญบางอย่างคือ:
+
+* *parametric polymorphism* ถ้าพูดคร่าวๆ คือโปรแกรมแบบ Generic
+* *(local) type inference* เอาง่ายๆ ว่าทำไมเราต้องกำหนด <code>val i: Int = 12: Int</code>
+* *existential quantification* การกำหนดบางสิ่ง _สำหรับบาง_ ตัวแปรชนิดไม่มีชื่อ
+* *views* เราจะเรียนเรื่องนี้กันอีกทีภายหลังในสัปดาห์ถัดไป ถ้าให้พูดง่ายๆ ก่อนเรื่องนี้เป็นความสามารถในการแคส (castability) จากตัวแปรชนิดหนึ่งไปเป็นตัวแปรของอีกชนิดหนึ่ง
 
 h2(#parametricpoly). Parametric polymorphism
 
-Polymorphism is used in order to write generic code (for values of different types) without compromising static typing richness.
+Polymorphism ถูกใช้งานเพื่อที่จะเขียนโค้ดของ generic (สำหรับค่าที่แต่กต่างกันของชนิดตัวแปร) โดยไม่ต้องประณีประนอมกันของ static typing
 
-For example, without parametric polymorphism, a generic list data structure would always look like this (and indeed it did look like this in Java prior to generics):
+ยกตัวอย่างหากไม่มี parametric polymorphism โครงสร้างข้อมูลของ List แบบ generic จะมีลักษณะเหมือนกับโค้ดนี้ (และแน่นอนว่ามันดูแหมือนแบบนี้แหละใน Java ยุคก่อนหนาที่จะมี generic):
 
 <pre>
 scala> 2 :: 1 :: "bar" :: "foo" :: Nil
 res5: List[Any] = List(2, 1, bar, foo)
 </pre>
 
-Now we cannot recover any type information about the individual members.
+ถ้าเป็นแบบนี้มันจะส่งผลให้เราไม่สามารถกูคืนชนิดของตัวแปรใดๆ ที่เกี่ยวกับสมาชิกแต่ละตัวได้
 
 <pre>
 scala> res5.head
 res6: Any = 2
 </pre>
 
-And so our application would devolve into a series of casts ("asInstanceOf[]") and we would lack type safety (because these are all dynamic).
+และจากเหตุนั้นโปรแกรมของเราก็เป็นภาระของการแคส ("asInstanceOf[]") มาเป็นชุดเลย แล้วมันจะทำให้เราขาดความปลอดภัยเอาได้ (เพราะของพวกนี้มันเป็นลักษณะไดนามิกขึ้นอยู่กับเวลาได้)
+
+Polymorphism สามารถกระทำให้สำเร็จได้ผ่านการกำหนดเฉพาะเจาจง _ชนิดของตัวแปร_
 
 Polymorphism is achieved through specifying _type variables_.
 
@@ -76,37 +79,39 @@ scala> drop1(List(1,2,3))
 res1: List[Int] = List(2, 3)
 </pre>
 
-h3. Scala has rank-1 polymorphism
+h3. Scala มี rank-1 polymorphism
 
-Roughly, this means that there are some type concepts you'd like to express in Scala that are "too generic" for the compiler to understand. Suppose you had some function
+ถ้าจะเอาแบบหยาบๆ นี่หมายความว่ามันมีแนวคิดของชนิดตัวแปรบางแบบที่เราสามารถแสดงให้ Scala รู้ว่ามาอยู่ในลักษณะ "too generic" เพื่อทำให้ compiler เข้าใจความหมายที่เราจะสื่อ
+
+ทีนี้สมมุติว่าเรามีฟังก์ชัน
 
 <pre>
 def toList[A](a: A) = List(a)
 </pre>
 
-which you wished to use generically:
+ซึ่งเราอยากที่จะใช้มันอย่างเป็น generic:
 
 <pre>
 def foo[A, B](f: A => List[A], b: B) = f(b)
 </pre>
 
-This does not compile, because all type variables have to be fixed at the invocation site. Even if you "nail down" type <code>B</code>,
+นี่ไม่สามารถคอมไพล์ได้เพราะว่าทุกตัวแปรถูกกำหนดไว้ตายตัวตอนที่มีการร้องขอมัน หรือแม้กระทั่งต่อให้คุณกำหนดชนิดตัวแปรใน <code>B</code>
 
 <pre>
 def foo[A](f: A => List[A], i: Int) = f(i)
 </pre>
 
-...you get a type mismatch.
+...คุณก็จะเจอว่าชนิดตัวแปรมันไม่ตรงกัน
 
 h2(#inference). Type inference
 
-A traditional objection to static typing is that it has much syntactic overhead. Scala alleviates this by providing _type inference_.
+สมัยก่อนนู้นมีข้อถกเถียงกันถึง static typing หรือการกำหนดชนิดของตัวแปรไว้อย่างขัดเจนนั้นว่าจะเกิิดโอเวอร์เฮดของไวยากรณ์ ทำให้ตัวภาษา Scala เองก็พยายามลดปัญหานี้โดยการให้มี -type inference_ หรือลักษณะการอนุมานชนิดตัวแปร (มันสามารถระบุได้ว่าส่งตัวแปรชนิดไหนมาให้มัน และดำเนินการตามตัวที่มันเป็น)
 
-The classic method for type inference in functional programming languages is _Hindley-Milner_, and it was first employed in ML.
+วิธีการดั้งเดิมที่เราใช่ type inference ในภาษาที่เป็นเชิงฟังก์ชันคือ _Hindley-Milner_ ซึ่งถูกใช้ครั้งแรกในภาษา ML
 
-Scala's type inference system works a little differently, but it's similar in spirit: infer constraints, and attempt to unify a type.
+ระบบ type inference ใน Scala ทำงานแตกต่างกับเล็กน้อยกับตัวดังเดิมนั้นแต่มันก็สามารถทำงานได้ไม่แพ้กันในข้อบังคับการอนุมานและและการกำหนดชนิดตัวแปรที่เป็นตัวแปรร่วมกัน
 
-In Scala, for example, you cannot do the following:
+ใน Scala เราไม่สามารถทำตามโค้ดด้านล่างนี้ได้
 
 <pre>
 scala> { x => x }
@@ -114,14 +119,14 @@ scala> { x => x }
        { x => x }
 </pre>
 
-Whereas in OCaml, you can:
+ในขณะที่ OCaml เราสามารถทำได้
 
 <pre>
 # fun x -> x;;
 - : 'a -> 'a = <fun>
 </pre>
 
-In scala all type inference is _local_. Scala considers one expression at a time. For example:
+ใน Scala นั้นทุกๆ type inference จะเป็น _โลคอล_ ซึ่ง Scala จะพิิจารณาเป็นนิพจน์ในก็ขึ้นอยู่กับเวลานั้นๆ เช่น:
 
 <pre>
 scala> def id[T](x: T) = x
@@ -137,18 +142,18 @@ scala> val x = id(Array(1,2,3,4))
 x: Array[Int] = Array(1, 2, 3, 4)
 </pre>
 
-Types are now preserved, The Scala compiler infers the type parameter for us. Note also how we did not have to specify the return type explicitly.
+ตอนนี้ชนิดของตัวแปรถูกจองเอาไว้ Scala compiler จะอนุมานชนิดของตัวแปรของพารามิเตอร์ให้เรา โปรดทราบด้วยว่าเราไม่สามารถที่จะกำหนดชนิดของตัวแปรที่จะรีเทิร์นกลับมาได้อย่างชัดเจน
 
 h2(#variance). Variance
 
-Scala's type system has to account for class hierarchies together with polymorphism.  Class hierarchies allow the expression of subtype relationships. A central question that comes up when mixing OO with polymorphism is: if <tt>T'</tt> is a subclass of <tt>T</tt>, is <tt>Container[T']</tt> considered a subclass of <tt>Container[T]</tt>? Variance annotations allow you to express the following relationships between class hierarchies & polymorphic types:
+ระบบชนิดตัวแปรของ Scala มีการใช้ลำดับชั้นของคลาสและการใช้ polymorphism ร่วมกัน, ลำดับชั้นของคลาสจะยินยอมให้มีความสัมพันธ์กันของนิพจน์ของชนิดตัวแปรย่อย (subtype). คำถามหลักๆ ก็เกิดขึ้นมาเมื่อมีการผสมผสานกันระหว่าง OO โดยผ่าน polymorphism คือ: ถ้า <tt>T'</tt> เป็นคลาสลูก (subclass) ของ <tt>T</tt> แล้ว <tt>Container[T']</tt> จะถูกพิจารณาว่าเป็นคลาสลูกของ <tt>Container[T] ไหม? Variance annotations เป็นการทำเครื่องหมายหมายเหตุไว้ว่ายินยอมให้คุณสามารถแสดงความสัมพันธ์ระหว่างลำดับชั้นของคลาสและชนิดของตัวแปร polymorphism:
 
-|                |*Meaning*                     | *Scala notation*|
+|                |*ความหมาย*                     | *Scala notation*|
 |*covariant*     |C[T'] is a subclass of C[T]   | [+T]|
 |*contravariant* |C[T] is a subclass of C[T']   | [-T]|
 |*invariant*     |C[T] and C[T'] are not related| [T]|
 
-The subtype relationship really means: for a given type T, if T' is a subtype, can you substitute it?
+ความสัมพันธ์ของชนิดตัวแปรย่อยมันมีความหมายมากๆ (ไม่ได้เขียนเล่นๆ นะเฮ้ย!): สำหรับชนิดตัวแปร T, และถ้า T' เป็นชนิดตัวแปรย่อยเราจะแทนค่ามันได้อย่างไร?
 
 <pre>
 scala> class Covariant[+A]
@@ -180,13 +185,13 @@ scala> val fail: Contravariant[AnyRef] = new Contravariant[String]
                                      ^
 </pre>
 
-Contravariance seems strange. When is it used? Somewhat surprising!
+จะเห็นว่า Contravariance ซึ่งเป็นลักษณะในทางตรงข้ามนั้นแข็งแรงมาก เมื่อไหร่ที่เราควรจะใช้มันหน่ะหรอ? เป็นที่น่าแปลกใจว่า
 
 <pre>
 trait Function1 [-T1, +R] extends AnyRef
 </pre>
 
-If you think about this from the point of view of substitution, it makes a lot of sense. Let's first define a simple class hierarchy:
+ถ้าให้เราคิดเอาว่านี่เป็นมุมมองที่มาจากการเข้าแทนที่ มันจะเมกเซนต์ให้เราเข้าใจได้ง่ายๆ อันดับแรกถ้ากำหนดให้คลาสมีลำดับชั้นง่ายๆ
 
 <pre>
 scala> class Animal { val sound = "rustle" }
@@ -199,11 +204,13 @@ scala> class Chicken extends Bird { override val sound = "cluck" }
 defined class Chicken
 </pre>
 
-Suppose you need a function that takes a <code>Bird</code> param:
+สมมุติว่าคุณมีฟังก์ชันที่รับเอา <code>Bird</code> เป็นพารามิเตอร์:
 
 <pre>
 scala> val getTweet: (Bird => String) = // TODO
 </pre>
+
+ตามองค์ประกอบมาตรฐานของสัตว์จะมีฟังก์ชันที่เราต้องการให้ใช้ แต่มันดันรับ <code>Animal</code> เป็นพารามิเตอร์แทนในสถานกรณ์ส่วนใหญ่แล้วถ้าเราบอกว่า "ฉันอยากได้ ___, ฉันมีคลาสลูกของ ___" มันจะไม่มีปัญหา แต่สำหรับฟังก์ชันที่พารามิเตอร์เป็นลักษณะ contravariant ถ้าเราต้องการฟังก์ชันที่รับ <code>Bird</code> และเรามีฟังก์ชันที่รับรับ <code>Chicken</code> มันจะสำลัก <code>Duck</code> ออกมา แต่ในฟังก์ชันที่รับ <code>Animal</code> จะไม่มีปัญหา
 
 The standard animal library has a function that does what you want, but it takes an <code>Animal</code> parameter instead.  In most situations, if you say "I need a ___, I have a subclass of ___", you're OK. But function parameters are contravariant. If you need a function that takes a <code>Bird</code> and you have a function that takes a <code>Chicken</code>, that function would choke on a <code>Duck</code>. But a function that takes an <code>Animal</code> is OK:
 
@@ -221,7 +228,7 @@ hatch: () => Bird = <function0>
 
 h2(#bounds). Bounds
 
-Scala allows you to restrict polymorphic variables using _bounds_. These bounds express subtype relationships.
+Scala ยินยอมให้เราสามารถที่จะจำกัด polymorphism ของตัวแปรโดยการใช้ _bounds_ ซึ่งพวก bounds เหล่านี้จะแสดงถึงชนิดตัวแปรย่อยของความสัมพันธ์
 
 <pre>
 scala> def cacophony[T](things: Seq[T]) = things map (_.sound)
@@ -236,7 +243,7 @@ scala> biophony(Seq(new Chicken, new Bird))
 res5: Seq[java.lang.String] = List(cluck, call)
 </pre>
 
-Lower type bounds are also supported; they come in handy with contravariance and clever covariance. <code>List[+T]</code> is covariant; a list of Birds is a list of Animals. <code>List</code> defines an operator <code>::(elem T)</code> that returns a new <code>List</code> with <code>elem</code> prepended. The new <code>List</code> has the same type as the original:
+Lower type bounds ก็ซับพอร์ตด้วยเช่นกัน; มันมากับ contravariance อย่างสะดวกและ covariance อย่างฉลาด. <code>List[+T]</code> เป็น covariant; list ของ Birds เป็น list ของ Animals ด้วย จาการที่ <code>List</code> มีการกำนนดตัวดำเนินการ <code>::(elem T)</code> ซึ่งมันรีเทิร์นค่า list ตัวใหม่โดย <code>elem</code> เพิ่มเข้าด้านหน้า ตัว list ใหม่นี้จะมีชนิดตัวแปรเหมือนกับตัวดั้งเดิม:
 
 <pre>
 scala> val flock = List(new Bird, new Bird)
@@ -246,37 +253,39 @@ scala> new Chicken :: flock
 res53: List[Bird] = List(Chicken@56fbda05, Bird@7e1ec70e, Bird@169ea8d2)
 </pre>
 
-<code>List</code> _also_ defines <code>::[B >: T](x: B)</code> which returns a <code>List[B]</code>. Notice the <code>B >: T</code>. That specifies type <code>B</code> as a superclass of <code>T</code>. That lets us do the right thing when prepending an <code>Animal</code> to a <code>List[Bird]</code>:
+<code>List</code> กำหนด <code>::[B >: T](x: B)</code> _ไว้ด้วย_ ซึ่งมันจะรีเทิร์น <code>Lsit[B]</code> โปรดทราบ <code>B >: T</code> ตัว <code>B</code> กำหนดเฉพาะเจาจงชนิดของตัวแปรว่าเป็นคลาสแม่ (superclass) ของ <code>T</code> ดังนั้นมันทำให้เราสามารทำอะไรที่ดีงามเมื่อมีการเพิ่มค่าเข้าทางด้านหน้าซึ่งเป็น <code>Animal</code> ไปยัง list ของ <code>List[Bird]</code>: 
 
 <pre>
 scala> new Animal :: flock
 res59: List[Animal] = List(Animal@11f8d3a8, Bird@7e1ec70e, Bird@169ea8d2)
 </pre>
 
-Note that the return type is <code>List[Animal]</code>.
+สังเกตว่าชนิดของตัวแปรที่รีเทิร์นเป็นชนิด <code>List[Animal]</code>
 
 h2(#quantification). Quantification
 
-Sometimes you do not care to be able to name a type variable, for example:
+บางครั้งเราก็ไม่จำเป็นที่ต้องสนใจเกี่ยวกับความสามารถในการกำหนดชื่อชนิดของตัวแปร ยกตัวอย่างเช่น
 
 <pre>
 scala> def count[A](l: List[A]) = l.size
 count: [A](List[A])Int
 </pre>
 
-Instead you can use "wildcards":
+เราสามารถใช้ "wildcards":
 
 <pre>
 scala> def count(l: List[_]) = l.size
 count: (List[_])Int
 </pre>
 
-This is shorthand for:
+เป็นรูปแบบย่อของ:
 
 <pre>
 scala> def count(l: List[T forSome { type T }]) = l.size
 count: (List[T forSome { type T }])Int
 </pre>
+
+โปรดทราบ่านี่เป็นทริิกของ quantification
 
 Note that quantification can get tricky:
 
@@ -285,16 +294,16 @@ scala> def drop1(l: List[_]) = l.tail
 drop1: (List[_])List[Any]
 </pre>
 
-Suddenly we lost type information! To see what's going on, revert to the heavy-handed syntax:
+เราก็จะสูยเสียข้อมูลของชนิดตัวแปรในทันทีทันใด เพื่อจะเห็นว่าอะไรเกิดขึ้นเราจะกลับไปแสดงตัวไวยากรณ์แบบเต็มๆ
 
 <pre>
 scala> def drop1(l: List[T forSome { type T }]) = l.tail
 drop1: (List[T forSome { type T }])List[T forSome { type T }]
 </pre>
 
-We can't say anything about T because the type does not allow it.
+เราไม่สามารถพูดอะไรที่เกี่ยวกับ T ได้เพรามันเป็นชนิดตัวแปรที่ไม่ได้อนุญาตไว้
 
-You may also apply bounds to wildcard type variables:
+เราสามารถนำเอา bounds ไปใช้เพื่อ wildcard ชนิดของตัวแปรได้ด้วย
 
 <pre>
 scala> def hashcodes(l: Seq[_ <: AnyRef]) = l map (_.hashCode)
@@ -313,4 +322,4 @@ scala> hashcodes(Seq("one", "two", "three"))
 res1: Seq[Int] = List(110182, 115276, 110339486)
 </pre>
 
-*See Also* <a href="http://www.drmaciver.com/2008/03/existential-types-in-scala/">Existential types in Scala by D. R. MacIver</a>
+*อ่านด้วย* <a href="http://www.drmaciver.com/2008/03/existential-types-in-scala/">Existential types in Scala by D. R. MacIver</a>
