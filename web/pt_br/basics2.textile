@@ -1,0 +1,327 @@
+---
+prev: basics.textile
+next: collections.textile
+title: Básico (continuação)
+layout: post
+---
+
+Esta lição cobre:
+* "apply":#apply
+* "Objetos":#object
+* "Funções são objetos":#fnobj
+* "Pacotes":#package
+* "Pattern matching":#match
+* "Case classes":#caseclass
+* "try-catch-finally":#exception
+
+h2(#apply). Métodos apply
+
+Métodos apply oferecem uma sintaxe legal para classes ou objetos que possuem uma utilidade principal.
+
+<pre>
+scala> class Foo {}
+defined class Foo
+
+scala> object FooMaker {
+     |   def apply() = new Foo
+     | }
+defined module FooMaker
+
+scala> val newFoo = FooMaker()
+newFoo: Foo = Foo@5b83f762
+</pre>
+
+ou...
+
+<pre>
+scala> class Bar {
+     |   def apply() = 0
+     | }
+defined class Bar
+
+scala> val bar = new Bar
+bar: Bar = Bar@47711479
+
+scala> bar()
+res8: Int = 0
+</pre>
+
+Observe os parênteses adicionados após a referência ao nosso objeto. Dá a impressão de que estamos invocando um método. Veremos mais sobre isso depois!
+
+h2(#object). Objetos
+
+Objetos são usados para referenciar instâncias únicas de uma classe (singletons) e também como fábricas.
+
+<pre>
+object Timer {
+  var count = 0
+
+  def currentCount(): Long = {
+    count += 1
+    count
+  }
+}
+</pre>
+
+Como usar:
+
+<pre>
+scala> Timer.currentCount()
+res0: Long = 1
+</pre>
+
+Classes e objetos podem ter o mesmo nome. O objeto é chamado de "Companion Object". Normalmente usamos Companion Objects para fabricar instâncias de uma classe.
+
+O exemplo abaixo mostra como usar Companion Objects para remover a necessidade de usar a palavra-chave 'new' para instanciar objetos.
+
+<pre>
+class Bar(foo: String)
+
+object Bar {
+  def apply(foo: String) = new Bar(foo)
+}
+</pre>
+
+
+h2(#fnobj). Funções são objetos
+
+Em Scala se fala bastante sobre programação objeto-funcional. Mas o que isso significa? O que é de fato uma função?
+
+Uma Function, na verdade, corresponde a uma série de traits. Por exemplo, uma função que recebe um argumento é uma instância do trait Function1. Esse trait define um método <code>apply()</code> (o qual vimos anteriormente), permitindo você invocar um objeto como se fosse uma função.
+
+<pre>
+scala> object addOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined module addOne
+
+scala> addOne(1)
+res2: Int = 2
+</pre>
+
+Existem Function* traits de 0 a 22 (Function0 ... Function22). Mas por que o número 22? Bom, não existe uma razão técnica. 22 é apenas um número mágico arbitrário. Na prática deve funcionar bem, pois jamais precisei de uma função com mais de 22 argumentos.
+
+A sintaxe possibilitada pelo método apply ajuda a unificar a dualidade da programação objeto-funcional. Isso significa que podemos passar objetos Function* de um lado para outro e usá-los como funções. No fundo, funções são apenas instâncias de classes.
+
+Isso significa que toda vez que definimos métodos em uma classe o que de fato recebemos é uma instância de Function*? Na verdade não. Métodos de classes são simplesmente métodos. Por outro lado, métodos definidos através do REPL são instâncias de Function*.
+
+Classes também podem estender Function* e suas instâncias podem ser invocadas usando ().
+
+<pre>
+scala> class AddOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined class AddOne
+
+scala> val plusOne = new AddOne()
+plusOne: AddOne = <function1>
+
+scala> plusOne(1)
+res0: Int = 2
+</pre>
+
+Uma forma abreviada para <code>extends Function1[Int, Int]</code> é <code>extends (Int => Int)</code>
+
+<pre>
+class AddOne extends (Int => Int) {
+  def apply(m: Int): Int = m + 1
+}
+</pre>
+
+h2(#package). Pacotes
+
+Podemos organizar códigos dentro de pacotes. Colocando a linha abaixo no topo de um arquivo estaremos declarando que tudo o que estiver contido no arquivo pertencerá àquele pacote.
+
+<pre>
+package com.twitter.example
+</pre>
+
+Não é permitido definir variáveis ou funções fora de classes ou objetos. Objetos são bastante úteis para organizar funções estáticas.
+
+<pre>
+package com.twitter.example
+
+object colorHolder {
+  val BLUE = "Blue"
+  val RED = "Red"
+}
+</pre>
+
+Agora você pode acessar membros do objeto diretamente.
+
+<pre>
+println("the color is: " + com.twitter.example.colorHolder.BLUE)
+</pre>
+
+Observe o que o REPL nos diz quando definimos este objeto:
+
+<pre>
+scala> object colorHolder {
+     |   val Blue = "Blue"
+     |   val Red = "Red"
+     | }
+defined module colorHolder
+</pre>
+
+Isso nos dá uma pequena dica de que os designers do Scala projetaram objetos para serem parte do sistema de módulos da linguagem.
+
+h2(#match). Pattern Matching
+
+Pattern Matching é uma das ferramentas mais úteis da linguagem Scala.
+
+h3. Matching com valores
+
+<pre>
+val times = 1
+
+times match {
+  case 1 => "one"
+  case 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+h3. Matching com guards
+
+<pre>
+times match {
+  case i if i == 1 => "one"
+  case i if i == 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+Observe acima como capturamos o valor na variável 'i'.
+
+O <code>_</code> no último <code>case</code> é um caracter coringa. Ele funciona como um case default e garante que sempre haverá matching do valor. Sem ele haveria um erro de runtime caso passássemos um valor que não fizesse matching com nenhum dos patterns. Iremos discutir mais sobre isso depois.
+
+*Veja também* Effective Scala tem opiniões sobre <a href="http://twitter.github.com/effectivescala/#Functional programming-Pattern matching">quando usar pattern matching</a> e também sobre sua <a href="http://twitter.github.com/effectivescala/#Formatting-Pattern matching">formatação</a>. Tour of Scala descreve <a href="http://www.scala-lang.org/node/120">Pattern Matching</a>
+
+h3. Matching em tipos
+
+Podemos usar <code>match</code> para processar valores de tipos diferentes.
+
+<pre>
+def bigger(o: Any): Any = {
+  o match {
+    case i: Int if i < 0 => i - 1
+    case i: Int => i + 1
+    case d: Double if d < 0.0 => d - 0.1
+    case d: Double => d + 0.1
+    case text: String => text + "s"
+  }
+}
+</pre>
+
+h3. Matching em membros de classes
+
+Vamos usar a classe Calculator de um exemplo anterior e classificar instâncias de acordo com seus respectivos tipos.
+
+Primeiro utilizaremos uma forma não muito conveniente de atingirmos esse objetivo.
+
+<pre>
+def calcType(calc: Calculator) = calc match {
+  case _ if calc.brand == "HP" && calc.model == "20B" => "financial"
+  case _ if calc.brand == "HP" && calc.model == "48G" => "scientific"
+  case _ if calc.brand == "HP" && calc.model == "30B" => "business"
+  case _ => "unknown"
+}
+</pre>
+
+Ufa...quanto trabalho! Felizmente Scala oferece algumas ferramentas muito legais para nos ajudar a simplificar esse código.
+
+
+h2(#caseclass). Case Classes
+
+Case classes oferecem uma maneira conveniente de armazenar e fazer matching do conteúdo de uma classe. Além disso, podemos instanciá-las sem usar a palavra-chave 'new'.
+
+<pre>
+scala> case class Calculator(brand: String, model: String)
+defined class Calculator
+
+scala> val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+</pre>
+
+Case classes automaticamente ganham do compilador implementações dos métodos <code>equals</code> e <code>toString</code> baseados nos argumentos do construtor.
+
+<pre>
+scala> val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+scala> val hp20B = Calculator("HP", "20b")
+hp20B: Calculator = Calculator(hp,20b)
+
+scala> hp20b == hp20B
+res6: Boolean = true
+</pre>
+
+Case classes também podem ter métodos como qualquer outra classe normal.
+
+h3. Case classes com pattern matching
+
+Case classes foram projetadas para serem usadas com pattern matching. Vamos agora tentar simplificar nosso exemplo anterior do classificador de calculadoras.
+
+<pre>
+val hp20b = Calculator("HP", "20B")
+val hp30b = Calculator("HP", "30B")
+
+def calcType(calc: Calculator) = calc match {
+  case Calculator("HP", "20B") => "financial"
+  case Calculator("HP", "48G") => "scientific"
+  case Calculator("HP", "30B") => "business"
+  case Calculator(ourBrand, ourModel) => "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
+}
+</pre>
+
+Veja abaixo outras formas que poderíamos usar para implementar o último match
+
+<pre>
+  case Calculator(_, _) => "Calculator of unknown type"
+</pre>
+
+  OU simplesmente não especificar o tipo do valor.
+
+<pre>
+  case _ => "Calculator of unknown type"
+</pre>
+
+  OU usar um novo nome para referenciar o valor.
+
+<pre>
+  case c@Calculator(_, _) => "Calculator: %s of unknown type".format(c)
+</pre>
+
+h2(#exception). Exceptions
+
+Exceptions são disponibilizadas em Scala através da sintaxe try-catch-finally, a qual utiliza pattern matching.
+
+<pre>
+try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+<code>try</code>s também são orientados a expressão
+
+<pre>
+val result: Int = try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => {
+    log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
+    0
+  }
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+Não utilize o exemplo acima como referência para um bom estilo de programação. Ele serve apenas para mostrar que blocos try-catch-finally resultam em expressões, assim como quase tudo mais em Scala.
+
+O bloco <code>finally</code> é executado após uma provável exceção já ter sido tratada e não faz parte da expressão.
