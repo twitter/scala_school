@@ -328,7 +328,7 @@ This hypothetical example combines sequential and concurrent composition. Note t
 
 h3. Composition Examples: Web Crawlers
 
-You've seen how to to use combinators with Futures, but might appreciate  more examples. Suppose you have a simple model of the internet. It has HTML pages and images. Pages can link to images and link to other pages. You can fetch a page or an image, but the API is asynchronous. This fake API calls these "fetchable" things Resources:
+You've seen how to use combinators with Futures, but might appreciate  more examples. Suppose you have a simple model of the internet. It has HTML pages and images. Pages can link to images and link to other pages. You can fetch a page or an image, but the API is asynchronous. This fake API calls these "fetchable" things Resources:
 
 <pre>
 import com.twitter.util.{Try,Future,Promise}
