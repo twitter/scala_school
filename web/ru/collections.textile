@@ -260,7 +260,7 @@ res0: Option[Int] = Some(6)
 
 h2(#drop). drop и dropWhile
 
-<code>drop</code> удаляет первый элемент с индексом i
+<code>drop</code> удаляет первые i элементов 
 
 <pre>
 scala> numbers.drop(5)
