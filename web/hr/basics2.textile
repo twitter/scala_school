@@ -1,0 +1,330 @@
+---
+prev: basics.textile
+next: collections.textile
+title: Nastavak osnova
+layout: post
+---
+
+Ova lekcija sadržava:
+* "apply":#apply
+* "objekti":#object
+* "Funkcije su Objekti":#fnobj
+* "paketi":#package
+* "pattern matching":#match
+* "case klase":#caseclass
+* "try-catch-finally":#exception
+
+h2(#apply). apply metode
+
+apply metode nam pružaju lijepu sintaksu (syntactic sugar) kada klasa ili objekt ima jednu glavnu svrhu.
+
+<pre>
+scala> class Foo {}
+defined class Foo
+
+scala> object FooMaker {
+     |   def apply() = new Foo
+     | }
+defined module FooMaker
+
+scala> val newFoo = FooMaker()
+newFoo: Foo = Foo@5b83f762
+</pre>
+
+ili
+
+<pre>
+scala> class Bar {
+     |   def apply() = 0
+     | }
+defined class Bar
+
+scala> val bar = new Bar
+bar: Bar = Bar@47711479
+
+scala> bar()
+res8: Int = 0
+</pre>
+
+Ovdje naša instanca objekta izgleda kao da pozivamo metodu. Više o tome kasnije!
+
+h2(#object). Objekti
+
+Objekti se koriste kako bi sadržavali jednu instancu klase.
+
+<pre>
+object Timer {
+  var count = 0
+
+  def currentCount(): Long = {
+    count += 1
+    count
+  }
+}
+</pre>
+
+Kako koristiti
+
+<pre>
+scala> Timer.currentCount()
+res0: Long = 1
+</pre>
+
+Klase i Objekti mogu imati jednako ime. Objekt se zove 'Companion Object'.
+
+Slijedi jednostavan primjer kojemu je jedina svrha ukloniti potrebu korištenja 'new' kako bi kreirali instancu.
+
+<pre>
+class Bar(foo: String)
+
+object Bar {
+  def apply(foo: String) = new Bar(foo)
+}
+</pre>
+
+
+h2(#fnobj). Funkcije su Objekti
+
+U Scali, često pričamo o objektno-funkcionalnom programiranju. Što to znači? Što je zapravo Funkcija?
+
+Funkcija je set trait-ova. Točnije, funkcija koja uzima jedan argument je instanca Function1 trait-a. Ovaj trait definira <code>apply()</code> sintatik šugar koji smo spominjali ranije, dopuštajući vam da pozovete objekt kao što bi zvali funkciju.
+
+<pre>
+scala> object addOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined module addOne
+
+scala> addOne(1)
+res2: Int = 2
+</pre>
+
+Postoji Function0 - 22. Zašto 22? To je magični broj. Nikad nisam trebao funkciju sa više od 22 argumenta.
+
+Sintatički šugar apply-a pomaže ujediniti dualnost objektnog i funkcionalnog programiranja. Možete proslijeđivati klase i koristiti ih kao funkcije jer su funkcije samo instance klasa.
+
+Znači li to da svaki put kada definirate metodu u vašoj klasi, zapravo dobivate instancu Function*? Ne, metode u klasama su metode. Metode su definirane samostalno.
+
+Klase također mogu extend-ati Function i takve instance se mogu pozvati sa ().
+
+<pre>
+scala> class AddOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined class AddOne
+
+scala> val plusOne = new AddOne()
+plusOne: AddOne = <function1>
+
+scala> plusOne(1)
+res0: Int = 2
+</pre>
+
+Lijepi prečac za <code>extends Function1[Int, Int]</code> je <code>extends (Int => Int)</code>
+
+<pre>
+class AddOne extends (Int => Int) {
+  def apply(m: Int): Int = m + 1
+}
+</pre>
+
+h2(#package). Paketi
+
+Možete organizirati vaš kod unutar paketa
+
+<pre>
+package com.twitter.example
+</pre>
+
+na početku datoteke.
+
+Vrijednosti i funkcije ne mogu biti van klase ili objekta. Objekti su koristan alat za organizaciju statičkih funkcija.
+
+<pre>
+package com.twitter.example
+
+object colorHolder {
+  val BLUE = "Blue"
+  val RED = "Red"
+}
+</pre>
+
+Sada možete pristupiti članovima direktno
+
+<pre>
+println("the color is: " + com.twitter.example.colorHolder.BLUE)
+</pre>
+
+Primijetite što Scala repl kaže kada definirate objekt:
+
+<pre>
+scala> object colorHolder {
+     |   val Blue = "Blue"
+     |   val Red = "Red"
+     | }
+defined module colorHolder
+</pre>
+
+Ovo vam daje mali nagovještaj da su dizajneri Scale kreirali objekte kako bi bili dio Scala modul sustava.
+
+h2(#match). Pattern Matching
+
+Jedan od najkorisnijih dijelova Scale.
+
+Match-iranje na vrijednostima
+
+<pre>
+val times = 1
+
+times match {
+  case 1 => "one"
+  case 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+Match-iranje sa guard-ovima
+
+<pre>
+times match {
+  case i if i == 1 => "one"
+  case i if i == 2 => "two"
+  case _ => "some other number"
+}
+</pre>
+
+Primijetite kako smo uhvatili vrijednost u varijabli 'i'.
+
+<code>_</code> u zadnjem case izrazu je wildcard; on osigurava da možemo obraditi svaki zahtjev. Inače ćete dobiti runtime error (a to ne želimo, no, no) ako proslijedite broj koji se ne match-ira. Više o tome kasnije.
+
+*Dobro je pogledati* Efektivna Scala ima mišljenje o <a href="http://twitter.github.com/effectivescala/#Functional programming-Pattern matching">when to use pattern matching</a> i <a href="http://twitter.github.com/effectivescala/#Formatting-Pattern matching">pattern matching formatting</a>. Tura kroz Scalu opisuje <a href="http://www.scala-lang.org/node/120">Pattern Matching</a>
+
+h3. Match-iranje na tipovima
+
+Možete koristiti <code>match</code> kako bi obradili vrijednosti različitih tipova na različit način.
+
+<pre>
+def bigger(o: Any): Any = {
+  o match {
+    case i: Int if i < 0 => i - 1
+    case i: Int => i + 1
+    case d: Double if d < 0.0 => d - 0.1
+    case d: Double => d + 0.1
+    case text: String => text + "s"
+  }
+}
+</pre>
+
+h3. Match-iranje na članovima klase
+
+Prisjetimo se našeg Calculator-a iz prijašnjih primjera.
+
+Idemo ga klasificirati prema tipu.
+
+Prvo teži način.
+
+<pre>
+def calcType(calc: Calculator) = calc match {
+  case _ if calc.brand == "HP" && calc.model == "20B" => "financial"
+  case _ if calc.brand == "HP" && calc.model == "48G" => "scientific"
+  case _ if calc.brand == "HP" && calc.model == "30B" => "business"
+  case _ => "unknown"
+}
+</pre>
+
+Idesh, ovo je boljelo. Dobro da Scala pruža lipe alate za ovakve stvari, juhuu.
+
+h2(#caseclass). Case Klase
+
+case klase se koriste kako bi prikladno pohranili i match-irali nad sadržajem klase. Možete ih kreirati bez korištenja new.
+
+<pre>
+scala> case class Calculator(brand: String, model: String)
+defined class Calculator
+
+scala> val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+</pre>
+
+case klase automatski imaju jednakost i lijepu toString metodu baziranu na argumentima konstruktora.
+
+<pre>
+scala> val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+scala> val hp20B = Calculator("HP", "20b")
+hp20B: Calculator = Calculator(hp,20b)
+
+scala> hp20b == hp20B
+res6: Boolean = true
+</pre>
+
+case klase mogu imati metode baš kao normalne klase.
+
+h6. Case Klase sa pattern match-ingom
+
+case klase su dizajnirane kako bi se koristile sa pattern match-ingom. Pojednostavimo naš calculator klasifikator primjer.
+
+<pre>
+val hp20b = Calculator("HP", "20B")
+val hp30b = Calculator("HP", "30B")
+
+def calcType(calc: Calculator) = calc match {
+  case Calculator("HP", "20B") => "financial"
+  case Calculator("HP", "48G") => "scientific"
+  case Calculator("HP", "30B") => "business"
+  case Calculator(ourBrand, ourModel) => "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
+}
+</pre>
+
+Druge alternative za zadnji match
+
+<pre>
+  case Calculator(_, _) => "Calculator of unknown type"
+</pre>
+
+  ILI jednostavno možemo ne specificirati da je to Calculator.
+
+<pre>
+  case _ => "Calculator of unknown type"
+</pre>
+
+  ILI možemo napraviti re-bind match-irane vrijednosti sa drugim imenom
+
+<pre>
+  case c@Calculator(_, _) => "Calculator: %s of unknown type".format(c)
+</pre>
+
+h2(#exception). Iznimke
+
+Iznimke su dostupne u Scali kroz try-catch-finally sintaksu koja koristi pattern matching.
+
+<pre>
+try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+<code>try</code>-evi su također expression-orijentirani
+
+<pre>
+val result: Int = try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException => {
+    log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
+    0
+  }
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+
+Ovo nije primjer odličnog programerskog stila, samo primjer try-catch-finally koji rezultira u expressions-ima kao i većina stvari u Scali.
+
+Finally će se zvati nakon što je iznimka obrađena i nije dio expression-a.

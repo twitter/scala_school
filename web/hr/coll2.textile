@@ -1,0 +1,395 @@
+---
+prev: sbt.textile
+next: specs.textile
+title: Još kolekcija
+layout: post
+---
+
+Scala pruža lijep set implementacija kolekcija. Također pruža neke apstrakcije nad tipovima kolekcija. To vam dopušta pisanje koda koji može raditi sa kolekcijama tipa <code>Foo</code> bez brige je li kolekcija <code>List</code>, <code>Set</code>, ili što već...
+
+"Ova stranica":http://www.decodified.com/scala/collections-api.xml pruža dobar način kako implementirati na standardan način i sve povezati sa scaladoc-om.
+
+* "Osnove":#basics Tipovi kolekcija koje ćete stalno koristiti
+* "Hijerahija":#hierarchy Apstrakcije kolekcija
+* "Metode":#methods
+* "Mutable":#mutable
+* "Java kolekcije":#java jednostavno funkcioniraju
+
+h2(#basics). Osnove
+
+h3. List
+
+Standardna link-ana lista.
+
+<pre>
+scala> List(1, 2, 3)
+res0: List[Int] = List(1, 2, 3)
+</pre>
+
+Možete s njom sve što bi i očekivali u funkcijskom jeziku.
+
+<pre>
+scala> 1 :: 2 :: 3 :: Nil
+res1: List[Int] = List(1, 2, 3)
+</pre>
+
+*Dobro je pogledati* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
+
+h3. Set
+
+Set-ovi nemaju duplikate
+
+<pre>
+scala> Set(1, 1, 2)
+res2: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+
+*Dobro je pogledati* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+
+h3. Seq
+
+Sekvence imaju definiran redoslijed.
+
+<pre>
+scala> Seq(1, 1, 2)
+res3: Seq[Int] = List(1, 1, 2)
+</pre>
+
+(Primijetite da je to vratilo listu. Seq je trait; List je implementacija Seq-a. Postoji standardni objekt <code>Seq</code> koji, kao što ovdje vidite, kreira Lists.)
+
+*Dobro je pogledati* "API doc":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+
+h3. Map
+
+Mape su key value kontenjeri.
+
+<pre>
+scala> Map('a' -> 1, 'b' -> 2)
+res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
+</pre>
+
+*Dobro je pogledati* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+
+h2(#hierarchy). Hijerarhija
+
+To su sve trait-ovi, mutable i immutable paketi imaju standardne i posebne implementacije.
+
+h3. Traversable
+
+Sve kolekcije mogu biti međusobno miješane. Ovaj trait definira standardne funkcijske kombinatore. Ovi kombinatori su pisani u stilu @foreach@, koje kolekcije moraju implementirati.
+
+*Dobro je pogledati* "API doc":http://www.scala-lang.org/api/current/scala/collection/Traversable.html
+
+h3. Iterable
+
+@iterator()@ metoda nam pruža Iterator kroz elemente.
+
+*Dobro je pogledati* "API doc":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
+
+h3. Seq
+
+Sekvenca item-a sa redoslijedom (ordering).
+
+*Dobro je pogledati* "API doc":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+
+h3. Set
+
+Kolekcija item-a bez duplikata.
+
+*Dobro je pogledati* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+
+h3. Map
+
+Key Value Pairs.
+
+*Dobro je pogledati* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+
+h2(#methods). Metode
+
+h3. Traversable
+
+Sve ove metode su odmah dostupne. Argumenti i povratni tipovi neće uvijek izgledati isto budući da ih podklase mogu pregaziti (override).
+
+<pre>
+def head : A
+def tail : Traversable[A]
+</pre>
+
+Ovdje su Funkcionalni Kombinatori definirani.
+
+<code>
+def map [B] (f: (A) => B) : CC[B]
+</code>
+
+vraća kolekciju sa svakim elementom transformiranim sa @f@
+
+<code>
+def foreach[U](f: Elem => U): Unit
+</code>
+
+izvršava @f@ kroz svaki element u kolekciji.
+
+<code>
+def find (p: (A) => Boolean) : Option[A]
+</code>
+
+vraća prvi element koji zadovoljava funkciju
+
+<code>
+def filter (p: (A) => Boolean) : Traversable[A]
+</code>
+
+vraća kolekciju sa svim elementima koji zadovoljavaju funkciju
+
+Particioniranje:
+
+<code>
+def partition (p: (A) ⇒ Boolean) : (Traversable[A], Traversable[A])
+</code>
+
+Dijeli kolekciju u dva dijela prema funkciji
+
+<code>
+def groupBy [K] (f: (A) => K) : Map[K, Traversable[A]]
+</code>
+
+Konverzija:
+
+Zanimljivo, možete konvertirati jednu kolekciju u drugu.
+
+<pre>
+def toArray : Array[A]
+def toArray [B >: A] (implicit arg0: ClassManifest[B]) : Array[B]
+def toBuffer [B >: A] : Buffer[B]
+def toIndexedSeq [B >: A] : IndexedSeq[B]
+def toIterable : Iterable[A]
+def toIterator : Iterator[A]
+def toList : List[A]
+def toMap [T, U] (implicit ev: <:<[A, (T, U)]) : Map[T, U]
+def toSeq : Seq[A]
+def toSet [B >: A] : Set[B]
+def toStream : Stream[A]
+def toString () : String
+def toTraversable : Traversable[A]
+</pre>
+
+HaJdm0 konvertirati Map u Array. Možete dobiti Array Key Value pairs.
+
+<pre>
+scala> Map(1 -> 2).toArray
+res41: Array[(Int, Int)] = Array((1,2))
+</pre>
+
+h3. Iterable
+
+Dodaje pristup iterator-u.
+
+<pre>
+  def iterator: Iterator[A]
+</pre>
+
+Što vam Iterator pruža?
+
+<pre>
+def hasNext(): Boolean
+def next(): A
+</pre>
+
+Ovo je vrlo Java like. Nećete vidjeti da se iteratori često koriste u Scali, prije ćete vidjeti funkcionalne kombinatore.
+
+h3. Set
+
+<pre>
+  def contains(key: A): Boolean
+  def +(elem: A): Set[A]
+  def -(elem: A): Set[A]
+</pre>
+
+h3. Map
+
+Sekvenca ključeva i vrijednosti sa pretraživanjem po ključu.
+
+Proslijedite List of Pairs u apply() na način:
+
+<pre>
+scala> Map("a" -> 1, "b" -> 2)
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2))
+</pre>
+
+Ili nešto kao:
+
+<pre>
+scala> Map(("a", 2), ("b", 2))
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,2), (b,2))
+</pre>
+
+h6. Digresija
+
+Što je <code>-></code>? To nije specijalna sintaksa, to je metoda koja vraća Tuple.
+
+<pre>
+scala> "a" -> 2
+
+res0: (java.lang.String, Int) = (a,2)
+</pre>
+
+Zapamtite, to je samo šugar za
+
+<pre>
+scala> "a".->(2)
+
+res1: (java.lang.String, Int) = (a,2)
+</pre>
+
+Također možete kreirati jedan sa <code>++</code>
+
+<pre>
+scala> Map.empty ++ List(("a", 1), ("b", 2), ("c", 3))
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (c,3))
+</pre>
+
+h3. Često korištene podklase
+
+*HashSet i HashMap* Brzi pregled, najkorištenije forme tih kolekcija. "HashSet API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "HashMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
+
+*TreeMap* Podklasa SortedMap, pruža nam posložen pristup (ordered access). "TreeMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
+
+*Vector* Brza nasumična selekcija i brze nadogradnje. "Vector API":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html
+
+<pre>
+scala> IndexedSeq(1, 2, 3)
+res0: IndexedSeq[Int] = Vector(1, 2, 3)
+</pre>
+
+*Range* Orderirana sekvenca Int-ova koja je razlomljena. Često ćete ovo vidjeti tamo gdje je for-loop prije korišten. "Range API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
+
+<pre>
+scala> for (i <- 1 to 3) { println(i) }
+1
+2
+3
+</pre>
+
+Range-vi imaju dostupne standardne funkcionalne kombinatore.
+
+<pre>
+scala> (1 to 3).map { i => i }
+res0: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3)
+</pre>
+
+h3. Default
+
+Korištenje apply metode na trait-ovima će vam dati instancu standardne implementacije, Npr. Iterable(1, 2) vraća List kao standardnu implementaciju.
+
+<pre>
+scala> Iterable(1, 2)
+
+res0: Iterable[Int] = List(1, 2)
+</pre>
+
+Isto kao sa Seq, kao što smo vidjeli ranije
+
+<pre>
+scala> Seq(1, 2)
+res3: Seq[Int] = List(1, 2)
+
+scala> Iterable(1, 2)
+res1: Iterable[Int] = List(1, 2)
+
+scala> Sequence(1, 2)
+warning: there were deprecation warnings; re-run with -deprecation for details
+res2: Seq[Int] = List(1, 2)
+</pre>
+
+Set
+
+<pre>
+scala> Set(1, 2)
+res31: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+
+h3. Neki opisni trait-ovi
+
+*IndexedSeq* brzi nasumični-pristup (random-access) elementima i brze length operacije. "API doc":http://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html
+
+*LinearSeq* brzi pristup samo prvim elementima putem head-a, ali također posjeduje brzu tail operaciju. "API doc":http://www.scala-lang.org/api/current/scala/collection/LinearSeq.html
+
+h4. Mutable vs. Immutable
+
+immutable
+
+Prednosti
+* Ne može se mijenjati u višestrukim dretvama
+
+Mane
+* Ne može se uopće mijenjati
+
+Scala nam dopušta da budemo pragmatični, pruža nam immutability ali nas ne kažnjava zato što trebamo mutability. Ovo je vrlo slično var vs. val. Uvijek započinjemo sa val i pomičemo se prema var kada je to potrebno.
+
+Više volimo započeti sa immutable verzijama kolekcija ali se također volimo prebaciti na mutable ako performanse tako diktiraju, yeah. Korištenje immutable kolekcija znači da nećete slučajno promijeniti stvari u više dretvi.
+
+h2(#mutable). Mutable
+
+Sve dosad spomenute klase su immutable. Sad pogledajmo mutable kolekcije.
+
+*HashMap* definira @getOrElseUpdate@, @+=@ "HashMap API":http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html
+
+<pre>
+scala> val numbers = collection.mutable.Map(1 -> 2)
+numbers: scala.collection.mutable.Map[Int,Int] = Map((1,2))
+
+scala> numbers.get(1)
+res0: Option[Int] = Some(2)
+
+scala> numbers.getOrElseUpdate(2, 3)
+res54: Int = 3
+
+scala> numbers
+res55: scala.collection.mutable.Map[Int,Int] = Map((2,3), (1,2))
+
+scala> numbers += (4 -> 1)
+res56: numbers.type = Map((2,3), (4,1), (1,2))
+</pre>
+
+*ListBuffer i ArrayBuffer* Definira @+=@ "ListBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "ArrayBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
+
+*LinkedList i DoubleLinkedList* "LinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "DoubleLinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
+
+*PriorityQueue* "API doc":http://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
+
+*Stack and ArrayStack* "Stack API":http://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "ArrayStack API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
+
+*StringBuilder* Zanimljivo, StringBuilder je kolekcija. "API doc":http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html
+
+h2(#java). Život sa Java-om
+
+Lako se možete pomicati između Java i Scala tipova kolekcija koristeći konverzije koje su dostupne na <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>. To povezuje uobičajeno korištene Java kolekcije sa <code>asScala</code> metodama i Scala kolekcije sa <code>asJava</code> metodama.
+
+<pre>
+   import scala.collection.JavaConverters._
+   val sl = new scala.collection.mutable.ListBuffer[Int]
+   val jl : java.util.List[Int] = sl.asJava
+   val sl2 : scala.collection.mutable.Buffer[Int] = jl.asScala
+   assert(sl eq sl2)
+</pre>
+
+Dvosmjerne konverzije:
+
+<pre>
+scala.collection.Iterable <=> java.lang.Iterable
+scala.collection.Iterable <=> java.util.Collection
+scala.collection.Iterator <=> java.util.{ Iterator, Enumeration }
+scala.collection.mutable.Buffer <=> java.util.List
+scala.collection.mutable.Set <=> java.util.Set
+scala.collection.mutable.Map <=> java.util.{ Map, Dictionary }
+scala.collection.mutable.ConcurrentMap <=> java.util.concurrent.ConcurrentMap
+</pre>
+
+Dodatno, pružene su i sljedeće jednosmjerne konverzije:
+
+<pre>
+scala.collection.Seq => java.util.List
+scala.collection.mutable.Seq => java.util.List
+scala.collection.Set => java.util.Set
+scala.collection.Map => java.util.Map
+</pre>

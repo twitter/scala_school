@@ -1,0 +1,474 @@
+---
+prev: specs.textile
+next: java.textile
+title: Konkurentnost u Scali
+layout: post
+---
+
+* "Runnable/Callable":#runnable
+* "Dretve":#Thread
+* "Executors/ExecutorService":#executor
+* "Futures":#Future
+* "Sigurnosni problem dretvi":#danger
+* "Npr. - Search Engine":#example
+* "Solutions":#solutions
+
+h2(#runnable). Runnable/Callable
+
+Runnable ima single metodu koja ne vraća vrijednost.
+
+<pre>
+trait Runnable {
+  def run(): Unit
+}
+</pre>
+
+Callable je sličan, ali vraća vrijednost
+
+<pre>
+trait Callable[V] {
+  def call(): V
+}
+</pre>
+
+
+h2(#Thread). Dretve
+
+Scala konkurentnost je izgrađena na temelju Java concurrency modela.
+
+Na Oracle(Sun) JVM-ovima, sa velikim IO opterećenjem, možemo pokretati tisuće dretvi na jednoj mašini.
+
+Thread uzima Runnable.  Morate pozvati @start@ na Thread kako bi mogao pokrenuti Runnable.
+
+<pre>
+scala> val hello = new Thread(new Runnable {
+  def run() {
+    println("hello world")
+  }
+})
+hello: java.lang.Thread = Thread[Thread-3,5,main]
+
+scala> hello.start
+hello world
+
+</pre>
+
+Kada vidite klasu koja implementira Runnable, znate da je namijenjena pokretanju u dretvi.
+
+h3. Nešto single-dretvovano
+
+Slijedi dio koda koji radi ali ima problema, hm, tko zna što mu je...
+
+<pre>
+import java.net.{Socket, ServerSocket}
+import java.util.concurrent.{Executors, ExecutorService}
+import java.util.Date
+
+class NetworkService(port: Int, poolSize: Int) extends Runnable {
+  val serverSocket = new ServerSocket(port)
+
+  def run() {
+    while (true) {
+      // This will block until a connection comes in.
+      val socket = serverSocket.accept()
+      (new Handler(socket)).run()
+    }
+  }
+}
+
+class Handler(socket: Socket) extends Runnable {
+  def message = (Thread.currentThread.getName() + "\n").getBytes
+
+  def run() {
+    socket.getOutputStream.write(message)
+    socket.getOutputStream.close()
+  }
+}
+
+(new NetworkService(2020, 2)).run
+</pre>
+
+Svaki zahtjev će se odazivati na trenutnu dretvu, koja je uvijek @main@.
+
+Glavna mana ovog koda je da samo jedan zahtjev može dobiti odgovor!
+
+Možete svaki zahtjev staviti u dretvu. Jednostavno zamijenite
+
+<pre>
+(new Handler(socket)).run()
+</pre>
+
+sa
+
+<pre>
+(new Thread(new Handler(socket))).start()
+</pre>
+
+Ali što ako želite ponovno iskoristiti dretve ili želite nešto drugo s njima?
+
+
+h2(#executor). Executori
+
+Sa izlaskom Jave 5 odlučeno je da je potrebno više abstraktnih interface-a prema dretvama.
+
+Možete dobiti @ExecutorService@ koristeći statičke metode na @Executors@ objektima.  Te metode vam pružaju mogućnost konfiguracije na  @ExecutorService@ sa raznim stvarima kao što je thread pooling.
+
+Slijedi reorganizirani old blocking network server primjer napisan sa mogućnošću konkuretnih zahtjeva.
+
+<pre>
+import java.net.{Socket, ServerSocket}
+import java.util.concurrent.{Executors, ExecutorService}
+import java.util.Date
+
+class NetworkService(port: Int, poolSize: Int) extends Runnable {
+  val serverSocket = new ServerSocket(port)
+  val pool: ExecutorService = Executors.newFixedThreadPool(poolSize)
+
+  def run() {
+    try {
+      while (true) {
+        // This will block until a connection comes in.
+        val socket = serverSocket.accept()
+        pool.execute(new Handler(socket))
+      }
+    } finally {
+      pool.shutdown()
+    }
+  }
+}
+
+class Handler(socket: Socket) extends Runnable {
+  def message = (Thread.currentThread.getName() + "\n").getBytes
+
+  def run() {
+    socket.getOutputStream.write(message)
+    socket.getOutputStream.close()
+  }
+}
+
+(new NetworkService(2020, 2)).run
+</pre>
+
+U primjeru koji slijedi nalazi se zapis povezivanja na prethodni primjer i vidimo kako se interne dretve ponovno iskorištavaju.
+
+<pre>
+$ nc localhost 2020
+pool-1-thread-1
+
+$ nc localhost 2020
+pool-1-thread-2
+
+$ nc localhost 2020
+pool-1-thread-1
+
+$ nc localhost 2020
+pool-1-thread-2
+</pre>
+
+
+h2(#Future). Futures
+
+@Future@ predstavlja asinkronu komputaciju.  Možete wrap-ati vašu komputaciju u Future i kada trebate rezultat, jednostavno možete pozvati blocking @get()@ metodu na njoj. @Executor@ vraća @Future@. Ako koristite Finagle RPC sustav, možete koristiti @Future@ instance kako bi pohranili rezultate koji još možda nisu stigli.
+
+@FutureTask@ je Runnable i dizajniran je kako bi se pokretao sa @Executor@
+
+<pre>
+val future = new FutureTask[String](new Callable[String]() {
+  def call(): String = {
+    searcher.search(target);
+}})
+executor.execute(future)
+</pre>
+
+Sadas trebamo rezultate pa krenimo.
+
+<pre>
+val blockingResult = future.get()
+</pre>
+
+*Dobro je pogledati* <a href="finagle.html">Scala School's Finagle stranica</a> ima pregršt primjera korištenja <code>Future</code>, uključujući neke lijepe načine za njihovu kombinaciju. Efektivna Scala ima mišljenje o tome <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .
+
+h2(#danger). Sigurnosni problem dretvi
+
+<pre>
+class Person(var name: String) {
+  def set(changedName: String) {
+    name = changedName
+  }
+}
+</pre>
+
+Ovaj program nije siguran u multi-thread okruženju. Ako dvije dretve imaju reference na istu instancu Person i zovu @set@, ne možete predvidjeti koji @name@ će biti na kraju oba poziva.
+
+U Java memory modelu, svaki procesor ima dopuštenje spremiti vrijednosti u svoj L1 ili L2 cache kako bi dvije dretve koje se pokreću na različitim procesorima imale svoj pogled na podatke.
+
+Pogledajmo neke alate koji forsiraju dretve da zadrže konzistentan pogled na podatke.
+
+h3. Tri alata
+
+h4. synchronization
+
+Mutex-i pružaju ownership semantiku.  Kada uđete u mutex, posjedujete ga.  Najčešći način korištenja mutex-a u JVM-u je sinkronizacija na nešto.  U ovom slučaju sinkronizirati ćemo nad našom Person.
+
+U JVM-u možete sinkronizirati nad svakom instancom koja nije null.
+
+<pre>
+class Person(var name: String) {
+  def set(changedName: String) {
+    this.synchronized {
+      name = changedName
+    }
+  }
+}
+</pre>
+
+h4. volatile
+
+Sa Java 5 promjenom memory modela, volatile i synchronized su gotovo identični osim što sa volatile, null-ovi su dopušteni.
+
+@synchronized@ dopušta finije zaključavanje.  @volatile@ sinkronizira nad svakim pristupom.
+
+<pre>
+class Person(@volatile var name: String) {
+  def set(changedName: String) {
+    name = changedName
+  }
+}
+</pre>
+
+h4. AtomicReference
+
+Također sa Java 5 je dodan cijeli niz low-level concurrency primitiva. Jedan od njih je @AtomicReference@ klasa.
+
+<pre>
+import java.util.concurrent.atomic.AtomicReference
+
+class Person(val name: AtomicReference[String]) {
+  def set(changedName: String) {
+    name.set(changedName)
+  }
+}
+</pre>
+
+h4. Košta li nas ovo?
+
+@AtomicReference je najskuplji od navedenih izbora budući da morate proći metode kako bi pristupili vrijednostima.
+
+@volatile@ i @synchronized@ su građeni na Java built-in monitorima.  Monitori koštaju malo ako nema konekcija.  Budući da @synchronized@ dopušta finiju kontrolu nad čime sinkronizirate, potrošiti ćemo manje budući da @synchronized@ teži biti najjeftinije rješenje.
+
+Kada uđete u sinkronizirane točke, pristupne volatile reference, ili deferencirane AtomicReference, Java forsira procesor da flush-a svoje cache linije i pruža konzistentan pogled na podatke.
+
+MOLIM VAS, ISPRAVITE ME AKO SAM U KRIVU. Ovo je složena tema i vjerojatno svatko ima svoje mišljenje o tome.
+
+h3. Drugi lipi alati iz Java 5
+
+Kao što smo spomenuli sa @AtomicReference@, Java 5 pruža sjajne alate sa njim.
+
+
+h4. CountDownLatch
+
+@CountDownLatch@ je jednostavan mehanizam za višestruke dretve koji služi za njihovu međusobnu komunikaciju.
+
+<pre>
+val doneSignal = new CountDownLatch(2)
+doAsyncWork(1)
+doAsyncWork(2)
+
+doneSignal.await()
+println("both workers finished!")
+</pre>
+
+Među ostalim, to je odlično za unit testove. Recimo da radite neki asinkronirani posao i želite osigurati da se fukcije izvršavaju. Jednostavno izvršite @countDown@ nad vašim funkcijama i @await@ for it.
+
+h4. AtomicInteger/Long
+
+Budući da je inkrementiranje Int-ova i Long-ova česta operacija dodani su @AtomicInteger@ i @AtomicLong@.
+
+h4. AtomicBoolean
+
+Jasno samo po sebi.
+
+h4. ReadWriteLocks
+
+@ReadWriteLock@ vam dopušta 'hvatanje' reader i writer lock-ova.  reader lock-a samo blok kada je writer lock zauzet.
+
+h2(#example). Kreirajmo nesigurni search engine
+
+Ovdje je jednostavni invert-ani index koji nije thread-safe.  Naš invert-ani index map-ira dijelove imena danog User-a.
+
+Ovo je napisano na naivan način pretpostavljajući samo single-thread pristup.
+
+Primijetite alternativni standardni konstruktor @this()@ koji koristi @mutable.HashMap@
+
+<pre>
+import scala.collection.mutable
+
+case class User(name: String, id: Int)
+
+class InvertedIndex(val userMap: mutable.Map[String, User]) {
+
+  def this() = this(new mutable.HashMap[String, User])
+
+  def tokenizeName(name: String): Seq[String] = {
+    name.split(" ").map(_.toLowerCase)
+  }
+
+  def add(term: String, user: User) {
+    userMap += term -> user
+  }
+
+  def add(user: User) {
+    tokenizeName(user.name).foreach { term =>
+      add(term, user)
+    }
+  }
+}
+</pre>
+
+Izostavili smo kako izvući korisnike iz našeg index-a zasada. O tome kasnije.
+
+h2(#solutions). Napravimo ga sigurnim
+
+U našem inverted index primjeru, userMap nije zasigurno siguran. Više klijenata može pokušati dodati item-e u isto vrijeme i imati isti način pregleda pogrešaka koji smo vidjeli u našem prvom @Person@ primjeru.
+
+Budući da userMap nije thread-safe, kako zadržati samo jednu dretvu kada je mutiramo u isto vrijeme?
+
+Možete pokušati lock-irati na userMap dok dodajete.
+
+<pre>
+def add(user: User) {
+  userMap.synchronized {
+    tokenizeName(user.name).foreach { term =>
+      add(term, user)
+    }
+  }
+}
+</pre>
+
+Nažalost, to je previše sirovo.  Uvijek pokušajte napraviti što više skupog posla izvan mutex-a što je više moguće. Zapamtite što smo rekli kako je lock-anje jeftino kada nema konflikata. Ako napravite više posla unutar bloka, biti će manje konflikata.
+
+<pre>
+def add(user: User) {
+  // tokenizeName was measured to be the most expensive operation.
+  val tokens = tokenizeName(user.name)
+
+  tokens.foreach { term =>
+    userMap.synchronized {
+      add(term, user)
+    }
+  }
+}
+</pre>
+
+h2. SynchronizedMap
+
+Možemo mix-ati sinkronizaciju sa mutabilnom HashMap koristeći SynchronizedMap trait.
+
+Možemo extend-ati naš postojeći InvertedIndex kako bi korisnicima dali jednostavan način kreiranja sinkroniziranog index-a.
+
+
+<pre>
+import scala.collection.mutable.SynchronizedMap
+
+class SynchronizedInvertedIndex(userMap: mutable.Map[String, User]) extends InvertedIndex(userMap) {
+  def this() = this(new mutable.HashMap[String, User] with SynchronizedMap[String, User])
+}
+</pre>
+
+Ako pogledate implementaciju, shvatiti ćete da jednostavno sinkronizira na svakoj metodi, što znači da je sigurno, ali vjerojatno nećete imati performanse koje želite.
+
+h2.  Java ConcurrentHashMap
+
+Java dolazi sa lipom thread-safe ConcurrentHashMap.  Srećom, možemo koristiti JavaConverters kako bi dobili lijepu Scala semantiku.
+
+Zapravo, možemo smisleno raslojiti naš novi, thread-safe InvertedIndex kao ekstenziju nad starim nesigurnim index-om.
+
+<pre>
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.JavaConverters._
+
+class ConcurrentInvertedIndex(userMap: collection.mutable.ConcurrentMap[String, User])
+    extends InvertedIndex(userMap) {
+
+  def this() = this(new ConcurrentHashMap[String, User] asScala)
+}
+</pre>
+
+h2. Nalodajmo naš InvertedIndex
+
+h3. Naivan način
+
+<pre>
+
+trait UserMaker {
+  def makeUser(line: String) = line.split(",") match {
+    case Array(name, userid) => User(name, userid.trim().toInt)
+  }
+}
+
+class FileRecordProducer(path: String) extends UserMaker {
+  def run() {
+    Source.fromFile(path, "utf-8").getLines.foreach { line =>
+      index.add(makeUser(line))
+    }
+  }
+}
+</pre>
+
+Za svaku liniju u našoj datoteci, zovemo @makeUser@ i zatim ga @add@ našem InvertedIndex-u. Ako koristimo konkuretni InvertedIndex, možemo pozvati add u paraleli i budući da makeUser nema nuspojava (side-effects), to je već thread-safe.
+
+Ne možemo paralelno čitati datoteku ali _možemo_ kreirati User i dodati ga index-u u paraleli.
+
+h3.  Rješenje: Producer/Consumer
+
+Uobičajeni pattern za async komputaciju je odvojiti producers od consumers i dopustiti im komunikaciju samo putem @Queue@.  Pogledajmo kako bi to radilo za naš search engine indexer.
+
+<pre>
+import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
+
+// Concrete producer
+class Producer[T](path: String, queue: BlockingQueue[T]) extends Runnable {
+  def run() {
+    Source.fromFile(path, "utf-8").getLines.foreach { line =>
+      queue.put(line)
+    }
+  }
+}
+
+// Abstract consumer
+abstract class Consumer[T](queue: BlockingQueue[T]) extends Runnable {
+  def run() {
+    while (true) {
+      val item = queue.take()
+      consume(item)
+    }
+  }
+
+  def consume(x: T)
+}
+
+val queue = new LinkedBlockingQueue[String]()
+
+// One thread for the producer
+val producer = new Producer[String]("users.txt", q)
+new Thread(producer).start()
+
+trait UserMaker {
+  def makeUser(line: String) = line.split(",") match {
+    case Array(name, userid) => User(name, userid.trim().toInt)
+  }
+}
+
+class IndexerConsumer(index: InvertedIndex, queue: BlockingQueue[String]) extends Consumer[String](queue) with UserMaker {
+  def consume(t: String) = index.add(makeUser(t))
+}
+
+// Let's pretend we have 8 cores on this machine.
+val cores = 8
+val pool = Executors.newFixedThreadPool(cores)
+
+// Submit one consumer per core.
+for (i <- i to cores) {
+  pool.submit(new IndexerConsumer[String](index, q))
+}
+</pre>
