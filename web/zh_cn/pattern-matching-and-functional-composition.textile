@@ -68,7 +68,7 @@ h2(#PartialFunction). 理解PartialFunction(偏函数)
 
 对给定的输入参数类型，函数可接受该类型的任何值。换句话说，一个<code>(Int) => String</code> 的函数可以接收任意Int值，并返回一个字符串。
 
-对给定的输入参数类型，偏函数只能接受该类型的某些特定的值。一个定义为<code>(Int) => String</code> 的偏函数可能不能接受所有Int值为输入。
+对给定的输入参数类型，偏函数只能接受该类型的某些特定的值。一个定义为<code>(Int) => String</code> 的偏函数可能不能接收所有Int值为输入。
 
 <code>isDefinedAt</code> 是PartialFunction的一个方法，用来确定PartialFunction是否能接受一个给定的参数。
 
