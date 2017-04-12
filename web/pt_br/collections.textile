@@ -376,7 +376,7 @@ h2(#generalized). Generalizando combinadores funcionais
 
 Agora que já aprendemos um monte de funções para trabalhar com coleções, que tal aprendermos a escrever nossos próprios combinadores funcionais?
 
-Surpreendentemente, todos os combinadores funcionais mostrados até agora poderiam ser escritos usando <code>fold</code>. Veja um exemplo:
+Curiosamente, todos os combinadores funcionais mostrados até agora poderiam ser escritos usando <code>fold</code>. Veja um exemplo:
 
 <pre>
 def ourMap(numbers: List[Int], fn: Int => Int): List[Int] = {

@@ -1,0 +1,395 @@
+---
+prev: sbt.textile
+next: specs.textile
+title: Mais coleções
+layout: post
+---
+
+Scala oferece um rico framework de coleções. Além disso, Scala oferece algumas abstrações para tipos de coleções. Isso permite que você escreva código que funcione em uma coleção de <code>Foo</code>s sem que você tenha que se preocupar se essa coleção é um <code>List</code>, <code>Set</code> ou qualquer outra coisa.
+
+"Esta página":http://www.decodified.com/scala/collections-api.xml dá uma boa visão das principais coleções e contém links para os respectivos scaladocs.
+
+* "Tipos básicos":#basics que você irá usar o tempo todo
+* "Hierarquia":#hierarchy e abstrações
+* "Métodos":#methods
+* "Mutabilidade":#mutable
+* "Coleções Java":#java também funcionam
+
+h2(#basics). O básico
+
+h3. List
+
+Implementação padrão de lista encadeada (linked list)
+
+<pre>
+scala> List(1, 2, 3)
+res0: List[Int] = List(1, 2, 3)
+</pre>
+
+Como era de se esperar em uma linguagem funcional, você pode usar o operador "cons" (::) para criar Lists.
+
+<pre>
+scala> 1 :: 2 :: 3 :: Nil
+res1: List[Int] = List(1, 2, 3)
+</pre>
+
+*Veja também* "Documentação da API":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
+
+h3. Set
+
+Sets não possuem elementos duplicados.
+
+<pre>
+scala> Set(1, 1, 2)
+res2: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+
+*Veja também* "Documentação da API":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+
+h3. Seq
+
+Sequências têm uma ordem definida.
+
+<pre>
+scala> Seq(1, 1, 2)
+res3: Seq[Int] = List(1, 1, 2)
+</pre>
+
+(Perceba que o objeto retornado é um List. <code>Seq</code> é um trait e List é uma das implementações de Seq. Como você pode ter notado, o factory object <code>Seq</code> cria Lists.)
+
+*Veja também* "Documentação da API":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+
+h3. Map
+
+Maps armazenam pares de chave/valor.
+
+<pre>
+scala> Map('a' -> 1, 'b' -> 2)
+res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
+</pre>
+
+*Veja também* "Documentação da API":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+
+h2(#hierarchy). A hierarquia
+
+Os tipos a seguir são todos traits. Dentro dos pacotes mutable e immutable existem implementações especializadas desses tipos.
+
+h3. Traversable
+
+Todas as coleções podem ser percorridas. Esse trait define algumas funções combinadoras padrão. Esses combinadores são todos escritos em termos de @foreach@, o qual cada tipo concreto de coleção deve implementar.
+
+*Veja também* "Documentação da API":http://www.scala-lang.org/api/current/scala/collection/Traversable.html
+
+h3. Iterable
+
+Possui um método @iterator()@ que retorna um Iterator. Iterator permite percorrer os elementos da coleção.
+
+*Veja também* "Documentação da API":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
+
+h3. Seq
+
+Representa uma sequência ordenada de elementos.
+
+*Veja também* "Documentação da API":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+
+h3. Set
+
+Uma coleção de elementos não duplicados.
+
+*Veja também* "Documentação da API":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+
+h3. Map
+
+Pares de chave/valor.
+
+*Veja também* "Documentação da API":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+
+h2(#methods). Os métodos
+
+h3. Traversable
+
+Os métodos abaixo estão disponíveis em todas as sub-classes. Os tipos dos parâmetros e retorno dos métodos podem mudar, uma vez que as sub-classes têm liberdade para sobrescrevê-los.
+
+<pre>
+def head : A
+def tail : Traversable[A]
+</pre>
+
+A seguir alguns dos combinadores funcionais disponíveis:
+
+<code>
+def map [B] (f: (A) => B) : CC[B]
+</code>
+
+retorna uma coleção contendo cada um dos elementos transformados por @f@
+
+<code>
+def foreach[U](f: Elem => U): Unit
+</code>
+
+executa @f@ sobre cada elemento na coleção.
+
+<code>
+def find (p: (A) => Boolean) : Option[A]
+</code>
+
+retorna o primeiro elemento que atenda ao critério do predicado
+
+<code>
+def filter (p: (A) => Boolean) : Traversable[A]
+</code>
+
+retorna uma coleção contendo todos os elementos que atendem ao predicado
+
+Partitioning:
+
+<code>
+def partition (p: (A) ⇒ Boolean) : (Traversable[A], Traversable[A])
+</code>
+
+Divide os elementos da coleção em dois grupos de acordo com o predicado
+
+<code>
+def groupBy [K] (f: (A) => K) : Map[K, Traversable[A]]
+</code>
+
+Conversão:
+
+É possível converter uma coleção para outros tipo.
+
+<pre>
+def toArray : Array[A]
+def toArray [B >: A] (implicit arg0: ClassManifest[B]) : Array[B]
+def toBuffer [B >: A] : Buffer[B]
+def toIndexedSeq [B >: A] : IndexedSeq[B]
+def toIterable : Iterable[A]
+def toIterator : Iterator[A]
+def toList : List[A]
+def toMap [T, U] (implicit ev: <:<[A, (T, U)]) : Map[T, U]
+def toSeq : Seq[A]
+def toSet [B >: A] : Set[B]
+def toStream : Stream[A]
+def toString () : String
+def toTraversable : Traversable[A]
+</pre>
+
+E se convertermos um Map para um Array? O resultado é um Array de pares chave/valor.
+
+<pre>
+scala> Map(1 -> 2).toArray
+res41: Array[(Int, Int)] = Array((1,2))
+</pre>
+
+h3. Iterable
+
+Possibilita obter um iterator.
+
+<pre>
+  def iterator: Iterator[A]
+</pre>
+
+Mas o que dá para se fazer com um Iterator?
+
+<pre>
+def hasNext(): Boolean
+def next(): A
+</pre>
+
+Como você pode perceber, Iterators têm um estilo muito particular do Java. Dificilmente você verá iterators sendo utilizados em Scala. É muito mais provável que você veja combinadores funcionais e for-comprehension sendo usados.
+
+h3. Set
+
+<pre>
+  def contains(key: A): Boolean
+  def +(elem: A): Set[A]
+  def -(elem: A): Set[A]
+</pre>
+
+h3. Map
+
+Sequência de pares chave/valor que permite busca pela chave.
+
+Para construir um Map, invoque o método apply() passando uma lista de pares:
+
+<pre>
+scala> Map("a" -> 1, "b" -> 2)
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2))
+</pre>
+
+ou então:
+
+<pre>
+scala> Map(("a", 2), ("b", 2))
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,2), (b,2))
+</pre>
+
+h6. Fugindo um pouco do assunto...
+
+O que o símbolo <code>-></code> significa? Por incrível que pareça, <code>-></code> não é nenhuma sintaxe especial da linguagem. É apenas um método que retorna uma tupla.
+
+<pre>
+scala> "a" -> 2
+
+res0: (java.lang.String, Int) = (a,2)
+</pre>
+
+Lembre-se, o resultado é o mesmo que:
+
+<pre>
+scala> "a".->(2)
+
+res1: (java.lang.String, Int) = (a,2)
+</pre>
+
+Outra opção para se criar um Map é utilizando o método <code>++</code>
+
+<pre>
+scala> Map.empty ++ List(("a", 1), ("b", 2), ("c", 3))
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (c,3))
+</pre>
+
+h3. Sub-classes frequentemente utilizadas
+
+*HashSet e HashMap* são dois dos tipos mais frequentemente utilizados. "API de HashSet":http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "API de HashMap":http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
+
+*TreeMap* É uma sub-classe de SortedMap que oferece acesso ordenado aos elementos. "API de TreeMap":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
+
+*Vector* Oferece rápido acesso randômico aos elementos e também eficiente operações de adição/remoção. "API de Vector":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html
+
+<pre>
+scala> IndexedSeq(1, 2, 3)
+res0: IndexedSeq[Int] = Vector(1, 2, 3)
+</pre>
+
+*Range* Sequência ordenada de Ints. É bastante comum vê-lo sendo utilizado no lugar de for-loops com contadores. "API de Range":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
+
+<pre>
+scala> for (i <- 1 to 3) { println(i) }
+1
+2
+3
+</pre>
+
+Ranges também possuem todos os combinadores funcionais padrão.
+
+<pre>
+scala> (1 to 3).map { i => i }
+res0: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3)
+</pre>
+
+h3. Implementações default
+
+Quando invocamos os métodos apply nos traits de coleções, o objeto retornado é uma instância da implementação default daquele trait. Por exemplo, <code>Iterable(1, 2)</code> retorna um List como sua implementação default.
+
+<pre>
+scala> Iterable(1, 2)
+
+res0: Iterable[Int] = List(1, 2)
+</pre>
+
+Conforme vimos anteriormente, com Seq acontece a mesma coisa
+
+<pre>
+scala> Seq(1, 2)
+res3: Seq[Int] = List(1, 2)
+
+scala> Iterable(1, 2)
+res1: Iterable[Int] = List(1, 2)
+
+scala> Sequence(1, 2)
+warning: there were deprecation warnings; re-run with -deprecation for details
+res2: Seq[Int] = List(1, 2)
+</pre>
+
+Set
+
+<pre>
+scala> Set(1, 2)
+res31: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+
+h3. Outros traits
+
+*IndexedSeq* oferece rápido acesso randômico e rápida implementação de length. "Documentação da API":http://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html
+
+*LinearSeq* oferece rápido acesso ao primeiro elemento através do método head, e também rápido acesso aos demais elementos através do método tail. "Documentação da API":http://www.scala-lang.org/api/current/scala/collection/LinearSeq.html
+
+h4. Mutável vs. Imutável
+
+imutável
+
+Pró
+* Não pode ser modificado por múltiplas threads
+
+Contra
+* Não pode ser modificado de maneira alguma
+
+Scala permite que sejamos pragmáticos: ela favorece imutabilidade mas não nos penaliza por às vezes precisar de mutabilidade. Isso é bastante semelhante com o que acontece com var x val. Sempre começamos usando val mas, se necessário, podemos voltar atrás e usar var.
+
+Nós somos favoráveis a sempre começar pelas versões imutáveis de coleções. Caso seja observado algum problema de performance, então podemos mudar para as versões mutáveis. Um benefício de se usar coleções imutáveis é que não corremos o risco de alterar acidentalmente estado a partir de múltiplas threads.
+
+h2(#mutable). Mutável
+
+Todas as classes que discutimos até agora são imutáveis. Veremos agora os tipos de coleções mutáveis mais frequentemente utilizados.
+
+*HashMap* define @getOrElseUpdate@, @+=@ "API de HashMap":http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html
+
+<pre>
+scala> val numbers = collection.mutable.Map(1 -> 2)
+numbers: scala.collection.mutable.Map[Int,Int] = Map((1,2))
+
+scala> numbers.get(1)
+res0: Option[Int] = Some(2)
+
+scala> numbers.getOrElseUpdate(2, 3)
+res54: Int = 3
+
+scala> numbers
+res55: scala.collection.mutable.Map[Int,Int] = Map((2,3), (1,2))
+
+scala> numbers += (4 -> 1)
+res56: numbers.type = Map((2,3), (4,1), (1,2))
+</pre>
+
+*ListBuffer e ArrayBuffer* Definem @+=@ "API de ListBuffer":http://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "API de ArrayBuffer":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
+
+*LinkedList e DoubleLinkedList* "API de LinkedList":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "API de DoubleLinkedList":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
+
+*PriorityQueue* "API":http://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
+
+*Stack e ArrayStack* "API de Stack":http://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "API de ArrayStack":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
+
+*StringBuilder* Curiosamente, StringBuilder é uma coleção. "API":http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html
+
+h2(#java). Convivendo com Java
+
+Podemos facilmente converter coleções de Java para Scala e vice-versa usando as conversões disponíveis no <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">pacote JavaConverters</a>. Ele decora coleções Java frequentemente usadas com métodos <code>asScala</code> e coleções Scala com métodos <code>asJava</code>.
+
+<pre>
+   import scala.collection.JavaConverters._
+   val sl = new scala.collection.mutable.ListBuffer[Int]
+   val jl : java.util.List[Int] = sl.asJava
+   val sl2 : scala.collection.mutable.Buffer[Int] = jl.asScala
+   assert(sl eq sl2)
+</pre>
+
+Conversões nos dois sentidos:
+
+<pre>
+scala.collection.Iterable <=> java.lang.Iterable
+scala.collection.Iterable <=> java.util.Collection
+scala.collection.Iterator <=> java.util.{ Iterator, Enumeration }
+scala.collection.mutable.Buffer <=> java.util.List
+scala.collection.mutable.Set <=> java.util.Set
+scala.collection.mutable.Map <=> java.util.{ Map, Dictionary }
+scala.collection.mutable.ConcurrentMap <=> java.util.concurrent.ConcurrentMap
+</pre>
+
+Além disso, as seguintes conversões unidirecionais também estão disponíveis:
+
+<pre>
+scala.collection.Seq => java.util.List
+scala.collection.mutable.Seq => java.util.List
+scala.collection.Set => java.util.Set
+scala.collection.Map => java.util.Map
+</pre>

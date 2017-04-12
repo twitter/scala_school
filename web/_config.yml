@@ -37,7 +37,7 @@ lessons:
     desc_ko: 리스트, 맵, 함수 콤비네이터(map, foreach, filter, zip, fold들)
     desc_ru: Списки, Карты, функциональные комбинаторы (map, foreach, filter, zip, folds)
     desc_zh_cn: 列表，映射，功能组合(map, foreach, filter, zip, folds)
-    desc_pt_br: Listas, mapas, combinadores funcionais (map, foreach, filter, zip, folds)
+    desc_pt_br: Listas, mapas, combinadores funcionais (map, foreach, filter, zip, fold)
   -
     title: Pattern matching & functional composition
     title_ko: 패턴 매치와 함수 합성
