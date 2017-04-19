@@ -1,0 +1,316 @@
+---
+prev: coll2.textile
+next: concurrency.textile
+title: Testes com specs
+layout: post
+---
+
+Esta lição aborda testes utilizando Specs, um framework de Behavior-Driven Design (BDD) para Scala.
+
+* "Herdando a classe Specification":#example
+** Exemplos aninhados
+* "Modelo de Execução":#scope
+* "Setup e TearDown":#setup
+** doFirst
+** doBefore
+** doAfter
+* "Matchers":#matchers
+** mustEqual
+** contains
+** sameSize?
+** Os seus próprios
+* "Mocks":#mocks
+* "Spies":#spies
+* "Executando no sbt":#sbt
+
+
+h2(#example). Herdando a classe Specification
+
+Vamos começar!
+
+<pre>
+import org.specs._
+
+object ArithmeticSpec extends Specification {
+  "Arithmetic" should {
+    "add two numbers" in {
+      1 + 1 mustEqual 2
+    }
+    "add three numbers" in {
+      1 + 1 + 1 mustEqual 3
+    }
+  }
+}
+</pre>
+
+*Arithmetic* é o *Sistema sob teste*.
+
+*add* é um contexto.
+
+*add two numbers* e *add three numbers* são exemplos.
+
+@mustEqual@ indica uma *expectativa*.
+
+@1 mustEqual 1@ é apenas um placeholder até que você comece a escrever os testes reais. Todos os exemplos devem conter ao menos uma expectativa.
+
+h3. Duplicidade
+
+Percebeu como os dois testes tem @add@ em seus nomes? Podemos eliminar essa duplicidade utilizando *expectativas* aninhadas.
+
+<pre>
+import org.specs._
+
+object ArithmeticSpec extends Specification {
+  "Arithmetic" should {
+    "add" in {
+      "two numbers" in {
+        1 + 1 mustEqual 2
+      }
+      "three numbers" in {
+        1 + 1 + 1 mustEqual 3
+      }
+    }
+  }
+}
+</pre>
+
+h2(#scope). Modelo de execução
+
+<pre>
+object ExecSpec extends Specification {
+  "Mutations are isolated" should {
+    var x = 0
+    "x equals 1 if we set it." in {
+      x = 1
+      x mustEqual 1
+    }
+    "x is the default value if we don't change it" in {
+      x mustEqual 0
+    }
+  }
+}
+</pre>
+
+h2(#setup). Setup, Teardown
+
+h3. doBefore e doAfter
+
+<pre>
+"my system" should {
+  doBefore { resetTheSystem() /** função para reinicializar algum estado */ }
+  "mess up the system" in {...}
+  "and again" in {...}
+  doAfter { cleanThingsUp() }
+}
+</pre>
+
+*NOTA* @doBefore@/@doAfter@ são executados antes e depois de cada teste.
+
+h3. doFirst e doLast
+
+@doFirst@/@doLast@ são funções executadas, apenas uma vez, antes e depois que todos os testes sejam executados.
+
+<pre>
+"Foo" should {
+  doFirst { openTheCurtains() }
+  "test stateless methods" in {...}
+  "test other stateless methods" in {...}
+  doLast { closeTheCurtains() }
+}
+</pre>
+
+h2(#matchers). Matchers
+
+Quando queremos ter certeza de que os dados estão corretos, usamos matchers. Veja a seguir os mais usados. (Veja também "Guia dos Matchers":http://code.google.com/p/specs/wiki/MatchersGuide)
+
+h3. mustEqual
+
+Já vimos vários exemplos utilizando @mustEqual@.
+
+<pre>
+1 mustEqual 1
+
+"a" mustEqual "a"
+</pre>
+
+Igualdade de referência, igualdade de valor.
+
+h3. Elemento em sequência
+
+<pre>
+val numbers = List(1, 2, 3)
+
+numbers must contain(1)
+numbers must not contain(4)
+
+numbers must containAll(List(1, 2, 3))
+numbers must containInOrder(List(1, 2, 3))
+
+List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4), 2, 3), 1))
+</pre>
+
+
+h3. Itens em mapas
+
+<pre>
+map must haveKey(k)
+map must notHaveKey(k)
+
+map must haveValue(v)
+map must notHaveValue(v)
+</pre>
+
+h3. Números
+
+<pre>
+a must beGreaterThan(b)
+a must beGreaterThanOrEqualTo(b)
+
+a must beLessThan(b)
+a must beLessThanOrEqualTo(b)
+
+a must beCloseTo(b, delta)
+</pre>
+
+
+h3. Options
+
+<pre>
+a must beNone
+
+a must beSome[Type]
+
+a must beSomething
+
+a must beSome(value)
+</pre>
+
+h3. throwA
+
+<pre>
+a must throwA[WhateverException]
+</pre>
+
+Observe que é mais sucinto que um @try catch@ com um @fail@ em seu corpo.
+
+Você também pode verificar a mensagem contida na exceção.
+
+<pre>
+a must throwA(WhateverException("message"))
+</pre>
+
+Ou utilizar pattern matching:
+
+<pre>
+a must throwA(new Exception) like {
+  case Exception(m) => m.startsWith("bad")
+}
+</pre>
+
+
+h3. Escreva seus próprios Matchers
+
+<pre>
+import org.specs.matcher.Matcher
+</pre>
+
+h4. Como um val
+
+<pre>
+"A matcher" should {
+  "be created as a val" in {
+    val beEven = new Matcher[Int] {
+      def apply(n: => Int) = {
+        (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
+      }
+    }
+    2 must beEven
+  }
+}
+</pre>
+
+Um Matcher deve retornar uma tupla contendo o resultado da avalição da expectativa (@true/false@), uma mensagem para quando a expectativa é verdadeira e outra para quando é falsa.
+
+h4. Como uma case class
+
+<pre>
+case class beEven(b: Int) extends Matcher[Int]() {
+  def apply(n: => Int) =  (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
+}
+</pre>
+
+Matchers implementados como cases classes são mais reutilizáveis.
+
+h2(#mocks). Mocks
+
+<pre>
+import org.specs.Specification
+import org.specs.mock.Mockito
+
+abstract class Foo[T] {
+  def get(i: Int): T
+}
+
+object MockExampleSpec extends Specification with Mockito {
+  val m = mock[Foo[String]]
+
+  m.get(0) returns "one"
+
+  m.get(0)
+
+  there was one(m).get(0)
+
+  there was no(m).get(1)
+}
+</pre>
+
+*Veja também* "Utilizando Mockito":http://code.google.com/p/specs/wiki/UsingMockito
+
+h2(#spies). Spies
+
+Podemos usar spies quando queremos utilizar a técnica de mocking em partes de objetos reais:
+
+<pre>
+val list = new LinkedList[String]
+val spiedList = spy(list)
+
+// métodos podem ser programados como se o objeto fosse um mock
+spiedList.size returns 100
+
+// outros métodos podem ser utilizados normalmente
+spiedList.add("one")
+spiedList.add("two")
+
+// verificações podem ser feitas em um spy
+there was one(spiedList).add("one")
+</pre>
+
+Entretanto, usar spies pode ser complicado:
+
+<pre>
+// se a lista estiver vazia, isso irá lançar uma IndexOutOfBoundsException
+spiedList.get(0) returns "one"
+</pre>
+
+@doReturn@ deve ser usado nesse caso:
+
+<pre>
+doReturn("one").when(spiedList).get(0)
+</pre>
+
+
+h2(#sbt). Executando specs pelo sbt
+
+
+<pre>
+> test-only com.twitter.yourservice.UserSpec
+</pre>
+
+Executa a spec uma única vez.
+
+
+<pre>
+> ~ test-only com.twitter.yourservice.UserSpec
+</pre>
+
+Executa a spec continuamente, cada modificação no arquivo dispara uma nova execução dos testes.
