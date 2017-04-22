@@ -1,0 +1,146 @@
+---
+prev: collections.textile
+next: type-basics.textile
+title: Pattern matching & composição funcional
+layout: post
+---
+
+Esta lição aborda:
+
+* "Composição funcional":#composition
+** compose
+** andThen
+* "Currying vs Aplicação Parcial":#curryvspartial
+* "PartialFunctions":#PartialFunction
+** composição com orElse
+* "Para que serve a declaração case?":#case
+
+h2(#composition). Composição de Funções
+
+Vamos criar duas funções e dar nomes a elas:
+
+<pre>
+scala> def f(s: String) = "f(" + s + ")"
+f: (String)java.lang.String
+
+scala> def g(s: String) = "g(" + s + ")"
+g: (String)java.lang.String
+</pre>
+
+h3. compose
+
+<code>compose</code> cria uma nova função que compõe outras funções <code>f(g(x))</code>
+
+<pre>
+scala> val fComposeG = f _ compose g _
+fComposeG: (String) => java.lang.String = <function>
+
+scala> fComposeG("yay")
+res0: java.lang.String = f(g(yay))
+</pre>
+
+h3. andThen
+
+<code>andThen</code> é parecido com <code>compose</code>, porém invoca a primeira função e então a segunda: <code>g(f(x))</code>
+
+<pre>
+scala> val fAndThenG = f _ andThen g _
+fAndThenG: (String) => java.lang.String = <function>
+
+scala> fAndThenG("yay")
+res1: java.lang.String = g(f(yay))
+</pre>
+
+h2(#curryvspartial). Currying vs Aplicação Parcial
+
+h3. Declarações case
+
+h4. O que são as declarações case?
+
+São subclasses de um tipo de função chamado PartialFunction.
+
+h4. O que significa uma lista de declarações case?
+
+São múltiplas PartialFunctions compostas.
+
+h2(#PartialFunction). Entendendo PartialFunction
+
+Uma função funciona com qualquer argumento do tipo definido em sua assinatura. Em outras palavras, uma função definida como (Int) => String recebe qualquer Int e retorna uma String.
+
+Uma Partial Function funciona apenas com alguns valores do tipo definido. Uma Partial Function (Int) => String pode não aceitar qualquer Int.
+
+O método <code>isDefinedAt</code> pode ser usado para determinar se a PartialFunction irá aceitar um certo argumento ou não.
+
+__Nota__ <code>PartialFunction</code> não tem relação com funções parcialmente aplicadas.
+
+*Veja também* Effective Scala possui opiniões sobre <a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.
+
+<pre>
+scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
+one: PartialFunction[Int,String] = <function1>
+
+scala> one.isDefinedAt(1)
+res0: Boolean = true
+
+scala> one.isDefinedAt(2)
+res1: Boolean = false
+</pre>
+
+Podemos aplicar uma PartialFunction.
+
+<pre>
+scala> one(1)
+res2: String = one
+</pre>
+
+PartialFunctions podem ser compostas com orElse, o qual reflete se a PartialFunction é definida para os argumentos informados ou não.
+
+<pre>
+scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
+two: PartialFunction[Int,String] = <function1>
+
+scala> val three: PartialFunction[Int, String] = { case 3 => "three" }
+three: PartialFunction[Int,String] = <function1>
+
+scala> val wildcard: PartialFunction[Int, String] = { case _ => "something else" }
+wildcard: PartialFunction[Int,String] = <function1>
+
+scala> val partial = one orElse two orElse three orElse wildcard
+partial: PartialFunction[Int,String] = <function1>
+
+scala> partial(5)
+res24: String = something else
+
+scala> partial(3)
+res25: String = three
+
+scala> partial(2)
+res26: String = two
+
+scala> partial(1)
+res27: String = one
+
+scala> partial(0)
+res28: String = something else
+</pre>
+
+h3(#case). O mistério do case.
+
+Na semana passada vimos algo curioso. Vimos uma declaração case sendo usada onde uma função normalmente é esperada.
+
+<pre>
+scala> case class PhoneExt(name: String, ext: Int)
+defined class PhoneExt
+
+scala> val extensions = List(PhoneExt("steve", 100), PhoneExt("robey", 200))
+extensions: List[PhoneExt] = List(PhoneExt(steve,100), PhoneExt(robey,200))
+
+scala> extensions.filter { case PhoneExt(name, extension) => extension < 200 }
+res0: List[PhoneExt] = List(PhoneExt(steve,100))
+</pre>
+
+Por que isso funciona?
+
+filter recebe uma função como parâmetro. Mais especificamente, uma função predicado (PhoneExt) => Boolean.
+
+Uma PartialFunction é um subtipo de Function. Sendo assim, filter também aceita PartialFunctions!
