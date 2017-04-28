@@ -71,8 +71,8 @@ If you invoke <code>List(1,2).sum()</code>, you don't need to pass a _num_ param
 Methods may ask for some kinds of specific "evidence" for a type without setting up strange objects as with <code>Numeric</code>. Instead, you can use one of these type-relation operators:
 
 |A =:= B|A must be equal to B|
-|A <:< B|A must be a subtype of B|
-|A <%< B|A must be viewable as B|
+|A <:< B|A must be a subtype of B _(removed in Scala 2.10)_|
+|A <%< B|A must be viewable as B _(removed in Scala 2.10)_|
 
 (If you get errors trying to use <:< or <%<, be aware that those went away in Scala 2.10. Scala School examples work with "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html . You can use a newer Scala, but expect errors.)
 
@@ -96,6 +96,17 @@ defined class Container
 scala> (new Container("123")).addIt
 res15: Int = 246
 </pre>
+
+<code><%<</code> was deprecated in Scala version 2.9 and removed in version 2.10. <code>A => B</code> should be used instead.
+
+<pre>
+scala> class Container[A](value: A) { def addIt(implicit evidence: A => Int) = 123 + value }
+defined class Container
+
+scala> (new Container("123")).addIt
+res15: Int = 246
+</pre>
+
 
 h3. Generic programming with views
 
