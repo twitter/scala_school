@@ -12,7 +12,7 @@
     <![endif]-->
 
     <!-- Le styles -->
-    <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -26,10 +26,10 @@
   </head>
 
   <body>
-  
+
     <div class="topbar">
       <div class="fill">
-        <div class="container fixed">
+        <div class="container-fluid fixed">
           <h3><a href="index.html">{{ page.title }}</a></h3>
           <ul class="nav secondary-nav">
             {% if page.prev %}
@@ -44,13 +44,13 @@
       </div>
     </div>
 
-    <div class="container" style="padding-top: 60px;">
+    <div class="container-fluid" style="padding-top: 60px;">
       {{ content }}
-    </div> <!-- /container -->
+    </div> <!-- /container-fluid -->
 
     <div id="footer">
       <div class="inner">
-        <div class="container">
+        <div class="container-fluid">
           <p>
 
           Built at <a href="http://twitter.com/twitter"
