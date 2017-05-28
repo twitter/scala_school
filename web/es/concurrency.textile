@@ -1,0 +1,474 @@
+---
+prev: specs.textile
+next: java.textile
+title: Concurrency in Scala
+layout: post
+---
+
+* "Runnable/Callable":#runnable
+* "Threads":#Thread
+* "Executors/ExecutorService":#executor
+* "Futures":#Future
+* "Thread Safety Problem":#danger
+* "Example: Search Engine":#example
+* "Solutions":#solutions
+
+h2(#runnable). Runnable/Callable
+
+Runnable tiene un metodo que no retorna valor.
+
+<pre>
+trait Runnable {
+  def run(): Unit
+}
+</pre>
+
+Callable es similar a run, excepto que este si tiene valor de retorno.
+
+<pre>
+trait Callable[V] {
+  def call(): V
+}
+</pre>
+
+
+h2(#Thread). Threads
+
+La concurrencia de Scala esta construida por encima del modelo de concurrencia de java.
+
+En la JVM de Sun, con una carga de trabajo de IO pesada, podemos correr miles de hilos en una simple maquina.
+
+Un hilo contiene un Runnable. Ahora puedes llamar el metodo @start@ desde el Hilo para que ejecute el Runnable.
+
+<pre>
+scala> val hello = new Thread(new Runnable {
+  def run() {
+    println("hello world")
+  }
+})
+hello: java.lang.Thread = Thread[Thread-3,5,main]
+
+scala> hello.start
+hello world
+
+</pre>
+
+Cuando veas una clase implementar Runnable, ya sabes que la intencion es ejecutarlo en un Hilo, en algun lugar, por alguien.
+
+h3. Aplicando Hilos
+
+El siguiente codigo tiene algunos problemas:
+
+<pre>
+import java.net.{Socket, ServerSocket}
+import java.util.concurrent.{Executors, ExecutorService}
+import java.util.Date
+
+class NetworkService(port: Int, poolSize: Int) extends Runnable {
+  val serverSocket = new ServerSocket(port)
+
+  def run() {
+    while (true) {
+      // This will block until a connection comes in.
+      val socket = serverSocket.accept()
+      (new Handler(socket)).run()
+    }
+  }
+}
+
+class Handler(socket: Socket) extends Runnable {
+  def message = (Thread.currentThread.getName() + "\n").getBytes
+
+  def run() {
+    socket.getOutputStream.write(message)
+    socket.getOutputStream.close()
+  }
+}
+
+(new NetworkService(2020, 2)).run
+</pre>
+
+Cada peticion repondera con el nombre del actual Hilo, el cual siempre es @main@.
+
+El principal inconveniente con el codigo es que solo una peticion es respondida a la vez.
+
+Puedes poner cada peticion en un Hilo, con un simple cambio:
+
+<pre>
+(new Handler(socket)).run()
+</pre>
+
+Cambia por
+
+<pre>
+(new Thread(new Handler(socket))).start()
+</pre>
+
+¿Pero que pasa si quieres reusar los hilos?, ¿O si quieres cambiar la politica de comportamiento del Hilo?
+
+
+h2(#executor). Executors
+
+Con la llegada de Java 5, se decidio que una interfaz más abstracta para Hilos era necesaria.
+
+Puedes definir un metodo estatico @ExecutorService@ en el Objeto @Executors@. Estos metodos te permiten configurar un @ExecutorService@ con variaciones de politicas, como agrupar hilos.
+
+Aqui esta nuestro viejo bloque de codigo del servicio de red que ahora permite peticiones concurrentes.
+
+<pre>
+import java.net.{Socket, ServerSocket}
+import java.util.concurrent.{Executors, ExecutorService}
+import java.util.Date
+
+class NetworkService(port: Int, poolSize: Int) extends Runnable {
+  val serverSocket = new ServerSocket(port)
+  val pool: ExecutorService = Executors.newFixedThreadPool(poolSize)
+
+  def run() {
+    try {
+      while (true) {
+        // This will block until a connection comes in.
+        val socket = serverSocket.accept()
+        pool.execute(new Handler(socket))
+      }
+    } finally {
+      pool.shutdown()
+    }
+  }
+}
+
+class Handler(socket: Socket) extends Runnable {
+  def message = (Thread.currentThread.getName() + "\n").getBytes
+
+  def run() {
+    socket.getOutputStream.write(message)
+    socket.getOutputStream.close()
+  }
+}
+
+(new NetworkService(2020, 2)).run
+</pre>
+
+Lo siguiente es la muestra de como son reusados los Hilos de forma interna.
+
+<pre>
+$ nc localhost 2020
+pool-1-thread-1
+
+$ nc localhost 2020
+pool-1-thread-2
+
+$ nc localhost 2020
+pool-1-thread-1
+
+$ nc localhost 2020
+pool-1-thread-2
+</pre>
+
+
+h2(#Future). Futures
+
+Un @Future@ representa computo asincrono. Puedes "envolver" tu computo en un Future y cuando necesites el resultado, simplemente llamas al metodo @get()@ sobre tu Future. Un @Executor@ regresa un @Future@. Si usas sistemas Finagle RPC, usas @Future@ para esperar los resultados que aun no esten disponibles.
+
+Un @FutureTask@ es un Runnable y esta diseñado para ser ejecutado por un @Executor@
+
+<pre>
+val future = new FutureTask[String](new Callable[String]() {
+  def call(): String = {
+    searcher.search(target);
+}})
+executor.execute(future)
+</pre>
+
+Ahora es necesario el resultado asi que vamos a bloqueralo hasta que este listo.
+
+<pre>
+val blockingResult = future.get()
+</pre>
+
+Ver tambien <a href="finagle.html">Scala School's Finagle page</a> para mas ejemplos de <code>Futures</code>, incluyendo algunas formas de combinarlos. Effective Scalaa tambien tiene contenido sobre <a href="http://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a>.
+
+h2(#danger). Thread Safety Problem
+
+<pre>
+class Person(var name: String) {
+  def set(changedName: String) {
+    name = changedName
+  }
+}
+</pre>
+
+Este programa no es seguro en un ambiente multi-hilos. Si dos programas tienen referencias a la misma instancia de Person y llama @set@, no puedes predecir que @name@ va a estar al final de la ejecucion.
+
+En el modelo de memoria de Java, cada procesador puede mandar valores al cache L1 o L2, entonces dos hilos ejecutandose en diferentes procesadores pueden tener su propia vista de informacion.
+
+Veamos algunas herramientas para forzar a los hilos a mantener una vista consistente de informacion.
+
+h3. Three tools
+
+h4. synchronization
+
+Mutexes proporciona semantica de propiedad. Cuando introduces un mutex, es tuyo. La forma mas comun de usar un mutex en la JVM es sincronizando algo. En este caso, sincronizaremos sobre nuestra Persona.
+
+En la JVM, puedes sincronizar cualquier instancia que no sea nula.
+
+<pre>
+class Person(var name: String) {
+  def set(changedName: String) {
+    this.synchronized {
+      name = changedName
+    }
+  }
+}
+</pre>
+
+h4. volatile
+
+Java 5 cambio el modelo de memoria, volatil y sincronizado son basicamente identicos excepto que volatil permite nulos.
+
+@sincronizado@ permite vistas mas finas, @volatil@ sincroniza en cada acceso.
+
+<pre>
+class Person(@volatile var name: String) {
+  def set(changedName: String) {
+    name = changedName
+  }
+}
+</pre>
+
+h4. AtomicReference
+
+Tambien en Java 5, gran cantidad de primitivas concurrentes de bajo nivel fueron agregadas. Una de ellas es la clase @AtomicReference@.
+
+<pre>
+import java.util.concurrent.atomic.AtomicReference
+
+class Person(val name: AtomicReference[String]) {
+  def set(changedName: String) {
+    name.set(changedName)
+  }
+}
+</pre>
+
+h4. ¿Cual es el costo?
+
+@AtomicReference es la mas costosa de estas dos opciones ya que tienes que ir desde un metodo de acceso a los valores de acceso.
+
+@volatil@ y sincronizado estan construidos encima de los monitores de Java. Los monitores cuestan pocos si no hay contencion. Mientras que sincronizado da mucho mas control sobre la sincronizacion, habra menos contencion asi que sincronizado tiene a ser la opcion varata.
+
+Cuanto entras a puntos de sincronizacion, referencias volatiles de acceso, o AtomicReference, Java forza al procesador a limpiar(flush) el cache y proporcionar una vista de informacion consistente.
+
+POR FAVOR COMENTEN SI ESTAMOS MAL: Este es un tema complicado, estoy seguro de que habra discuciones sobre esto.
+
+h3. Otras Herramientas de Java 5
+
+Como se menciono antes con AtomicReference, Java 5 viene con muy buenas herramientas.
+
+
+h4. CountDownLatch
+
+Un @CountDownLatch@ es un mecanismo para comunicar multiples hilos entre ellos.
+
+<pre>
+val doneSignal = new CountDownLatch(2)
+doAsyncWork(1)
+doAsyncWork(2)
+
+doneSignal.await()
+println("both workers finished!")
+</pre>
+
+Entre otras cosas, tambien es bueno para prubas unitarias. Digamos que estas haciendo trabajo asincrono y queres asegurarte de que las funciones se completan.  Simplemente deja que tus funciones "terminen", salgan del cerrojo y espera en el test los resultados.
+
+h4. AtomicInteger/Long
+
+Incrementar Enteros y Longs es una tarea comun, @AtomicInteger@ y @AtomicLong@ fueron agregadas.
+
+h4. AtomicBoolean
+
+Probablemente no tengamos que exlicar para que es esto.
+
+h4. ReadWriteLocks
+
+@ReadWriteLock@ te permite tener "vista" de lector y escritor, la vista de lector solo bloquea cuando una vista de escritos es tomada/recibida.
+
+h2(#example). Vamos a construir un motor de busqueda inseguro
+
+Aqui esta un simple index invertido que no es seguro. Nuestro index invertio mapea partes del nombre del usuario dado. 
+
+Esto esta escrito de fomra ingenua asumiendo que solo hilos-unicos tendran acceso.
+
+Veamos la alternativa del constructor default @this()@ que usa un mapa-Hash mutable @mutable.HashMap@.
+
+<pre>
+import scala.collection.mutable
+
+case class User(name: String, id: Int)
+
+class InvertedIndex(val userMap: mutable.Map[String, User]) {
+
+  def this() = this(new mutable.HashMap[String, User])
+
+  def tokenizeName(name: String): Seq[String] = {
+    name.split(" ").map(_.toLowerCase)
+  }
+
+  def add(term: String, user: User) {
+    userMap += term -> user
+  }
+
+  def add(user: User) {
+    tokenizeName(user.name).foreach { term =>
+      add(term, user)
+    }
+  }
+}
+</pre>
+
+Hemos omitido como llegar a los usuarios a traves de su index. Lo veremos mas tarde.
+
+h2(#solutions). Ahora hagamoslo seguro
+
+En nuestro ejemplo anterio, userMap no garantiza ser seguro. Miltiples clientes pueden iintentar agregar elementos al msimo tiempo y tener los mismos tipos de errores de visibilidad que vimos en nuestro primer ejemplo @Person@.
+
+Como UserMap no es un hilo-seguro, ¿como mantenemos solo un hilo en el timepo de mutacion?
+
+Podrias considerar echarle un vistazo a userMap mientras agrega.
+
+<pre>
+def add(user: User) {
+  userMap.synchronized {
+    tokenizeName(user.name).foreach { term =>
+      add(term, user)
+    }
+  }
+}
+</pre>
+
+Desafortunadamente, esto es demasiado bruto (coarse). Siempre trata de hacer todo el trabajo costoso fuera del mutex. Recuerda usar lo "varato" si es que no hay contencion. Si haces menos trabajo dento del bloque, habra menos contencion.
+
+<pre>
+def add(user: User) {
+  // tokenizeName was measured to be the most expensive operation.
+  val tokens = tokenizeName(user.name)
+
+  tokens.foreach { term =>
+    userMap.synchronized {
+      add(term, user)
+    }
+  }
+}
+</pre>
+
+h2. SynchronizedMap
+
+Podemos combinar sincronizacion con un HasMap mutable usando el rasgo SynchronizedMap.
+
+Podemos extender nuestro anterior InvertedIndex para dar a los usuario una fomra facil de construir el index sincronizado.
+
+
+<pre>
+import scala.collection.mutable.SynchronizedMap
+
+class SynchronizedInvertedIndex(userMap: mutable.Map[String, User]) extends InvertedIndex(userMap) {
+  def this() = this(new mutable.HashMap[String, User] with SynchronizedMap[String, User])
+}
+</pre>
+
+Si obserbas la implementacion, notaras que es simple sincronizar en cada metodo mientras que sea seguro, podria no tener el rendimiento que esperas.
+
+h2.  Java ConcurrentHashMap
+
+Java viene con ConcurrentHashMap hilo-seguro. Agradeciendo, podemos usar JavaConverters para dar una bonita semantica en Scala.
+
+De hecho, podemos suponer que nuestro nuevo InvertedIndex de hilo-seguro es una extencion del viejo-inseguro.
+
+<pre>
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.JavaConverters._
+
+class ConcurrentInvertedIndex(userMap: collection.mutable.ConcurrentMap[String, User])
+    extends InvertedIndex(userMap) {
+
+  def this() = this(new ConcurrentHashMap[String, User] asScala)
+}
+</pre>
+
+h2. Carguemos nuestro InvertedIndex
+
+h3. La forma ingenua
+
+<pre>
+
+trait UserMaker {
+  def makeUser(line: String) = line.split(",") match {
+    case Array(name, userid) => User(name, userid.trim().toInt)
+  }
+}
+
+class FileRecordProducer(path: String) extends UserMaker {
+  def run() {
+    Source.fromFile(path, "utf-8").getLines.foreach { line =>
+      index.add(makeUser(line))
+    }
+  }
+}
+</pre>
+
+Para cada linea en nuestro archivo, llamamos @makeUser@ y entonces lo @agregamos@ a nuestro InvertedIndex. Si usamos un InvertedIndex concurrente, podemos llamar makeUser en paralelo y no tener efectos colaterales, ahora es seguro.
+
+No podemos leer un archivo en paralelo pero _podemos_ construir al Usuario y agregarlo al index en paralelo.
+
+h3.  Una  solucion: Productor/Consumidor
+
+Un patron comun para computación asincrona es separar los productores de los consumidores y comunicarlos solo con un @Queue@. Veamos como funciona para nuestro motor de busqueda.
+
+<pre>
+import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
+
+// Concrete producer
+class Producer[T](path: String, queue: BlockingQueue[T]) extends Runnable {
+  def run() {
+    Source.fromFile(path, "utf-8").getLines.foreach { line =>
+      queue.put(line)
+    }
+  }
+}
+
+// Abstract consumer
+abstract class Consumer[T](queue: BlockingQueue[T]) extends Runnable {
+  def run() {
+    while (true) {
+      val item = queue.take()
+      consume(item)
+    }
+  }
+
+  def consume(x: T)
+}
+
+val queue = new LinkedBlockingQueue[String]()
+
+// One thread for the producer
+val producer = new Producer[String]("users.txt", q)
+new Thread(producer).start()
+
+trait UserMaker {
+  def makeUser(line: String) = line.split(",") match {
+    case Array(name, userid) => User(name, userid.trim().toInt)
+  }
+}
+
+class IndexerConsumer(index: InvertedIndex, queue: BlockingQueue[String]) extends Consumer[String](queue) with UserMaker {
+  def consume(t: String) = index.add(makeUser(t))
+}
+
+// Let's pretend we have 8 cores on this machine.
+val cores = 8
+val pool = Executors.newFixedThreadPool(cores)
+
+// Submit one consumer per core.
+for (i <- i to cores) {
+  pool.submit(new IndexerConsumer[String](index, q))
+}
+</pre>

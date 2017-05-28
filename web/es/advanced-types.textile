@@ -1,0 +1,392 @@
+---
+prev: type-basics.textile
+next: sbt.textile
+title: Tipos Avanzados
+layout: post
+---
+
+Esta lección cubre:
+
+* "Límites de vistas":#viewbounds ("clases tipo")
+* "Otros límites de tipo":#otherbounds
+* "Tipos de orden superior y polimorfismo ad-hoc":#higher
+* "Polimorfismo con límite F / tipos recursivos":#fbounded
+* "Tipos estructurales":#structural
+* "Miembros abstractos de tipos":#abstractmem
+* "Borrado de tipos y manifiestos":#manifest
+* "Caso de estudio:Case study: Finagle":#finagle
+
+h2(#viewbounds). Límites de vistas ("clases tipo")
+
+A veces no necesitas especificar que un tipo es igual/subtipo/supertipo de otro, solo simularlo con conversiones. Un límite de vista especifíca un tipo que puede ser "visto" como otro. Esto tiene sentido en una operación que necesita "leer" un objeto sin modificarlo.
+Las funciones *implícitas* permiten conversiones automáticas. Específicamente permiten que una función se aplique en el momento justo en que ayude a satisfacer la inferencia de tipos, por ejemplo:
+
+<pre>
+scala> implicit def strToInt(x: String) = x.toInt
+strToInt: (x: String)Int
+
+scala> "123"
+res0: java.lang.String = 123
+
+scala> val y: Int = "123"
+y: Int = 123
+
+scala> math.max("123", 111)
+res1: Int = 123
+</pre>
+
+Los límites de vistas como los límites de tipo precisan que tal función exista para un tipo especificado. Puedes declarar in límite de vista de la siguiente con este símbolo: <code><%</code> ejemplo:
+
+<pre>
+scala> class Container[A <% Int] { def addIt(x: A) = 123 + x }
+defined class Container
+</pre>
+
+Esto nos dice que *A* tiene que ser "visible" como *Int*.  Intentémoslo:
+
+<pre>
+scala> (new Container[String]).addIt("123")
+res11: Int = 246
+
+scala> (new Container[Int]).addIt(123) 
+res12: Int = 246
+
+scala> (new Container[Float]).addIt(123.2F)
+<console>:8: error: could not find implicit value for evidence parameter of type (Float) => Int
+       (new Container[Float]).addIt(123.2)
+        ^
+</pre>
+
+h2(#otherbounds). Otros límites de tipo
+
+Los métodos pueden reforzar límites de tipo más complejos por medio de parámetros implícitos. Por ejemplo, <code>List</code>
+
+Los métodos pueden reforzar límites de tipo más complejos, a través de parámetros implícitos. Por ejemplo, <code>List</code> soporta <code>sum</code> en contenidos numéricos pero no en otro tipo de contenidos. Ay, los tipos numéricos de Scala no comparten una superclase en común, por lo que no podemos podemos decir que <code>T <: Number</code>. Para conseguirlo la librería math de Scala  <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/">define un <code>Numeric[T]</code> implícito para los tipos apropiados T</a>. Entonces lo utiliza en la definición de <code>List</code>:
+
+<pre>
+sum[B >: A](implicit num: Numeric[B]): B
+</pre>
+
+Si invocas <code>List(1,2).sum()</code>, no necesitas pasar un parámetro _num_; puesto que ya está presente de forma implícita. Pero si invocas <code>List("whoop").sum()</code>, el compilador va a quejarse ya que no pudo asignar <code>num</code>
+
+Los métodos pueden requerir algunos tipos de evidencia específica para un tipo, sin meterse con objetos extraños como con <code>Numeric</code>. En su lugar, puedes usar uno de estos operadores de relación de tipos:
+
+|A =:= B|A igual a B|
+|A <:< B|A subtipo de B|
+|A <%< B|A visible como B|
+
+(Si obtienes errores intentando utilizar <:< o <%<, ten cuidado de aquellos errores que desaparecieron en Scala 2.10. Los ejemplos de Scala School funcionan con "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html . Puedes usar una nueva versión de Scala, pero prepárate para algunos errores.)
+
+<pre>
+scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
+defined class Container
+
+scala> (new Container(123)).addIt
+res11: Int = 246
+
+scala> (new Container("123")).addIt
+<console>:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
+</pre>
+
+De forma similar, dado el valor implícito que acabamos de ver, podemos "relajar" la restricción de visibilidad:
+
+<pre>
+scala> class Container[A](value: A) { def addIt(implicit evidence: A <%< Int) = 123 + value }
+defined class Container
+
+scala> (new Container("123")).addIt
+res15: Int = 246
+</pre>
+
+h3. Programación genérica con vistas
+
+En la librería estándar de Scala, las vistas son usadas principalmente para implementar funciones genéricas sobre colecciones. Por ejemplo, la función "min" (en *Seq[]*), usa la siguiente técnica:
+
+<pre>
+def min[B >: A](implicit cmp: Ordering[B]): A = {
+  if (isEmpty)
+    throw new UnsupportedOperationException("empty.min")
+
+  reduceLeft((x, y) => if (cmp.lteq(x, y)) x else y)
+}
+</pre>
+
+Las principales ventajas son:
+
+* Los elementos en la colección no necesitan implementar *Ordered*, pero los tipos en cada uso de *Ordered* siguen siendo verificados estáticamente.
+* Puedes definir tus propias ordenaciones sin usar librerías extra: 
+
+<pre>
+scala> List(1,2,3,4).min
+res0: Int = 1
+
+scala> List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b compare a })
+res3: Int = 4
+</pre>
+
+Como nota al pié, existen vistas en la librería estándar que traducen *Ordered* en *Ordering* (y vice versa).
+
+<pre>
+trait LowPriorityOrderingImplicits {
+  implicit def ordered[A <: Ordered[A]]: Ordering[A] = new Ordering[A] {
+    def compare(x: A, y: A) = x.compare(y)
+  }
+}
+</pre>
+
+h4. Límites de contexto e implicit[]
+
+Scala 2.8 introdujo un atajo para enhebrar y acceder argumentos implícitos.
+
+<pre>
+scala> def foo[A](implicit x: Ordered[A]) {}
+foo: [A](implicit x: Ordered[A])Unit
+
+scala> def foo[A : Ordered] {}                        
+foo: [A](implicit evidence$1: Ordered[A])Unit
+</pre>
+
+Los valores implícitos pueden ser accedidos a través de *implicity*
+
+<pre>
+scala> implicitly[Ordering[Int]]
+res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
+</pre>
+
+Combinados, estas técnicas resultan frecuentemente en menos código, especialmente cuando enhebramos a través de vistas.
+
+h2(#higher). Tipos de orden superior y polimorfismo ad-hoc
+
+Scala puede abstraer tipos de "orden superior". Por ejemplo, supongamos que necesitas usar varios tipos de contenedores para distintos tipos de datos. Para lograrlo podrías definir una interfaz <code>Container</code> que pueda implementarse por diferentes tipos de containers: <code>Option</code>, <code>List</code>, etc. Quieres definir una interfaz para poder utilizar valores en estos contenedores sin estropear el tipo del valor.
+
+Esto es análogo al currying. Por ejemplo, mientras los "tipos unarios" tienen constructores como <code>List[A]</code>, donde tenemos que satisfacer un "nivel" de variables tipo para producir tipos concretos (de la misma forma en que una función a la que no se le ha aplicado currying necesita un solo argumento para ser invocada), los tipos de orden superior necesitan más.
+
+<pre>
+scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala> val container = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+container: java.lang.Object with Container[List] = $anon$1@7c8e3f75
+
+scala> container.put("hey")
+res24: List[java.lang.String] = List(hey)
+
+scala> container.put(123)
+res25: List[Int] = List(123)
+</pre>
+
+Notemos que el *Container* es polimórfico en un tipo parametrizado ("Tipo contenedor").
+Si combinamos el utilizar containers con implicits obtenemos un polimorfismo "ad-hoc": el poder escribir funciones genéricas en contenedores.
+
+<pre>
+scala> trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala> implicit val listContainer = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+
+scala> implicit val optionContainer = new Container[Some] { def put[A](x: A) = Some(x); def get[A](m: Some[A]) = m.get }
+
+scala> def tupleize[M[_]: Container, A, B](fst: M[A], snd: M[B]) = {
+     | val c = implicitly[Container[M]]                             
+     | c.put(c.get(fst), c.get(snd))
+     | }
+tupleize: [M[_],A,B](fst: M[A],snd: M[B])(implicit evidence$1: Container[M])M[(A, B)]
+
+scala> tupleize(Some(1), Some(2))
+res33: Some[(Int, Int)] = Some((1,2))
+
+scala> tupleize(List(1), List(2))
+res34: List[(Int, Int)] = List((1,2))
+</pre>
+
+
+h2(#fbounded). Polimorfismo de límite F (F-bounded polymorphism)
+
+Algunas veces es necesario accesar a una clase concreta en un trait genérico. Por ejemplo, imagina que tienes un trait genérico pero tienes que compararlo con una subclase particular de ese trait.
+
+<pre>
+trait Container extends Ordered[Container]
+</pre>
+
+De cualquier forma, necesitamos el método compare:
+
+<pre>
+def compare(that: Container): Int
+</pre>
+
+Y entonces no podremos accesar al subtipo concreto, el siguiente código:
+
+<pre>
+class MyContainer extends Container {
+  def compare(that: MyContainer): Int
+}
+</pre>
+
+falla al compilar ya que estamos especificando Ordered para un *Container*, no para el subtipo particular.
+
+Para arreglar esto, necesitamos el polimorfismo de límite F.
+
+<pre>
+trait Container[A <: Container[A]] extends Ordered[A]
+</pre>
+
+Un poco raro, pero notemos como Ordered esta parametrizado con *A*, lo que en si mismo es un *Container[A]*
+
+Así que ahora
+
+<pre>
+class MyContainer extends Container[MyContainer] { 
+  def compare(that: MyContainer) = 0 
+}
+</pre>
+
+Están ordenados:
+
+<pre>
+scala> List(new MyContainer, new MyContainer, new MyContainer)
+res3: List[MyContainer] = List(MyContainer@30f02a6d, MyContainer@67717334, MyContainer@49428ffa)
+
+scala> List(new MyContainer, new MyContainer, new MyContainer).min
+res4: MyContainer = MyContainer@33dfeb30
+</pre>
+
+Dado que todos ellos son subtipos de *Container[_]*, podemos definit otra subclase y crear una lista mezclada de *Container[_]*:
+
+<pre>
+scala> class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
+defined class YourContainer
+
+scala> List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)                   
+res2: List[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]] 
+  = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
+</pre>
+
+Note how the resulting type is now lower-bound by *YourContainer with MyContainer*. This is the work of the type inferencer. Interestingly- this type doesn't even need to make sense, it only provides a logical greatest lower bound for the unified type of the list. What happens if we try to use *Ordered* now?
+
+<pre>
+(new MyContainer, new MyContainer, new MyContainer, new YourContainer).min
+<console>:9: error: could not find implicit value for parameter cmp:
+  Ordering[Container[_ >: YourContainer with MyContainer <: Container[_ >: YourContainer with MyContainer <: ScalaObject]]]
+</pre>
+
+No existe un *Ordered[]* para tipos unificados. Lamentablemente.
+
+h2(#structural). Tipos estructurales
+
+Scala soporta *tipos estructurados* -- los requerimientos se expresan en la interfaz _structute_ en lugar de de un tipo concreto.
+
+<pre>
+scala> def foo(x: { def get: Int }) = 123 + x.get
+foo: (x: AnyRef{def get: Int})Int
+
+scala> foo(new { def get = 10 })                 
+res0: Int = 133
+</pre>
+
+Esto puede ser útil en muchos casos, pero la implementación usa reflexión, así que ten en cuenta la eficiencia.
+
+h2(#abstractmem). Miembros de tipos abstractos
+
+En un trait, puedes dejar que los miembros tipo sean abstract.
+
+<pre>
+scala> trait Foo { type A; val x: A; def getX: A = x }
+defined trait Foo
+
+scala> (new Foo { type A = Int; val x = 123 }).getX   
+res3: Int = 123
+
+scala> (new Foo { type A = String; val x = "hey" }).getX
+res4: java.lang.String = hey
+</pre>
+
+Es un truco útil cuando se hace inyección de dependencias por ejemplo.
+
+Puedes referir a una variable de tipo abstracto utilizando el operador hash:
+
+<pre>
+scala> trait Foo[M[_]] { type t[A] = M[A] }
+defined trait Foo
+
+scala> val x: Foo[List]#t[Int] = List(1)
+x: List[Int] = List(1)
+</pre>
+
+h2(#manifest). Enmendaduras de tipo (erasures) y manifests
+
+ver: https://en.wikipedia.org/wiki/Type_erasure 
+
+Como sabemos, el tipo se pierde en tiempo de compilación debido al _erasure_. Scala soporta *Manifests*, lo que nos permite recuperar el tipo de forma selectiva. Los manifest se proveen como un valor implícito, generado por el compilador cuando se necesita.
+
+<pre>
+scala> class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
+
+scala> (new MakeFoo[String]).make
+res10: String = ""
+</pre>
+
+h2(#finagle). Caso de estudio: Finagle
+
+Ver: "https://github.com/twitter/finagle":https://github.com/twitter/finagle
+
+<pre>
+trait Service[-Req, +Rep] extends (Req => Future[Rep])
+
+trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
+  extends ((ReqIn, Service[ReqOut, RepIn]) => Future[RepOut])
+{
+  def andThen[Req2, Rep2](next: Filter[ReqOut, RepIn, Req2, Rep2]) =
+    new Filter[ReqIn, RepOut, Req2, Rep2] {
+      def apply(request: ReqIn, service: Service[Req2, Rep2]) = {
+        Filter.this.apply(request, new Service[ReqOut, RepIn] {
+          def apply(request: ReqOut): Future[RepIn] = next(request, service)
+          override def release() = service.release()
+          override def isAvailable = service.isAvailable
+        })
+      }
+    }
+    
+  def andThen(service: Service[ReqOut, RepIn]) = new Service[ReqIn, RepOut] {
+    private[this] val refcounted = new RefcountedService(service)
+
+    def apply(request: ReqIn) = Filter.this.apply(request, refcounted)
+    override def release() = refcounted.release()
+    override def isAvailable = refcounted.isAvailable
+  }    
+}
+</pre>
+
+Un servicio puede autenticar peticiones con un filtro.
+
+<pre>
+trait RequestWithCredentials extends Request {
+  def credentials: Credentials
+}
+
+class CredentialsFilter(credentialsParser: CredentialsParser)
+  extends Filter[Request, Response, RequestWithCredentials, Response]
+{
+  def apply(request: Request, service: Service[RequestWithCredentials, Response]): Future[Response] = {
+    val requestWithCredentials = new RequestWrapper with RequestWithCredentials {
+      val underlying = request
+      val credentials = credentialsParser(request) getOrElse NullCredentials
+    }
+
+    service(requestWithCredentials)
+  }
+}
+</pre>
+
+Notemos como el el servicio subyacente requiere una petición autenticada, y que esté estadísticamente verificada. Por ello los filtros pueden pensarse como transformadores de servicios.
+
+Varios filtros pueden aplicarse al mismo tiempo:
+
+<pre>
+val upFilter =
+  logTransaction     andThen
+  handleExceptions   andThen
+  extractCredentials andThen
+  homeUser           andThen
+  authenticate       andThen
+  route
+</pre>
+
+Haz tipos seguros!
