@@ -61,7 +61,7 @@ lessons:
     desc_ko: 기본 타입, 타입 다형성, 타입 추론, 공변성, 바운드, 한정하기
     desc_ru: Основные типы и полиморфизм типов, вывод типов, изменчивость, пределы, квантификация
     desc_zh_cn: 基本类型和类型多态性，类型推断，变性，边界，量化
-    desc_pt_br: Tipos básicos, polimorfismo, inferência de tipos, variação, bounds e quantificação
+    desc_pt_br: Tipos básicos, polimorfismo, inferência de tipos, variância, limites e quantificação
   -
     title: Advanced types
     title_ko: 타입(고급 주제)
