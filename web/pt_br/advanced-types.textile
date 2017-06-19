@@ -1,0 +1,8 @@
+---
+prev: type-basics.textile
+next: sbt.textile
+title: Tipos avançados
+layout: post
+---
+
+Disponível em breve!

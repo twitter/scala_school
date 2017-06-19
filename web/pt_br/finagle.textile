@@ -1,0 +1,8 @@
+---
+prev: java.textile
+next: searchbird.textile
+title: Uma introdução ao Finagle
+layout: post
+---
+
+Disponível em breve!
