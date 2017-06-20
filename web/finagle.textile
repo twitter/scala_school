@@ -8,7 +8,7 @@ layout: post
 "Finagle":https://github.com/twitter/finagle is Twitter's RPC system. "This":https://blog.twitter.com/2011/finagle-a-protocol-agnostic-rpc-system blog post explains its motivations and core design tenets, the "finagle README":https://github.com/twitter/finagle/blob/master/README.md contains more detailed documentation. Finagle aims to make it easy to build robust clients and servers.
 
 * "REPL":#repl
-* "Futures":#Future: "Sequential composition":#futsequential, "Concurrent composition":#futconcurrent, "Composition Example: Cached Rate Limit":#combined_combinator_example_cache, "Composition Example: Thumbnail Fetcher":#combined_combinator_thumbnail
+* "Futures":#Future: "Sequential composition":#futsequential, "Concurrent composition":#futconcurrent, "Composition Example: Cached Rate Limit":#combined_combinator_example_cache, "Composition Example: Web Crawlers":#combined_combinator_example_thumbnail
 * "Service":#Service
 * "Client Example":#client
 * "Server Example":#server
@@ -326,7 +326,7 @@ This hypothetical example combines sequential and concurrent composition. Note t
 
 <a name="combined_combinator_example_thumbnail">&nbsp;</a>
 
-h3. Composition Examples: Web Crawlers
+h3. Composition Example: Web Crawlers
 
 You've seen how to use combinators with Futures, but might appreciate  more examples. Suppose you have a simple model of the internet. It has HTML pages and images. Pages can link to images and link to other pages. You can fetch a page or an image, but the API is asynchronous. This fake API calls these "fetchable" things Resources:
 
