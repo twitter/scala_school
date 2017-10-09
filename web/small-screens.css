@@ -5,6 +5,7 @@
   div.container {
     width: 90%;
   }
+  .row .span16,
   .row .span8,
   .row .span6 {
     float: none;
