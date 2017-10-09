@@ -1,14 +1,14 @@
 ---
 prev: type-basics.textile
 next: sbt.textile
-title: Advanced types
+title: types ขั้นสูง
 layout: post
 ---
 
 This lesson covers:
 
 * "View bounds":#viewbounds ("type classes")
-* "Other Type Bounds":#otherbounds
+* "Other Type Bounds":#otherboundsๆ
 * "Higher kinded types & ad-hoc polymorphism":#higher
 * "F-bounded polymorphism / recursive types":#fbounded
 * "Structural types":#structural
@@ -18,9 +18,9 @@ This lesson covers:
 
 h2(#viewbounds). View bounds ("type classes")
 
-Sometimes you don't need to specify that one type is equal/sub/super another, just that you could fake it with conversions. A view bound specifies a type that can be "viewed as" another. This makes sense for an operation that needs to "read" an object but doesn't modify the object.
+บางครั้งเราก็ไม่ได้อยากที่จะกำหนดว่าชนิดตัวแปรไหนมันจะเท่ากับอะไร เป็นลูกหรือเป็นแม่ของตัวไหน เราแค่อยากเปลี่ยนแปลงบางอย่างแบบปลอมๆ (เอ๊ะ! ยังไงรอดูกัน) ตัว view bound หรือจะเป็นมุมมองที่ถูกกำหนดขอบเขตเอาไว้เฉพาะเจาะจงนั้นสามารถ "ถูกมองเป็น" อย่างอื่นได้ มันเข้าใจง่ายมากสำหรับการดำเนินการที่เกี่ยวกับการ "อ่าน" บนออปเจ็กต์แต่มันไม่ได้เป็นแบบนั้นกับการเปลี่ยนแปลงข้อมูลของออปเจ็กต์
 
-*Implicit* functions allow automatic conversion. More precisely, they allow on-demand function application when this can help satisfy type inference. e.g.:
+ฟังก์ชัน *Implicit* ยินยมให้เราสามารถเปลี่ยนแปลงได้อย่างอัตโนมัต มันทำให้เราสามารถที่จะกำหนดฟังก์ชันได้ตามความต้องการของแอพลิเคชันและยังช่วยให้เราสามารถที่จะสนใจกับ type inference เช่น:
 
 <pre>
 scala> implicit def strToInt(x: String) = x.toInt
@@ -36,14 +36,14 @@ scala> math.max("123", 111)
 res1: Int = 123
 </pre>
 
-View bounds, like type bounds demand such a function exists for the given type.  You specify a view bound with <code><%</code> e.g.,
+View bounds, จะคล้ายๆกับชนิดตัวแปรของ bounds เช่นความต้องการให้มีฟังก์ชันอยู่ในชนิดของตัวแปรที่ได้รับมา เราสามารถเฉพาะเจ้าจง view bound โดยใช้ <code><%</code> :
 
 <pre>
 scala> class Container[A <% Int] { def addIt(x: A) = 123 + x }
 defined class Container
 </pre>
 
-This says that *A* has to be "viewable" as *Int*.  Let's try it.
+การกำหนดแบบนี้หมายถึง *A* สามารถมองเป็น *Int* ได้ ทีนี้ลองดูนี่:
 
 <pre>
 scala> (new Container[String]).addIt("123")
@@ -58,15 +58,17 @@ scala> (new Container[Float]).addIt(123.2F)
         ^
 </pre>
 
-h2(#otherbounds). Other type bounds
+h2(#otherbounds). type bounds แบบอื่นๆ
 
-Methods can enforce more complex type bounds via implicit parameters. For example, <code>List</code> supports <code>sum</code> on numeric contents but not on others. Alas, Scala's numeric types don't all share a superclass, so we can't just say <code>T <: Number</code>. Instead, to make this work, Scala's math library <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/">defines an implicit <code>Numeric[T]</code> for the appropriate types T</a>.  Then in <code>List</code>'s definition uses it:
+เมธอตสามมารถบังคับให้ชนิดของ bound มัความซับซ้อนมากได้โดยผ่านพารามิเตอร์ของ implicit นี้ ยกตัวอย่าง <code>List</code> มันซับพอร์ด <code>sum</code> บนเนื้อหาที่เป็นตัวเลขแต่อย่างอื่นมันไม่ซับพอร์ต ปัดโถ่วเอ้ย! ชนิดตัวแปรที่เป็นตัวเลขของ Scala มันไม่ได้แชร์มาจากคลาสแม่เดียวกันซะหน่อย ทำให้พอเราจะ <code>T <: Number</code> มันก็ทำไม่ได้ดิ แทนที่จะทำแบบนั้นเพื่อให้มันทำงานได้ Scala มีไลบรารี่ math <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/"> ที่ implicit <code>Numeric[T]</code> สำหรับชนิดของตัวแปร T ที่เหมาะสม</a> ดังนั้นแล้ว <code>List</code> สามารถประกาศแบบนี้ได้:
 
 <pre>
 sum[B >: A](implicit num: Numeric[B]): B
 </pre>
 
-If you invoke <code>List(1,2).sum()</code>, you don't need to pass a _num_ parameter; it's set implicitly. But if you invoke <code>List("whoop").sum()</code>, it complains that it couldn't set <code>num</code>.
+ถ้าเราร้องขอ <code>Lis(1,2).sum()</code> เราไม่จำเป็นต้องส่งพารามิเตอร์ _num_ ไปให้มัน มันจะ implicitly หรือดำเนินการโดยปริยายให้ แต่ถ้าเราเรียกมันโดย <code>List("whoop").sum()</code> มันจะบอกว่าไม่สามารเซ็ตตัว <code>num</code> ให้ได้
+
+เมธอตอาจจะถามสำหรับบางประเภทที่เฉพาะเจาะจง
 
 Methods may ask for some kinds of specific "evidence" for a type without setting up strange objects as with <code>Numeric</code>. Instead, you can use one of these type-relation operators:
 
