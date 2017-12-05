@@ -19,10 +19,21 @@ h2(#apply). Метод apply
 Метод apply - это синтаксический сахар, который применяется для класса или объекта с единственной целью.
 
 <pre>
-object FooMaker {
-  def apply() = new Foo
-}
+scala> class Foo {}
+defined class Foo
 
+scala> object FooMaker {
+     |   def apply() = new Foo
+     | }
+defined module FooMaker
+
+scala> val newFoo = FooMaker()
+newFoo: Foo = Foo@5b83f762
+</pre>
+
+или
+
+<pre>
 scala> class Bar {
      |   def apply() = 0
      | }
