@@ -58,19 +58,28 @@
 <h2 id="apply">Метод apply</h2>
 <p>Метод apply &#8211; это синтаксический сахар, который применяется для класса или объекта с единственной целью.</p>
 <pre>
-object FooMaker {
-  def apply() = new Foo
-}
+scala> class Foo {}
+defined class Foo
 
-scala&gt; class Bar {
+scala> object FooMaker {
+     |   def apply() = new Foo
+     | }
+defined module FooMaker
+
+scala> val newFoo = FooMaker()
+newFoo: Foo = Foo@5b83f762
+</pre>
+<p>или</p>
+<pre>
+	scala> class Bar {
      |   def apply() = 0
      | }
 defined class Bar
 
-scala&gt; val bar = new Bar
+scala> val bar = new Bar
 bar: Bar = Bar@47711479
 
-scala&gt; bar()
+scala> bar()
 res8: Int = 0
 </pre>
 <p>Здесь наш экземпляр объекта выглядит так, будто мы просто вызываем метод, но это не так. Подробнее об этом позже!</p>

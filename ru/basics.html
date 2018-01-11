@@ -218,8 +218,14 @@ res1: Int = 6
 </pre>
 <p>Вы можете взять любую функцию с множеством аргументов и произвести ее каррирование. Давайте попробуем использовать функцию, которую рассматривали раньше, например <code>adder</code></p>
 <pre>
-scala&gt; (adder _).curried
-res1: (Int) =&gt; (Int) =&gt; Int = &lt;function1&gt;
+scala&gt; val curriedAdd = (adder _).curried
+curriedAdd: Int =&gt; (Int =&gt; Int) = &lt;function1&gt;
+
+scala&gt; val addTwo = curriedAdd(2)
+addTwo: Int =&gt; Int = &lt;function1&gt;
+
+scala&gt; addTwo(4)
+res22: Int = 6
 </pre>
 <p>См. подробнее о <a href="http://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%80%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5">Каррировании</a></p>
 <h3>Использование переменного количества аргументов</h3>
@@ -230,15 +236,17 @@ def capitalizeAll(args: String*) = {
     arg.capitalize
   }
 }
+
+scala&gt; capitalizeAll("rarity", "applejack")
+res2: Seq[String] = ArrayBuffer(Rarity, Applejack)
 </pre>
 <h2 id="class">Классы</h2>
+Здесь мы объявили класс Calculator:
 <pre>
 scala&gt; class Calculator {
      |   val brand: String = "HP"
      |   def add(m: Int, n: Int): Int = m + n
      | }
-
-Здесь мы объявили класс Calculator
 
 scala&gt; val calc = new Calculator
 calc: Calculator = Calculator@e75a11
@@ -272,6 +280,43 @@ class Calculator(brand: String) {
 <p>Обратите внимание на два различных способа написания комментариев.</p>
 <h3>Выражения</h3>
 <p>Наш пример с калькулятором дает хороший пример того, как Scala ориентирован на выражения (expression-oriented). Значение переменной color было присвоено благодаря if/else выражению. Scala сильно ориентирован на выражения: большинство вещей делается с помощью выражений, а не утверждений.</p>
+
+<h3>Функции и методы</h3>
+<p>
+	Функции и методы в основном взаимозаменяемы. Потому что функции и методы на столько похожи, что вам нет нужды знать <em>что именно</em> вы вызываете - функцию или метод. 
+	Когда вы столкнетесь с различиями в функциях и методах вы будете удивлены.
+</p>
+<pre>
+	scala> class C {
+     |   var acc = 0
+     |   def minc = { acc += 1 }
+     |   val finc = { () => acc += 1 }
+     | }
+defined class C
+
+scala> val c = new C
+c: C = C@1af1bd6
+
+scala> c.minc // calls c.minc()
+
+scala> c.finc // returns the function as a value:
+res2: () => Unit = <function0>
+</pre>
+
+<p>
+	В то время, как вы вызываете одну "функцию" без скобок, а другую - со скобками, вы можете подумать:
+	<em>Упс, я думал, что знаю как работают функции в Scala, но, как оказалось, нет. Возможно, иногда им требуются скобки?</em>
+	Вы можете понимать функции, но использовать методы.
+</p>
+
+<p>
+	На практике, вы можете делать великие вещи на Scala не вдаваясь в подробности различия функций и методов. 
+	Если вы новичок в Scala и прочитали 
+	<a href="https://www.google.com/search?q=difference+scala+function+method">объяснение различий</a>, 
+	то, возможно у вас будут проблемы с ними. Это не значит, что у вас возникнут проблемы с использованием Scala.
+	Это только означает, что различия между функциями и методами достаточно тонкие, что их разъяснение могут погрузить вас в глубинные части языка.
+</p>
+
 <h2 id="extends">Наследование</h2>
 <pre>
 class ScientificCalculator(brand: String) extends Calculator(brand) {
@@ -285,6 +330,34 @@ class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(b
   def log(m: Int): Double = log(m, math.exp(1))
 }
 </pre>
+
+<h3>Абстрактные классы</h3>
+<p>
+	Вы можете определять <em>абстрактные классы</em>. Абстракные классы определяют содержат методы, но не реализуют их. 
+	Однако, подклассы, наследующиеся от абстрактного класса, содержат реализацию этих методов.
+	Создать экземпляр абстрактного класса запрещено.
+</p>
+
+<pre>
+	scala&gt; abstract class Shape {
+     	|   def getArea():Int    // subclass should define this
+     	| }
+	defined class Shape
+	
+	scala&gt; class Circle(r: Int) extends Shape {
+	     |   def getArea():Int = { r * r * 3 }
+	     | }
+	defined class Circle
+	
+	scala&gt; val s = new Shape
+	&lt;console&gt;:8: error: class Shape is abstract; cannot be instantiated
+	       val s = new Shape
+	               ^
+	
+	scala&gt; val c = new Circle(2)
+	c: Circle = Circle@65c0035b
+</pre>
+
 <h2 id="trait">Трейты</h2>
 <p><code>Трейты</code> &#8211; это коллекция полей и методов, которые вы можете расширить или примешать к вашему классу.</p>
 <pre>
@@ -299,20 +372,42 @@ class BMW extends Car {
 }
 </pre>
 <p><strong>Смотрите также:</strong> В Effective Scala есть описание <a href="http://twitter.github.com/effectivescala/index-ru.html#Объектно-ориентированное программирование-Трейты(Traits)">Трейтов</a>.</p>
+
+<p>
+	<strong>В каких случаях требуется использовать трейты вместо абстрактных классов?</strong>
+	Если вы хотите создать тип похожий на интерфейс, то возможно вам покажется непростым занятием решить что использовать: 
+	трейт или абстрактный класс. 
+	Несколько правил для принятия решения:
+	<ul>
+		<li>Если вам необходимо расширять класс несколькими поведениями, то используйте трейты: класс может наследовать несколько трейтов, но только один класс</li>
+		<li>Если вам необходим конструктор с параметрами - используйте абстракные классы - трейты могут содержать только конструкторы без параметоров.
+		Например, <code>trait t(i: Int) {}</code>; параметр <code>i</code> в этом коде недопустим.</li>
+	</ul>
+</p>
+
+<p>Вы не первый, кто задает такой вопрос. Более подробные ответы вы можете найти на  
+<a href="http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes">stackoverflow:Scala traits vs abstract classes</a>, <a href="http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait">Difference between Abstract Class and Trait</a>, 
+и 
+<a href="http://www.artima.com/pins1ed/traits.html#12.7">Programming in Scala: To trait, or not to trait?</a>
+</p>
+
 <h2 id="types">Типы</h2>
-<p>Ранее вы могли видеть, что мы определили функцию, принимающая тип <code>Int</code>, который является одним из видов Number. Функция может быть объявлена как обобщенная (generic) и после этого может работать с любым типом. Когда объявлена такая функция, вы увидите <pre>параметр-тип</pre> размещенный внутри квадратных скобок:<br />
-Вы можете думать о них, как о множестве параметров-типов. Рассмотрим пример трейта Кэш (Cache), который принимает параметры-типы (K, V) для ключей и их значений.</p>
-<pre>
-trait Cache[K, V] {
-  def get(key: K): V
-  def put(key: K, value: V)
-  def delete(key: K)
-}
-</pre>
-<p>Методы тоже могут иметь параметры-типы</p>
-<pre>
-def remove[K](key: K)
-</pre>
+<p>
+	Ранее вы могли видеть, что мы определили функцию, принимающая тип <code>Int</code>, который является одним из видов Number. 
+	Функция может быть объявлена как обобщенная (generic) и после этого может работать с любым типом. Когда объявлена такая функция, вы увидите параметр-тип размещенный внутри квадратных скобок.
+	Трейт, описанный ниже, описывает кеш с параметрами-типами для ключа и значения этого кеша [K, V]:
+	<pre>
+	  trait Cache[K, V] {
+	    def get(key: K): V
+	    def put(key: K, value: V)
+	    def delete(key: K)
+	  }
+	</pre>
+	Методы так же могут иметь параметры-типы.
+	<pre>
+		def remove[K](key: K)
+	</pre>
+</p>
     </div> <!-- /container -->
 
     <div id="footer">
