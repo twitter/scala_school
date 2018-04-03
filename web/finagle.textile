@@ -27,10 +27,13 @@ If you have the Finagle source code in a directory named <code>finagle</code>, y
 <pre>
 $ cd finagle
 $ git checkout master
+$ curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test finagle
 $ ./sbt "project finagle-http" console
  ...build output...
 scala>
 </pre>
+
+Note that the reason for running <a href="https://github.com/twitter/dodo/">Dodo</a> is to get Finagle's dependencies.
 
 h2(#Future). Futures
 
