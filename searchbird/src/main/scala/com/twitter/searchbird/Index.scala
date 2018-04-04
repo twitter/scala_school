@@ -81,8 +81,8 @@ class CompositeIndex(indices: Seq[Index]) extends Index {
       throw e
   }
 
-  def put(key: String, value: String) =
-    Future.exception(new SearchbirdException("put() not supported by CompositeIndex"))
+  def put(key: String, value: String) = 
+    Future.join(indices.map{ idx => idx.put(key, value) })    
 
   def search(query: String) = {
     val queries = indices.map { _.search(query) rescue { case _=> Future.value(Nil) } }
