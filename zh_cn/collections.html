@@ -12,7 +12,9 @@
     <![endif]-->
 
     <!-- Le styles -->
-    <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="/bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/small-screens.css">
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -26,10 +28,10 @@
   </head>
 
   <body>
-  
+
     <div class="topbar">
       <div class="fill">
-        <div class="container fixed">
+        <div class="container-fluid fixed">
           <h3><a href="index.html">集合</a></h3>
           <ul class="nav secondary-nav">
             
@@ -44,13 +46,14 @@
       </div>
     </div>
 
-    <div class="container" style="padding-top: 60px;">
+    <div class="container-fluid" style="padding-top: 60px;">
       <p>课程内容:</p>
 <ul>
 	<li>基本数据结构
 	<ul>
+		<li><a href="#Arrays">数组 Array</a></li>
 		<li><a href="#Lists">列表 List</a></li>
-		<li><a href="#Sets">集 Set</a></li>
+		<li><a href="#Sets">集合 Set</a></li>
 		<li><a href="#Tuple">元组 Tuple</a></li>
 		<li><a href="#Maps">映射 Map</a></li>
 		<li><a href="#Option">选项 Option</a></li>
@@ -73,20 +76,36 @@
 </ul>
 <h1>基本数据结构</h1>
 <p>Scala提供了一些不错的集合。</p>
-<p><strong>参考</strong> Effective Scala 对怎样使用 <a href="http://twitter.github.com/effectivescala/#Collections">集合</a>的观点。</p>
-<h2 id="Lists">列表 List</h2>
+<p><strong>参考</strong> Effective Scala 对怎样使用<a href="http://twitter.github.com/effectivescala/#Collections">集合</a>的观点。</p>
+<h2 id="Arrays">数组 Array</h2>
+<p>数组是有序的，可以包含重复项，并且可变。</p>
 <pre>
-scala&gt; val numbers = List(1, 2, 3, 4)
-numbers: List[Int] = List(1, 2, 3, 4)
+scala&gt; val numbers = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: Array[Int] = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala&gt; numbers(3) = 10
+
+scala&gt; numbers
+numbers: Array[Int] = Array(1, 2, 3, 10, 5, 1, 2, 3, 4, 5)
 </pre>
-<h2 id="Sets">集 Set</h2>
-<p>集没有重复</p>
+<h2 id="Lists">列表 List</h2>
+<p>列表是有序的，可以包含重复项，不可变。</p>
 <pre>
-scala&gt; Set(1, 1, 2)
-res0: scala.collection.immutable.Set[Int] = Set(1, 2)
+scala&gt; val numbers = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: List[Int] = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala&gt; numbers(3) = 10
+&lt;console&gt;:9: error: value update is not a member of List[Int]
+              numbers(3) = 10
+</pre>
+<h2 id="Sets">集合 Set</h2>
+<p>集合无序且不可包含重复项。</p>
+<pre>
+scala&gt; val numbers = Set(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: scala.collection.immutable.Set[Int] = Set(5, 1, 2, 3, 4)
 </pre>
 <h2 id="Tuple">元组 Tuple</h2>
-<p>元组是在不使用类的前提下，将元素组合起来形成简单的逻辑集合。</p>
+<p>元组在不使用类的情况下，将元素组合起来形成简单的逻辑集合。</p>
 <pre>
 scala&gt; val hostPort = ("localhost", 80)
 hostPort: (String, Int) = (localhost, 80)
@@ -119,8 +138,8 @@ Map(1 -&gt; 2)
 Map("foo" -&gt; "bar")
 </pre>
 <p>这看起来像是特殊的语法，不过不要忘了上文讨论的<code>-&gt;</code>可以用来创建二元组。</p>
-<p>Map()方法也使用了从第一节课学到的变参列表：<code>Map(1 -&gt; "one", 2 -&gt; "two")</code>将变为 <code>Map((1, "one"), (2, "two"))</code>，其中第一个参数是映射的键，第二个参数是映射的值。</p>
-<p>映射的值可以是映射甚或是函数。</p>
+<p>Map()方法也使用了从第一节课学到的变参列表：<code>Map(1 -&gt; "one", 2 -&gt; "two")</code>将变为 <code>Map((1, "one"), (2, "two"))</code>，其中第一个元素是映射的键，第二个元素是映射的值。</p>
+<p>映射的值可以是映射甚至是函数。</p>
 <pre>
 Map(1 -&gt; Map("foo" -&gt; "bar"))
 </pre>
@@ -152,7 +171,7 @@ scala&gt; numbers.get("three")
 res1: Option[Int] = None
 </pre>
 <p>现在我们的数据似乎陷在<code>Option</code>中了，我们怎样获取这个数据呢？</p>
-<p>直觉上想到的可能是在<code>isDefined</code>方法上使用条件判断来处理。</p>
+<p>直觉上想到的可能是基于<code>isDefined</code>方法进行条件判断。</p>
 <pre>
 // We want to multiply the number by two, otherwise return 0.
 val result = if (res1.isDefined) {
@@ -163,9 +182,9 @@ val result = if (res1.isDefined) {
 </pre>
 <p>我们建议使用<code>getOrElse</code>或模式匹配处理这个结果。</p>
 <p><code>getOrElse</code> 让你轻松地定义一个默认值。</p>
-<p><code>
+<pre>
 val result = res1.getOrElse(0) * 2
-</code></p>
+</pre>
 <p>模式匹配能自然地配合<code>Option</code>使用。</p>
 <pre>
 val result = res1 match {
@@ -175,19 +194,22 @@ val result = res1 match {
 </pre>
 <p><strong>参考</strong> Effective Scala 对使用<a href="http://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>的意见。</p>
 <h1 id="combinators">函数组合子（Functional Combinators）</h1>
-<p><code>List(1, 2, 3) map squared</code>对列表中的每一个元素都应用了<code>squared</code>平方函数，并返回一个新的列表<code>List(1, 4, 9)</code>。我们称这个操作<code>map</code> <em>组合子</em>。 （如果想要更好的定义，你可能会喜欢Stackoverflow上对<a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">组合子的说明</a>。）他们常被用在标准的数据结构上。</p>
+<p><code>List(1, 2, 3) map squared</code>对列表中的每一个元素都应用了<code>squared</code>平方函数，并返回一个新的列表<code>List(1, 4, 9)</code>。我们把类似于<code>map</code>的操作称作<em>组合子</em>。 （如果想要更好的定义，你可以看看Stackoverflow上对<a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">组合子的说明</a>。）他们常被用在标准的数据结构上。</p>
 <h2 id="map">map</h2>
 <p><code>map</code>对列表中的每个元素应用一个函数，返回应用后的元素所组成的列表。</p>
 <pre>
+scala&gt; val numbers = List(1, 2, 3, 4)
+numbers: List[Int] = List(1, 2, 3, 4)
+
 scala&gt; numbers.map((i: Int) =&gt; i * 2)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
-<p>或传入一个部分应用函数</p>
+<p>或传入一个函数 (Scala编译器自动把我们的方法转换为函数)</p>
 <pre>
 scala&gt; def timesTwo(i: Int): Int = i * 2
 timesTwo: (i: Int)Int
 
-scala&gt; numbers.map(timesTwo _)
+scala&gt; numbers.map(timesTwo)
 res0: List[Int] = List(2, 4, 6, 8)
 </pre>
 <h2 id="foreach">foreach</h2>
@@ -212,7 +234,7 @@ res0: List[Int] = List(2, 4)
 scala&gt; def isEven(i: Int): Boolean = i % 2 == 0
 isEven: (i: Int)Boolean
 
-scala&gt; numbers.filter(isEven _)
+scala&gt; numbers.filter(isEven)
 res2: List[Int] = List(2, 4)
 </pre>
 <h2 id="zip">zip</h2>
@@ -240,7 +262,7 @@ res0: Option[Int] = Some(6)
 scala&gt; numbers.drop(5)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
-<p><code>dropWhile</code> 将删除元素直到找到第一个匹配谓词函数的元素。例如，如果我们在numbers列表上使用<code>dropWhile</code>奇数的函数, <code>1</code>将被丢弃（但<code>3</code>不会被丢弃，因为他被<code>2</code>“保护”了）。</p>
+<p><code>dropWhile</code> 将删除匹配谓词函数的第一个元素。例如，如果我们在numbers列表上使用<code>dropWhile</code>函数来去除奇数, <code>1</code>将被丢弃（但<code>3</code>不会被丢弃，因为他被<code>2</code>“保护”了）。</p>
 <pre>
 scala&gt; numbers.dropWhile(_ % 2 != 0)
 res0: List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
@@ -251,7 +273,7 @@ scala&gt; numbers.foldLeft(0)((m: Int, n: Int) =&gt; m + n)
 res0: Int = 55
 </pre>
 <p>0为初始值（记住numbers是List[Int]类型），m作为一个累加器。</p>
-<p>直接观察运行过程：</p>
+<p>可视化观察运行过程：</p>
 <pre>
 scala&gt; numbers.foldLeft(0) { (m: Int, n: Int) =&gt; println("m: " + m + " n: " + n); m + n }
 m: 0 n: 1
@@ -283,7 +305,7 @@ m: 1 n: 54
 res0: Int = 55
 </pre>
 <h2 id="flatten">flatten</h2>
-<p><code>flatten</code>将嵌套结构扁平化为一个层次的集合。</p>
+<p><code>flatten</code>将嵌套结构扁平化一个层级。</p>
 <pre>
 scala&gt; List(List(1, 2), List(3, 4)).flatten
 res0: List[Int] = List(1, 2, 3, 4)
@@ -302,7 +324,7 @@ res0: List[Int] = List(2, 4, 6, 8)
 scala&gt; nestedNumbers.map((x: List[Int]) =&gt; x.map(_ * 2)).flatten
 res1: List[Int] = List(2, 4, 6, 8)
 </pre>
-<p>这个例子先调用map，然后可以马上调用flatten，这就是“组合子”的特征，也是这些函数的本质。</p>
+<p>这个例子先调用map，然后调用flatten，这就是“组合子”的特征，也是这些函数的本质。</p>
 <p><strong>参考</strong> Effective Scala 对<a href="http://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>的意见。</p>
 <h2 id="generalized">扩展函数组合子</h2>
 <p>现在我们已经学过集合上的一些函数。</p>
@@ -338,41 +360,42 @@ res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 </pre>
 <p>为什么这个代码可以工作？为什么你可以传递一个部分模式匹配？</p>
 <p>敬请关注下周的内容！</p>
-    </div> <!-- /container -->
-
-    <div id="footer">
-      <div class="inner">
-        <div class="container">
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
           <p>
-
-          Built at <a href="http://twitter.com/twitter"
-          target="_blank">@twitter</a> by
-          <a href="http://twitter.com/stevej" target="_blank">@stevej</a>,
-          <a href="http://twitter.com/marius" target="_blank">@marius</a>, and
-          <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a>
-          with much help from
-          <a href="http://twitter.com/evanm" target="_blank">@evanm</a>,
-          <a href="http://twitter.com/sprsquish"
-          target="_blank">@sprsquish</a>,
-          <a href="http://twitter.com/kevino" target="_blank">@kevino</a>,
-          <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>,
-          <a href="http://twitter.com/timtrueman"
-          target="_blank">@timtrueman</a>,
-          <a href="http://twitter.com/wickman" target="_blank">@wickman</a>,
-          and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>;
-          Russian translation by
-          <a href="https://github.com/appigram">appigram</a>;
-          Chinese simple translation by
-          <a href="https://github.com/jasonqu">jasonqu</a>;
-          Korean translation by
-          <a href="https://github.com/enshahar">enshahar</a>;<br />
-          <br />
-
-          Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+            Built at <a href="http://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="http://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="http://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="http://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="http://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="http://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="http://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
   </body>
 </html>

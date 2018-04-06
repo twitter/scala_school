@@ -12,7 +12,9 @@
     <![endif]-->
 
     <!-- Le styles -->
-    <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="/bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/small-screens.css">
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -26,10 +28,10 @@
   </head>
 
   <body>
-  
+
     <div class="topbar">
       <div class="fill">
-        <div class="container fixed">
+        <div class="container-fluid fixed">
           <h3><a href="index.html">타입과 다형성의 기초</a></h3>
           <ul class="nav secondary-nav">
             
@@ -44,7 +46,7 @@
       </div>
     </div>
 
-    <div class="container" style="padding-top: 60px;">
+    <div class="container-fluid" style="padding-top: 60px;">
       <p>본 강좌에서 다루는 내용은 다음과 같다.</p>
 <ul>
 	<li><a href="#background">정적 타입이 의미하는 것은 무엇인가?</a></li>
@@ -75,7 +77,7 @@ f: R -&gt; N
 	<li><strong>존재 양화(existential quantification)</strong> 대강 설명하면 <em>어떤</em> 타입에 대해서만 값/함수 등을 정의하는 것이다.</li>
 	<li><strong>뷰(view)</strong> 다음 강의에서 다룰 것이다. 대충 한 타입의 값을 다른 타입으로 &#8220;변환할 수 있는지&#8221; 여부이다.</li>
 </ul>
-<p>(역주: 논리학 용어로 양화란 어떤 대상을 한정짓는 것이다. 존재양화-어떤 명제 p를 만족하는 대상이 대상 집합 안에 있다는 의미-와 전칭 양화-어떤 명체 p를 대상 집합 안의 모든 존재가 만족한다는 의미-가 있다. 일반적인 함수(generic function)의 경우 모든 타입에 대해 해당 함수가 정의되는 것이지만(따라서 이는 전칭 양화가 적용되는 경우라고 볼 수도 있다)., 꼭 그래야 한다는 법은 없다. 특정 조건을 만족하는 타입에 대해서만 정의되는 함수가 없으란 법은 없으니까. 이런 정의를 허용할 경우 타입의 타입이란 개념이 필요해 지고, 타입 추론이 복잡해진다.)</p>
+<p>(역주: 논리학 용어로 양화란 어떤 대상을 한정짓는 것이다. 존재양화-어떤 명제 p를 만족하는 대상이 대상 집합 안에 있다는 의미-와 전칭 양화-어떤 명제 p를 대상 집합 안의 모든 존재가 만족한다는 의미-가 있다. 일반적인 함수(generic function)의 경우 모든 타입에 대해 해당 함수가 정의되는 것이지만(따라서 이는 전칭 양화가 적용되는 경우라고 볼 수도 있다)., 꼭 그래야 한다는 법은 없다. 특정 조건을 만족하는 타입에 대해서만 정의되는 함수가 없으란 법은 없으니까. 이런 정의를 허용할 경우 타입의 타입이란 개념이 필요해 지고, 타입 추론이 복잡해진다.)</p>
 <h2 id="parametricpoly">매개변수 다형성(Parametric polymorphism)</h2>
 <p>(역주: 함수가 값만 받는다고 생각할 지 모르겠지만, 더 일반화 시키자면 매개변수에 값, 타입, 타입의 타입, 타입의 타입의 타입 등이 들어올 수 있다. 값만 넘길 수 있도록 정의된 함수는 보통의 함수가 되고, 구체적 타입과 값을 넘겨야 하는 경우 일반적(제네릭) 함수가 된다.)</p>
 <p>매개변수 다형성은 정적 타입의 장점을 포기하지 않으면서 일반적 코드(즉 여러 타입의 값을 처리할 수 있는 코드)를 만들기 위해 사용한다.</p>
@@ -218,7 +220,7 @@ scala&gt; val getTweet: (Bird =&gt; String) = // TODO
 </pre>
 <p>표준 동물 라이브러리에도 이런 일을 하는 함수가 있기는 하다. 하지만, 그 함수는 <code>Animal</code>을 매개변수로 받는다.  보통은 &#8220;난 ___가 필요한데, ___의 하위 클래스밖에 없네&#8221;라는 상황이라도 문제가 되지 않는다. 하지만, 함수 매개변수는 반공변성이다. <code>Bird</code>를 인자로 받는 함수가 필요한 상황에서, <code>Chicken</code>을 받는 함수를 사용했다고 가정하자. 이 경우 인자로 <code>Duck</code>이 들어온다면 문제가 생길 것이다. 하지만, 거기에 <code>Animal</code>을 인자로 받는 함수를 사용한다면 아무 문제가 없을 것이다.<br />
 (역주: 함수 <code>Bird=&gt;String</code>가 있다면 이 함수 내에서는 <code>Bird</code>의 인터페이스를 사용해 무언가를 수행하리라는 것을 예상할 수 있다. 이제 이런 함수를 받아 무언가 동작을 하는 <code>f: (Bird=&gt;String)=&gt;String</code>이라는 타입의 함수가 있고, <code>f</code>의 몸체에서는 <code>Bird=&gt;String</code>함수에 <code>Duck</code> 타입의 값을 전달한다고 생각해 보자. 지금까지는 아무 문제가 없다.<br />
-이제 <code>f</code>에 <code>Chicken=&gt;String</code> 타입의 함수 <code>g</code>를 넘긴다고 생각해 보면 문제가 왜 생기는지 알 수 있다. 이런 경우 <code>g</code>에 <code>Chicken</code>이 아닌 <code>Duck</code>이 전달될 것이다. 하지만, <code>g</code> 안에서는 닭만이 할 수 있는 짓(닭짓?)을 하게 되고, 돼지는 닭짓이 불가능하다. 따라서, 프로그램은 오류가 발행할 수 밖에 없다. <br />
+이제 <code>f</code>에 <code>Chicken=&gt;String</code> 타입의 함수 <code>g</code>를 넘긴다고 생각해 보면 문제가 왜 생기는지 알 수 있다. 이런 경우 <code>g</code>에 <code>Chicken</code>이 아닌 <code>Duck</code>이 전달될 것이다. 하지만, <code>g</code> 안에서는 닭만이 할 수 있는 짓(닭짓?)을 하게 되고, 오리는 닭짓이 불가능하다. 따라서, 프로그램은 오류가 발행할 수 밖에 없다. <br />
 반면, <code>f</code>에 <code>Animal=&gt;String</code> 타입의 함수 <code>h</code>를 넘긴다면, <code>h</code>에 <code>Duck</code>이 전달될 것이다. 바람직하게도, <code>h</code> 안에서는 모든 동물이 할 수 있는 짓만을 하기 때문에, 오리도 아무 문제 없이 사용될 수 있다.)</p>
 <pre>
 scala&gt; val getTweet: (Bird =&gt; String) = ((a: Animal) =&gt; a.sound )
@@ -303,41 +305,42 @@ scala&gt; hashcodes(Seq("one", "two", "three"))
 res1: Seq[Int] = List(110182, 115276, 110339486)
 </pre>
 <p><strong>See Also</strong> <a href="http://www.drmaciver.com/2008/03/existential-types-in-scala/">맥아이버(D. R. MacIver)가 쓴 &#8216;스칼라 특칭 타입&#8217;</a></p>
-    </div> <!-- /container -->
-
-    <div id="footer">
-      <div class="inner">
-        <div class="container">
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
           <p>
-
-          Built at <a href="http://twitter.com/twitter"
-          target="_blank">@twitter</a> by
-          <a href="http://twitter.com/stevej" target="_blank">@stevej</a>,
-          <a href="http://twitter.com/marius" target="_blank">@marius</a>, and
-          <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a>
-          with much help from
-          <a href="http://twitter.com/evanm" target="_blank">@evanm</a>,
-          <a href="http://twitter.com/sprsquish"
-          target="_blank">@sprsquish</a>,
-          <a href="http://twitter.com/kevino" target="_blank">@kevino</a>,
-          <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>,
-          <a href="http://twitter.com/timtrueman"
-          target="_blank">@timtrueman</a>,
-          <a href="http://twitter.com/wickman" target="_blank">@wickman</a>,
-          and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>;
-          Russian translation by
-          <a href="https://github.com/appigram">appigram</a>;
-          Chinese simple translation by
-          <a href="https://github.com/jasonqu">jasonqu</a>;
-          Korean translation by
-          <a href="https://github.com/enshahar">enshahar</a>;<br />
-          <br />
-
-          Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+            Built at <a href="http://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="http://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="http://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="http://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="http://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="http://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="http://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
   </body>
 </html>

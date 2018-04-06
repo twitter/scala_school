@@ -12,7 +12,9 @@
     <![endif]-->
 
     <!-- Le styles -->
-    <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="/bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/small-screens.css">
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -26,10 +28,10 @@
   </head>
 
   <body>
-  
+
     <div class="topbar">
       <div class="fill">
-        <div class="container fixed">
+        <div class="container-fluid fixed">
           <h3><a href="index.html">An introduction to Finagle</a></h3>
           <ul class="nav secondary-nav">
             
@@ -44,11 +46,11 @@
       </div>
     </div>
 
-    <div class="container" style="padding-top: 60px;">
+    <div class="container-fluid" style="padding-top: 60px;">
       <p><a href="https://github.com/twitter/finagle">Finagle</a> is Twitter&#8217;s <span class="caps">RPC</span> system. <a href="https://blog.twitter.com/2011/finagle-a-protocol-agnostic-rpc-system">This</a> blog post explains its motivations and core design tenets, the <a href="https://github.com/twitter/finagle/blob/master/README.md">finagle <span class="caps">README</span></a> contains more detailed documentation. Finagle aims to make it easy to build robust clients and servers.</p>
 <ul>
 	<li><a href="#repl"><span class="caps">REPL</span></a></li>
-	<li><a href="#Future">Futures</a>: <a href="#futsequential">Sequential composition</a>, <a href="#futconcurrent">Concurrent composition</a>, <a href="#combined_combinator_example_cache">Composition Example: Cached Rate Limit</a>, <a href="#combined_combinator_thumbnail">Composition Example: Thumbnail Fetcher</a></li>
+	<li><a href="#Future">Futures</a>: <a href="#futsequential">Sequential composition</a>, <a href="#futconcurrent">Concurrent composition</a>, <a href="#combined_combinator_example_cache">Composition Example: Cached Rate Limit</a>, <a href="#combined_combinator_example_thumbnail">Composition Example: Web Crawlers</a></li>
 	<li><a href="#Service">Service</a></li>
 	<li><a href="#client">Client Example</a></li>
 	<li><a href="#server">Server Example</a></li>
@@ -62,10 +64,13 @@
 <p>If you have the Finagle source code in a directory named <code>finagle</code>, you can get a console via</p>
 <pre>
 $ cd finagle
+$ git checkout master
+$ curl -s https://raw.githubusercontent.com/twitter/dodo/develop/bin/build | bash -s -- --no-test finagle
 $ ./sbt "project finagle-http" console
  ...build output...
 scala&gt;
 </pre>
+<p>Note that the reason for running <a href="https://github.com/twitter/dodo/">Dodo</a> is to get Finagle&#8217;s dependencies.</p>
 <h2 id="Future">Futures</h2>
 <p>Finagle uses <code>com.twitter.util.Future</code><sup class="footnote" id="fnr1"><a href="#fn1">1</a></sup> to encode delayed operations. A Future is a handle for a value not yet available. Finagle uses Futures as return values for its asynchronous APIs. A synchronous <span class="caps">API</span> waits for a result before returning; an asynchronous <span class="caps">API</span> does not. For example, an <span class="caps">HTTP</span> request to some service on the internet might not return a value for half a second. You don&#8217;t want your program&#8217;s execution to block for half a second waiting. &#8220;Slow&#8221; APIs can return a <code>Future</code> right away and then &#8220;fill in&#8221; its value when it resolves.</p>
 <pre>
@@ -73,7 +78,7 @@ val myFuture = MySlowService(request) // returns right away
    ...do other things...
 val serviceResult = Await.result(myFuture) // blocks until service "fills in" myFuture
 </pre>
-<p>In practice, you won&#8217;t write code that sends a request and then calls <code>Await.result()/code&gt; a few statements later. A Future has methods to register callbacks to invoke when the value becomes available.</p>
+<p>In practice, you won&#8217;t write code that sends a request and then calls <code>Await.result()</code> a few statements later. A Future has methods to register callbacks to invoke when the value becomes available.</p>
 <p>If you&#8217;ve used other asynchronous APIs, you perhaps cringed when you saw the word &#8220;callbacks&#8221; just now. You might associate them with illegible code flows, functions hiding far from where they&#8217;re invoked. But Futures can take advantage of Scala&#8217;s first-class functions to present a more-readable code flow. You can define a simpler handler function in the place where it&#8217;s invoked.</p>
 <p>For example to, write code that dispatches a request and then &#8220;handles&#8221; the response, you can keep the code together:</p>
 <pre>
@@ -319,8 +324,8 @@ def getTimeline(cred: Credentials): Future[Timeline] =
 </pre>
 <p>This hypothetical example combines sequential and concurrent composition. Note that there is no explicit error handling other than converting a rate limiting reply to an exception. If any future fails here, it is automatically propagated to the returned <code>Future</code>.</p>
 <p><a name="combined_combinator_example_thumbnail">&nbsp;</a></p>
-<h3>Composition Examples: Web Crawlers</h3>
-<p>You&#8217;ve seen how to to use combinators with Futures, but might appreciate  more examples. Suppose you have a simple model of the internet. It has <span class="caps">HTML</span> pages and images. Pages can link to images and link to other pages. You can fetch a page or an image, but the <span class="caps">API</span> is asynchronous. This fake <span class="caps">API</span> calls these &#8220;fetchable&#8221; things Resources:</p>
+<h3>Composition Example: Web Crawlers</h3>
+<p>You&#8217;ve seen how to use combinators with Futures, but might appreciate  more examples. Suppose you have a simple model of the internet. It has <span class="caps">HTML</span> pages and images. Pages can link to images and link to other pages. You can fetch a page or an image, but the <span class="caps">API</span> is asynchronous. This fake <span class="caps">API</span> calls these &#8220;fetchable&#8221; things Resources:</p>
 <pre>
 import com.twitter.util.{Try,Future,Promise}
 
@@ -612,43 +617,44 @@ val  server = ServerBuilder()
 	<li>If your code calls a blocking operation (<code>apply</code> or <code>get</code>), use a <a href="https://github.com/twitter/finagle#Using%20Future%20Pools">Future Pool</a> to wrap the blocking code. This runs the blocking operation in its own thread pool, giving you a Future for the completion (or failure) of that operation which you can compose with other Futures.</li>
 	<li>If your code uses sequential composition of Futures, don&#8217;t worry that it&#8217;s &#8220;blocking&#8221; on those Futures.</li>
 </ul>
-<p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> Careful, there are other &#8220;Future&#8221; classes out there. Don&#8217;t confuse <code>com.twitter.util.Future</code> with <code>scala.actor.Future</code> or <code>java.util.concurrent.Future</code>!</p>
+<p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> Careful, there are other &#8220;Future&#8221; classes out there. Don&#8217;t confuse <code>com.twitter.util.Future</code> with <code>scala.concurrent.Future</code> or <code>java.util.concurrent.Future</code>!</p>
 <p class="footnote" id="fn2"><a href="#fnr2"><sup>2</sup></a> If you study type systems and/or category theory, you&#8217;ll be glad to learn that <code>flatMap</code> is equivalent to a monadic bind.</p>
-    </div> <!-- /container -->
-
-    <div id="footer">
-      <div class="inner">
-        <div class="container">
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
           <p>
-
-          Built at <a href="http://twitter.com/twitter"
-          target="_blank">@twitter</a> by
-          <a href="http://twitter.com/stevej" target="_blank">@stevej</a>,
-          <a href="http://twitter.com/marius" target="_blank">@marius</a>, and
-          <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a>
-          with much help from
-          <a href="http://twitter.com/evanm" target="_blank">@evanm</a>,
-          <a href="http://twitter.com/sprsquish"
-          target="_blank">@sprsquish</a>,
-          <a href="http://twitter.com/kevino" target="_blank">@kevino</a>,
-          <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>,
-          <a href="http://twitter.com/timtrueman"
-          target="_blank">@timtrueman</a>,
-          <a href="http://twitter.com/wickman" target="_blank">@wickman</a>,
-          and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>;
-          Russian translation by
-          <a href="https://github.com/appigram">appigram</a>;
-          Chinese simple translation by
-          <a href="https://github.com/jasonqu">jasonqu</a>;
-          Korean translation by
-          <a href="https://github.com/enshahar">enshahar</a>;<br />
-          <br />
-
-          Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+            Built at <a href="http://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="http://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="http://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="http://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="http://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="http://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="http://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
   </body>
 </html>

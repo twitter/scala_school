@@ -12,7 +12,9 @@
     <![endif]-->
 
     <!-- Le styles -->
-    <link rel="stylesheet" href="/scala_school/bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="/bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/small-screens.css">
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -26,10 +28,10 @@
   </head>
 
   <body>
-  
+
     <div class="topbar">
       <div class="fill">
-        <div class="container fixed">
+        <div class="container-fluid fixed">
           <h3><a href="index.html">타입(고급 주제)</a></h3>
           <ul class="nav secondary-nav">
             
@@ -44,7 +46,7 @@
       </div>
     </div>
 
-    <div class="container" style="padding-top: 60px;">
+    <div class="container-fluid" style="padding-top: 60px;">
       <p>이번 강좌에서는 다음을 다룬다.</p>
 <ul>
 	<li><a href="#viewbounds" title="View bound">뷰 바운드</a> (&#8220;타입 클래스&#8221;)</li>
@@ -153,14 +155,14 @@ scala&gt; List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b 
 res3: Int = 4
 </pre>
 <p>한가지 덧붙이자면,표준 라이브러리에는 <strong>Ordered</strong> 와 <strong>Ordering</strong> 을 상호 변환하는 뷰가 있다.<br />
-(역주: Ordered와 Ordering의 차이는 자바 Comparable과 Comparator의 차이와 유사하다. 둘다 순서관계(partial ordering)를 지정하는 함수를 제공하는 역할을 하지만, Ordered는 주로 클래스에서 상속해 사용해 기본 대소비교를 담당하는 역할에 사용되고, Ordering은 명시적으로 두 값의 대소를 비교하는 연산을 정의해서 넘겨야 하는 경우 사용된다. 예를 들어 scala.util.Sorting에 있는 정렬 함수들에 컬렉션 객체만을 넘기면 컬렉션 원소의 Ordered 트레잇에 의해 정렬이 수행되고, 직접 Ordering을 넘기면 그 순서에 의해 정렬이 수행된다.)<br />
-<pre><br />
-trait LowPriorityOrderingImplicits {<br />
-  implicit def ordered[A &lt;: Ordered[A]]: Ordering[A] = new Ordering[A] {<br />
-    def compare(x: A, y: A) = x.compare(y)<br />
-  }<br />
-}<br />
-</pre></p>
+(역주: Ordered와 Ordering의 차이는 자바 Comparable과 Comparator의 차이와 유사하다. 둘다 순서관계(partial ordering)를 지정하는 함수를 제공하는 역할을 하지만, Ordered는 주로 클래스에서 상속해 사용해 기본 대소비교를 담당하는 역할에 사용되고, Ordering은 명시적으로 두 값의 대소를 비교하는 연산을 정의해서 넘겨야 하는 경우 사용된다. 예를 들어 scala.util.Sorting에 있는 정렬 함수들에 컬렉션 객체만을 넘기면 컬렉션 원소의 Ordered 트레잇에 의해 정렬이 수행되고, 직접 Ordering을 넘기면 그 순서에 의해 정렬이 수행된다.)</p>
+<pre>
+trait LowPriorityOrderingImplicits {
+  implicit def ordered[A &lt;: Ordered[A]]: Ordering[A] = new Ordering[A] {
+    def compare(x: A, y: A) = x.compare(y)
+  }
+}
+</pre>
 <h4>implicitly[]와 컨텍스트 바운드</h4>
 <p>스칼라 2.8부터 묵시적 인자를 억세스하고 꿰는 간략한 문법이 도입되었다.</p>
 <pre>
@@ -366,41 +368,42 @@ val upFilter =
 </pre>
 <p>이때 타입 안전성이 보장된다!<br />
 (역주: 어떻게 타입안전성을 보장하는지 궁금한 독자는 졸저 <a href="http://enshahar.com/2013/05/16/%EC%8A%A4%EC%B9%BC%EB%9D%BC%ED%83%80%EC%9E%85%EC%B2%B4%ED%81%AC%EB%A1%9C%EC%84%A4%EC%A0%95%EC%BB%B4%ED%8C%8C%EC%9D%BC%EC%8B%9C%EC%B2%B4%ED%81%AC/">스칼라 타입체크로 설정을 컴파일시 체크하기</a>를 참고하라.)</p>
-    </div> <!-- /container -->
-
-    <div id="footer">
-      <div class="inner">
-        <div class="container">
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
           <p>
-
-          Built at <a href="http://twitter.com/twitter"
-          target="_blank">@twitter</a> by
-          <a href="http://twitter.com/stevej" target="_blank">@stevej</a>,
-          <a href="http://twitter.com/marius" target="_blank">@marius</a>, and
-          <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a>
-          with much help from
-          <a href="http://twitter.com/evanm" target="_blank">@evanm</a>,
-          <a href="http://twitter.com/sprsquish"
-          target="_blank">@sprsquish</a>,
-          <a href="http://twitter.com/kevino" target="_blank">@kevino</a>,
-          <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>,
-          <a href="http://twitter.com/timtrueman"
-          target="_blank">@timtrueman</a>,
-          <a href="http://twitter.com/wickman" target="_blank">@wickman</a>,
-          and <a href="http://twitter.com/mccv" target="_blank">@mccv</a>;
-          Russian translation by
-          <a href="https://github.com/appigram">appigram</a>;
-          Chinese simple translation by
-          <a href="https://github.com/jasonqu">jasonqu</a>;
-          Korean translation by
-          <a href="https://github.com/enshahar">enshahar</a>;<br />
-          <br />
-
-          Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+            Built at <a href="http://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="http://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="http://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="http://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="http://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="http://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="http://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
   </body>
 </html>
