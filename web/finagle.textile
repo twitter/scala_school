@@ -99,7 +99,7 @@ When you use Futures in real code, you normally don't call <code>Await.result()<
 
 h3. Sequential composition
 
-Futures have combinators <a href="collections.html#combinators">similar to those in the collections APIs</a> (e.g., map, flatMap). A collection-combinator, you recall, lets you express things like "I have a List of integers and a <tt>square</tt> function: map that to the List of the squares of my integers." This is neat; you can put together the combinator-function with another function to effectively define a new function. A Future-combinator lets you express things like "I have a Future hypothetical-integer and a <tt>square</tt> function: map that to the Future square of my hypothetical-integer."
+Futures have combinators <a href="collections.html#combinators">similar to those in the collections APIs</a> (e.g., map, flatMap). A collection-combinator, you recall, lets you express things like "I have a List of integers and a <tt>square</tt> function: map that to the List of the squares of my integers." This is neat; you can put together the combinator-function with another function to effectively define a new Future. A Future-combinator lets you express things like "I have a Future hypothetical-integer and a <tt>square</tt> function: map that to the Future square of my hypothetical-integer."
 
 If you're defining an asynchronous API, a request value comes in and your API gives back a response wrapped in a Future. Thus, these combinators that turn inputs and functions into Futures are darned useful: they help you define your asynchronous API in terms of other asynchronous APIs.
 

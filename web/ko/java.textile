@@ -111,12 +111,12 @@ h3. 변수(var)
 * 변수에는 <name>_$eq 라는 메소드가 만들어진다. 다음과 같이 호출해 새 값을 할당할 수 있다(당연히 <name>()라는 메소드로 값을 읽는것도 가능하다).
 
 <pre>
-foo$_eq("newfoo");
+foo_$eq("newfoo");
 </pre>
 
 h3. BeanProperty
 
-값이나 변수에 @BeanProperty 애노테이션을 할 수 있다. 그러면 POJO 게터/세터 정의와 마찬가지로 게터와 세터를 만들어준다. isFoo와 같은 형태의 게터/세터를 원하면 BooleanBeanProperty 애노테이션을 붙이도록 하라. 그러면 보기 싫은 foo$_eq가 다음과 같이 된다.
+값이나 변수에 @BeanProperty 애노테이션을 할 수 있다. 그러면 POJO 게터/세터 정의와 마찬가지로 게터와 세터를 만들어준다. isFoo와 같은 형태의 게터/세터를 원하면 BooleanBeanProperty 애노테이션을 붙이도록 하라. 그러면 보기 싫은 foo_$eq가 다음과 같이 된다.
 
 <pre>
 setFoo("newfoo");

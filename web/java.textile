@@ -111,12 +111,12 @@ h3. Vars
 * vars get a method <name>_$eq defined.  You can call it like so
 
 <pre>
-foo$_eq("newfoo");
+foo_$eq("newfoo");
 </pre>
 
 h3. BeanProperty
 
-You can annotate vals and vars with the @BeanProperty annotation.  This generates getters/setters that look like POJO getter/setter definitions.  If you want the isFoo variant, use the BooleanBeanProperty annotation.  The ugly foo$_eq becomes
+You can annotate vals and vars with the @BeanProperty annotation.  This generates getters/setters that look like POJO getter/setter definitions.  If you want the isFoo variant, use the BooleanBeanProperty annotation.  The ugly foo_$eq becomes
 
 <pre>
 setFoo("newfoo");
