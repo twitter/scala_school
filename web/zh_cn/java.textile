@@ -111,12 +111,12 @@ h3. 类变量
 * 变量（var）会生成一个 <name>_$eq 方法。你可以这样调用它
 
 <pre>
-foo$_eq("newfoo");
+foo_$eq("newfoo");
 </pre>
 
 h3. BeanProperty
 
-你可以通过@BeanProperty注解val和var定义。这会按照POJO定义生成getter/setter方法。如果你想生成isFoo方法，使用BooleanBeanProperty注解。丑陋的foo$_eq将变为
+你可以通过@BeanProperty注解val和var定义。这会按照POJO定义生成getter/setter方法。如果你想生成isFoo方法，使用BooleanBeanProperty注解。丑陋的foo_$eq将变为
 
 <pre>
 setFoo("newfoo");
