@@ -108,7 +108,7 @@ h2(#methods). The methods
 
 h3. Traversable
 
-All of these methods below are available all the way down.  The argument and return types types won't always look the same as subclasses are free to override them.
+All of these methods below are available all the way down.  The argument and return types won't always look the same as subclasses are free to override them.
 
 <pre>
 def head : A
@@ -144,7 +144,7 @@ returns a collection with all elements matching the predicate function
 Partitioning:
 
 <code>
-def partition (p: (A) ⇒ Boolean) : (Traversable[A], Traversable[A])
+def partition (p: (A) => Boolean) : (Traversable[A], Traversable[A])
 </code>
 
 Splits a collection into two halves based on a predicate function
