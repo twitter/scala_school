@@ -1,6 +1,8 @@
 # Project Searchbird
 
-*Deprecated content*: this lesson no longer works due to missing dependencies.
+*Deprecated content*: this lesson depended on a Ruby library that is
+no longer in use at Twitter and has been unpublished. Because of the
+missing dependency this lesson no longer works.
 
 Welcome to your searchbird project!  To make sure things are working
 properly, you may want to:
