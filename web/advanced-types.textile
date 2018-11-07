@@ -74,7 +74,7 @@ Methods may ask for some kinds of specific "evidence" for a type without setting
 |A <:< B|A must be a subtype of B|
 |A <%< B|A must be viewable as B|
 
-(If you get errors trying to use <:< or <%<, be aware that those went away in Scala 2.10. Scala School examples work with "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html . You can use a newer Scala, but expect errors.)
+(If you get errors trying to use <%<, be aware that it went away in Scala 2.10. Scala School examples work with "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html . You can use a newer Scala, but expect errors.)
 
 <pre>
 scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
