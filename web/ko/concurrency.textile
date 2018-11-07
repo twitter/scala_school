@@ -427,7 +427,7 @@ h3.  해결책: 생산자/소비자
 import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
 
 // 구체적 생산자
-class Producer[T](path: String, queue: BlockingQueue[T]) extends Runnable {
+class Producer[T>:String](path: String, queue: BlockingQueue[T]) extends Runnable {
   def run() {
     Source.fromFile(path, "utf-8").getLines.foreach { line =>
       queue.put(line)
@@ -447,7 +447,7 @@ abstract class Consumer[T](queue: BlockingQueue[T]) extends Runnable {
   def consume(x: T)
 }
 
-val queue = new LinkedBlockingQueue[String]()
+val q = new LinkedBlockingQueue[String]()
 
 // 생산자는 쓰레드 하나로 동작
 val producer = new Producer[String]("users.txt", q)
@@ -467,8 +467,11 @@ class IndexerConsumer(index: InvertedIndex, queue: BlockingQueue[String]) extend
 val cores = 8
 val pool = Executors.newFixedThreadPool(cores)
 
+val mutable_map = mutable.Map[String, User]()
+val index = new InvertedIndex(mutable_map)
+
 // 코어마다 소비자를 하나씩 배당하자
-for (i <- i to cores) {
+for (i <- 1 to cores) {
   pool.submit(new IndexerConsumer[String](index, q))
 }
 </pre>

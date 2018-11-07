@@ -87,10 +87,10 @@ def serve(request: Request): Future[Response] = {
       user    <- auth(request)
       limited <- isLimit(user)
     } yield (user, limited)
-  
-  val done = 
+
+  val done =
     dispatch(request) join userLimit
-  
+
   done flatMap { case (rep, (usr, lim)) =>
     if (lim) {
       updateLocalRateLimitCache(usr)
@@ -128,14 +128,14 @@ f onSuccess { res =>
 Серверы реализуют <code>Service</code>:
 
 <pre>
-class MyServer 
+class MyServer
   extends Service[HttpRequest, HttpResponse]
 {
   def apply(request: HttpRequest) = {
     request.path match {
-      case "/" => 
+      case "/" =>
         Future.value(HttpResponse("root"))
-      case _ => 
+      case _ =>
         Future.value(HttpResponse("default"))
     }
   }
@@ -158,7 +158,7 @@ class MyServer(client: Service[..])
 
 где <code>rewriteReq</code> и <code>rewriteRes</code> могут предоставить протокол перевода, например.
 
-h2. Фильтры 
+h2. Фильтры
 
 Фильтры - это service преобразователи. Они полезны как для предоставления функциональности <em>обобщенный service</em>, так и для производства данного service в различных состояниях.
 
@@ -170,7 +170,7 @@ abstract class Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
 Его тип лучше рассмотреть схематически:
 
 <pre>
-    ((ReqIn, Service[ReqOut, RepIn]) 
+    ((ReqIn, Service[ReqOut, RepIn])
          => Future[RepOut])
 
 
@@ -202,7 +202,7 @@ class RequireAuthentication(authService: AuthService)
   extends Filter[HttpReq, HttpRep, AuthHttpReq, HttpRep]
 {
   def apply(
-    req: HttpReq, 
+    req: HttpReq,
     service: Service[AuthHttpReq, HttpRep]
   ) = {
     authService.auth(req) flatMap {
@@ -259,7 +259,7 @@ ServerBuilder()
   .bindTo(new InetSocketAddress(serverPort))
   .build(myService)
 </pre>
- 
+
 Все будет работать на порту <code>serverPort</code> HTTP сервера, который управляет запросами на <code>myService</code>. Каждое соединение держится открытым до 5 минут, и мы также требуем, чтобы запрос был отправлен в течение 2 минут. Необходимые опции <code>ServerBuilder</code>: <code>name</code>, <code>bindTo</code> and <code>codec</code>.
 
 fn1. отличающийся от <code>java.util.concurrent.Future</code>

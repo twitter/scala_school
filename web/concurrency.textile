@@ -427,7 +427,7 @@ A common pattern for async computation is to separate producers from consumers a
 import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
 
 // Concrete producer
-class Producer[T](path: String, queue: BlockingQueue[T]) extends Runnable {
+class Producer[T>:String](path: String, queue: BlockingQueue[T]) extends Runnable {
   def run() {
     Source.fromFile(path, "utf-8").getLines.foreach { line =>
       queue.put(line)
@@ -447,7 +447,7 @@ abstract class Consumer[T](queue: BlockingQueue[T]) extends Runnable {
   def consume(x: T)
 }
 
-val queue = new LinkedBlockingQueue[String]()
+val q = new LinkedBlockingQueue[String]()
 
 // One thread for the producer
 val producer = new Producer[String]("users.txt", q)
@@ -467,8 +467,11 @@ class IndexerConsumer(index: InvertedIndex, queue: BlockingQueue[String]) extend
 val cores = 8
 val pool = Executors.newFixedThreadPool(cores)
 
+val mutable_map = mutable.Map[String, User]()
+val index = new InvertedIndex(mutable_map)
+
 // Submit one consumer per core.
-for (i <- i to cores) {
+for (i <- 1 to cores) {
   pool.submit(new IndexerConsumer[String](index, q))
 }
 </pre>
