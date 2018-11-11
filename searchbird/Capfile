@@ -1,12 +1,10 @@
-# Docs at http://confluence.local.twitter.com/display/RELEASE/Twitter-cap-utils+README
 begin
   require 'rubygems'
   require "bundler/setup"
   require "railsless-deploy"
-  require 'twitter_cap_utils'
 rescue LoadError => e
   puts e.message
-  abort "Please gem install twitter-cap-utils railsless-deploy"
+  abort "Please gem install railsless-deploy"
 end
 
 set :user, :twitter
@@ -24,4 +22,3 @@ end
 task :production do
   role :app, "server1", "server2", "etc"
 end
-

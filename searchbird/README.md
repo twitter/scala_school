@@ -1,5 +1,9 @@
 # Project Searchbird
 
+*Deprecated content*: this lesson depended on a Ruby library that is
+no longer in use at Twitter and has been unpublished. Because of the
+missing dependency this lesson no longer works.
+
 Welcome to your searchbird project!  To make sure things are working
 properly, you may want to:
 
@@ -17,8 +21,3 @@ If you want to setup Intellij, it has to happen off to the side:
     > *idea is com.github.mpeltonen sbt-idea-processor 0.4.0
     > update
     > idea
-
-# Documenting your project
-
-Add documentation here!  Eventually, you'll be able to publish this to
-a web site for the world to easily find and read.
