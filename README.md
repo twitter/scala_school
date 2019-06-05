@@ -6,13 +6,13 @@ We use [jekyll](https://github.com/mojombo/jekyll) to generate the site. In orde
 
 should do. Now, build the site with `make`. This will create a copy of the lessons in the `web.out` folder.
 
-For development, you'll also need to install [RedCloth](http://redcloth.org/).
+For development, you'll also need to install [RedCloth](https://redcloth.org/).
 
 	$ gem install RedCloth
 	$ gem install jekyll-textile-converter
 
 Then `make serve` will launch `jekyll` in serving mode: a web server will be launched on port 4000, and changing files will automatically rebuild the site.
 
-To publish to http://twitter.github.io/scala_school:
+To publish to https://twitter.github.io/scala_school:
 
 	$ make publish

@@ -74,7 +74,7 @@ h2(#PartialFunction). Понимание PartialFunction
 
 __Заметьте__ <code>PartialFunction</code> не связана с частично вызываемыми функциями, о которых мы говорили ранее.
 
-*Смотрите также:* В Effective Scala описывается <a href="http://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Частичные функции">PartialFunction</a>.
+*Смотрите также:* В Effective Scala описывается <a href="https://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Частичные функции">PartialFunction</a>.
 
 <pre>
 scala> val one: PartialFunction[Int, String] = { case 1 => "one" }

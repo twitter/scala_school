@@ -7,14 +7,14 @@ class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
   def isSBTTwitter = environment.get("SBT_TWITTER").isDefined
 
   override def repositories = if (isSBTOpenTwitter) {
-    Set("twitter.artifactory" at "http://artifactory.local.twitter.com/open-source/")
+    Set("twitter.artifactory" at "https://artifactory.local.twitter.com/open-source/")
   } else if (isSBTTwitter) {
-    Set("twitter.artifactory" at "http://artifactory.local.twitter.com/repo/")
+    Set("twitter.artifactory" at "https://artifactory.local.twitter.com/repo/")
   } else {
     super.repositories ++ Set(
-      "twitter.com" at "http://maven.twttr.com/",
-      "scala-tools" at "http://scala-tools.org/repo-releases/",
-      "freemarker" at "http://freemarker.sourceforge.net/maven2/"
+      "twitter.com" at "https://maven.twttr.com/",
+      "scala-tools" at "https://scala-tools.org/repo-releases/",
+      "freemarker" at "https://freemarker.sourceforge.net/maven2/"
     )
   }
   override def ivyRepositories = Seq(Resolver.defaultLocal(None)) ++ repositories

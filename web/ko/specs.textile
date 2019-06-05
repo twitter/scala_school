@@ -121,7 +121,7 @@ h3. doFirst & doLast
 
 h2(#matchers). Matcher(매처)
 
-데이터가 있고, 그 데이터가 올바른지 확인할 때 매처를 사용한다. 가장 흔히 사용되는 것들을 살펴보자. ("매처 가이드":http://code.google.com/p/specs/wiki/MatchersGuide 를 살펴 보라)
+데이터가 있고, 그 데이터가 올바른지 확인할 때 매처를 사용한다. 가장 흔히 사용되는 것들을 살펴보자. ("매처 가이드":https://code.google.com/p/specs/wiki/MatchersGuide 를 살펴 보라)
 
 h3. mustEqual
 
@@ -264,7 +264,7 @@ object MockExampleSpec extends Specification with Mockito {
 }
 </pre>
 
-*See Also* "Mockito 활용하기":http://code.google.com/p/specs/wiki/UsingMockito
+*See Also* "Mockito 활용하기":https://code.google.com/p/specs/wiki/UsingMockito
 
 h2(#spies). 스파이
 

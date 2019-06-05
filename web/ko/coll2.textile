@@ -7,7 +7,7 @@ layout: post
 
 스칼라에는 멋진 컬렉션이 여럿 구현되어 있다. 이를 활용해 <code>Foo</code>를 모아둔 컬렉션이 <code>리스트(List)</code>, <code>집합(Set)</code>, 또는 다른 어떤 것이든 상관 없이 잘 동작하는 코드를 만들 수 있다.
 
-"이 페이지는":http://www.decodified.com/scala/collections-api.xml 스칼라가 제공하는 기본 구현의 구조를 잘 보여주며, 각 클래스의 스칼라 문서에 대한 링크도 제공한다.
+"이 페이지는":https://www.decodified.com/scala/collections-api.xml 스칼라가 제공하는 기본 구현의 구조를 잘 보여주며, 각 클래스의 스칼라 문서에 대한 링크도 제공한다.
 
 * "기초":#basics 항상 사용하게 될 컬렉션들
 * "계층 구조":#hierarchy 컬렉션 추상화 계층
@@ -33,7 +33,7 @@ scala> 1 :: 2 :: 3 :: Nil
 res1: List[Int] = List(1, 2, 3)
 </pre>
 
-*See also* "리스트 API":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
+*See also* "리스트 API":https://www.scala-lang.org/api/current/scala/collection/immutable/List.html
 
 h3. 집합
 
@@ -44,7 +44,7 @@ scala> Set(1, 1, 2)
 res2: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 
-*See also* "집합 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*See also* "집합 API":https://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
 h3. 순서열(Seq)
 
@@ -57,7 +57,7 @@ res3: Seq[Int] = List(1, 1, 2)
 
 (반환된 것이 리스트임에 유의하라. <code>Seq</code>는 트레잇이다. 리스트는 Seq를 잘 구현하고 있다. 여기서 볼 수 있듯 <code>Seq</code>라 불리는 팩토리 객체가 있어서 리스트를 만들어준다.)
 
-*See also* "순서열 API":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*See also* "순서열 API":https://www.scala-lang.org/api/current/scala/collection/Seq.html
 
 h3. 맵(Map)
 
@@ -68,7 +68,7 @@ scala> Map('a' -> 1, 'b' -> 2)
 res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 </pre>
 
-*See also* "맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*See also* "맵 API":https://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
 h2(#hierarchy). 계층 구조
 
@@ -78,31 +78,31 @@ h3. 방문가능(Traversable)
 
 모든 컬렉션은 방문 가능해야 한다. 이 트레잇는 표준적인 함수 콤비네이터를 정의한다. 이런 콤비네이터는 @foreach@를 기초로 구현되어 있다. @foreach@는 모든 컬렉션이 구현해야만 하는 메소드이다.
 
-*See Also* "방문가능 API":#http://www.scala-lang.org/api/current/scala/collection/Traversable.html
+*See Also* "방문가능 API":#https://www.scala-lang.org/api/current/scala/collection/Traversable.html
 
 h3. 반복가능(Iterable)
 
 원소에 대해 루프를 돌 수 있는 반복자를 반환하는 @iterator()@ 메소드를 반환한다.
 
-*See Also* "반복가능 API":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
+*See Also* "반복가능 API":https://www.scala-lang.org/api/current/scala/collection/Iterable.html
 
 h3. 순서열(Seq)
 
 순서가 있는 아이템 열이다.
 
-*See Also* "순서열 API":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*See Also* "순서열 API":https://www.scala-lang.org/api/current/scala/collection/Seq.html
 
 h3. 집합(Set)
 
 원소의 중복이 없는 컬렉션이다.
 
-*See Also* "집합 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*See Also* "집합 API":https://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
 h3. 맵(Map)
 
 키-값 쌍을 보관하는 컬렉션이다.
 
-*See Also* "맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*See Also* "맵 API":https://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
 h2(#methods). 메소드
 
@@ -253,18 +253,18 @@ res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (
 h3. 자주 사용하게 될 하위 클래스들
 
 *해시집합(HashSet)과 해시맵(HashMap)* 빠른 검색이 가능하며, 컬렉션 중 가장 자주 사용하게될 것이다. 
-"해시집합 API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "해시맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
+"해시집합 API":https://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "해시맵 API":https://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
 
-*트리맵(TreeMap)* 정렬된 맵(SortedMap)의 하위클래스로, 맵이면서 순서를 보존해준다. "트리맵 API":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
+*트리맵(TreeMap)* 정렬된 맵(SortedMap)의 하위클래스로, 맵이면서 순서를 보존해준다. "트리맵 API":https://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
 
-*벡터(Vector)* 빠른 임의 위치 읽기와 변경을 보장해준다. "벡터 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html
+*벡터(Vector)* 빠른 임의 위치 읽기와 변경을 보장해준다. "벡터 API":https://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html
 
 <pre>
 scala> IndexedSeq(1, 2, 3)
 res0: IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 
-*범위(Range)* 1 간격으로 된 정수 열이다. 자바에서 숫자를 세는 for 루프를 사용했던 경우 많이 쓰게될 것이다. "범위 API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
+*범위(Range)* 1 간격으로 된 정수 열이다. 자바에서 숫자를 세는 for 루프를 사용했던 경우 많이 쓰게될 것이다. "범위 API":https://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
 
 <pre>
 scala> for (i <- 1 to 3) { println(i) }
@@ -313,9 +313,9 @@ res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 
 h3. 다른 (이름이 특징을 설명해 주는) 트레잇들
 
-*색인열(IndexedSeq)* 원소의 빠른 임의 억세스가 가능하고, 길이를 빠르게 계산한다. "색인열 API":http://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html
+*색인열(IndexedSeq)* 원소의 빠른 임의 억세스가 가능하고, 길이를 빠르게 계산한다. "색인열 API":https://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html
 
-*선형열(LinearSeq)* head를 사용해 빠르게 첫 원소를 억세스할 수 있고, tail 연산도 빨리 할 수 있다. "선형열 API":http://www.scala-lang.org/api/current/scala/collection/LinearSeq.html
+*선형열(LinearSeq)* head를 사용해 빠르게 첫 원소를 억세스할 수 있고, tail 연산도 빨리 할 수 있다. "선형열 API":https://www.scala-lang.org/api/current/scala/collection/LinearSeq.html
 
 h4. 변경가능한지 아닌지 여부에 따른 구분
 
@@ -335,7 +335,7 @@ h2(#mutable). 변경가능(Mutable)
 
 지금까지 다룬 모든 클래스는 불변성이었다. 이제 자주 사용되는 변경 가능한 컬렉션을 살펴보자.
 
-*해시맵(HashMap)*은 @getOrElseUpdate@, @+=@ 등을 제공한다 "해시맵 API":http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html
+*해시맵(HashMap)*은 @getOrElseUpdate@, @+=@ 등을 제공한다 "해시맵 API":https://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html
 
 <pre>
 scala> val numbers = collection.mutable.Map(1 -> 2)
@@ -354,19 +354,19 @@ scala> numbers += (4 -> 1)
 res56: numbers.type = Map((2,3), (4,1), (1,2))
 </pre>
 
-*리스트버퍼(ListBuffer)와 배열버퍼(ArrayBuffer)* @+=@를 제공함 "리스트버퍼 API":http://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "배열버퍼 API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
+*리스트버퍼(ListBuffer)와 배열버퍼(ArrayBuffer)* @+=@를 제공함 "리스트버퍼 API":https://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "배열버퍼 API":https://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
 
-*연결리스트(LinkedList)와 이중연결리스트(DoubleLinkedList)* "연결리스트 API":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "이중연결리스트 API":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
+*연결리스트(LinkedList)와 이중연결리스트(DoubleLinkedList)* "연결리스트 API":https://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "이중연결리스트 API":https://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
 
-*우선순위 큐(PriorityQueue)* "우선순위 큐 API":http://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
+*우선순위 큐(PriorityQueue)* "우선순위 큐 API":https://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
 
-*스택(Stack)과 배열스택(ArrayStack)* "스택 API":http://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "배열스택 API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
+*스택(Stack)과 배열스택(ArrayStack)* "스택 API":https://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "배열스택 API":https://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
 
-*스트링빌더(StringBuilder)* 재미있는 것은 스트링빌더가 컬렉션이란 점이다. "스트링빌더 API":http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html
+*스트링빌더(StringBuilder)* 재미있는 것은 스트링빌더가 컬렉션이란 점이다. "스트링빌더 API":https://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html
 
 h2(#java). 자바와 공존하기
 
-자바와 스칼라 컬렉션을 쉽게 오갈 수 있다. 변환은 <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters 패키지에</a> 정의되어 있다. 이를 통해 자주 사용하는 자바 컬렉션에는 <code>asScala</code> 메소드가, 스칼라 컬렉션에는 <code>asJava</code> 메소드가 추가된다.
+자바와 스칼라 컬렉션을 쉽게 오갈 수 있다. 변환은 <a href="https://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters 패키지에</a> 정의되어 있다. 이를 통해 자주 사용하는 자바 컬렉션에는 <code>asScala</code> 메소드가, 스칼라 컬렉션에는 <code>asJava</code> 메소드가 추가된다.
 
 <pre>
    import scala.collection.JavaConverters._

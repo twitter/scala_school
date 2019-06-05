@@ -17,7 +17,7 @@ layout: post
 
 h2(#background). 정적 타입이란 무엇인가? 정적 타입이 유용한 이유는 무엇인가?
 
-피어스(Benjamin C. Pierce, 역주: <a href="http://en.wikipedia.org/wiki/Types_and_Programming_Languages">타입과 프로그래밍 언어</a>라는 책의 저자)는 "타입 시스템은 프로그램 각 부분이 만들어낼 수 있는 값의 종류를 나눔으로써 그 프로그램이 특정 오류 상황을 발생시키지 않는다는 것을 자동으로 검증해주기 위한 문법적 검증 방법"이라 말한다.
+피어스(Benjamin C. Pierce, 역주: <a href="https://en.wikipedia.org/wiki/Types_and_Programming_Languages">타입과 프로그래밍 언어</a>라는 책의 저자)는 "타입 시스템은 프로그램 각 부분이 만들어낼 수 있는 값의 종류를 나눔으로써 그 프로그램이 특정 오류 상황을 발생시키지 않는다는 것을 자동으로 검증해주기 위한 문법적 검증 방법"이라 말한다.
 
 타입을 사용하면 함수의 정의역과 공변역을 지정할 수 있다. 예를 들어 아래와 같은 표기를 수학에서 많이 보았을 것이다.
 
@@ -323,4 +323,4 @@ scala> hashcodes(Seq("one", "two", "three"))
 res1: Seq[Int] = List(110182, 115276, 110339486)
 </pre>
 
-*See Also* <a href="http://www.drmaciver.com/2008/03/existential-types-in-scala/">맥아이버(D. R. MacIver)가 쓴 '스칼라 특칭 타입'</a>
+*See Also* <a href="https://www.drmaciver.com/2008/03/existential-types-in-scala/">맥아이버(D. R. MacIver)가 쓴 '스칼라 특칭 타입'</a>

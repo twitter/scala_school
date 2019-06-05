@@ -11,7 +11,7 @@ Exceptions
   @Throws
   Erasure!
 
-Annotation ref http://www.scala-lang.org/node/106
+Annotation ref https://www.scala-lang.org/node/106
 
 Traits
   2 classes defined

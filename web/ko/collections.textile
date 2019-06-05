@@ -30,7 +30,7 @@ h1. 기본 데이터 구조
 
 스칼라는 유용한 컬렉션을 여러 개 제공한다.
 
-*See Also* 효율적인 스칼라에서도 <a href="http://twitter.github.com/effectivescala/#Collections">컬렉션 사용법</a>에 대해 다루고 있다.
+*See Also* 효율적인 스칼라에서도 <a href="https://twitter.github.com/effectivescala/#Collections">컬렉션 사용법</a>에 대해 다루고 있다.
 
 h2(#Lists). 리스트
 
@@ -83,7 +83,7 @@ scala> 1 -> 2
 res0: (Int, Int) = (1,2)
 </pre>
 
-*See Also* 효율적인 스칼라에서 <a href="http://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">구조를 허무는 바인딩(destructuring binding)</a>("튜플 벗기기")에 대해 다룬다.
+*See Also* 효율적인 스칼라에서 <a href="https://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">구조를 허무는 바인딩(destructuring binding)</a>("튜플 벗기기")에 대해 다룬다.
 
 h2(#Maps). 맵
 
@@ -169,13 +169,13 @@ val result = res1 match {
 }
 </code>
 
-*See Also* 효율적인 스칼라를 보면 <a href="http://twitter.github.com/effectivescala/#Functional programming-Options">옵션</a>에 대한 글이 있다.
+*See Also* 효율적인 스칼라를 보면 <a href="https://twitter.github.com/effectivescala/#Functional programming-Options">옵션</a>에 대한 글이 있다.
  
 h1(#combinators). 함수 콤비네이터
 
 (역주: 콤비네이터란 이름에 웬지 모를 위압감을 느낄지도 모르겠는데, 콤비네이터는 함수와 컬렉션 등 다른 식을 받아서 적절한 작업을 해주는 조합 장치(함수) 정도로 생각하면 된다.)
 
-<code>List(1, 2, 3) map squared</code>라고 하면 <code>squared</code> 함수를 리스트의 모든 원소에 적용한 다음 새 리스트를 반환한다. 결과는 아마도 <code>List(1, 4, 9)</code>가 될 것이다. <code>map</code>과 같은 함수를 <em>콤비네이터(combinator)</em>라 부른다. (더 나은 정의를 보고픈 사람은 스택 오버플로우의 <a href="http://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">콤비네이터에 대한 설명</a>을 참조하라.) 콤비네이터는 보통 표준 데이터 구조에 많이 사용된다.
+<code>List(1, 2, 3) map squared</code>라고 하면 <code>squared</code> 함수를 리스트의 모든 원소에 적용한 다음 새 리스트를 반환한다. 결과는 아마도 <code>List(1, 4, 9)</code>가 될 것이다. <code>map</code>과 같은 함수를 <em>콤비네이터(combinator)</em>라 부른다. (더 나은 정의를 보고픈 사람은 스택 오버플로우의 <a href="https://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">콤비네이터에 대한 설명</a>을 참조하라.) 콤비네이터는 보통 표준 데이터 구조에 많이 사용된다.
 
 h2(#map). map
 
@@ -355,7 +355,7 @@ res1: List[Int] = List(2, 4, 6, 8)
 ㅡ
 위의 예는 map과 flatten을 서로 엮어서 콤비네이터로 활용하는 것을 보여준다.
 
-*See Also* 효율적인 스칼라에 <a href="http://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>에 대해 다룬 글이 있다.
+*See Also* 효율적인 스칼라에 <a href="https://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>에 대해 다룬 글이 있다.
 
 h2(#generalized). 일반적인 함수 콤비네이터
 
@@ -381,7 +381,7 @@ res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
 h2(#vsMap). Map?
 
 앞에서 본 모든 함수 콤비네이터는 맵에서도 사용 가능하다. 맵을 키와 값을 쌍으로 하는 원소를 가지는 리스트로 생각한다면, 앞의 모든 함수들은 그 위에 동작할 수 있다.
-(역주: 여러 콤비네이터는 스칼라 컬렉션의 대부분의 클래스에서 사용 가능하다. 이에 대해서는 <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.package">스칼라 API문서의 컬렉션 부분</a>이나 <a href="http://docs.scala-lang.org/overviews/collections/introduction.html">스칼라 컬렉션 가이드</a>를 참조하라.)
+(역주: 여러 콤비네이터는 스칼라 컬렉션의 대부분의 클래스에서 사용 가능하다. 이에 대해서는 <a href="https://www.scala-lang.org/api/current/index.html#scala.collection.package">스칼라 API문서의 컬렉션 부분</a>이나 <a href="https://docs.scala-lang.org/overviews/collections/introduction.html">스칼라 컬렉션 가이드</a>를 참조하라.)
 
 <pre>
 scala> val extensions = Map("steve" -> 100, "bob" -> 101, "joe" -> 201)

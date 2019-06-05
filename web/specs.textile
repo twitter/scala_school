@@ -121,7 +121,7 @@ h3. doFirst & doLast
 
 h2(#matchers). Matchers
 
-You have data, you want to make sure it's right. Let's tour the most commonly used matchers. (See Also "Matchers Guide":http://code.google.com/p/specs/wiki/MatchersGuide)
+You have data, you want to make sure it's right. Let's tour the most commonly used matchers. (See Also "Matchers Guide":https://code.google.com/p/specs/wiki/MatchersGuide)
 
 h3. mustEqual
 
@@ -264,7 +264,7 @@ object MockExampleSpec extends Specification with Mockito {
 }
 </pre>
 
-*See Also* "Using Mockito":http://code.google.com/p/specs/wiki/UsingMockito
+*See Also* "Using Mockito":https://code.google.com/p/specs/wiki/UsingMockito
 
 h2(#spies). Spies
 

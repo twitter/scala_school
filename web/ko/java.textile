@@ -144,7 +144,7 @@ h3. 예외
 
 h3. 읽을거리
 
-자바와 함께 동작하기 위해 사용할 수 있는 스칼라의 애노테이션 목록이 <a href=http://www.scala-lang.org/node/106">여기</a> 에 있다.
+자바와 함께 동작하기 위해 사용할 수 있는 스칼라의 애노테이션 목록이 <a href=https://www.scala-lang.org/node/106">여기</a> 에 있다.
 
 h2. 트레잇
 

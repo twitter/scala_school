@@ -144,7 +144,7 @@ Instead, as a good Scala citizen it's a decent idea to use the throws annotation
 
 h3. Further Reading
 
-A full list of Scala annotations for supporting Java interop can be found here http://www.scala-lang.org/node/106.
+A full list of Scala annotations for supporting Java interop can be found here https://www.scala-lang.org/node/106.
 
 h2. Traits
 

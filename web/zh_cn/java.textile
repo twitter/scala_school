@@ -143,7 +143,7 @@ Java会抱怨说 s.dangerFoo从未抛出过 IOException异常。我们可以通�
 
 h3. 进一步阅读
 
-支持Java互操作的Scala注解的完整列表在这里 <a href="http://www.scala-lang.org/node/106">http://www.scala-lang.org/node/106</a>。
+支持Java互操作的Scala注解的完整列表在这里 <a href="https://www.scala-lang.org/node/106">https://www.scala-lang.org/node/106</a>。
 
 h2. 特质
 
