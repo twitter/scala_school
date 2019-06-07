@@ -4,17 +4,17 @@ title: Searchbird
 layout: post
 ---
 
-我们要使用Scala和先前介绍的 "Finagle":http://github.com/twitter/finagle 框架构建一个简单的分布式搜索引擎。
+我们要使用Scala和先前介绍的 "Finagle":https://github.com/twitter/finagle 框架构建一个简单的分布式搜索引擎。
 
 h3. 设计目标：大图景
 
 从广义上讲，我们的设计目标包括 _抽象_ （abstraction：在不知道其内部的所有细节的前提下，利用该系统功能的能力）、 _模块化_ （modularity：把系统分解为小而简单的片段，从而更容易被理解和/或被更换的能力）和 _扩展性_ （scalability：用简单直接的方法给系统扩容的能力）。
 
-我们要描述的系统有三个部分： （1） _客户端_ 发出请求，（2） _服务端_ 接收请求并应答，和（3） _传送_ 机制来这些通信包装起来。通常情况下，客户端和服务器位于不同的机器上，通过网络上的一个特定的 "_端口_":http://en.wikipedia.org/wiki/Port_(computer_networking) 进行通信，但在这个例子中，它们将运行在同一台机器上（而且仍然使用端口进行通信） 。在我们的例子中，客户端和服务器将用Scala编写，传送协议将使用 "Thrift":http://thrift.apache.org/ 处理。本教程的主要目的是展示一个简单的具有良好可扩展性的服务器和客户端。
+我们要描述的系统有三个部分： （1） _客户端_ 发出请求，（2） _服务端_ 接收请求并应答，和（3） _传送_ 机制来这些通信包装起来。通常情况下，客户端和服务器位于不同的机器上，通过网络上的一个特定的 "_端口_":https://en.wikipedia.org/wiki/Port_(computer_networking) 进行通信，但在这个例子中，它们将运行在同一台机器上（而且仍然使用端口进行通信） 。在我们的例子中，客户端和服务器将用Scala编写，传送协议将使用 "Thrift":https://thrift.apache.org/ 处理。本教程的主要目的是展示一个简单的具有良好可扩展性的服务器和客户端。
 
 h3. 探索默认的引导程序项目
 
-首先，使用 "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper 创建一个骨架项目（ “ Searchbird ” ）。这将创建一个简单的基于 "Finagle":http://twitter.github.com/finagle/ 和key-value内存存储的Scala服务。我们将扩展这个工程以支持搜索值，并进而支持多进程多个内存存储的搜索。
+首先，使用 "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper 创建一个骨架项目（ “ Searchbird ” ）。这将创建一个简单的基于 "Finagle":https://twitter.github.com/finagle/ 和key-value内存存储的Scala服务。我们将扩展这个工程以支持搜索值，并进而支持多进程多个内存存储的搜索。
 
 <pre>
 $ mkdir searchbird ; cd searchbird
@@ -50,7 +50,7 @@ writing TUTORIAL.md
 
 !../searchbird-1.svg(Searchbird implementation, revision 1)!
 
-这里是我们的服务输出的接口。由于Searchbird服务是一个 "Thrift":http://thrift.apache.org/  服务（和我们大部分服务一样），因而其外部接口使用Thrift IDL（“接口描述语言”）定义。
+这里是我们的服务输出的接口。由于Searchbird服务是一个 "Thrift":https://thrift.apache.org/  服务（和我们大部分服务一样），因而其外部接口使用Thrift IDL（“接口描述语言”）定义。
 
 h5. src/main/thrift/searchbird.thrift
 

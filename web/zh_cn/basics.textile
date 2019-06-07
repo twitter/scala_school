@@ -335,7 +335,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 }
 </pre>
 
-*参考* Effective Scala 指出如果子类与父类实际上没有区别，<a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">类型别名</a>是优于<code>继承</code>的。A Tour of Scala 详细介绍了<a href="http://www.scala-lang.org/node/125">子类化</a>。
+*参考* Effective Scala 指出如果子类与父类实际上没有区别，<a href="https://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">类型别名</a>是优于<code>继承</code>的。A Tour of Scala 详细介绍了<a href="https://www.scala-lang.org/node/125">子类化</a>。
 
 h3. 重载方法
 
@@ -398,7 +398,7 @@ class BMW extends Car with Shiny {
 }
 </pre>
 
-*参考* Effective Scala 对<a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">特质的观点</a>。
+*参考* Effective Scala 对<a href="https://twitter.github.com/effectivescala/#Object oriented programming-Traits">特质的观点</a>。
 
 *什么时候应该使用特质而不是抽象类？* 如果你想定义一个类似接口的类型，你可能会在特质和抽象类之间难以取舍。这两种形式都可以让你定义一个类型的一些行为，并要求继承者定义一些其他行为。一些经验法则：
 
@@ -407,7 +407,7 @@ class BMW extends Car with Shiny {
 <li>如果你需要构造函数参数，使用抽象类。因为抽象类可以定义带参数的构造函数，而特质不行。例如，你不能说<code>trait t(i: Int) {}</code>，参数<code>i</code>是非法的。
 </ul>
 
-你不是问这个问题的第一人。可以查看更全面的答案： "stackoverflow: Scala特质 vs 抽象类":http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes , "抽象类和特质的区别":http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait, and "Scala编程: 用特质，还是不用特质？":http://www.artima.com/pins1ed/traits.html#12.7
+你不是问这个问题的第一人。可以查看更全面的答案： "stackoverflow: Scala特质 vs 抽象类":https://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes , "抽象类和特质的区别":https://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait, and "Scala编程: 用特质，还是不用特质？":https://www.artima.com/pins1ed/traits.html#12.7
 
 h2(#types). 类型
 

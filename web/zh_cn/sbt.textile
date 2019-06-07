@@ -29,9 +29,9 @@ h2. 为什么选择SBT？
 
 h2. 入门
 
-*译注* 最新的SBT安装方式请参考 <a href="http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html">scala-sbt的文档</a>
+*译注* 最新的SBT安装方式请参考 <a href="https://www.scala-sbt.org/release/docs/Getting-Started/Setup.html">scala-sbt的文档</a>
 
-* 下载jar包 <a href="http://code.google.com/p/simple-build-tool/downloads/list">地址 </a>
+* 下载jar包 <a href="https://code.google.com/p/simple-build-tool/downloads/list">地址 </a>
 * 创建一个调用这个jar的SBT shell脚本，例如
 
 <pre>
@@ -490,7 +490,7 @@ h2. 打包和发布
 import sbt._
 
 class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
-  val twitterMaven = "twitter.com" at "http://maven.twttr.com/"
+  val twitterMaven = "twitter.com" at "https://maven.twttr.com/"
   val defaultProject = "com.twitter" % "standard-project" % "0.7.14"
 }
 </pre>
@@ -507,7 +507,7 @@ class SampleProject(info: ProjectInfo) extends StandardProject(info) with Subver
   val jackson = "org.codehaus.jackson" % "jackson-core-asl" % "1.6.1"
   val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
 
-  override def subversionRepository = Some("http://svn.local.twitter.com/maven/")
+  override def subversionRepository = Some("https://svn.local.twitter.com/maven/")
 }
 </pre>
 
@@ -527,11 +527,11 @@ IvySvn Build-DateTime: null
 [info] 
 [info] == publish ==
 [info] :: publishing :: com.twitter#sample
-[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
 [info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
-[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
 [info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
-[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
 [info] 	published ivy to com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
 [info] Binary diff deleting com/twitter/sample/1.0-SNAPSHOT
 [info] Commit finished r977 by 'mmcbride' at Wed Nov 24 10:26:47 PST 2010
@@ -543,7 +543,7 @@ IvySvn Build-DateTime: null
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
 
-这样（一段时间后），就可以在 <a href="http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/">binaries.local.twitter.com</a> 上看到我们发布的jar包。
+这样（一段时间后），就可以在 <a href="https://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/">binaries.local.twitter.com</a> 上看到我们发布的jar包。
 
 h2. 添加任务
 

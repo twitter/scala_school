@@ -227,7 +227,7 @@ scala> (adder _).curried
 res1: (Int) => (Int) => Int = <function1>
 </pre>
 
-См. подробнее о <a href="http://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%80%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5">Каррировании</a>
+См. подробнее о <a href="https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%80%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5">Каррировании</a>
 
 h3. Использование переменного количества аргументов
 
@@ -302,7 +302,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 }
 </pre>
 
-*Смотрите также:* В Effective Scala указывается на то, что лучше использовать <a href="http://twitter.github.com/effectivescala/index-ru.html#Типы и обобщенные типы-Псевдонимы типов">Псевдонимы типов</a> вместо <code>extends</code>, особенно если подкласс практически ничем не отличается от суперкласса. В "Туре по языку Scala" вы найдете более подробное описание <a href="http://www.scala-lang.org/node/125">Подклассов</a>.
+*Смотрите также:* В Effective Scala указывается на то, что лучше использовать <a href="https://twitter.github.com/effectivescala/index-ru.html#Типы и обобщенные типы-Псевдонимы типов">Псевдонимы типов</a> вместо <code>extends</code>, особенно если подкласс практически ничем не отличается от суперкласса. В "Туре по языку Scala" вы найдете более подробное описание <a href="https://www.scala-lang.org/node/125">Подклассов</a>.
 
 h3. Перегрузка методов
 
@@ -329,7 +329,7 @@ class BMW extends Car {
 }
 </pre>
 
-*Смотрите также:* В Effective Scala есть описание <a href="http://twitter.github.com/effectivescala/index-ru.html#Объектно-ориентированное программирование-Трейты(Traits)">Трейтов</a>.
+*Смотрите также:* В Effective Scala есть описание <a href="https://twitter.github.com/effectivescala/index-ru.html#Объектно-ориентированное программирование-Трейты(Traits)">Трейтов</a>.
 
 h2(#types). Типы
 

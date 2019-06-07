@@ -7,7 +7,7 @@ layout: post
 
 Scala provides a nice set of collection implementations. It also provides some abstractions for collection types. This allows you to write code that can work with a collection of <code>Foo</code>s without worrying whether that collection is a <code>List</code>, <code>Set</code>, or what-have-you.
 
-"This page":http://www.decodified.com/scala/collections-api.xml offers a great way to follow the default implementations and links to all the scaladoc.
+"This page":https://www.decodified.com/scala/collections-api.xml offers a great way to follow the default implementations and links to all the scaladoc.
 
 * "Basics":#basics Collection types you'll use all the time
 * "Hierarchy":#hierarchy Collection abstractions
@@ -33,7 +33,7 @@ scala> 1 :: 2 :: 3 :: Nil
 res1: List[Int] = List(1, 2, 3)
 </pre>
 
-*See also* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
+*See also* "API doc":https://www.scala-lang.org/api/current/scala/collection/immutable/List.html
 
 h3. Set
 
@@ -44,7 +44,7 @@ scala> Set(1, 1, 2)
 res2: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 
-*See also* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*See also* "API doc":https://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
 h3. Seq
 
@@ -57,7 +57,7 @@ res3: Seq[Int] = List(1, 1, 2)
 
 (Notice that returned a List. <code>Seq</code> is a trait; List is a lovely implementation of Seq. There's a factory object <code>Seq</code> which, as you see here, creates Lists.)
 
-*See also* "API doc":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*See also* "API doc":https://www.scala-lang.org/api/current/scala/collection/Seq.html
 
 h3. Map
 
@@ -68,7 +68,7 @@ scala> Map('a' -> 1, 'b' -> 2)
 res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 </pre>
 
-*See also* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*See also* "API doc":https://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
 h2(#hierarchy). The Hierarchy
 
@@ -78,31 +78,31 @@ h3. Traversable
 
 All collections can be traversed.  This trait defines standard function combinators. These combinators are written in terms of @foreach@, which collections must implement.
 
-*See Also* "API doc":http://www.scala-lang.org/api/current/scala/collection/Traversable.html
+*See Also* "API doc":https://www.scala-lang.org/api/current/scala/collection/Traversable.html
 
 h3. Iterable
 
 Has an @iterator()@ method to give you an Iterator over the elements.
 
-*See Also* "API doc":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
+*See Also* "API doc":https://www.scala-lang.org/api/current/scala/collection/Iterable.html
 
 h3. Seq
 
 Sequence of items with ordering.
 
-*See Also* "API doc":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*See Also* "API doc":https://www.scala-lang.org/api/current/scala/collection/Seq.html
 
 h3. Set
 
 A collection of items with no duplicates.
 
-*See Also* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*See Also* "API doc":https://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
 h3. Map
 
 Key Value Pairs.
 
-*See Also* "API doc":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*See Also* "API doc":https://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
 h2(#methods). The methods
 
@@ -250,18 +250,18 @@ res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (
 
 h3. Commonly-used subclasses
 
-*HashSet and HashMap* Quick lookup, the most commonly used forms of these collections. "HashSet API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "HashMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
+*HashSet and HashMap* Quick lookup, the most commonly used forms of these collections. "HashSet API":https://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "HashMap API":https://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
 
-*TreeMap* A subclass of SortedMap, it gives you ordered access. "TreeMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
+*TreeMap* A subclass of SortedMap, it gives you ordered access. "TreeMap API":https://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html
 
-*Vector* Fast random selection and fast updates. "Vector API":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html
+*Vector* Fast random selection and fast updates. "Vector API":https://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html
 
 <pre>
 scala> IndexedSeq(1, 2, 3)
 res0: IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 
-*Range* Ordered sequence of Ints that are spaced apart.  You will often see this used where a counting for-loop was used before. "Range API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
+*Range* Ordered sequence of Ints that are spaced apart.  You will often see this used where a counting for-loop was used before. "Range API":https://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
 
 <pre>
 scala> for (i <- 1 to 3) { println(i) }
@@ -310,9 +310,9 @@ res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 
 h3. Some descriptive traits
 
-*IndexedSeq* fast random-access of elements and a fast length operation. "API doc":http://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html
+*IndexedSeq* fast random-access of elements and a fast length operation. "API doc":https://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html
 
-*LinearSeq* fast access only to the first element via head, but also has a fast tail operation. "API doc":http://www.scala-lang.org/api/current/scala/collection/LinearSeq.html
+*LinearSeq* fast access only to the first element via head, but also has a fast tail operation. "API doc":https://www.scala-lang.org/api/current/scala/collection/LinearSeq.html
 
 h4. Mutable vs. Immutable
 
@@ -332,7 +332,7 @@ h2(#mutable). Mutable
 
 All of the above classes we've discussed were immutable.  Let's discuss the commonly used mutable collections.
 
-*HashMap* defines @getOrElseUpdate@, @+=@ "HashMap API":http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html
+*HashMap* defines @getOrElseUpdate@, @+=@ "HashMap API":https://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html
 
 <pre>
 scala> val numbers = collection.mutable.Map(1 -> 2)
@@ -351,19 +351,19 @@ scala> numbers += (4 -> 1)
 res56: numbers.type = Map((2,3), (4,1), (1,2))
 </pre>
 
-*ListBuffer and ArrayBuffer* Defines @+=@ "ListBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "ArrayBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
+*ListBuffer and ArrayBuffer* Defines @+=@ "ListBuffer API":https://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "ArrayBuffer API":https://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
 
-*LinkedList and DoubleLinkedList* "LinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "DoubleLinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
+*LinkedList and DoubleLinkedList* "LinkedList API":https://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "DoubleLinkedList API":https://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
 
-*PriorityQueue* "API doc":http://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
+*PriorityQueue* "API doc":https://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
 
-*Stack and ArrayStack* "Stack API":http://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "ArrayStack API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
+*Stack and ArrayStack* "Stack API":https://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "ArrayStack API":https://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
 
-*StringBuilder* Interestingly, StringBuilder is a collection. "API doc":http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html
+*StringBuilder* Interestingly, StringBuilder is a collection. "API doc":https://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html
 
 h2(#java). Life with Java
 
-You can easily move between Java and Scala collection types using conversions that are available in the <a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>. It decorates commonly-used Java collections with <code>asScala</code> methods and Scala collections with <code>asJava</code> methods.
+You can easily move between Java and Scala collection types using conversions that are available in the <a href="https://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>. It decorates commonly-used Java collections with <code>asScala</code> methods and Scala collections with <code>asJava</code> methods.
 
 <pre>
    import scala.collection.JavaConverters._

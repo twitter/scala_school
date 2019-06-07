@@ -185,7 +185,7 @@ executor.execute(future)
 val blockingResult = Await.result(future)
 </pre>
 
-*Смотрите также:* В Effective Scala есть описание <a href="http://twitter.github.com/effectivescala/index-ru.html#Стандартные билиотеки Twitter-Futures">Futures</a> .
+*Смотрите также:* В Effective Scala есть описание <a href="https://twitter.github.com/effectivescala/index-ru.html#Стандартные билиотеки Twitter-Futures">Futures</a> .
 
 h2(#danger). Проблема безопасности потока
 

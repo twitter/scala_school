@@ -44,5 +44,5 @@ class SearchbirdProject(info: ProjectInfo) extends StandardServiceProject(info)
 
   override def mainClass = Some("com.twitter.searchbird.Main")
 
-  override def subversionRepository = Some("http://svn.local.twitter.com/maven-public")
+  override def subversionRepository = Some("https://svn.local.twitter.com/maven-public")
 }

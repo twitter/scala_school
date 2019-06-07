@@ -40,7 +40,7 @@ The IDL for your service is in `src/main/thrift/searchbird.thrift`.  The
 Thrift compiler uses the IDL to generate bindings for various
 languages, making it easy for scripts in those languages to talk to
 your service.  More information about Thrift and how to write an IDL
-for your service can be found [here](http://wiki.apache.org/thrift/Tutorial).
+for your service can be found [here](https://wiki.apache.org/thrift/Tutorial).
 
 ### Call your service from ruby
 
@@ -70,7 +70,7 @@ requests. You can view the stats via that port:
     ...
 
 Ostrich also stores historial stats data and can build
-[graphs](http://localhost:9900/graph/) for you.
+[graphs](https://localhost:9900/graph/) for you.
 
 ### Stop the service
 
@@ -123,7 +123,7 @@ example:
 
 ### Specs: let's add some tests
 
-[Specs](http://code.google.com/p/specs/) is a Behavior-Driven Design
+[Specs](https://code.google.com/p/specs/) is a Behavior-Driven Design
 framework that allows you to write semi-human-readable descriptions of
 how your service should behave and test that those descriptions are
 valid.  You already have some Specs code for your project in
@@ -150,7 +150,7 @@ TODO: add link to scala school lesson on Specs
 By now you've had to Ctrl-C your server and restart it to get changes
 to show up.  This gets a little tiresome.  The build tool we are
 using,
-[SBT (simple build tool)](http://code.google.com/p/simple-build-tool/)
+[SBT (simple build tool)](https://code.google.com/p/simple-build-tool/)
 has a console that you can access by just running "sbt" from the
 command line.
 

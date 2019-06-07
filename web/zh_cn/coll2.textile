@@ -7,7 +7,7 @@ layout: post
 
 Scala提供了一套很好的集合实现，提供了一些集合类型的抽象。这让你的代码可以与<code>Foo</code>的集合交互，而无需担心该集合是是一个<code>List</code>，还是<code>Set</code>，或是任何你有的类型。
 
-"这里":http://www.decodified.com/scala/collections-api.xml 提供了一个很好的页面来查看各种集合的默认实现，并链接到他们的scala在线文档。
+"这里":https://www.decodified.com/scala/collections-api.xml 提供了一个很好的页面来查看各种集合的默认实现，并链接到他们的scala在线文档。
 
 * "基础知识":#basics 你会随时用到的基本集合类型
 * "层次结构":#hierarchy 集合抽象层次
@@ -33,7 +33,7 @@ scala> 1 :: 2 :: 3 :: Nil
 res1: List[Int] = List(1, 2, 3)
 </pre>
 
-*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/immutable/List.html
+*参考* "API文档":https://www.scala-lang.org/api/current/scala/collection/immutable/List.html
 
 h3. 集 Set
 
@@ -44,7 +44,7 @@ scala> Set(1, 1, 2)
 res2: scala.collection.immutable.Set[Int] = Set(1, 2)
 </pre>
 
-*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*参考* "API文档":https://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
 h3. 序列 Seq
 
@@ -57,7 +57,7 @@ res3: Seq[Int] = List(1, 1, 2)
 
 （请注意返回的是一个列表。因为<code>Seq</code>是一个特质；而列表是序列的很好实现。如你所见，<code>Seq</code>也是一个工厂单例对象，可以用来创建列表。）
 
-*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*参考* "API文档":https://www.scala-lang.org/api/current/scala/collection/Seq.html
 
 h3. 映射 Map
 
@@ -68,7 +68,7 @@ scala> Map('a' -> 1, 'b' -> 2)
 res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
 </pre>
 
-*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*参考* "API文档":https://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
 h2(#hierarchy). 层次结构
 
@@ -78,31 +78,31 @@ h3. Traversable
 
 所有集合都可以被遍历。这个特质定义了标准函数组合子。 这些组合子根据 @foreach@ 来写，所有集合必须实现。
 
-*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/Traversable.html
+*参考* "API文档":https://www.scala-lang.org/api/current/scala/collection/Traversable.html
 
 h3. Iterable
 
 @iterator()@方法返回一个Iterator来迭代元素。
 
-*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/Iterable.html
+*参考* "API文档":https://www.scala-lang.org/api/current/scala/collection/Iterable.html
 
 h3. Seq 序列
 
 有顺序的对象序列。
 
-*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/Seq.html
+*参考* "API文档":https://www.scala-lang.org/api/current/scala/collection/Seq.html
 
 h3. Set 集
 
 没有重复的对象集合。
 
-*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
+*参考* "API文档":https://www.scala-lang.org/api/current/scala/collection/immutable/Set.html
 
 h3. Map
 
 键值对。
 
-*参考* "API文档":http://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
+*参考* "API文档":https://www.scala-lang.org/api/current/scala/collection/immutable/Map.html
 
 h2(#methods). 方法
 
@@ -250,18 +250,18 @@ res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (
 
 h3. 常用的子类 
 
-*HashSet和HashMap* 的快速查找，这些集合的最常用的形式。 "HashSet API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "HashMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
+*HashSet和HashMap* 的快速查找，这些集合的最常用的形式。 "HashSet API":https://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html, "HashMap API":https://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html
 
-*TreeMap* 是SortedMap的一个子类，它可以让你进行有序访问。 "TreeMap API":http://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html 
+*TreeMap* 是SortedMap的一个子类，它可以让你进行有序访问。 "TreeMap API":https://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html 
 
-*Vector* 快速随机选择和快速更新。 "Vector API":http://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html 
+*Vector* 快速随机选择和快速更新。 "Vector API":https://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html 
 
 <pre>
 scala> IndexedSeq(1, 2, 3)
 res0: IndexedSeq[Int] = Vector(1, 2, 3)
 </pre>
 
-*Range* 等间隔的Int有序序列。你经常会在for循环看到。 "Range API":http://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
+*Range* 等间隔的Int有序序列。你经常会在for循环看到。 "Range API":https://www.scala-lang.org/api/current/scala/collection/immutable/Range.html
 
 <pre>
 scala> for (i <- 1 to 3) { println(i) }
@@ -310,9 +310,9 @@ res31: scala.collection.immutable.Set[Int] = Set(1, 2)
 
 h3. 一些描述性的特质 
 
-*IndexedSeq* 快速随机访问元素和一个快速的长度操作。"API 文档":http://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html 
+*IndexedSeq* 快速随机访问元素和一个快速的长度操作。"API 文档":https://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html 
 
-*LinearSeq* 通过head快速访问第一个元素，也有一个快速的tail操作。 "API文档":http://www.scala-lang.org/api/current/scala/collection/LinearSeq.html 
+*LinearSeq* 通过head快速访问第一个元素，也有一个快速的tail操作。 "API文档":https://www.scala-lang.org/api/current/scala/collection/LinearSeq.html 
 
 h4. 可变 vs 不可变 
 
@@ -332,7 +332,7 @@ h2(#mutable). 可变集合
 
 前面讨论的所有类都是不可变的。让我们来讨论常用的可变集合。 
 
-*HashMap* 定义了 @getOrElseUpdate@, @+=@ "HashMap API":http://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html 
+*HashMap* 定义了 @getOrElseUpdate@, @+=@ "HashMap API":https://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html 
 
 <pre>
 scala> val numbers = collection.mutable.Map(1 -> 2)
@@ -351,20 +351,20 @@ scala> numbers += (4 -> 1)
 res56: numbers.type = Map((2,3), (4,1), (1,2))
 </pre>
 
-*ListBuffer和ArrayBuffer* 定义 @+=@        "ListBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "ArrayBuffer API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
+*ListBuffer和ArrayBuffer* 定义 @+=@        "ListBuffer API":https://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html, "ArrayBuffer API":https://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html
 
-*LinkedList and DoubleLinkedList* "LinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "DoubleLinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
-*LinkedList和DoubleLinkedList*    "LinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "DoubleLinkedList API":http://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
+*LinkedList and DoubleLinkedList* "LinkedList API":https://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "DoubleLinkedList API":https://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
+*LinkedList和DoubleLinkedList*    "LinkedList API":https://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html, "DoubleLinkedList API":https://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html
 
-*PriorityQueue* "API 文档":http://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
+*PriorityQueue* "API 文档":https://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html
 
-*Stack 和 ArrayStack* "Stack API":http://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "ArrayStack API":http://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
+*Stack 和 ArrayStack* "Stack API":https://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html, "ArrayStack API":https://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html
 
-*StringBuilder* 有趣的是，StringBuilder的是一个集合。                            "API文档":http://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html 
+*StringBuilder* 有趣的是，StringBuilder的是一个集合。                            "API文档":https://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html 
 
 h2(#java). 与Java生活
 
-您可以通过<a href="http://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>轻松地在Java和Scala的集合类型之间转换。它用<code>asScala</code> 装饰常用的Java集合以和用<code>asJava</code> 方法装饰Scala集合。
+您可以通过<a href="https://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>轻松地在Java和Scala的集合类型之间转换。它用<code>asScala</code> 装饰常用的Java集合以和用<code>asJava</code> 方法装饰Scala集合。
 
 <pre>
    import scala.collection.JavaConverters._

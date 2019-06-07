@@ -121,7 +121,7 @@ h3. doFirst и doLast
 
 h2(#matchers). Конструкции сравнения
 
-У вас есть данные, и вы хотите убедиться, что они верные. Давайте рассмотрим наиболее часто используемые конструкции сравнения. (Смотрите также "Matchers Guide":http://code.google.com/p/specs/wiki/MatchersGuide)
+У вас есть данные, и вы хотите убедиться, что они верные. Давайте рассмотрим наиболее часто используемые конструкции сравнения. (Смотрите также "Matchers Guide":https://code.google.com/p/specs/wiki/MatchersGuide)
 
 h3. mustEqual
 
@@ -264,7 +264,7 @@ object MockExampleSpec extends Specification with Mockito {
 }
 </pre>
 
-*Смотрите также:* "Использование Mockito":http://code.google.com/p/specs/wiki/UsingMockito
+*Смотрите также:* "Использование Mockito":https://code.google.com/p/specs/wiki/UsingMockito
 
 h2(#spies). Шпионы(Spies)
 

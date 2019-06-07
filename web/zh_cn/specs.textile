@@ -121,7 +121,7 @@ h3. doFirst & doLast
 
 h2(#matchers). Matchers
 
-你有数据，并且想要确保它是正确的。让我们看看最常用的匹配器是如何帮助你的。 （参考 "匹配器指南":http://code.google.com/p/specs/wiki/MatchersGuide ）
+你有数据，并且想要确保它是正确的。让我们看看最常用的匹配器是如何帮助你的。 （参考 "匹配器指南":https://code.google.com/p/specs/wiki/MatchersGuide ）
 
 h3. mustEqual
 
@@ -264,7 +264,7 @@ object MockExampleSpec extends Specification with Mockito {
 }
 </pre>
 
-*参考* "Using Mockito":http://code.google.com/p/specs/wiki/UsingMockito
+*参考* "Using Mockito":https://code.google.com/p/specs/wiki/UsingMockito
 
 h2(#spies). Spies
 

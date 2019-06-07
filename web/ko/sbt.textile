@@ -29,7 +29,7 @@ h2. SBT를 쓰는 이유는?
 * 프로젝트 문맥(환경)하에서 REPL 실행 가능
 
 h2. 시작하기
-* "jar를 다운로드하라":http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
+* "jar를 다운로드하라":https://www.scala-sbt.org/release/docs/Getting-Started/Setup.html
 * 아래 예와 같이 다운로드 받은 jar를 호출하는 셀 스크립트를 작성하라. 
 
 <pre>
@@ -488,7 +488,7 @@ h2. 패키징과 배포
 import sbt._
 
 class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
-  val twitterMaven = "twitter.com" at "http://maven.twttr.com/"
+  val twitterMaven = "twitter.com" at "https://maven.twttr.com/"
   val defaultProject = "com.twitter" % "standard-project" % "0.7.14"
 }
 </pre>
@@ -505,7 +505,7 @@ class SampleProject(info: ProjectInfo) extends StandardProject(info) with Subver
   val jackson = "org.codehaus.jackson" % "jackson-core-asl" % "1.6.1"
   val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
 
-  override def subversionRepository = Some("http://svn.local.twitter.com/maven/")
+  override def subversionRepository = Some("https://svn.local.twitter.com/maven/")
 }
 </pre>
 
@@ -525,11 +525,11 @@ IvySvn Build-DateTime: null
 [info] 
 [info] == publish ==
 [info] :: publishing :: com.twitter#sample
-[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
 [info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
-[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
 [info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
-[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
 [info] 	published ivy to com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
 [info] Binary diff deleting com/twitter/sample/1.0-SNAPSHOT
 [info] Commit finished r977 by 'mmcbride' at Wed Nov 24 10:26:47 PST 2010
@@ -541,7 +541,7 @@ IvySvn Build-DateTime: null
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
 
-그 후(시간이 조금 지나고 나면) binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/에 가 보면 배포한 jar파일을 볼 수 있다.
+그 후(시간이 조금 지나고 나면) binaries.local.twitter.com:https://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/에 가 보면 배포한 jar파일을 볼 수 있다.
 
 h2. 작업(task) 추가하기
 

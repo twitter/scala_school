@@ -87,7 +87,7 @@ case "$1" in
       exit 0
     fi
 
-    curl -m 5 -s http://localhost:${ADMIN_PORT}/shutdown.txt > /dev/null
+    curl -m 5 -s https://localhost:${ADMIN_PORT}/shutdown.txt > /dev/null
     tries=0
     while running; do
       tries=$((tries + 1))

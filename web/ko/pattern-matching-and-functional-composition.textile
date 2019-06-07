@@ -74,7 +74,7 @@ h2(#PartialFunction). PartialFunction
 
 __Note__ <code>PartialFunction</code>은 앞에서 본 부분 적용된 함수와는 전혀 관계가 없다.
 
-*See Also* 효율적 스칼라에도 <a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">부분함수</a>에 대한 내용이 있다.
+*See Also* 효율적 스칼라에도 <a href="https://twitter.github.com/effectivescala/#Functional programming-Partial functions">부분함수</a>에 대한 내용이 있다.
 
 <pre>
 scala> val one: PartialFunction[Int, String] = { case 1 => "one" }

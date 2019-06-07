@@ -60,7 +60,7 @@ scala> (new Container[Float]).addIt(123.2F)
 
 h2(#otherbounds). Other type bounds
 
-Methods can enforce more complex type bounds via implicit parameters. For example, <code>List</code> supports <code>sum</code> on numeric contents but not on others. Alas, Scala's numeric types don't all share a superclass, so we can't just say <code>T <: Number</code>. Instead, to make this work, Scala's math library <a href="http://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/">defines an implicit <code>Numeric[T]</code> for the appropriate types T</a>.  Then in <code>List</code>'s definition uses it:
+Methods can enforce more complex type bounds via implicit parameters. For example, <code>List</code> supports <code>sum</code> on numeric contents but not on others. Alas, Scala's numeric types don't all share a superclass, so we can't just say <code>T <: Number</code>. Instead, to make this work, Scala's math library <a href="https://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/">defines an implicit <code>Numeric[T]</code> for the appropriate types T</a>.  Then in <code>List</code>'s definition uses it:
 
 <pre>
 sum[B >: A](implicit num: Numeric[B]): B
@@ -74,7 +74,7 @@ Methods may ask for some kinds of specific "evidence" for a type without setting
 |A <:< B|A must be a subtype of B|
 |A <%< B|A must be viewable as B|
 
-(If you get errors trying to use <:< or <%<, be aware that those went away in Scala 2.10. Scala School examples work with "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html . You can use a newer Scala, but expect errors.)
+(If you get errors trying to use <:< or <%<, be aware that those went away in Scala 2.10. Scala School examples work with "Scala 2.9.x":https://www.scala-lang.org/download/2.9.3.html . You can use a newer Scala, but expect errors.)
 
 <pre>
 scala> class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }

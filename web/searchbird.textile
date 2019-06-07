@@ -4,17 +4,17 @@ title: Searchbird
 layout: post
 ---
 
-We're going to build a simple distributed search engine using Scala and the previously discussed "Finagle":http://github.com/twitter/finagle framework.
+We're going to build a simple distributed search engine using Scala and the previously discussed "Finagle":https://github.com/twitter/finagle framework.
 
 h3. Design goals: the big picture
 
 Broadly, our design goals include _abstraction_ (the ability to use the resulting system without knowing all of its internal detail); _modularity_ (the ability to factor the system into smaller, simpler pieces that can be more easily understood and/or replaced with other pieces); and _scalability_ (the ability to grow the capacity of the system in a straightforward way).
 
-The system we're going to describe has three pieces: (1) _clients_ that makes requests to (2) _servers_, which send responses to the request; and a (3) _transport_ mechanism that packages up these communications. Normally the client and server would be located on different machines and communicate over a network on a particular numerical "_port_":http://en.wikipedia.org/wiki/Port_(computer_networking), but in this example, they will run on the same machine (and still communicate using ports). In our example, clients and servers will be written in Scala, and the transport will be handled using "Thrift":http://thrift.apache.org/. The primary purpose of this tutorial is to show a simple server and client that can be extended to provide scalable performance.
+The system we're going to describe has three pieces: (1) _clients_ that makes requests to (2) _servers_, which send responses to the request; and a (3) _transport_ mechanism that packages up these communications. Normally the client and server would be located on different machines and communicate over a network on a particular numerical "_port_":https://en.wikipedia.org/wiki/Port_(computer_networking), but in this example, they will run on the same machine (and still communicate using ports). In our example, clients and servers will be written in Scala, and the transport will be handled using "Thrift":https://thrift.apache.org/. The primary purpose of this tutorial is to show a simple server and client that can be extended to provide scalable performance.
 
 h3. Exploring the default bootstrapper project
 
-First, create a skeleton project ("Searchbird") using "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper. This creates a simple "Finagle":http://twitter.github.com/finagle/ -based Scala service that exports an in-memory key-value store. We'll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.
+First, create a skeleton project ("Searchbird") using "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper. This creates a simple "Finagle":https://twitter.github.com/finagle/ -based Scala service that exports an in-memory key-value store. We'll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.
 
 <pre>
 $ mkdir searchbird ; cd searchbird
@@ -50,7 +50,7 @@ Before we look at code, we're going to run a client and server to see how it wor
 
 !searchbird-1.svg(Searchbird implementation, revision 1)!
 
-and here is the interface that our service exports. Since the Searchbird service is a "Thrift":http://thrift.apache.org/ service (like most of our services), its external interface is defined in the Thrift IDL ("interface description language").
+and here is the interface that our service exports. Since the Searchbird service is a "Thrift":https://thrift.apache.org/ service (like most of our services), its external interface is defined in the Thrift IDL ("interface description language").
 
 h5. src/main/thrift/searchbird.thrift
 

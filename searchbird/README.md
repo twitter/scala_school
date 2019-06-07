@@ -17,7 +17,7 @@ scala-bootstrapper README.rdoc file.
 If you want to setup Intellij, it has to happen off to the side:
 
     $ sbt
-    > *sbtIdeaRepo at http://mpeltonen.github.com/maven/
+    > *sbtIdeaRepo at https://mpeltonen.github.com/maven/
     > *idea is com.github.mpeltonen sbt-idea-processor 0.4.0
     > update
     > idea
