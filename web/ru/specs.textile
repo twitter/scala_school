@@ -7,21 +7,21 @@ layout: post
 
 В этом уроке вы узнаете о тестировании с помощью Specs, Scala фреймворк для Разработки, основанная на функционировании.
 
-* "расширяем Спецификацию":#example
+* «расширяем Спецификацию»:#example
 ** вложенные примеры
-* "Модель Выполнения":#scope
-* "Установка и Распаковка":#setup
+* «Модель Выполнения»:#scope
+* «Установка и Распаковка»:#setup
 ** doFirst
 ** doBefore
 ** doAfter
-* "Конструкции сравнения":#matchers
+* «Конструкции сравнения»:#matchers
 ** mustEqual
 ** contains
 ** sameSize?
 ** пишем свою конструкцию
-* "Подделки(Mocks)":#mocks
-* "Шпионы(Spies)":#spies
-* "Запуск в sbt":#sbt
+* «Подделки (Mocks)»:#mocks
+* «Шпионы (Spies)»:#spies
+* «Запуск в sbt»:#sbt
 
 
 h2(#example). Расширяем Спецификацию
@@ -45,9 +45,9 @@ object ArithmeticSpec extends Specification {
 
 *Arithmetic* означает, что *System Under Specification*(Система имеет спецификацию)
 
-*add* - это контекст.
+*add* — это контекст.
 
-*add two numbers* и *add three numbers* - это примеры.
+*add two numbers* и *add three numbers* — это примеры.
 
 @mustEqual@ отражает наше *ожидание*
 
@@ -121,7 +121,7 @@ h3. doFirst и doLast
 
 h2(#matchers). Конструкции сравнения
 
-У вас есть данные, и вы хотите убедиться, что они верные. Давайте рассмотрим наиболее часто используемые конструкции сравнения. (Смотрите также "Matchers Guide":https://code.google.com/p/specs/wiki/MatchersGuide)
+У вас есть данные, и вы хотите убедиться, что они верные. Давайте рассмотрим наиболее часто используемые конструкции сравнения. (Смотрите также «Matchers Guide»:https://code.google.com/p/specs/wiki/MatchersGuide)
 
 h3. mustEqual
 
@@ -264,11 +264,11 @@ object MockExampleSpec extends Specification with Mockito {
 }
 </pre>
 
-*Смотрите также:* "Использование Mockito":https://code.google.com/p/specs/wiki/UsingMockito
+*Смотрите также:* «Использование Mockito»:https://code.google.com/p/specs/wiki/UsingMockito
 
 h2(#spies). Шпионы(Spies)
 
-Шпионы могут также быть использованы для того, чтобы сделать некоторую "частичную подделку" реальных объектов:
+Шпионы могут также быть использованы для того, чтобы сделать некоторую «частичную подделку» реальных объектов:
 
 <pre>
 val list = new LinkedList[String]
