@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - specs로 테스트 하기</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">specs로 테스트 하기</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="coll2.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="concurrency.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>이번 강좌에서는 Specs를 사용해 테스트하는 법을 다룬다. Specs는 스칼라용 동작 주도 설계(Behavior-Driven Design, <span class="caps">BDD</span>) 프레임워크이다.</p>
+<ul>
+	<li><a href="#example">Specification(명세 클래스) 확장하기</a>
+	<ul>
+		<li>내포</li>
+	</ul></li>
+	<li><a href="#scope">실행 모델</a></li>
+	<li><a href="#setup">준비작업과 정리작업-Setup, Teardown</a>
+	<ul>
+		<li>doFirst</li>
+		<li>doBefore</li>
+		<li>doAfter</li>
+	</ul></li>
+	<li><a href="#matchers">매처-Matcher</a>
+	<ul>
+		<li>mustEqual</li>
+		<li>contains</li>
+		<li>sameSize?</li>
+		<li>필요한 매처 만들어내기</li>
+	</ul></li>
+	<li><a href="#mocks">목업</a></li>
+	<li><a href="#spies">스파이</a></li>
+	<li><a href="#sbt">sbt에서 실행하기</a></li>
+</ul>
+<h2 id="example">Specifcation(명세 클래스) 확장하기</h2>
+<p>코드부터 살펴보자.</p>
+<pre>
+import org.specs._
+
+object ArithmeticSpec extends Specification {
+  "Arithmetic" should {
+    "add two numbers" in {
+      1 + 1 mustEqual 2
+    }
+    "add three numbers" in {
+      1 + 1 + 1 mustEqual 3
+    }
+  }
+}
+</pre>
+<p><strong>Arithmetic</strong> 은 <strong>명세를 지정할 시스템(System under Specification)</strong> 이다.</p>
+<p><strong>add</strong> 는 컨택스트(context)라 한다.</p>
+<p><strong>add two numbers</strong>와 <strong>add three numbers</strong> 는 예제(example)라 한다.</p>
+<p><code>mustEqual</code> 은 <strong>예상결과(expectation)</strong> 이다.</p>
+<p><code>1 mustEqual 1</code> 은 &quot;예상결과&quot;를 담을 수 있는 틀로 활용할 수 있다. 예제는 반드시 하나 이상의 예상결과를 포함해야 한다.</p>
+<h3>중복</h3>
+<p>두 테스트의 이름에 <code>add</code> 가 같이 포함되어 있는게 보이는가? 이런 중복은 예상결과를 <strong>내포</strong> 시킴으로써 없앨 수 있다.</p>
+<pre>
+import org.specs._
+
+object ArithmeticSpec extends Specification {
+  "Arithmetic" should {
+    "add" in {
+      "two numbers" in {
+        1 + 1 mustEqual 2
+      }
+      "three numbers" in {
+        1 + 1 + 1 mustEqual 3
+      }
+    }
+  }
+}
+</pre>
+<h2 id="scope">실행 모델</h2>
+<pre>
+object ExecSpec extends Specification {
+  "Mutations are isolated" should {
+    var x = 0
+    "x equals 1 if we set it." in {
+      x = 1
+      x mustEqual 1
+    }
+    "x is the default value if we don't change it" in {
+      x mustEqual 0
+    }
+  }
+}
+</pre>
+<h2 id="setup">Setup(준비작업)과 Teardown(정리작업)</h2>
+<h3>doBefore &amp; doAfter</h3>
+<pre>
+"my system" should {
+  doBefore { resetTheSystem() /** user-defined reset function */ }
+  "mess up the system" in {...}
+  "and again" in {...}
+  doAfter { cleanThingsUp() }
+}
+</pre>
+<p><strong><span class="caps">NOTE</span></strong> <code>doBefore</code> / <code>doAfter</code> 는 말단 예제에 대해에서만 실행된다.</p>
+<h3>doFirst &amp; doLast</h3>
+<p><code>doFirst</code> / @doLast@는 일회성 설정을 위한 장치이다. (예제가 필요하다. 나(즉, 원저자)는 이를 사용하지 않는다.)</p>
+<pre>
+"Foo" should {
+  doFirst { openTheCurtains() }
+  "test stateless methods" in {...}
+  "test other stateless methods" in {...}
+  doLast { closeTheCurtains() }
+}
+</pre>
+<h2 id="matchers">Matcher(매처)</h2>
+<p>데이터가 있고, 그 데이터가 올바른지 확인할 때 매처를 사용한다. 가장 흔히 사용되는 것들을 살펴보자. (<a href="https://code.google.com/p/specs/wiki/MatchersGuide">매처 가이드</a> 를 살펴 보라)</p>
+<h3>mustEqual</h3>
+<p>이미 mustEqual 예제는 여러 개 살펴 보았다.</p>
+<pre>
+1 mustEqual 1
+
+"a" mustEqual "a"
+</pre>
+<p>동일성에는 참조 동일성과 값 동일성이 있다.</p>
+<h3>열의 원소</h3>
+<pre>
+val numbers = List(1, 2, 3)
+
+numbers must contain(1)
+numbers must not contain(4)
+
+numbers must containAll(List(1, 2, 3))
+numbers must containInOrder(List(1, 2, 3))
+
+List(1, List(2, 3, List(4)), 5) must haveTheSameElementsAs(List(5, List(List(4), 2, 3), 1))
+</pre>
+<h3>맵의 원소</h3>
+<pre>
+map must haveKey(k)
+map must notHaveKey(k)
+
+map must haveValue(v)
+map must notHaveValue(v)
+</pre>
+<h3>수</h3>
+<pre>
+a must beGreaterThan(b)
+a must beGreaterThanOrEqualTo(b)
+
+a must beLessThan(b)
+a must beLessThanOrEqualTo(b)
+
+a must beCloseTo(b, delta)
+</pre>
+<h3>옵션(Option)</h3>
+<pre>
+a must beNone
+
+a must beSome[Type]
+
+a must beSomething
+
+a must beSome(value)
+</pre>
+<h3>throwA</h3>
+<pre>
+a must throwA[WhateverException]
+</pre>
+<p>이렇게 쓰는게 테스트 몸체에서 예외를 캐치해서 실패로 만드는 것 보다 더 짧다.</p>
+<p>또한 특정 예외 메시지를 명시할 수도 있다.</p>
+<pre>
+a must throwA(WhateverException("message"))
+</pre>
+<p>예외의 타입에 대해 매치할 수도 있다.</p>
+<pre>
+a must throwA(new Exception) like {
+  case Exception(m) =&gt; m.startsWith("bad")
+}
+</pre>
+<h3>필요한 매처 만들어내기</h3>
+<pre>
+import org.specs.matcher.Matcher
+</pre>
+<h4>val로 정의하기</h4>
+<pre>
+"A matcher" should {
+  "be created as a val" in {
+    val beEven = new Matcher[Int] {
+      def apply(n: =&gt; Int) = {
+        (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
+      }
+    }
+    2 must beEven
+  }
+}
+</pre>
+<p>매처 정의시 지켜야할 계약은 3-튜플을 반환하는 것이다. 첫 원소에는 예상 결과를 만족하는지 여부, 두번째 원소에는 만족시의 메시지, 마지막 원소에는 실패시의 메시지가 들어가야 한다.</p>
+<h4>케이스 클래스로 정의하기</h4>
+<pre>
+case class beEven(b: Int) extends Matcher[Int]() {
+  def apply(n: =&gt; Int) =  (n % 2 == 0, "%d is even".format(n), "%d is odd".format(n))
+}
+</pre>
+<p>케이스 클래스로 만들면 더 공유하기 쉬워진다.</p>
+<h2 id="mocks">목업</h2>
+<pre>
+import org.specs.Specification
+import org.specs.mock.Mockito
+
+abstract class Foo[T] {
+  def get(i: Int): T
+}
+
+object MockExampleSpec extends Specification with Mockito {
+  val m = mock[Foo[String]]
+
+  m.get(0) returns "one"
+
+  m.get(0)
+
+  there was one(m).get(0)
+
+  there was no(m).get(1)
+}
+</pre>
+<p><strong>See Also</strong> <a href="https://code.google.com/p/specs/wiki/UsingMockito">Mockito 활용하기</a></p>
+<h2 id="spies">스파이</h2>
+<p>스파이를 사용해 실제 객체를 &#8220;부분적으로 흉내내기&#8221;할 수 있다.</p>
+<pre>
+val list = new LinkedList[String]
+val spiedList = spy(list)
+
+// methods can be stubbed on a spy
+spiedList.size returns 100
+
+// other methods can also be used
+spiedList.add("one")
+spiedList.add("two")
+
+// and verification can happen on a spy
+there was one(spiedList).add("one")
+</pre>
+<p>하지만, 스파이를 쓰면 때로 문제가 생길 수 있다.</p>
+<pre>
+// 리스트가 비어있다면, IndexOutOfBoundsException가 발생할 것이다.
+spiedList.get(0) returns "one"
+</pre>
+<p>이 경우 <code>doReturn</code> 을 사용해야만 한다.</p>
+<pre>
+doReturn("one").when(spiedList).get(0)
+</pre>
+<h2 id="sbt">개별 specs를 sbt에서 실행하기</h2>
+<pre>
+&gt; test-only com.twitter.yourservice.UserSpec
+</pre>
+<p>라고 하면 해당 spec을 실행할 것이다.</p>
+<pre>
+&gt; ~ test-only com.twitter.yourservice.UserSpec
+</pre>
+<p>라고 하면 테스트를 실행하되, 파일이 바뀔 때마다 테스트가 재실행될 것이다.</p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

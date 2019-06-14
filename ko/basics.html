@@ -8,13 +8,13 @@
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
     <!-- Le styles -->
-    <link rel="stylesheet" href="/bootstrap-1.1.0.min.css">
-    <link rel="stylesheet" href="/style.css">
-    <link rel="stylesheet" href="/small-screens.css">
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -311,7 +311,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
   def log(m: Double, base: Double) = math.log(m) / math.log(base)
 }
 </pre>
-<p><strong>See Also</strong> &#8220;효율적인 스칼라(effective scala)&#8221;에서는 하위클래스가 상위클래스와 실제 다르지 않을 경우 <a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">타입 별명</a>이 <code>extends(확장)</code>보다 더 낫다고 말한다. 스칼라 여행(Tour of Scala)에서는 <a href="http://www.scala-lang.org/node/125">상속하기(Subclassing)</a>에 대해 다루고 있다.</p>
+<p><strong>See Also</strong> &#8220;효율적인 스칼라(effective scala)&#8221;에서는 하위클래스가 상위클래스와 실제 다르지 않을 경우 <a href="https://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">타입 별명</a>이 <code>extends(확장)</code>보다 더 낫다고 말한다. 스칼라 여행(Tour of Scala)에서는 <a href="https://www.scala-lang.org/node/125">상속하기(Subclassing)</a>에 대해 다루고 있다.</p>
 <h3>메소드 중복정의(Overloading)</h3>
 <pre>
 class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
@@ -363,14 +363,14 @@ class BMW extends Car with Shiny {
   val shineRefraction = 12
 }
 </pre>
-<p><strong>See Also</strong> 효율적인 스칼라도 <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">트레잇에</a> 대해 다루고 있다.<br />
+<p><strong>See Also</strong> 효율적인 스칼라도 <a href="https://twitter.github.com/effectivescala/#Object oriented programming-Traits">트레잇에</a> 대해 다루고 있다.<br />
 .</p>
 <p><strong>추상클래스 대신 트레잇를 사용해야 하는 경우는 언제인가?</strong> 인터페이스 역할을 하는 타입을 설계할 때 트레잇과 추상클래스 중 어떤 것을 골라야 할까? 두 가지 다 어떤 동작을 하는 타입을 만들 수 있으며, 확장하는 쪽에서 일부를 구현하도록 요청한다. 중요한 규칙은 다음과 같다.</p>
 <ul>
 <li>트레잇을 사용하는 것이 낫다. 클래스는 오직 하나만 상속(extend)할 수 있지만, 트레잇은 여러 가지를 받아 사용할 수 있다.<br />
 <li>생성자 매개변수가 필요한 경우라면 추상 클래스를 사용하라. 추상 클래스의 생성자는 매개변수를 받을 수 있지만, 트레잇의 생성자는 그렇지 않다. 예를 들어 <code>trait t(i: Int) {}</code> 에서 <code>i</code> 매개변수는 허용되지 않는다.</ul>
-<p>당신이 이런 질문을 한 첫번째 사람은 아니다. 스택 오버플로우에서 <a href="http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes">트레잇과 추상 클래스의 비교</a>, <a href="http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait">추상 클래스와 트레잇의 차이</a>, <br />
-또는 <a href="http://www.artima.com/pins1ed/traits.html#12.7">스칼라 프로그래밍: 트레잇냐 아니냐 그것이 문제로다?</a> 등을 참조하라.</p>
+<p>당신이 이런 질문을 한 첫번째 사람은 아니다. 스택 오버플로우에서 <a href="https://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes">트레잇과 추상 클래스의 비교</a>, <a href="https://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait">추상 클래스와 트레잇의 차이</a>, <br />
+또는 <a href="https://www.artima.com/pins1ed/traits.html#12.7">스칼라 프로그래밍: 트레잇냐 아니냐 그것이 문제로다?</a> 등을 참조하라.</p>
 <h2 id="types">타입</h2>
 <p>앞에서 숫자 타입중 하나인 <code>Int</code>를 인자로 받는 함수를 보았다. 모든 타입의 값을 처리할 수 있는 일반적(generic)인 함수를 만들 수도 있다. 일반적 함수를 만들 때는 각괄호([])안에 타입 매개변수를 추가한다. 아래는 키와 값을 가지는 일반적인 캐시를 보여준다.</p>
 <pre>
@@ -392,19 +392,19 @@ def remove[K](key: K)
       <div class="row">
         <div class="span16">
           <p>
-            Built at <a href="http://twitter.com/twitter"
+            Built at <a href="https://twitter.com/twitter"
             target="_blank">@twitter</a> by
-            <a href="http://twitter.com/stevej" target="_blank">@stevej</a>,
-            <a href="http://twitter.com/marius" target="_blank">@marius</a>, and
-            <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a>
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
             with much help from
-            <a href="http://twitter.com/evanm" target="_blank">@evanm</a>,
-            <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
-            <a href="http://twitter.com/kevino" target="_blank">@kevino</a>,
-            <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>,
-            <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
-            <a href="http://twitter.com/wickman" target="_blank">@wickman</a>,
-            <a href="http://twitter.com/mccv" target="_blank">@mccv</a>
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
             and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
             Russian translation by
             <a href="https://github.com/appigram">appigram</a>;
@@ -413,7 +413,7 @@ def remove[K](key: K)
             Korean translation by
             <a href="https://github.com/enshahar">enshahar</a>;<br />
             <br />
-            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>
       </div>

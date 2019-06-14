@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - 타입(고급 주제)</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">타입(고급 주제)</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="type-basics.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="sbt.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>이번 강좌에서는 다음을 다룬다.</p>
+<ul>
+	<li><a href="#viewbounds" title="View bound">뷰 바운드</a> (&#8220;타입 클래스&#8221;)</li>
+	<li><a href="#otherbounds">다른 타입 바운드들</a></li>
+	<li><a href="#higher">상류(Higher kinded) 타입과 임의 다형성</a></li>
+	<li><a href="#fbounded">F-바운드 다형성/ 재귀적 타입</a></li>
+	<li><a href="#structural" title="structural type">구조적 타입</a></li>
+	<li><a href="#abstractmem">추상 타입 멤버</a></li>
+	<li><a href="#manifest" title="manifest">타입 소거(Type erasure)와 매니페스트</a></li>
+	<li><a href="#finagle" title="Finagle">사례 연구: 피네이글</a></li>
+</ul>
+<h2 id="viewbounds">뷰 바운드(&#8220;타입 클래스&#8221;)</h2>
+<p>때로 두 타입이 서로 같거나 상하위 관계가 있는지를 명시할 필요가 없고, 변환으로 이를 흉내만 내면 좋겠다는 생각이 들 때가 있다. 뷰 바운드는 어떤 타입을 다른 타입으로 &#8220;볼 수 있는지&#8221;를 지정한다. 이는 어떤 객체를 &quot;읽기&quot;는 하지만 변경할 필요는 없는 연산일 때 유용하다.</p>
+<p><strong>묵시적(implicit)</strong> 함수는 자동 변환을 제공한다. 정확히 말하면, 그 묵시적 함수를 호출해야만 타입 추론이 이루어질 수 있는 경우에만 이 함수가 호출된다. 다음은 한 예이다.</p>
+<pre>
+scala&gt; implicit def strToInt(x: String) = x.toInt
+strToInt: (x: String)Int
+
+scala&gt; "123"
+res0: java.lang.String = 123
+
+scala&gt; val y: Int = "123"
+y: Int = 123
+
+scala&gt; math.max("123", 111)
+res1: Int = 123
+</pre>
+<p>뷰 바운드는 타입 바인드처럼 어떤 타입에 대해 그런 타입 변환 함수가 존재해야 함을 요청하기 위해 사용한다. 뷰 바운드는 아래 예에서와 같이 <code>&lt;%</code>로 표시한다.</p>
+<pre>
+scala&gt; class Container[A &lt;% Int] { def addIt(x: A) = 123 + x }
+defined class Container
+</pre>
+<p>&#8220;A &lt;% Int&#8221;의 뜻은 <strong>A</strong> 를 <strong>Int</strong> 로 &#8220;볼 수 있어야만&#8221; 한다는 뜻이다. 이를 시험해 보자.</p>
+<pre>
+scala&gt; (new Container[String]).addIt("123")
+res11: Int = 246
+
+scala&gt; (new Container[Int]).addIt(123) 
+res12: Int = 246
+
+scala&gt; (new Container[Float]).addIt(123.2F)
+&lt;console&gt;:8: error: could not find implicit value for evidence parameter of type (Float) =&gt; Int
+       (new Container[Float]).addIt(123.2)
+        ^
+</pre>
+<h2 id="otherbounds">다른 타입 바운드들</h2>
+<p>메소드에는 묵시적 매개변수를 통해 더 복잡한 타입 바운드를 걸 수 있다. 예를 들어 <code>List</code>는 원소가 수인 경우 <code>sum</code>을 지원하지만 수가 아니면 지원하지 않는다. 하지만 불행한 점은 스칼라에서 모든 수가 공유하는 공통의 상위타입이 없다는 것이다. 따라서 <code>T &lt;: Number</code>과 같은 바운드를 사용할 수는 없다. 대신 이를 위해 스칼라의 수학 라이브러리에서는 지원하는 타입 T에 대해 <a href="https://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/"> 묵시적인 <code>Numeric[T]</code></a>를 정의해 두었다. <code>List</code>의 정의에서는 다음과 같이 그 사실을 활용하면 된다.</p>
+<pre>
+sum[B &gt;: A](implicit num: Numeric[B]): B
+</pre>
+<p><code>List(1,2).sum</code>을 호출하는 경우 <em>num</em> 매개변수를 직접 전달할 필요는 없다(implicit로 정의되어 있다는 점에 유의하라). 하지만, <code>List("whoop").sum</code>를 호출한다면, 컴파일러는 <code>num</code>을 설정할 수 없다고 오류를 출력할 것이다.</p>
+<p>(역주: 원문에는 <code>List(1,2).sum()</code>이라고 되어 있었다. 하지만 실행해 보면 컴파일 오류가 난다. 이유는 ()로 매개변수가 있다는 것을 명시하는 경우에는 반드시 디폴트값이 지정되지 않은 인자를 넘겨야 하기 때문이다. implicit는 디폴트가 아니다. 따라서 컴파일러는 여기서 num을 넘겨줘야 한다고 비명을 지르게 된다. 이를 해결하려면 implicitly를 사용해야 한다. 어째 배가 산으로 간다. 구글에서 List.sum implicitly를 한번 찾아보라.)</p>
+<p><code>Numeric</code> 처럼 이상한 객체를 설정할 필요 없이, 메소드에서 타입에 특정 &quot;증거&quot;를 요청할 수도 있을 것이다. 대신, 아래와 같은 타입 관련 연산자를 활용할 수도 있다.</p>
+<table>
+	<tr>
+		<td>A =:= B</td>
+		<td>A는 B와 같아야 함</td>
+	</tr>
+	<tr>
+		<td>A &lt;:&lt; B</td>
+		<td>A는 B의 하위 타입이어야 함</td>
+	</tr>
+	<tr>
+		<td>A &lt;%&lt; B</td>
+		<td>A는 B로 볼 수 있어야 함</td>
+	</tr>
+</table>
+<pre>
+scala&gt; class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
+defined class Container
+
+scala&gt; (new Container(123)).addIt
+res11: Int = 246
+
+scala&gt; (new Container("123")).addIt
+&lt;console&gt;:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
+</pre>
+<p>implicit를 활용하면, 이 제약 사항을 &#8220;볼 수 있음&#8221;으로 바꿀 수 있다.</p>
+<pre>
+scala&gt; class Container[A](value: A) { def addIt(implicit evidence: A &lt;%&lt; Int) = 123 + value }
+defined class Container
+
+scala&gt; (new Container("123")).addIt
+res15: Int = 246
+</pre>
+<h3>뷰를 사용한 일반적 프로그래밍</h3>
+<p>스칼라 표준 라이브러리에서 주로 뷰가 사용되는 곳은 컬렉션에 대한 일반적인 함수를 정의하는 경우이다. 예를 들면 <strong>Seq[]</strong> 에 대한 &#8220;min&#8221; 함수가 이런식이다.</p>
+<pre>
+def min[B &gt;: A](implicit cmp: Ordering[B]): A = {
+  if (isEmpty)
+    throw new UnsupportedOperationException("empty.min")
+
+  reduceLeft((x, y) =&gt; if (cmp.lteq(x, y)) x else y)
+}
+</pre>
+<p>이렇게 하면 다음과 같은 장점이 있다.</p>
+<ul>
+	<li>컬렉션에 들어간 원소들이 <strong>Ordered</strong> 를 강제로 구현할 필요가 없어진다. 그럼에도 불구하고 <strong>Ordered</strong> 사용이 정적으로 타입 체크 된다.</li>
+	<li>추가 라이브러리 지원 없이도 원하는 데로 순서를 지정할 수 있다.</li>
+</ul>
+<pre>
+scala&gt; List(1,2,3,4).min
+res0: Int = 1
+
+scala&gt; List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b compare a })
+res3: Int = 4
+</pre>
+<p>한가지 덧붙이자면,표준 라이브러리에는 <strong>Ordered</strong> 와 <strong>Ordering</strong> 을 상호 변환하는 뷰가 있다.<br />
+(역주: Ordered와 Ordering의 차이는 자바 Comparable과 Comparator의 차이와 유사하다. 둘다 순서관계(partial ordering)를 지정하는 함수를 제공하는 역할을 하지만, Ordered는 주로 클래스에서 상속해 사용해 기본 대소비교를 담당하는 역할에 사용되고, Ordering은 명시적으로 두 값의 대소를 비교하는 연산을 정의해서 넘겨야 하는 경우 사용된다. 예를 들어 scala.util.Sorting에 있는 정렬 함수들에 컬렉션 객체만을 넘기면 컬렉션 원소의 Ordered 트레잇에 의해 정렬이 수행되고, 직접 Ordering을 넘기면 그 순서에 의해 정렬이 수행된다.)</p>
+<pre>
+trait LowPriorityOrderingImplicits {
+  implicit def ordered[A &lt;: Ordered[A]]: Ordering[A] = new Ordering[A] {
+    def compare(x: A, y: A) = x.compare(y)
+  }
+}
+</pre>
+<h4>implicitly[]와 컨텍스트 바운드</h4>
+<p>스칼라 2.8부터 묵시적 인자를 억세스하고 꿰는 간략한 문법이 도입되었다.</p>
+<pre>
+scala&gt; def foo[A](implicit x: Ordered[A]) {}
+foo: [A](implicit x: Ordered[A])Unit
+
+scala&gt; def foo[A : Ordered] {}                        
+foo: [A](implicit evidence$1: Ordered[A])Unit
+</pre>
+<p>원한다면 <strong>implicitly</strong> 를 사용해 묵시적 값을 억세스할 수 있다.</p>
+<pre>
+scala&gt; implicitly[Ordering[Int]]
+res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
+</pre>
+<p>이 두 기능을 사용하면 뷰를 엮어 써야 하는 경우 코드가 간략해 지는 경우가 자주 있다.</p>
+<h2 id="higher">상류 타입(Higher-kinded type)과 임의 다형성(ad-hoc polymorphism)</h2>
+<p>(*역주: Higher-Kinded는 한글로 번역하기가 어렵다. 고차(high-order)에서 이미 &#8217;차&#8217;라는 말은 사용하고 있고, 상위라는 말은 subtype관계-클래스의 상속관계도 subtype관계이다-에서 이미 사용하고 있다. type은 형이라고 번역한다면, kind는 형보다 한 단계 더 상위의 형이기 때문에 류라고 붙이는게 적절할 것 같고, 그러고 나면 고류/상류 등이 남는다. 그냥 상위 카인드라고 하는 것도 이상한 것은 마찬가지이다. 어색하지만 그냥 상류를 쓰자.)</p>
+<p>스칼라에서는 &#8220;상류&#8221; 타입에 대한 추상화가 가능하다. 예를 들어 어떤 데이터 타입을 보관하는 여러 타입의 컨테이너를 필요로 하는 경우를 생각해 보자. <code>Container</code>를 정의하고, 이를 여러 컨테이너들(즉 <code>Option</code>, <code>List</code> 등)이 상속/구현 하도록 할 수도 있다. 여기서 각 컨테이너에 들어가는 값의 타입을 고정하지 않고도 사용할 수 있는 인터페이스를 만들고 싶다.</p>
+<p>이는 함수 커링과 유사하다. 예를 들어 &#8220;단항 타입&#8221;은 <code>List[A]</code>과 같은 식으로 생성이 가능할 것이다. 이 타입의 의미는 구체적 타입(List[Int]등)을 만들어내기 위해 타입 변수를 한 &quot;단계&quot;만 만족시키면 된다는 의미이다(마치 커링되지 않은 함수에 인자 목록을 한번만 넣어 호출하면 되는 것과 유사하다). 더 상류의 타입이라면 적용을 여러번 해야 할 것이다.</p>
+<pre>
+scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala&gt; val container = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+container: java.lang.Object with Container[List] = $anon$1@7c8e3f75
+
+scala&gt; container.put("hey")
+res24: List[java.lang.String] = List(hey)
+
+scala&gt; container.put(123)
+res25: List[Int] = List(123)
+</pre>
+<p><strong>Container</strong> 의 다형성은 매개변수가 있는 타입(즉, &#8220;컨테이너 타입&#8221;)에 대해 정의됨에 주의하라.</p>
+<p>이 container를 implicit와 함께 사용하면 &#8220;임의&#8221; 다형성이 가능하다. 즉, 컨테이너에 대한 일반적 함수를 작성할 수 있다.</p>
+<pre>
+scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala&gt; implicit val listContainer = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+
+scala&gt; implicit val optionContainer = new Container[Some] { def put[A](x: A) = Some(x); def get[A](m: Some[A]) = m.get }
+
+scala&gt; def tupleize[M[_]: Container, A, B](fst: M[A], snd: M[B]) = {
+     | val c = implicitly[Container[M]]                             
+     | c.put(c.get(fst), c.get(snd))
+     | }
+tupleize: [M[_],A,B](fst: M[A],snd: M[B])(implicit evidence$1: Container[M])M[(A, B)]
+
+scala&gt; tupleize(Some(1), Some(2))
+res33: Some[(Int, Int)] = Some((1,2))
+
+scala&gt; tupleize(List(1), List(2))
+res34: List[(Int, Int)] = List((1,2))
+</pre>
+<h2 id="fbounded">F-바운드 다형성</h2>
+<p>(일반적인) 트레잇 안에서 구체적 하위 클래스를 억세스해야만 하는 경우가 가끔 있다. 예를 들어 일반적인 어떤 트레잇이 있는데, 그 트레잇의 특정 하위 클래스와만 비교를 할 수 있다고 하자.</p>
+<pre>
+trait Container extends Ordered[Container]
+</pre>
+<p>하지만, 이를 위해서는 비교 메소드가 있어야 한다.</p>
+<pre>
+def compare(that: Container): Int
+</pre>
+<p>그러나, 구체적인 하위 타입을 억세스할 수 없기 때문에 다음과 같은 코드는 컴파일에 실패한다.</p>
+<pre>
+class MyContainer extends Container {
+  def compare(that: MyContainer): Int
+}
+</pre>
+<p>우리가 명시한 것은 <strong>Container</strong> 에 대한 순서가 있어야 한다는 것이었지 특정 하위 타입에 대한 것이 아니었기 때문이다.</p>
+<p>이를 해결하기 위해 F-바운드 하위타입을 사용한다.</p>
+<pre>
+trait Container[A &lt;: Container[A]] extends Ordered[A]
+</pre>
+<p>이상한 타입이다! 하지만, 이제는 Ordered가 <strong>A</strong> 에 대해 매개변수화 되어 있다는 점을 보라. 그런데, A는 사실 <strong>Container[A]</strong> 이다.<br />
+(역주: F-바운드 다형성을 재귀적 다형성이라고도 한다. 위에서 보면 <code>A</code>는 <code>Container[A]</code> 로 바운드되어 있는데, 다시 <code>Ordered[A]</code>를 확장하고 있다.)</p>
+<p>따라서, 다음과 같이 쓸 수 있다.</p>
+<pre>
+class MyContainer extends Container[MyContainer] { 
+  def compare(that: MyContainer) = 0 
+}
+</pre>
+<p>이제 이는 Ordered 트레잇을 만족한다.</p>
+<pre>
+scala&gt; List(new MyContainer, new MyContainer, new MyContainer)
+res3: List[MyContainer] = List(MyContainer@30f02a6d, MyContainer@67717334, MyContainer@49428ffa)
+
+scala&gt; List(new MyContainer, new MyContainer, new MyContainer).min
+res4: MyContainer = MyContainer@33dfeb30
+</pre>
+<p>모두가 <strong>Container[_]</strong> 의 하위 타입이다. 따라서 이제 다른 하위 클래스를 정의하고, 여러 <strong>Container[_]</strong> 타입들이 함께 들어간 리스트를 만들 수 있다.</p>
+<pre>
+scala&gt; class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
+defined class YourContainer
+
+scala&gt; List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)                   
+res2: List[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &gt;: YourContainer with MyContainer &lt;: ScalaObject]]] 
+  = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
+</pre>
+<p>이제는 결과 타입이 <strong>YourContainer with MyContainer</strong> 라는 하위 바운드로 제약된다. 이는 타입 유추기(inferencer)가 한 일이다. 재미있는 것은, 이 타입이 말이 되지 않는 타입이라도 상관 없다는 사실이다. <br />
+이 타입은 리스트에 들어가는 통합된 타입의 논리적인 공통의 최저 하위 바운드를 제공하는 역할을 할 뿐이다. 이제 <strong>Ordered</strong> 를 사용하면 어떤 일이 벌어질까?</p>
+<pre>
+(new MyContainer, new MyContainer, new MyContainer, new YourContainer).min
+&lt;console&gt;:9: error: could not find implicit value for parameter cmp:
+  Ordering[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &gt;: YourContainer with MyContainer &lt;: ScalaObject]]]
+</pre>
+<p>아쉽지만 통합된 타입에는 <strong>Ordered[]</strong> 가 존재하지 않는다.</p>
+<h2 id="structural">구조적 타입(Structural type)</h2>
+<p>스칼라는 <strong>구조적 타입</strong> 을 지원한다. 타입 요구 사항을 구체적 타입 대신 인터페이스 <em>구조</em> 를 사용해 표현할 수 있다.</p>
+<pre>
+scala&gt; def foo(x: { def get: Int }) = 123 + x.get
+foo: (x: AnyRef{def get: Int})Int
+
+scala&gt; foo(new { def get = 10 })                 
+res0: Int = 133
+</pre>
+<p>이렇게 하면 유용한 경우가 많이 있다. 하지만, 구현에 리플렉션을 사용하고 있기 때문에, 성능상의 문제를 항상 신경써야만 한다!</p>
+<h2 id="abstractmem">추상 타입 멤버(Abstract type member)</h2>
+<p>트레잇에서 타입 멤버를 추상인 상태로 남겨둘 수 있다.</p>
+<pre>
+scala&gt; trait Foo { type A; val x: A; def getX: A = x }
+defined trait Foo
+
+scala&gt; (new Foo { type A = Int; val x = 123 }).getX   
+res3: Int = 123
+
+scala&gt; (new Foo { type A = String; val x = "hey" }).getX
+res4: java.lang.String = hey
+</pre>
+<p>DI등을 할때 이런 기법이 유용할 수 있다.</p>
+<p>추상 타입 변수를 해시 연산자를 사용해 참조 할 수 있다.</p>
+<pre>
+scala&gt; trait Foo[M[_]] { type t[A] = M[A] }
+defined trait Foo
+
+scala&gt; val x: Foo[List]#t[Int] = List(1)
+x: List[Int] = List(1)
+</pre>
+<h2 id="manifest">타입 소거와 메니페이스(Type erasure &amp; manifest)</h2>
+<p>아다시피 타입 정보는 컴파일시 <em>소거</em> 되어 없어진다. 스칼라는 원하는 타입 정보를 복구할 수 있는 <strong>메니페스트</strong> 기능을 제공한다. 메니페스트는 묵시적 값으로 제공되며, 필요에 따라 컴파일러가 만들어낸다.</p>
+<pre>
+scala&gt; class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
+
+scala&gt; (new MakeFoo[String]).make
+res10: String = ""
+</pre>
+<h2 id="finagle">사례 분석: 피네이글(Finagle)</h2>
+<p>(역주: 피네이글은 JVM을 위한 <span class="caps">RPC</span> 시스템이다. 홈페이지는 https://twitter.github.io/finagle/을 참조하라.)</p>
+<p>다음을 보라: https://github.com/twitter/finagle</p>
+<pre>
+trait Service[-Req, +Rep] extends (Req =&gt; Future[Rep])
+
+trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
+  extends ((ReqIn, Service[ReqOut, RepIn]) =&gt; Future[RepOut])
+{
+  def andThen[Req2, Rep2](next: Filter[ReqOut, RepIn, Req2, Rep2]) =
+    new Filter[ReqIn, RepOut, Req2, Rep2] {
+      def apply(request: ReqIn, service: Service[Req2, Rep2]) = {
+        Filter.this.apply(request, new Service[ReqOut, RepIn] {
+          def apply(request: ReqOut): Future[RepIn] = next(request, service)
+          override def release() = service.release()
+          override def isAvailable = service.isAvailable
+        })
+      }
+    }
+    
+  def andThen(service: Service[ReqOut, RepIn]) = new Service[ReqIn, RepOut] {
+    private[this] val refcounted = new RefcountedService(service)
+
+    def apply(request: ReqIn) = Filter.this.apply(request, refcounted)
+    override def release() = refcounted.release()
+    override def isAvailable = refcounted.isAvailable
+  }    
+}
+</pre>
+<p>서비스는 필터를 사용해 인증할 수 있다.</p>
+<pre>
+trait RequestWithCredentials extends Request {
+  def credentials: Credentials
+}
+
+class CredentialsFilter(credentialsParser: CredentialsParser)
+  extends Filter[Request, Response, RequestWithCredentials, Response]
+{
+  def apply(request: Request, service: Service[RequestWithCredentials, Response]): Future[Response] = {
+    val requestWithCredentials = new RequestWrapper with RequestWithCredentials {
+      val underlying = request
+      val credentials = credentialsParser(request) getOrElse NullCredentials
+    }
+
+    service(requestWithCredentials)
+  }
+}
+</pre>
+<p>이제 아랫단의 서비스가 인증이 된 요청을 요구하며, 이는 정적으로 검증된다. 필터는 따라서 서비스 변환기로 생각할 수 있다.</p>
+<p>여러 필터를 함께 합성할 수도 있다.</p>
+<pre>
+val upFilter =
+  logTransaction     andThen
+  handleExceptions   andThen
+  extractCredentials andThen
+  homeUser           andThen
+  authenticate       andThen
+  route
+</pre>
+<p>이때 타입 안전성이 보장된다!<br />
+(역주: 어떻게 타입안전성을 보장하는지 궁금한 독자는 졸저 <a href="https://enshahar.com/2013/05/16/%EC%8A%A4%EC%B9%BC%EB%9D%BC%ED%83%80%EC%9E%85%EC%B2%B4%ED%81%AC%EB%A1%9C%EC%84%A4%EC%A0%95%EC%BB%B4%ED%8C%8C%EC%9D%BC%EC%8B%9C%EC%B2%B4%ED%81%AC/">스칼라 타입체크로 설정을 컴파일시 체크하기</a>를 참고하라.)</p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

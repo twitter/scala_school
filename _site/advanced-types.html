@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Advanced types</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">Advanced types</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="type-basics.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="sbt.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>This lesson covers:</p>
+<ul>
+	<li><a href="#viewbounds">View bounds</a> (&#8220;type classes&#8221;)</li>
+	<li><a href="#otherbounds">Other Type Bounds</a></li>
+	<li><a href="#higher">Higher kinded types &amp; ad-hoc polymorphism</a></li>
+	<li><a href="#fbounded">F-bounded polymorphism / recursive types</a></li>
+	<li><a href="#structural">Structural types</a></li>
+	<li><a href="#abstractmem">Abstract types members</a></li>
+	<li><a href="#manifest">Type erasures &amp; manifests</a></li>
+	<li><a href="#finagle">Case study: Finagle</a></li>
+</ul>
+<h2 id="viewbounds">View bounds (&#8220;type classes&#8221;)</h2>
+<p>Sometimes you don&#8217;t need to specify that one type is equal/sub/super another, just that you could fake it with conversions. A view bound specifies a type that can be &#8220;viewed as&#8221; another. This makes sense for an operation that needs to &#8220;read&#8221; an object but doesn&#8217;t modify the object.</p>
+<p><strong>Implicit</strong> functions allow automatic conversion. More precisely, they allow on-demand function application when this can help satisfy type inference. e.g.:</p>
+<pre>
+scala&gt; implicit def strToInt(x: String) = x.toInt
+strToInt: (x: String)Int
+
+scala&gt; "123"
+res0: java.lang.String = 123
+
+scala&gt; val y: Int = "123"
+y: Int = 123
+
+scala&gt; math.max("123", 111)
+res1: Int = 123
+</pre>
+<p>View bounds, like type bounds demand such a function exists for the given type.  You specify a view bound with <code>&lt;%</code> e.g.,</p>
+<pre>
+scala&gt; class Container[A &lt;% Int] { def addIt(x: A) = 123 + x }
+defined class Container
+</pre>
+<p>This says that <strong>A</strong> has to be &#8220;viewable&#8221; as <strong>Int</strong>.  Let&#8217;s try it.</p>
+<pre>
+scala&gt; (new Container[String]).addIt("123")
+res11: Int = 246
+
+scala&gt; (new Container[Int]).addIt(123)
+res12: Int = 246
+
+scala&gt; (new Container[Float]).addIt(123.2F)
+&lt;console&gt;:8: error: could not find implicit value for evidence parameter of type (Float) =&gt; Int
+       (new Container[Float]).addIt(123.2)
+        ^
+</pre>
+<h2 id="otherbounds">Other type bounds</h2>
+<p>Methods can enforce more complex type bounds via implicit parameters. For example, <code>List</code> supports <code>sum</code> on numeric contents but not on others. Alas, Scala&#8217;s numeric types don&#8217;t all share a superclass, so we can&#8217;t just say <code>T &lt;: Number</code>. Instead, to make this work, Scala&#8217;s math library <a href="https://www.azavea.com/blogs/labs/2011/06/scalas-numeric-type-class-pt-1/">defines an implicit <code>Numeric[T]</code> for the appropriate types T</a>.  Then in <code>List</code>&#8217;s definition uses it:</p>
+<pre>
+sum[B &gt;: A](implicit num: Numeric[B]): B
+</pre>
+<p>If you invoke <code>List(1,2).sum()</code>, you don&#8217;t need to pass a <em>num</em> parameter; it&#8217;s set implicitly. But if you invoke <code>List("whoop").sum()</code>, it complains that it couldn&#8217;t set <code>num</code>.</p>
+<p>Methods may ask for some kinds of specific &#8220;evidence&#8221; for a type without setting up strange objects as with <code>Numeric</code>. Instead, you can use one of these type-relation operators:</p>
+<table>
+	<tr>
+		<td>A =:= B</td>
+		<td>A must be equal to B</td>
+	</tr>
+	<tr>
+		<td>A &lt;:&lt; B</td>
+		<td>A must be a subtype of B</td>
+	</tr>
+	<tr>
+		<td>A &lt;%&lt; B</td>
+		<td>A must be viewable as B</td>
+	</tr>
+</table>
+<p>(If you get errors trying to use &lt;:&lt; or &lt;%&lt;, be aware that those went away in Scala 2.10. Scala School examples work with <a href="https://www.scala-lang.org/download/2.9.3.html">Scala 2.9.x</a> . You can use a newer Scala, but expect errors.)</p>
+<pre>
+scala&gt; class Container[A](value: A) { def addIt(implicit evidence: A =:= Int) = 123 + value }
+defined class Container
+
+scala&gt; (new Container(123)).addIt
+res11: Int = 246
+
+scala&gt; (new Container("123")).addIt
+&lt;console&gt;:10: error: could not find implicit value for parameter evidence: =:=[java.lang.String,Int]
+</pre>
+<p>Similarly, given our previous implicit, we can relax the constraint to viewability:</p>
+<pre>
+scala&gt; class Container[A](value: A) { def addIt(implicit evidence: A &lt;%&lt; Int) = 123 + value }
+defined class Container
+
+scala&gt; (new Container("123")).addIt
+res15: Int = 246
+</pre>
+<h3>Generic programming with views</h3>
+<p>In the Scala standard library, views are primarily used to implement generic functions over collections.  For example, the &#8220;min&#8221; function (on <strong>Seq[]</strong>), uses this technique:</p>
+<pre>
+def min[B &gt;: A](implicit cmp: Ordering[B]): A = {
+  if (isEmpty)
+    throw new UnsupportedOperationException("empty.min")
+
+  reduceLeft((x, y) =&gt; if (cmp.lteq(x, y)) x else y)
+}
+</pre>
+<p>The main advantages of this are:</p>
+<ul>
+	<li>Items in the collections aren&#8217;t required to implement <strong>Ordered</strong>, but <strong>Ordered</strong> uses are still statically type checked.</li>
+	<li>You can define your own orderings without any additional library support:</li>
+</ul>
+<pre>
+scala&gt; List(1,2,3,4).min
+res0: Int = 1
+
+scala&gt; List(1,2,3,4).min(new Ordering[Int] { def compare(a: Int, b: Int) = b compare a })
+res3: Int = 4
+</pre>
+<p>As a sidenote, there are views in the standard library that translates <strong>Ordered</strong> into <strong>Ordering</strong> (and vice versa).</p>
+<pre>
+trait LowPriorityOrderingImplicits {
+  implicit def ordered[A &lt;: Ordered[A]]: Ordering[A] = new Ordering[A] {
+    def compare(x: A, y: A) = x.compare(y)
+  }
+}
+</pre>
+<h4>Context bounds &amp; implicitly[]</h4>
+<p>Scala 2.8 introduced a shorthand for threading through &amp; accessing implicit arguments.</p>
+<pre>
+scala&gt; def foo[A](implicit x: Ordered[A]) {}
+foo: [A](implicit x: Ordered[A])Unit
+
+scala&gt; def foo[A : Ordered] {}
+foo: [A](implicit evidence$1: Ordered[A])Unit
+</pre>
+<p>Implicit values may be accessed via <strong>implicitly</strong></p>
+<pre>
+scala&gt; implicitly[Ordering[Int]]
+res37: Ordering[Int] = scala.math.Ordering$Int$@3a9291cf
+</pre>
+<p>Combined, these often result in less code, especially when threading through views.</p>
+<h2 id="higher">Higher-kinded types &amp; ad-hoc polymorphism</h2>
+<p>Scala can abstract over &#8220;higher kinded&#8221; types. For example, suppose that you needed to use several types of containers for several types of data. You might define a <code>Container</code> interface that might be implemented by means of several container types: an <code>Option</code>, a <code>List</code>, etc. You want to define an interface for using values in these containers without nailing down the values&#8217; type.</p>
+<p>This is analogous to function currying. For example, whereas &#8220;unary types&#8221; have constructors like <code>List[A]</code>, meaning we have to satisfy one &#8220;level&#8221; of type variables in order to produce a concrete types (just like an uncurried function needs to be supplied by only one argument list to be invoked), a higher-kinded type needs more.</p>
+<pre>
+scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala&gt; val container = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+container: java.lang.Object with Container[List] = $anon$1@7c8e3f75
+
+scala&gt; container.put("hey")
+res24: List[java.lang.String] = List(hey)
+
+scala&gt; container.put(123)
+res25: List[Int] = List(123)
+</pre>
+<p>Note that <strong>Container</strong> is polymorphic in a parameterized type (&#8220;container type&#8221;).</p>
+<p>If we combine using containers with implicits, we get &#8220;ad-hoc&#8221; polymorphism: the ability to write generic functions over containers.</p>
+<pre>
+scala&gt; trait Container[M[_]] { def put[A](x: A): M[A]; def get[A](m: M[A]): A }
+
+scala&gt; implicit val listContainer = new Container[List] { def put[A](x: A) = List(x); def get[A](m: List[A]) = m.head }
+
+scala&gt; implicit val optionContainer = new Container[Some] { def put[A](x: A) = Some(x); def get[A](m: Some[A]) = m.get }
+
+scala&gt; def tupleize[M[_]: Container, A, B](fst: M[A], snd: M[B]) = {
+     | val c = implicitly[Container[M]]
+     | c.put(c.get(fst), c.get(snd))
+     | }
+tupleize: [M[_],A,B](fst: M[A],snd: M[B])(implicit evidence$1: Container[M])M[(A, B)]
+
+scala&gt; tupleize(Some(1), Some(2))
+res33: Some[(Int, Int)] = Some((1,2))
+
+scala&gt; tupleize(List(1), List(2))
+res34: List[(Int, Int)] = List((1,2))
+</pre>
+<h2 id="fbounded">F-bounded polymorphism</h2>
+<p>Often it&#8217;s necessary to access a concrete subclass in a (generic) trait. For example, imagine you had some trait that is generic, but can be compared to a particular subclass of that trait.</p>
+<pre>
+trait Container extends Ordered[Container]
+</pre>
+<p>However, this now necessitates the subclass to implement the compare method</p>
+<pre>
+def compare(that: Container): Int
+</pre>
+<p>And so we cannot access the concrete subtype, e.g.:</p>
+<pre>
+class MyContainer extends Container {
+  def compare(that: MyContainer): Int
+}
+</pre>
+<p>fails to compile, since we are specifying Ordered for <strong>Container</strong>, not the particular subtype.</p>
+<p>Then an alternative solution would be parameterize Container so that we can access the subtype in the subclass.</p>
+<pre>
+trait Container[A] extends Ordered[A]
+</pre>
+<p>The subclass could now do the following:</p>
+<pre>
+class MyContainer extends Container[MyContainer] {
+  def compare(that: MyContainer): Int
+}
+</pre>
+<p>But the problem is that the type A is not bounded by anything, and you could potentially do something like this:</p>
+<pre>
+class MyContainer extends Container[String] {
+  def compare(that: String): Int
+}
+</pre>
+<p>To reconcile this, we instead use F-bounded polymorphism.</p>
+<pre>
+trait Container[A &lt;: Container[A]] extends Ordered[A]
+</pre>
+<p>Strange type!  But note now how Ordered is parameterized on <strong>A</strong>, which itself is <strong>Container[A]</strong></p>
+<p>So, now</p>
+<pre>
+class MyContainer extends Container[MyContainer] {
+  def compare(that: MyContainer) = 0
+}
+</pre>
+<p>They are now ordered:</p>
+<pre>
+scala&gt; List(new MyContainer, new MyContainer, new MyContainer)
+res3: List[MyContainer] = List(MyContainer@30f02a6d, MyContainer@67717334, MyContainer@49428ffa)
+
+scala&gt; List(new MyContainer, new MyContainer, new MyContainer).min
+res4: MyContainer = MyContainer@33dfeb30
+</pre>
+<p>Given that they are all subtypes of <strong>Container[_]</strong>, we can define another subclass &amp; create a mixed list of <strong>Container[_]</strong>:</p>
+<pre>
+scala&gt; class YourContainer extends Container[YourContainer] { def compare(that: YourContainer) = 0 }
+defined class YourContainer
+
+scala&gt; List(new MyContainer, new MyContainer, new MyContainer, new YourContainer)
+res2: List[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &gt;: YourContainer with MyContainer &lt;: ScalaObject]]]
+  = List(MyContainer@3be5d207, MyContainer@6d3fe849, MyContainer@7eab48a7, YourContainer@1f2f0ce9)
+</pre>
+<p>Note how the resulting type is now lower-bound by <strong>YourContainer with MyContainer</strong>. This is the work of the type inferencer. Interestingly- this type doesn&#8217;t even need to make sense, it only provides a logical greatest lower bound for the unified type of the list. What happens if we try to use <strong>Ordered</strong> now?</p>
+<pre>
+(new MyContainer, new MyContainer, new MyContainer, new YourContainer).min
+&lt;console&gt;:9: error: could not find implicit value for parameter cmp:
+  Ordering[Container[_ &gt;: YourContainer with MyContainer &lt;: Container[_ &gt;: YourContainer with MyContainer &lt;: ScalaObject]]]
+</pre>
+<p>No <strong>Ordered[]</strong> exists for the unified type. Too bad.</p>
+<h2 id="structural">Structural types</h2>
+<p>Scala has support for <strong>structural types</strong> &#8212; type requirements are expressed by interface <em>structure</em> instead of a concrete type.</p>
+<pre>
+scala&gt; def foo(x: { def get: Int }) = 123 + x.get
+foo: (x: AnyRef{def get: Int})Int
+
+scala&gt; foo(new { def get = 10 })
+res0: Int = 133
+</pre>
+<p>This can be quite nice in many situations, but the implementation uses reflection, so be performance-aware!</p>
+<h2 id="abstractmem">Abstract type members</h2>
+<p>In a trait, you can leave type members abstract.</p>
+<pre>
+scala&gt; trait Foo { type A; val x: A; def getX: A = x }
+defined trait Foo
+
+scala&gt; (new Foo { type A = Int; val x = 123 }).getX
+res3: Int = 123
+
+scala&gt; (new Foo { type A = String; val x = "hey" }).getX
+res4: java.lang.String = hey
+</pre>
+<p>This is often a useful trick when doing dependency injection, etc.</p>
+<p>You can refer to an abstract type variable using the hash-operator:</p>
+<pre>
+scala&gt; trait Foo[M[_]] { type t[A] = M[A] }
+defined trait Foo
+
+scala&gt; val x: Foo[List]#t[Int] = List(1)
+x: List[Int] = List(1)
+</pre>
+<h2 id="manifest">Type erasures &amp; manifests</h2>
+<p>As we know, type information is lost at compile time due to <em>erasure</em>. Scala features <strong>Manifests</strong>, allowing us to selectively recover type information. Manifests are provided as an implicit value, generated by the compiler as needed.</p>
+<pre>
+scala&gt; class MakeFoo[A](implicit manifest: Manifest[A]) { def make: A = manifest.erasure.newInstance.asInstanceOf[A] }
+
+scala&gt; (new MakeFoo[String]).make
+res10: String = ""
+</pre>
+<h2 id="finagle">Case study: Finagle</h2>
+<p>See: <a href="https://github.com/twitter/finagle">https://github.com/twitter/finagle</a></p>
+<pre>
+trait Service[-Req, +Rep] extends (Req =&gt; Future[Rep])
+
+trait Filter[-ReqIn, +RepOut, +ReqOut, -RepIn]
+  extends ((ReqIn, Service[ReqOut, RepIn]) =&gt; Future[RepOut])
+{
+  def andThen[Req2, Rep2](next: Filter[ReqOut, RepIn, Req2, Rep2]) =
+    new Filter[ReqIn, RepOut, Req2, Rep2] {
+      def apply(request: ReqIn, service: Service[Req2, Rep2]) = {
+        Filter.this.apply(request, new Service[ReqOut, RepIn] {
+          def apply(request: ReqOut): Future[RepIn] = next(request, service)
+          override def release() = service.release()
+          override def isAvailable = service.isAvailable
+        })
+      }
+    }
+
+  def andThen(service: Service[ReqOut, RepIn]) = new Service[ReqIn, RepOut] {
+    private[this] val refcounted = new RefcountedService(service)
+
+    def apply(request: ReqIn) = Filter.this.apply(request, refcounted)
+    override def release() = refcounted.release()
+    override def isAvailable = refcounted.isAvailable
+  }
+}
+</pre>
+<p>A service may authenticate requests with a filter.</p>
+<pre>
+trait RequestWithCredentials extends Request {
+  def credentials: Credentials
+}
+
+class CredentialsFilter(credentialsParser: CredentialsParser)
+  extends Filter[Request, Response, RequestWithCredentials, Response]
+{
+  def apply(request: Request, service: Service[RequestWithCredentials, Response]): Future[Response] = {
+    val requestWithCredentials = new RequestWrapper with RequestWithCredentials {
+      val underlying = request
+      val credentials = credentialsParser(request) getOrElse NullCredentials
+    }
+
+    service(requestWithCredentials)
+  }
+}
+</pre>
+<p>Note how the underlying service requires an authenticated request, and that this is statically verified. Filters can thus be thought of as service transformers.</p>
+<p>Many filters can be composed together:</p>
+<pre>
+val upFilter =
+  logTransaction     andThen
+  handleExceptions   andThen
+  extractCredentials andThen
+  homeUser           andThen
+  authenticate       andThen
+  route
+</pre>
+<p>Type safely!</p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

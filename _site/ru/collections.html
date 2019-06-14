@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Коллекции</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">Коллекции</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="basics2.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="pattern-matching-and-functional-composition.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>В этом уроке вы узнаете:</p>
+<ul>
+	<li>Основные структуры данных
+	<ul>
+		<li><a href="#Lists">Списки</a></li>
+		<li><a href="#Sets">Наборы</a></li>
+		<li><a href="#Tuple">Кортеж</a></li>
+		<li><a href="#Maps">Карты</a></li>
+	</ul></li>
+	<li>Функциональные Комбинаторы
+	<ul>
+		<li><a href="#map">map</a></li>
+		<li><a href="#foreach">foreach</a></li>
+		<li><a href="#filter">filter</a></li>
+		<li><a href="#zip">zip</a></li>
+		<li><a href="#partition">partition</a></li>
+		<li><a href="#find">find</a></li>
+		<li><a href="#drop">drop и dropWhile</a></li>
+		<li><a href="#fold">foldRight и foldLeft</a></li>
+		<li><a href="#flatten">flatten</a></li>
+		<li><a href="#flatMap">flatMap</a></li>
+		<li><a href="#generalized">Обобщенные функциональные комбинаторы</a></li>
+		<li><a href="#vsMap">А как же Map?</a></li>
+	</ul></li>
+</ul>
+<h1>Основные структуры данных</h1>
+<p>В Scala существует несколько прекрасных коллекций.</p>
+<p><strong>Смотрите также:</strong> В Effective Scala описывается как использовать <a href="https://twitter.github.com/effectivescala/index-ru.html#Коллекции">Коллекции</a>.</p>
+<h2 id="Lists">Списки</h2>
+<pre>
+scala&gt; val numbers = List(1, 2, 3, 4)
+numbers: List[Int] = List(1, 2, 3, 4)
+</pre>
+<h2 id="Sets">Наборы</h2>
+<p>Наборы не содержат одинаковых элементов</p>
+<pre>
+scala&gt; Set(1, 1, 2)
+res0: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+<h2 id="Tuple">Кортеж</h2>
+<p>Кортеж объединяет простые логические элементы коллекции без использования классов.</p>
+<pre>
+scala&gt; val hostPort = ("localhost", 80)
+hostPort: (String, Int) = (localhost, 80)
+</pre>
+<p>В отличие от case классов, у него нет именованных функций доступа, вместо этого у него есть функции доступа, которые носят названия по номеру позиции элемента кортежа и они нумеруются с 1, а не с 0.</p>
+<pre>
+scala&gt; hostPort._1
+res0: String = localhost
+
+scala&gt; hostPort._2
+res1: Int = 80
+</pre>
+<p>Кортежи прекрасно могут использоваться вместе с сопоставлением с образцом.</p>
+<pre>
+hostPort match {
+  case ("localhost", port) =&gt; ...
+  case (host, port) =&gt; ...
+}
+</pre>
+<p>Кортежи имеет специальный &#8220;соус&#8221;, который позволяет сделать Кортеж 2 значений: <code>-&gt;</code></p>
+<pre>
+scala&gt; 1 -&gt; 2
+res0: (Int, Int) = (1,2)
+</pre>
+<p><strong>Смотрите также:</strong> В Effective Scala описывается <a href="https://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Разрушение связей (Destructuring bindings)">разрушение связей</a> (&#8220;распаковка&#8221; кортежа).</p>
+<h2 id="Maps">Карты</h2>
+<p>Они могут содержать в себе основные типы данных.</p>
+<pre>
+Map(1 -&gt; 2)
+Map("foo" -&gt; "bar")
+</pre>
+<p>Выглядит словно это особый синтаксис, но вспомните наше обсуждение в разделе Кортеж, что с помощью <code>-&gt;</code> можно создавать Кортежи.</p>
+<p>Map() тоже использует синтаксис, который мы изучили ранее на Уроке №1: <code>Map(1 -&gt; "one", 2 -&gt; "two")</code>, который раскрывается в <code>Map((1, "one"), (2, "two"))</code>, где первый элемент является ключом, а вторым элементом является некое значение.</p>
+<p>Карты внутри себя могут содержать другие Карты или даже функции.</p>
+<pre>
+Map(1 -&gt; Map("foo" -&gt; "bar"))
+</pre>
+
+<pre>
+Map("timesTwo" -&gt; { timesTwo(_) })
+</pre>
+<h2 id="Option">Опция</h2>
+<p><code>Опция</code> представляет собой контейнер, который хранит какое-то значение или не хранит ничего совсем.</p>
+<p>Основной интерфейс Опции выглядит следующим образом:</p>
+<p><code>
+trait Option[T] {
+  def isDefined: Boolean
+  def get: T
+  def getOrElse(t: T): T
+}
+</code></p>
+<p>Опция сам по себе это обобщенный тип и он имеет два подкласса: <code>Some[T]</code> и <code>None</code></p>
+<p>Давайте взглянем на пример того, как Опция может использоваться:</p>
+<p><code>Map.get</code> использует <code>Option</code> для возврата собственных значений. Опция говорит вам, что метод может не вернуть того значения, которое мы запросили.</p>
+<pre>
+scala&gt; val numbers = Map("one" -&gt; 1, "two" -&gt; 2)
+numbers: scala.collection.immutable.Map[java.lang.String,Int] = Map(one -&gt; 1, two -&gt; 2)
+
+scala&gt; numbers.get("two")
+res0: Option[Int] = Some(2)
+
+scala&gt; numbers.get("three")
+res1: Option[Int] = None
+</pre>
+<p>Теперь наши данные отлавливаются с помощью <code>Option</code>. Как мы можем это использовать?</p>
+<p>Первое, что приходит на ум, это использовать условие, опираясь на метод <code>isDefined</code>.</p>
+<p><code>
+// Мы хотим умножить число на 2 или возвратить 0.
+val result = if (res1.isDefined) {
+  res1.get * 2
+} else {
+  0
+}
+</code></p>
+<p>Мы предполагаем, что вы будете использовать <code>getOrElse</code> или сопоставление с образцом для результата.</p>
+<p><code>getOrElse</code> дает вам легкий способ объявить стандартное значение.</p>
+<p><code>
+val result = res1.getOrElse(0) * 2
+</code></p>
+<p><code>Option</code> прекрасно работает вместе с сопоставлением с образцом.</p>
+<p><code>
+val result = res1 match {
+  case Some(n) =&gt; n * 2
+  case None =&gt; 0
+}
+</code></p>
+<p><strong>Смотрите также:</strong> В Effective Scala описываются <a href="https://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Опция">Опции</a>.</p>
+<h1>Функциональные комбинаторы</h1>
+<p>Комбинаторы называются так потому, что они созданы, чтобы объединять результаты. Результат одной функции часто используется в качестве входных данных для другой.</p>
+<p>Наиболее распространенным способом, является использование их со стандартными структурами данных.</p>
+<h2 id="map">map</h2>
+<p>Применяет функцию к каждому элементу из списка, возвращается список с тем же числом элементов.</p>
+<pre>
+scala&gt; numbers.map((i: Int) =&gt; i * 2)
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+<p>или передается частично вызываемая функция</p>
+<pre>
+
+scala&gt; def timesTwo(i: Int): Int = i * 2
+timesTwo: (i: Int)Int
+
+scala&gt; numbers.map(timesTwo _)
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+<h2 id="foreach">foreach</h2>
+<p>foreach похож на map, но ничего не возвращает. foreach используется для создания побочных эффектов.</p>
+<pre>
+scala&gt; numbers.foreach((i: Int) =&gt; i * 2)
+</pre>
+<p>Он ничего не возвращает.</p>
+<p>Вы можете попробовать сохранить результат в переменную, но она будет иметь тип Unit (другими словами void)</p>
+<pre>
+scala&gt; val doubled = numbers.foreach((i: Int) =&gt; i * 2)
+doubled: Unit = ()
+</pre>
+<h2 id="filter">filter</h2>
+<p>Данный комбинатор удаляет любой элемент, если функция, применяемая к этому элементу, возвращает ложь.  Функции, которые возвращают Boolean, часто называются функциями-предикатами</p>
+<pre>
+scala&gt; numbers.filter((i: Int) =&gt; i % 2 == 0)
+res0: List[Int] = List(2, 4)
+</pre>
+
+<pre>
+scala&gt; def isEven(i: Int): Boolean = i % 2 == 0
+isEven: (i: Int)Boolean
+
+scala&gt; numbers.filter(isEven _)
+res2: List[Int] = List(2, 4)
+</pre>
+<h2 id="zip">zip</h2>
+<p>zip объединяет содержимое двух списков в один парный список.</p>
+<pre>
+scala&gt; List(1, 2, 3).zip(List("a", "b", "c"))
+res0: List[(Int, String)] = List((1,a), (2,b), (3,c))
+</pre>
+<h2 id="partition">partition</h2>
+<p><code>partition</code> разделяет список, в зависимости от результата, который возвращает функция-предикат.</p>
+<pre>
+scala&gt; List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10).partition(_ % 2 == 0)
+res0: (List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
+</pre>
+<h2 id="find">find</h2>
+<p>find возвращает первый элемент коллекции, который удовлетворяет функции-предикату.</p>
+<pre>
+scala&gt; numbers.find((i: Int) =&gt; i &gt; 5)
+res0: Option[Int] = Some(6)
+</pre>
+<h2 id="drop">drop и dropWhile</h2>
+<p><code>drop</code> удаляет первые i элементов</p>
+<pre>
+scala&gt; numbers.drop(5)
+res0: List[Int] = List(6, 7, 8, 9, 10)
+</pre>
+<p><code>dropWhile</code> удаляет первый элемент, который не удовлетворяет функции-предикату. Например, если мы применим <code>dropWhile</code> к нечетным числам из нашего списка, то <code>1</code> будет удалена (но не <code>3</code>, которая стоит за <code>2</code>).</p>
+<pre>
+scala&gt; numbers.dropWhile(_ % 2 != 0)
+res0: List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
+</pre>
+<h2 id="fold">foldLeft</h2>
+<pre>
+scala&gt; numbers.foldLeft(0)((m: Int, n: Int) =&gt; m + n)
+res0: Int = 55
+</pre>
+<p>0 &#8211; это начальное значение (Не забывайте, что мы используем числа из List[Int]), где m<br />
+работает как аккумулятор.</p>
+<p>Взгляните сами:</p>
+<pre>
+scala&gt; numbers.foldLeft(0) { (m: Int, n: Int) =&gt; println("m: " + m + " n: " + n); m + n }
+m: 0 n: 1
+m: 1 n: 2
+m: 3 n: 3
+m: 6 n: 4
+m: 10 n: 5
+m: 15 n: 6
+m: 21 n: 7
+m: 28 n: 8
+m: 36 n: 9
+m: 45 n: 10
+res0: Int = 55
+</pre>
+<h3>foldRight</h3>
+<p>Этот комбинатор похож на foldLeft, за исключением того, что он работает с противоположной стороны.</p>
+<pre>
+scala&gt; numbers.foldRight(0) { (m: Int, n: Int) =&gt; println("m: " + m + " n: " + n); m + n }
+m: 10 n: 0
+m: 9 n: 10
+m: 8 n: 19
+m: 7 n: 27
+m: 6 n: 34
+m: 5 n: 40
+m: 4 n: 45
+m: 3 n: 49
+m: 2 n: 52
+m: 1 n: 54
+res0: Int = 55
+</pre>
+<h2 id="flatten">flatten</h2>
+<p>flatten сжимает вложенные структуры.</p>
+<pre>
+scala&gt; List(List(1, 2), List(3, 4)).flatten
+res0: List[Int] = List(1, 2, 3, 4)
+</pre>
+<h2 id="flatMap">flatMap</h2>
+<p>flatMap это часто используемый комбинатор, который объединяет map и flatten. flatMap берет функцию, которая работает с вложенными списками и объединяет результаты.</p>
+<pre>
+scala&gt; val nestedNumbers = List(List(1, 2), List(3, 4))
+nestedNumbers: List[List[Int]] = List(List(1, 2), List(3, 4))
+
+scala&gt; nestedNumbers.flatMap(x =&gt; x.map(_ * 2))
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+<p>Думайте об этом, как о коротком способе использования map, а затем применения flatten к результату:</p>
+<pre>
+scala&gt; nestedNumbers.map((x: List[Int]) =&gt; x.map(_ * 2)).flatten
+res1: List[Int] = List(2, 4, 6, 8)
+</pre>
+<p>в этом примере вызывается map, а позднее flatten, как пример &#8220;комбинаторной&#8221; природы этих функций.</p>
+<p><strong>Смотрите также:</strong> В Effective Scala описывается <a href="https://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-`flatMap`">flatMap</a>.</p>
+<h2 id="generalized">Обобщенные функциональные комбинаторы</h2>
+<p>Теперь мы узнали о множестве функции для работы с коллекциями.</p>
+<p>Что нам может понадобиться, чтобы иметь возможность написать свои функциональные комбинаторы?</p>
+<p>Интересно, что каждый функциональный комбинатор показанный выше, может быть написан поверх fold. Рассмотрим несколько примеров.</p>
+<pre>
+def ourMap(numbers: List[Int], fn: Int =&gt; Int): List[Int] = {
+  numbers.foldRight(List[Int]()) { (x: Int, xs: List[Int]) =&gt;
+    fn(x) :: xs
+  }
+}
+
+scala&gt; ourMap(numbers, timesTwo(_))
+res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
+</pre>
+<p>Почему именно <tt>List[Int]()</tt>? Scala не достаточно умна, чтобы реализовать пустой список, для хранения целочисленных значений.</p>
+<h2 id="vsMap">А как же Map?</h2>
+<p>Все функциональные комбинаторы прекрасно работают и с Картами. Карты можно рассматривать как список пар, так что функции, которые вы пишете работают с парами ключей и значений Карты.</p>
+<pre>
+scala&gt; val extensions = Map("steve" -&gt; 100, "bob" -&gt; 101, "joe" -&gt; 201)
+extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
+</pre>
+<p>теперь выберем каждую запись, у которой телефонный код меньше 200.</p>
+<pre>
+scala&gt; extensions.filter((namePhone: (String, Int)) =&gt; namePhone._2 &lt; 200)
+res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
+</pre>
+<p>Т.к. в результате вы получаете кортеж, то вам приходится тащить ключи и значения с их позиционными функциями доступа. Да уж!</p>
+<p>К счастью, мы можем использовать сопоставление с образцом, чтобы извлечь ключ и значение.</p>
+<pre>
+scala&gt; extensions.filter({case (name, extension) =&gt; extension &lt; 200})
+res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
+</pre>
+<p>Почему это работает? Почему вы можете использовать частичный вызов функции?</p>
+<p>Следите за обновлениями на следующей неделе!</p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>
