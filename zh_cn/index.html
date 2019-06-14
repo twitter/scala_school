@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala 课堂</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+
+    <style>
+    h2 { padding-top: 0px; }
+    </style>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+    <div class="container-fluid">
+
+            <div class="hero-unit">
+        <h1>Scala 课堂!</h1>
+        <p>从 &empty; 到分布式服务</p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span8">
+          <p><b>其他语言版本:</b> <a href="../index.html">English</a> <a href="../ru/index.html">Русский</a></p>
+
+          <h2>关于</h2>
+          <p>Scala课堂是Twitter启动的一系列讲座，用来帮助有经验的工程师成为高效的<a href="https://www.scala-lang.org/">Scala</a> 程序员。Scala是一种相对较新的语言，但借鉴了许多熟悉的概念。因此，课程中的讲座假设听众知道这些概念，并展示了如何在Scala中使用它们。我们发现这是一个让新工程师能够快速上手的有效方法。网站里的是伴随这些讲座的书面材料，这些文字材料本身也是很有用的。</p>
+
+          <h2>方法</h2>
+          <p>我们认为最有意义的教学方式是，不要把Scala看做是改进的Java，而是把它作为一门新的语言。所以这里不会介绍Java的使用经验，而将聚焦在解释器和“对象-函数式”的风格，以及我们的编程风格。特别强调了可维护性，清晰的表达，和利用类型系统的优势。</p>
+          <p>大部分课程除了Scala的交互命令行之外不需要其他软件。我们鼓励读者按顺序学习，并且不仅限于此。让这些课程作为您探索Scala的起点吧！</p>
+
+          <h2>另外</h2>
+          <p>通过这些链接您可以了解更多：
+          <ul>
+          <li><strong><a href="https://twitter.github.io/effectivescala/index-cn.html">Effective Scala</a></strong> Twitter的Scala最佳实践。对理解Twitter的代码风格非常有用。</li>
+          <li><strong><a href="https://docs.scala-lang.org">Scala 官网文档</a></strong> 包含教程，手册，API参考，书籍等...</li>
+          <li><strong><a href="https://www.scala-lang.org/api/">Scala API文档</a></strong></li>
+          </ul>
+
+        </div>
+        <div class="span6">
+          <h2>课程</h2>
+            <dl>
+              
+                <dt><a href="basics.html">基础</a></dt>
+                <dd>值，函数，类，方法，继承，try-catch-finally。面向表达式编程</dd>
+              
+                <dt><a href="basics2.html">基础知识（续）</a></dt>
+                <dd>样本类，对象，包，应用，更新，函数即对象（统一访问原则），模式匹配。</dd>
+              
+                <dt><a href="collections.html">集合</a></dt>
+                <dd>列表，映射，功能组合(map, foreach, filter, zip, folds)</dd>
+              
+                <dt><a href="pattern-matching-and-functional-composition.html">模式匹配与函数组合</a></dt>
+                <dd>更多函数！偏函数，更多模式匹配</dd>
+              
+                <dt><a href="type-basics.html">类型和多态基础</a></dt>
+                <dd>基本类型和类型多态性，类型推断，变性，边界，量化</dd>
+              
+                <dt><a href="advanced-types.html">高级类型</a></dt>
+                <dd>高级类型，视界，更高级多态性类型，递归类型，结构类型</dd>
+              
+                <dt><a href="sbt.html">简单构建工具</a></dt>
+                <dd>关于SBT——标准的Scala构建工具</dd>
+              
+                <dt><a href="coll2.html">更多的集合</a></dt>
+                <dd>Scala Collections库指南</dd>
+              
+                <dt><a href="specs.html">使用specs测试</a></dt>
+                <dd></dd>
+              
+                <dt><a href="concurrency.html">Scala 并发编程</a></dt>
+                <dd>Runnable, Callable, 线程, Futures</dd>
+              
+                <dt><a href="java.html">Java + Scala</a></dt>
+                <dd>Java跨平台交互：在Java中使用Scala</dd>
+              
+                <dt><a href="finagle.html">Finagle介绍</a></dt>
+                <dd>Finagle原语：Future, Service, Filter, Builder</dd>
+              
+                <dt><a href="searchbird.html">Searchbird</a></dt>
+                <dd>利用Finagle构建一个分布式搜索引擎</dd>
+              
+            </dl>
+       </div>
+      </div>
+    </div> <!-- /container-fluid -->
+
+    <!-- banner -->
+    <a href="https://github.com/twitter/scala_school"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+  </body>
+</html>
+
+
+    </div> <!-- /container-fluid -->
+
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

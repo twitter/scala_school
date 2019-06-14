@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - 패턴 매치와 함수 합성</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">패턴 매치와 함수 합성</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="collections.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="type-basics.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>이번 강좌에서 다루는 내용은 다음과 같다.</p>
+<ul>
+	<li><a href="#composition">함수 합성</a>
+	<ul>
+		<li>compose</li>
+		<li>andThen</li>
+	</ul></li>
+	<li><a href="#curryvspartial">커링과 부분 적용 비교</a></li>
+	<li><a href="#PartialFunction" title="부분 함수 클래스">PartialFunction</a>
+	<ul>
+		<li>치역과 정의역</li>
+		<li>orElse로 합성하기</li>
+	</ul></li>
+	<li><a href="#case">case 문이란 무엇인가?</a></li>
+</ul>
+<h2 id="composition">함수 합성</h2>
+<p>다음 두 함수가 유용하다고 가정하자.</p>
+<pre>
+scala&gt; def addUmm(x: String) = x + " umm"
+addUmm: (x: String)String
+
+scala&gt;  def addAhem(x: String) = x + " ahem"
+addAhem: (x: String)String
+</pre>
+<h3>compose</h3>
+<p><code>f compose g</code>를 하면 두 함수를 <code>f(g(x))</code>과 같이 합성한다.</p>
+<pre>
+scala&gt; val ummThenAhem = addAhem _ compose addUmm _
+ummThenAhem: (String) =&gt; String = &lt;function1&gt;
+
+scala&gt; ummThenAhem("well")
+res0: String = well umm ahem
+</pre>
+<h3>andThen</h3>
+<p><code>andThen</code>도 <code>compose</code>와 비슷하지만, 처음 오는 함수를 먼저 호출한 다음, 두번째 함수를 호출한다. 즉, <code>f andThen g</code>는 <code>g(f(x))</code></p>
+<pre>
+scala&gt; val ahemThenUmm = addAhem _ andThen addUmm _
+ahemThenUmm: (String) =&gt; String = &lt;function1&gt;
+
+scala&gt; ahemThenUmm("well")
+res1: String = well ahem umm
+</pre>
+<h2 id="curryvspartial">커링과 부분 적용의 비교</h2>
+<h3>케이스 문</h3>
+<h4>케이스 문은 도대체 무엇인가?</h4>
+<p>케이스 문은 PartialFunction이라 불리는 함수의 하위 클래스이다.</p>
+<h4>케이스 문을 여러개 사용하는 것은 무엇인가?</h4>
+<p>여러 PartialFunction들이 서로 compose된 것이다.</p>
+<h2 id="PartialFunction">PartialFunction</h2>
+<p>함수는 정의된 모든 인자 값에 대해 동작한다. 다른식으로 말하자면, (Int) =&gt; String 타입으로 정의된 함수는 모든 Int에 대해 어떤 String을 반환한다. 즉, 어떤 정수이건 그에 대응하는 String이 있기 마련이다.</p>
+<p>하지만 부분 함수는 인자 타입의 값 중 일부에 대해서만 정의되어 있다. (Int) =&gt; String 타입의 부분함수는 일부 Int는 취급하지 않을 것이다.</p>
+<p><code>isDefinedAt</code>은 PartialFunction에 정의되어 있는 메소드로, 해당 PartialFunction이 주어진 인자를 받을 수 있는지를 알려준다.</p>
+<p><i>Note</i> <code>PartialFunction</code>은 앞에서 본 부분 적용된 함수와는 전혀 관계가 없다.</p>
+<p><strong>See Also</strong> 효율적 스칼라에도 <a href="https://twitter.github.com/effectivescala/#Functional programming-Partial functions">부분함수</a>에 대한 내용이 있다.</p>
+<pre>
+scala&gt; val one: PartialFunction[Int, String] = { case 1 =&gt; "one" }
+one: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; one.isDefinedAt(1)
+res0: Boolean = true
+
+scala&gt; one.isDefinedAt(2)
+res1: Boolean = false
+</pre>
+<p>부분 함수도 함수처럼 적용이 가능하다.</p>
+<pre>
+scala&gt; one(1)
+res2: String = one
+</pre>
+<p>PartialFunction들은 orElse라 불리는 다른 함수를 사용해 합성이 가능하다. orElse는 각 PartialFunction이 인자 값에 대해 정의되어 있는지 여부에 따라 적절한 최종 값을 반환한다.</p>
+<pre>
+scala&gt; val two: PartialFunction[Int, String] = { case 2 =&gt; "two" }
+two: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; val three: PartialFunction[Int, String] = { case 3 =&gt; "three" }
+three: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; val wildcard: PartialFunction[Int, String] = { case _ =&gt; "something else" }
+wildcard: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; val partial = one orElse two orElse three orElse wildcard
+partial: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; partial(5)
+res24: String = something else
+
+scala&gt; partial(3)
+res25: String = three
+
+scala&gt; partial(2)
+res26: String = two
+
+scala&gt; partial(1)
+res27: String = one
+
+scala&gt; partial(0)
+res28: String = something else
+</pre>
+<h3 id="case">케이스 문의 신비</h3>
+<p>지난 강의에서 무언가 이상한 부분이 있었다. 즉, 케이스 문을 함수가 필요한 위치에 사용하는 것을 보았다.</p>
+<pre>
+scala&gt; case class PhoneExt(name: String, ext: Int)
+defined class PhoneExt
+
+scala&gt; val extensions = List(PhoneExt("steve", 100), PhoneExt("robey", 200))
+extensions: List[PhoneExt] = List(PhoneExt(steve,100), PhoneExt(robey,200))
+
+scala&gt; extensions.filter { case PhoneExt(name, extension) =&gt; extension &lt; 200 }
+res0: List[PhoneExt] = List(PhoneExt(steve,100))
+</pre>
+<p>어떻게 이런 일이 가능할까?</p>
+<p>필터는 함수를 받는다. 위 코드에서 필터가 받아야 하는 함수는 (PhoneExt) =&gt; Boolean 타입이다.</p>
+<p>PartialFunction은 Function의 하위타입이므로 필터는 PartialFunction도 받을 수 있다!</p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

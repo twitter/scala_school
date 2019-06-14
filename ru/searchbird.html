@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Searchbird</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">Searchbird</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="finagle.html">&laquo;Previous</a></li>
+            
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>Мы начинаем создавать простой распределенный поисковый движок, используя Scala, и обсуждаемый ранее «Finagle»:https://github.com/twitter/finagle фреймфорк.</p>
+<h3>Основные цели: Обзор</h3>
+<p>В широком смысле, наши цели должны включать <em>абстракцию</em> (возможность использовать полученную систему, без всех внутренних деталей); <em>модульность</em> (возможность системы делиться на маленькие, простые части, которые просты для понимания и/или могут быть легко заменены); и <em>масштабирование</em> (возможность возможность увеличить производительность системы простыми способами).</p>
+<p>Система, которую мы собираемся описать состоит из трех частей: (1) <em>клиенты</em>, которые делают запросы к (2) <em>серверам</em>, которые посылают ответ на запрос, и (3) <em>транспорт</em> — механизм, который упаковывает эти сообщения. Обычно клиент и сервер будут находиться на разных машинах и общаться по сети через конкретный «_порт_»:https://ru.wikipedia.org/wiki/Порт_(<span class="caps">TCP</span>/IP), но в данном примере, они будут работать на одной и той же машине (и тоже общаться с помощью портов). В нашем примере, клиенты и серверы будут написаны на Scala, и транспорт будет обрабатываться с помощью «Thrift»:https://thrift.apache.org/. Основной целью этого урока является показать работу простого сервера и клиента, которые могут быть расширены, чтобы обеспечить необходимый уровень производительность при масштабировании.</p>
+<h3>Обзор стандартного проекта-заготовки</h3>
+<p>Во-первых, создадим скелет проекта («Searchbird») с использованием «scala-bootstrapper»:https://github.com/twitter/scala-bootstrapper. С его помощью создается простой «Finagle»:https://twitter.github.com/finagle/ на основе Scala сервиса, который экспортирует из памяти хранилище ключ-значение. Сначала мы расширим его, чтобы он мог искать значения, а затем расширим его, чтобы он мог поддерживать поиск во многих, находящихся в памяти, базах, используя несколько процессов.</p>
+<pre>
+$ mkdir searchbird ; cd searchbird
+$ scala-bootstrapper searchbird
+writing build.sbt
+writing config/development.scala
+writing config/production.scala
+writing config/staging.scala
+writing config/test.scala
+writing console
+writing Gemfile
+writing project/plugins.sbt
+writing README.md
+writing sbt
+writing src/main/scala/com/twitter/searchbird/SearchbirdConsoleClient.scala
+writing src/main/scala/com/twitter/searchbird/SearchbirdServiceImpl.scala
+writing src/main/scala/com/twitter/searchbird/config/SearchbirdServiceConfig.scala
+writing src/main/scala/com/twitter/searchbird/Main.scala
+writing src/main/thrift/searchbird.thrift
+writing src/scripts/searchbird.sh
+writing src/scripts/config.sh
+writing src/scripts/devel.sh
+writing src/scripts/server.sh
+writing src/scripts/service.sh
+writing src/test/scala/com/twitter/searchbird/AbstractSpec.scala
+writing src/test/scala/com/twitter/searchbird/SearchbirdServiceSpec.scala
+writing TUTORIAL.md
+</pre>
+<p>Давайте сначала изучим стандартный проект <code>scala-bootstrapper</code>, созданный для нас. Он является шаблоном. Вы в конечном счете замените большую часть проекта, но он послужит удобным средством для старта. Проект определяет простое (но полное) хранилище ключ-значение. Конфигурация, thrift интерфейс, статистика экспорта и ведение логов все это включено изначально.</p>
+<p>Прежде чем мы вглянем на код, давайте запустим клиент и сервер, чтобы увидеть, как все работает. Вот то, что мы делаем:</p>
+<p><img src="searchbird-1.svg" title="Searchbird implementation, revision 1" alt="Searchbird implementation, revision 1" /></p>
+<p>а вот интерфейс, который экспортирует наш сервис. Поскольку сервис Searchbird это «Thrift»:https://thrift.apache.org/ сервис (как и большинство наших сервисов), его внешний интерфейс определен в Thrift <span class="caps">IDL</span> («язык описания интерфейса»).</p>
+<h5>src/main/thrift/searchbird.thrift</h5>
+<pre>
+service SearchbirdService {
+  string get(1: string key) throws(1: SearchbirdException ex)
+
+  void put(1: string key, 2: string value)
+}
+</pre>
+<p>Здесь все просто: наш сервис <code>SearchbirdService</code> экспортирует 2 <span class="caps">RPC</span> метода, <code>get</code> и <code>put</code>. Они включают в себя простой интерфейс для хранилища ключ-значение.</p>
+<p>Теперь давайте запустим стандартный сервис и клиент, который подключается к этому сервису, и исследуем их через этот интерфейс. Откройте два окна, одно для сервера и одно для клиента.</p>
+<p>В первом окне, запустите <span class="caps">SBT</span> в интерактивном режиме (запустите <code>./sbt</code> из командной строки <sup class="footnote" id="fnr1"><a href="#fn1">1</a></sup>), а затем собирите и запустите проект из <span class="caps">SBT</span>. После этого запустится программа <code>main</code> в <code>Main.scala</code>.</p>
+<pre>
+$ ./sbt
+...
+&gt; compile
+&gt; run -f config/development.scala
+...
+[info] Running com.twitter.searchbird.Main -f config/development.scala
+</pre>
+<p>Файл конфигурации (<code>development.scala</code>) создает новый сервис, привязывая сервис к порту 9999 на нашей локальной машине. Клиенты могут общаться с этим сервисом при подключении к порту 9999.</p>
+<p>Теперь мы создадим и запустим клиент, используя предоставленный ​​@console@ шелл скрипт, который создает экземпляр <code>SearchbirdConsoleClient</code> (из <code>SearchbirdConsoleClient.scala</code>). Запустите этот сценарий в другом окне:</p>
+<pre>
+$ ./console 127.0.0.1 9999
+[info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
+'client' is bound to your thrift client.
+
+finagle-client&gt;
+</pre>
+<p>Клиентский объект <code>client</code> теперь подключен к порту 9999 на нашем локальном компьютере и может общаться с сервисом, который мы ранее запустили на этом порту. Теперь давайте отправим несколько запросов:</p>
+<pre>
+scala&gt; client.put("marius", "Marius Eriksen")
+res0: ...
+
+scala&gt; client.put("stevej", "Steve Jenson")
+res1: ...
+
+scala&gt; client.get("marius")
+res2: com.twitter.util.Future[String] = ...
+
+scala&gt; Await.result(client.get("marius"))
+res3: String = Marius Eriksen
+</pre>
+<p>(Второй вызов <code>Await.result()</code> создает <code>Future</code>, который является возвращаемым типом <code>client.get()</code>, блокируя процесс до того, пока не будет получено значение.)</p>
+<p>Сервер также экспортирует статистику времени выполнения (файл конфигурации определяет для этого порт 9900). Это удобно как для проверки отдельных серверов, а также для объединения в глобальную статистику сервиса (предоставляется также машиночитаемый <span class="caps">JSON</span> интерфейс). Откройте третье окно и проверьте эту статистику:</p>
+<pre>
+$ curl localhost:9900/stats.txt
+counters:
+  Searchbird/connects: 1
+  Searchbird/received_bytes: 264
+  Searchbird/requests: 3
+  Searchbird/sent_bytes: 128
+  Searchbird/success: 3
+  jvm_gc_ConcurrentMarkSweep_cycles: 1
+  jvm_gc_ConcurrentMarkSweep_msec: 15
+  jvm_gc_ParNew_cycles: 24
+  jvm_gc_ParNew_msec: 191
+  jvm_gc_cycles: 25
+  jvm_gc_msec: 206
+gauges:
+  Searchbird/connections: 1
+  Searchbird/pending: 0
+  jvm_fd_count: 135
+  jvm_fd_limit: 10240
+  jvm_heap_committed: 85000192
+  jvm_heap_max: 530186240
+  jvm_heap_used: 54778640
+  jvm_nonheap_committed: 89657344
+  jvm_nonheap_max: 136314880
+  jvm_nonheap_used: 66238144
+  jvm_num_cpus: 4
+  jvm_post_gc_CMS_Old_Gen_used: 36490088
+  jvm_post_gc_CMS_Perm_Gen_used: 54718880
+  jvm_post_gc_Par_Eden_Space_used: 0
+  jvm_post_gc_Par_Survivor_Space_used: 1315280
+  jvm_post_gc_used: 92524248
+  jvm_start_time: 1345072684280
+  jvm_thread_count: 16
+  jvm_thread_daemon_count: 7
+  jvm_thread_peak_count: 16
+  jvm_uptime: 1671792
+labels:
+metrics:
+  Searchbird/handletime_us: (average=9598, count=4, maximum=19138, minimum=637, p25=637, p50=4265, p75=14175, p90=19138, p95=19138, p99=19138, p999=19138, p9999=19138, sum=38393)
+  Searchbird/request_latency_ms: (average=4, count=3, maximum=9, minimum=0, p25=0, p50=5, p75=9, p90=9, p95=9, p99=9, p999=9, p9999=9, sum=14)
+</pre>
+<p>В дополнение к нашей статистике сервиса, мы также получаем общую статистику <span class="caps">JVM</span>, которая часто полезна.</p>
+<p>Теперь давайте заглянем в код, который реализует конфигурацию, сервер и клиент.</p>
+<h5>&#8230;/config/SearchbirdServiceConfig.scala</h5>
+<p>Конфигурация является Scala трейтом, который имеет метод <code>apply: RuntimeEnvironment =&gt; T</code> для некоторых <code>T</code>, которые мы хотим создать. В этом смысле конфигурации — это «фабрики». Во время выполнения файла конфигурации выполняется как скрипт (с помощью компилятора Scala в качестве библиотеки), и ожидается, что будет получен объект конфигурации.<code>RuntimeEnvironment</code> является объектом, запрашивающим различные параметры во время выполнения (флаги командной строки, версия <span class="caps">JVM</span>, временные метки сборки и т.д.).</p>
+<p><code>SearchbirdServiceConfig</code> определяет такой же класс. Он определяет параметры конфигурации вместе с их значениями по умолчанию. (Finagle поддерживает общие системы отслеживания, которые мы можем игнорировать для целей настоящего учебника; «Zipkin»:https://github.com/twitter/zipkin распределенная система отслеживания, является коллектором/агрегатором таких путей следования.)</p>
+<pre>
+class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
+  var thriftPort: Int = 9999
+  var tracerFactory: Tracer.Factory = NullTracer.factory
+
+  def apply(runtime: RuntimeEnvironment) = new SearchbirdServiceImpl(this)
+}
+</pre>
+<p>В нашем случае, мы хотим создать <code>SearchbirdService.ThriftServer</code>. Он является серверным типом, который создается thrift-ым генератором кода <sup class="footnote" id="fnr2"><a href="#fn2">2</a></sup>.</p>
+<h5>&#8230;/Main.scala</h5>
+<p>При наборе «run» в sbt консоли вызывается <code>main</code>, который настраивает и создает экземпляр этого сервера. Считывается конфигурация (указанная в <code>development.scala</code> и используется как аргумент внутри «run»), создает <code>SearchbirdService.ThriftServer</code> и запускает его. <code>RuntimeEnvironment.loadRuntimeConfig</code> выполняет файл конфигурации и вызывает метод <code>apply</code>, передавая себя в качестве аргумента<sup class="footnote" id="fnr3"><a href="#fn3">3</a></sup>.</p>
+<pre>
+object Main {
+  private val log = Logger.get(getClass)
+
+  def main(args: Array[String]) {
+    val runtime = RuntimeEnvironment(this, args)
+    val server = runtime.loadRuntimeConfig[SearchbirdService.ThriftServer]
+    try {
+      log.info("Starting SearchbirdService")
+      server.start()
+    } catch {
+      case e: Exception =&gt;
+        log.error(e, "Failed starting SearchbirdService, exiting")
+        ServiceTracker.shutdown()
+        System.exit(1)
+    }
+  }
+}
+</pre>
+<h5>&#8230;/SearchbirdServiceImpl.scala</h5>
+<p>Это основа сервиса: мы расширяем <code>SearchbirdService.ThriftServer</code> с помощью нашей собственной реализации. Напомним, что <code>SearchbirdService.ThriftServer</code> был создан для нас thrift-ым генератором кода. Он генерирует метод Scala используя thrift метод. В нашем примере, сгенерированный интерфейс выглядит так:</p>
+<pre>
+trait SearchbirdService {
+  def put(key: String, value: String): Future[Void]
+  def get(key: String): Future[String]
+}
+</pre>
+<p><code>Future[Value]</code> возвращаются вместо непосредственных значений, так что их вычисление может быть отложено (finagle «документация»:finagle.html имеет более подробную информацию о <code>Future</code>). Для целей настоящего учебника, единственное, что вам нужно знать о <code>Future</code>, то что вы можете получить его значение с помощью <code>get()</code>.</p>
+<p>Стандартная реализация хранилища ключ-значение предоставляемая <code>scala-bootstrapper</code> очень проста: она обеспечивает структуру данных <code>database</code> и вызовы <code>get</code> и <code>put</code>, которые имеют доступ к этой структуре данных.</p>
+<pre>
+class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdService.ThriftServer {
+  val serverName = "Searchbird"
+  val thriftPort = config.thriftPort
+  override val tracerFactory = config.tracerFactory
+
+  val database = new mutable.HashMap[String, String]()
+
+  def get(key: String) = {
+    database.get(key) match {
+      case None =&gt;
+        log.debug("get %s: miss", key)
+        Future.exception(SearchbirdException("No such key"))
+      case Some(value) =&gt;
+        log.debug("get %s: hit", key)
+        Future(value)
+    }
+  }
+
+  def put(key: String, value: String) = {
+    log.debug("put %s", key)
+    database(key) = value
+    Future.Unit
+  }
+
+  def shutdown() = {
+    super.shutdown(0.seconds)
+  }
+}
+</pre>
+<p>Результатом является простой thrift интерфейс для Scala <code>HashMap</code>.</p>
+<h2>Простой поисковый движок</h2>
+<p>Теперь мы расширим наш пример, чтобы создать простой поисковой движок. Затем мы расширим его так, чтобы он стал <em>распределенным</em> поисковым движком, состоящим из нескольких распределенных частей, так что мы сможем вместить данных больше, чем может поместиться в памяти одной машины.</p>
+<p>Для простоты, мы будем расширять наш нынешний сервис thrift по частям, реализуя поддержку операции поиска. Моделью использования является <code>put</code>  документы в поисковую систему, где каждый документ содержит ряд лексем (слов), тогда мы можем искать в строке лексем, чтобы вернуть все документы, которые содержат все лексемы в наборе. Архитектура совпадает с предыдущим примером, но для добавления вызываем <code>search</code>.</p>
+<p><img src="searchbird-2.svg" title="Searchbird implementation, revision 2" alt="Searchbird implementation, revision 2" /></p>
+<p>Чтобы реализовать такой поисковый движок, сделайте следующие изменения в двух файлах:</p>
+<h5>src/main/thrift/searchbird.thrift</h5>
+<pre>
+service SearchbirdService {
+  string get(1: string key) throws(1: SearchbirdException ex)
+
+  void put(1: string key, 2: string value)
+
+  list&lt;string&gt; search(1: string query)
+}
+</pre>
+<p>Мы добавили метод <code>search</code>, который ищет в текущей хеш-таблице, возвращая список ключей, значения которых соответствуют запросу. Реализация также проста:</p>
+<h5>&#8230;/SearchbirdServiceImpl.scala</h5>
+<p>Большинство наших изменения происходят в этом файле.</p>
+<p>В настоящее время <code>database</code> hashmap содержит начальный индекс, который включает ключ на документ. Мы переименуем его в <code>forward</code> и добавим вторую карту для <code>обратного</code> индекса (который отображает лексему на набор документов, которые содержат эту лексему). Таким образом, внутри <code>SearchbirdServiceImpl.scala</code>, заменим определение <code>database</code> с помощью:</p>
+<pre>
+val forward = new mutable.HashMap[String, String]
+  with mutable.SynchronizedMap[String, String]
+val reverse = new mutable.HashMap[String, Set[String]]
+  with mutable.SynchronizedMap[String, Set[String]]
+</pre>
+<p>Внутри вызова <code>get</code>, заменим <code>database</code> с помощью <code>forward</code>, иначе <code>get</code> останется тем же (он выполняется перед поиском). Тем не менее <code>put</code> требует изменений: мы также должны заполнить обратный индекс для каждой лексемы в документе путем добавления ключа документа в список, связанный с этой лексемой. Замените вызов <code>put</code> с помощью следующего кода. Учитывая особый знак поиска, теперь мы можем использовать <code>reverse</code> карту, чтобы просмотреть документы.</p>
+<pre>
+def put(key: String, value: String) = {
+  log.debug("put %s", key)
+
+  forward(key) = value
+
+  // serialize updaters
+  synchronized {
+    value.split(" ").toSet foreach { token =&gt;
+      val current = reverse.getOrElse(token, Set())
+      reverse(token) = current + key
+    }
+  }
+
+  Future.Unit
+}
+</pre>
+<p>Заметим, что (хотя <code>HashMap</code> является потокобезопасным) только один поток может обновлять <code>reverse</code> карту за раз, чтобы убедиться, что чтение-модификация-запись конкретной записи &#8211; это атомарные операции. (Код является чрезмерно консервативным, он блокирует всю карту, вместо блокировки каждой отдельной операции получение-модификация-запись). Также обратите внимание на использование <code>Set</code> как структуры данных, это гарантирует, что если похожая лексема появляется дважды в документе, то она будет обработана только один раз с помощью <code>foreach</code>.</p>
+<p>Реализация имеет проблему, которая остается в качестве упражнения для читателя: когда мы перезаписываем ключ с новым документом, мы не удаляем все ссылки на старый документ в обратном индексе.</p>
+<p>Вернемся к поисковой системе: используем новый метод <code>search</code>. Он должен разметить свой ​​запрос, просмотреть все соответствующие документы, а затем находит общее в этих списках. После этого получаем список документов, которые содержат все лексемы в запросе. Все это просто выразить в Scala, добавив это к классу <code>SearchbirdServiceImpl</code>:</p>
+<pre>
+def search(query: String) = Future.value {
+  val tokens = query.split(" ")
+  val hits = tokens map { token =&gt; reverse.getOrElse(token, Set()) }
+  val intersected = hits reduceLeftOption { _ &amp; _ } getOrElse Set()
+  intersected.toList
+}
+</pre>
+<p>Несколько вещей, которые важны в этом небольшом фрагменте кода. При построении списка, если ключ (<code>token</code>) не найден, <code>getOrElse</code> будет отдавать значение второго параметра (в данном случае, пустой <code>Set</code>). Мы выполняем пересечение, используя left-reduce. Специфический способ, <code>reduceLeftOption</code>, не будет пытаться выполнить reduce, если <code>hits</code> пуст, возвращая вместо этого <code>None</code>. Он позволяет указать значение по умолчанию, вместо исключения. На самом деле, это эквивалентно:</p>
+<pre>
+def search(query: String) = Future.value {
+  val tokens = query.split(" ")
+  val hits = tokens map { token =&gt; reverse.getOrElse(token, Set()) }
+  if (hits.isEmpty)
+    Nil
+  else
+    hits reduceLeft { _ &amp; _ } toList
+}
+</pre>
+<p>Какой вариант использовать это в основном дело вкуса, хотя функциональный стиль часто избегает условные конструкции для разумных значений по умолчанию.</p>
+<p>Теперь мы можем экспериментировать с нашей новой реализацией с помощью консоли. Снова запустите сервер:</p>
+<pre>
+$ ./sbt
+...
+&gt; compile
+&gt; run -f config/development.scala
+...
+[info] Running com.twitter.searchbird.Main -f config/development.scala
+</pre>
+<p>и потом из директории searchbird, запустите клиент:</p>
+<pre>
+$ ./console 127.0.0.1 9999
+...
+[info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
+'client' is bound to your thrift client.
+
+finagle-client&gt;
+</pre>
+<p>Вставьте следующее описание лекции в консоль:</p>
+<p><!--
+grep -h '^(desc|title):' ../web/_posts/* | tr A-Z a-z | tr '=''\-+.,:' ' ' | awk '
+/^title/ { title=$2 }
+/^desc/ {
+	d=""
+	for(i = 2; i < NF; i++) { d = d " " $i }
+	print "$client.put(\"" title "\", \"" d "\")"
+}'
+--></p>
+<pre>
+client.put("basics", " values functions classes methods inheritance try catch finally expression oriented")
+client.put("basics", " case classes objects packages apply update functions are objects (uniform access principle) pattern")
+client.put("collections", " lists maps functional combinators (map foreach filter zip")
+client.put("pattern", " more functions! partialfunctions more pattern")
+client.put("type", " basic types and type polymorphism type inference variance bounds")
+client.put("advanced", " advanced types view bounds higher kinded types recursive types structural")
+client.put("simple", " all about sbt the standard scala build")
+client.put("more", " tour of the scala collections")
+client.put("testing", " write tests with specs a bdd testing framework for")
+client.put("concurrency", " runnable callable threads futures twitter")
+client.put("java", " java interop using scala from")
+client.put("searchbird", " building a distributed search engine using")
+</pre>
+<p>Теперь мы можем выполнить несколько запросов, которые возвращают ключи документов, которые содержат условия поиска.</p>
+<pre>
+&gt; Await.result(client.search("functions"))
+res12: Seq[String] = ArrayBuffer(basics)
+
+&gt; Await.result(client.search("java"))
+res13: Seq[String] = ArrayBuffer(java)
+
+&gt; Await.result(client.search("java scala"))
+res14: Seq[String] = ArrayBuffer(java)
+
+&gt; Await.result(client.search("functional"))
+res15: Seq[String] = ArrayBuffer(collections)
+
+&gt; Await.result(client.search("sbt"))
+res16: Seq[String] = ArrayBuffer(simple)
+
+&gt; Await.result(client.search("types"))
+res17: Seq[String] = ArrayBuffer(type, advanced)
+</pre>
+<p>Напомним, что если вызов возвращает <code>Future</code>, мы должны использовать блокировку вызова <code>get()</code> для получения значения, содержащегося в этом future. Мы можем использовать команду <code>Future.collect</code>, чтобы сделать несколько одновременных запросов и подождать, пока все они завершатся успешно:</p>
+<pre>
+&gt; import com.twitter.util.{Await, Future}
+...
+&gt; Await.result(Future.collect(Seq(
+    client.search("types"),
+    client.search("sbt"),
+    client.search("functional")
+  )))
+res18: Seq[Seq[String]] = ArrayBuffer(ArrayBuffer(type, advanced), ArrayBuffer(simple), ArrayBuffer(collections))
+</pre>
+<h2>Делаем наш сервис распределенным</h2>
+<p>На одной машине, наши простой поисковый движок, находящийся в памяти, не сможет искать фрагменты больше, чем размер оперативной памяти. Мы будем теперь пытаться исправить эту ситуацию, распределяя узлы с помощью простой схемы распределения (шардинга). Вот блок-схема:</p>
+<p><img src="searchbird-3.svg" title="Distributed Searchbird service" alt="Distributed Searchbird service" /></p>
+<h3>Абстрагирование</h3>
+<p>В помощь нашему делу, мы введем другую абстаркцию <del>-<code>Index</code></del>- для того чтобы отделить раелизацию индекса от <code>SearchbirdService</code>. Сделать это просто. Мы начнем с добавления файла Index в сборку (create the file <code>searchbird/src/main/scala/com/twitter/searchbird/Index.scala</code>):</p>
+<h5>&#8230;/Index.scala</h5>
+<pre>
+package com.twitter.searchbird
+
+import scala.collection.mutable
+import com.twitter.util._
+import com.twitter.conversions.time._
+import com.twitter.logging.Logger
+import com.twitter.finagle.builder.ClientBuilder
+import com.twitter.finagle.thrift.ThriftClientFramedCodec
+
+trait Index {
+  def get(key: String): Future[String]
+  def put(key: String, value: String): Future[Unit]
+  def search(key: String): Future[List[String]]
+}
+
+class ResidentIndex extends Index {
+  val log = Logger.get(getClass)
+
+  val forward = new mutable.HashMap[String, String]
+    with mutable.SynchronizedMap[String, String]
+  val reverse = new mutable.HashMap[String, Set[String]]
+    with mutable.SynchronizedMap[String, Set[String]]
+
+  def get(key: String) = {
+    forward.get(key) match {
+      case None =&gt;
+        log.debug("get %s: miss", key)
+        Future.exception(SearchbirdException("No such key"))
+      case Some(value) =&gt;
+        log.debug("get %s: hit", key)
+        Future(value)
+    }
+  }
+
+  def put(key: String, value: String) = {
+    log.debug("put %s", key)
+
+    forward(key) = value
+
+    // admit only one updater.
+    synchronized {
+      (Set() ++ value.split(" ")) foreach { token =&gt;
+        val current = reverse.get(token) getOrElse Set()
+        reverse(token) = current + key
+      }
+    }
+
+    Future.Unit
+  }
+
+  def search(query: String) = Future.value {
+    val tokens = query.split(" ")
+    val hits = tokens map { token =&gt; reverse.getOrElse(token, Set()) }
+    val intersected = hits reduceLeftOption { _ &amp; _ } getOrElse Set()
+    intersected.toList
+  }
+}
+</pre>
+<p>Сейчас мы превратили наш thrift сервис в простой механизм диспетчеризации: он обеспечивает thrift интерфейс для любого экземпляра <code>Index</code>. Это мощная абстракция, потому что она отделяет реализацию сервиса от реализации индекса. Сервис не должен знать никаких подробностей об основных индексах, индекс может быть локальным или удаленным, или может быть составной частью многих удаленных индексов, но сервис не заботится об этом, и реализация индекса может изменяться без изменения сервиса.</p>
+<p>Замените определение класса <code>SearchbirdServiceImpl</code> тем, что ниже (которая уже не содержит подробностей реализации индекса и гораздо проще). Обратите внимание, инициализация сервера теперь принимает второй аргумент <code>Index</code>.</p>
+<h5>&#8230;/SearchbirdServiceImpl.scala</h5>
+<pre>
+class SearchbirdServiceImpl(config: SearchbirdServiceConfig, index: Index) extends SearchbirdService.ThriftServer {
+  val serverName = "Searchbird"
+  val thriftPort = config.thriftPort
+
+  def get(key: String) = index.get(key)
+  def put(key: String, value: String) =
+    index.put(key, value) flatMap { _ =&gt; Future.Unit }
+  def search(query: String) = index.search(query)
+
+  def shutdown() = {
+    super.shutdown(0.seconds)
+  }
+}
+</pre>
+<h5>&#8230;/config/SearchbirdServiceConfig.scala</h5>
+<p>Обновите ваш вызов <code>apply</code> в <code>SearchbirdServiceConfig</code> соответственно:</p>
+<pre>
+class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
+  var thriftPort: Int = 9999
+  var tracerFactory: Tracer.Factory = NullTracer.factory
+
+  def apply(runtime: RuntimeEnvironment) = new SearchbirdServiceImpl(this, new ResidentIndex)
+}
+</pre>
+<p>Мы создали нашу простую распределенную систему, в которой есть один главный узел, который координирует запросы к его дочерним узлам. Для того чтобы добиться этого, нам нужно два новых типа <code>Index</code>. Один представляет собой удаленный индекс, другой сводный индекс нескольких других экземпляров <code>Index</code>. Таким образом, мы можем построить распределенный индекс, определяя экземпляр сводного индекса для удаленных индексов. Заметим, что оба индекса типы <code>Index</code> имеют одинаковый интерфейс, так что серверам не нужно знать, является ли индекс, к которому они подключаются удаленным или составным.</p>
+<h5>&#8230;/Index.scala</h5>
+<p>В <code>Index.scala</code>, определим <code>CompositeIndex</code>:</p>
+<pre>
+class CompositeIndex(indices: Seq[Index]) extends Index {
+  require(!indices.isEmpty)
+
+  def get(key: String) = {
+    val queries = indices.map { idx =&gt;
+      idx.get(key) map { r =&gt; Some(r) } handle { case e =&gt; None }
+    }
+
+    Future.collect(queries) flatMap { results =&gt;
+      results.find { _.isDefined } map { _.get } match {
+        case Some(v) =&gt; Future.value(v)
+        case None =&gt; Future.exception(SearchbirdException("No such key"))
+      }
+    }
+  }
+
+  def put(key: String, value: String) =
+    Future.exception(SearchbirdException("put() not supported by CompositeIndex"))
+
+  def search(query: String) = {
+    val queries = indices.map { _.search(query) rescue { case _=&gt; Future.value(Nil) } }
+    Future.collect(queries) map { results =&gt; (Set() ++ results.flatten) toList }
+  }
+}
+</pre>
+<p>Сводный индекс работает с набором базовых экземпляров <code>Index</code>. Обратите внимание, что он не заботится, как они на самом деле реализованы. Этот тип композиции обеспечивает большую гибкость в построении различных схем запросов. Мы не определяем схему распределения, и сводный индекс не поддерживает операции <code>put</code>. Они выполняются непосредственно дочерними узлами. <code>get</code> реализуется с помощью запросов всех наших дочерних узлов и выбирается первый успешный результат. Если таковых нет, то выбрасывается исключение. Отметим, что поскольку сообщается отсутствие значения, выбрасывая исключение, мы <code>handle</code> (управляем) этим с помощью <code>Future</code>, превращая любое исключение в занчение <code>None</code>. В реальной системе, мы бы, вероятно, имели соответствующие коды ошибок для отсутствующих значений, а не использовали исключения. Исключения являются удобными и целесообразными для создания прототипов, но в других случаях они не подходят. Для того, чтобы отличить реальное исключение и отсутствующее значение, мне нужно посмотреть само исключение. Скорее всего, это лучший способ для указания различий непосредственно в типе возвращаемого значения.</p>
+<p><!-- *_HELP This implementation appears to not give any more scalability than the previous scheme; since the index appears to be completely replicated across all client machines, we can't store a larger amount of data. We'd require a more sophisticated @put()@ scheme that distributed puts to only one index, wouldn't we? Alternately, we could improve throughput by only sending @get()@ requests to one node rather than all nodes._* --></p>
+<p><code>search</code> работает похожим образом, как и раньше. Вместо того, чтобы взять первый результат, мы объединяем их, обеспечивая их уникальность с помощью конструкции <code>Set</code>.</p>
+<p><code>RemoteIndex</code> предоставляет интерфейс <code>Index</code> для удаленного сервера.</p>
+<pre>
+class RemoteIndex(hosts: String) extends Index {
+  val transport = ClientBuilder()
+    .name("remoteIndex")
+    .hosts(hosts)
+    .codec(ThriftClientFramedCodec())
+    .hostConnectionLimit(1)
+    .timeout(500.milliseconds)
+    .build()
+  val client = new SearchbirdService.FinagledClient(transport)
+
+  def get(key: String) = client.get(key)
+  def put(key: String, value: String) = client.put(key, value) map { _ =&gt; () }
+  def search(query: String) = client.search(query) map { _.toList }
+}
+</pre>
+<p>Это создает finagle thrift клиент с некоторыми подходящими значениями по умолчанию и прокси вызовами, незначительно меняя типы.</p>
+<h3>Собираем все вместе</h3>
+<p>Теперь у нас есть все, что нам нужно. Прежде нужно настроить конфигурацию для того, чтобы иметь возможность вызвать данный узел либо как главный, либо как узел разделения данных. Для того, чтобы сделать это, мы перечислим шарды (распределенные узлы) в нашей системе путем создания нового элемента конфигурации. Мы также должны добавить <code>Index</code> аргумент в наш экземпляр <code>SearchbirdServiceImpl</code>. Мы будем использовать аргументы командной строки (напомним, что <code>Config</code> имеет к ним доступ), чтобы запустить сервер в любом режиме.</p>
+<h5>&#8230;/config/SearchbirdServiceConfig.scala</h5>
+<pre>
+class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
+  var thriftPort: Int = 9999
+  var shards: Seq[String] = Seq()
+
+  def apply(runtime: RuntimeEnvironment) = {
+    val index = runtime.arguments.get("shard") match {
+      case Some(arg) =&gt;
+        val which = arg.toInt
+        if (which &gt;= shards.size || which &lt; 0)
+          throw new Exception("invalid shard number %d".format(which))
+
+        // override with the shard port
+        val Array(_, port) = shards(which).split(":")
+        thriftPort = port.toInt
+
+        new ResidentIndex
+
+      case None =&gt;
+        require(!shards.isEmpty)
+        val remotes = shards map { new RemoteIndex(_) }
+        new CompositeIndex(remotes)
+    }
+
+    new SearchbirdServiceImpl(this, index)
+  }
+}
+</pre>
+<p>Теперь будем настраивать свою конфигурацию: добавляем инициализацию «шардов» в экземпляр <code>SearchbirdServiceConfig</code> (мы можем общаться с шардом 0 через порт 9000, с шардом 1 через порт 9001, и так далее).</p>
+<h5>config/development.scala</h5>
+<pre>
+new SearchbirdServiceConfig {
+  // Add your own config here
+  shards = Seq(
+    "localhost:9000",
+    "localhost:9001",
+    "localhost:9002"
+  )
+  ...
+</pre>
+<p>Закомментируйте строку <code>admin.httpPort</code> (мы не хотим, чтобы были запущены одни и теже сервисы на данной машине, каждый из которых пытается открыть один и тот же порт):</p>
+<pre>
+  // admin.httpPort = 9900
+</pre>
+<p>Теперь, если мы вызываем наш сервер без каких-либо аргументов, он стартует как главный узел, который общается со всеми даннымы шардами. Если мы зададим аргумент с номером шарда, то сервер запускается на порту, который принадлежит этому шарду.</p>
+<p>Давайте попробуем! Мы запустим 3 сервиса: 2 шарда и 1 главный узел. Во-первых компилируем изменения:</p>
+<pre>
+$ ./sbt
+&gt; compile
+...
+&gt; exit
+</pre>
+<p>Потом запускаем 3 сервера:</p>
+<pre>
+$ ./sbt 'run -f config/development.scala -D shard=0'
+$ ./sbt 'run -f config/development.scala -D shard=1'
+$ ./sbt 'run -f config/development.scala'
+</pre>
+<p>Вы можете запустить их либо в 3 различных окнах, либо (в одном окне) каждый будет ждать своей очереди для запуска, нажмите Ctrl-Z, если вы хотите приостановить сервис, или используйте <code>bg</code>, чтобы запустить его в фоновом режиме.</p>
+<p>Мы будем взаимодействовать с ним через консоль. Во-первых, давайте заполним данные на двух шардах. Запускаем из директории searchbird:</p>
+<pre>
+$ ./console localhost 9000
+...
+&gt; client.put("fromShardA", "a value from SHARD_A")
+&gt; client.put("hello", "world")
+</pre>
+<pre>
+$ ./console localhost 9001
+...
+&gt; client.put("fromShardB", "a value from SHARD_B")
+&gt; client.put("hello", "world again")
+</pre>
+<p>Вы можете выйти из этих сеансов консоли, как только вы их завершите. Теперь сделаем запрос к нашей базе данных на главном узле (порт 9999):</p>
+<pre>
+$ ./console localhost 9999
+[info] Running com.twitter.searchbird.SearchbirdConsoleClient localhost 9999
+'client' is bound to your thrift client.
+
+finagle-client&gt; Await.result(client.get("hello"))
+res0: String = world
+
+finagle-client&gt; Await.result(client.get("fromShardC"))
+SearchbirdException(No such key)
+...
+
+finagle-client&gt; Await.result(client.get("fromShardA"))
+res2: String = a value from SHARD_A
+
+finagle-client&gt; Await.result(client.search("hello"))
+res3: Seq[String] = ArrayBuffer()
+
+finagle-client&gt; Await.result(client.search("world"))
+res4: Seq[String] = ArrayBuffer(hello)
+
+finagle-client&gt; Await.result(client.search("value"))
+res5: Seq[String] = ArrayBuffer(fromShardA, fromShardB)
+</pre>
+<p>Этот дизайн имеет несколько абстракций данных, которые позволяют использовать более модульную и масштабируемую реализацию:</p>
+<ul>
+	<li>Структура данных <code>ResidentIndex</code> ничего не знает о сети, серверах или клиентах.</li>
+	<li><code>CompositeIndex</code> ничего не знает о том, как его составные индексы реализованы или их базовую структуру данных, он просто распределяет свои запросы к ним.</li>
+	<li>То же самое с интерфейсом (трейтом) <code>search</code> для серверов, который позволяет серверу запросить его локальные структуры данных (<code>ResidentIndex</code>) или распространять запросы на другие серверы (<code>CompositeIndex</code>) без необходимости знать различия, которые скрыты от вызывающего объекта.</li>
+	<li>В настоящее время <code>SearchbirdServiceImpl</code> и <code>Index</code> — это отдельные модули, позволяющие простую реализацию сервиса и отделяют реализацию структуры данных сервиса, которая обращается к нему.</li>
+	<li>Дизайн является достаточно гибким. Он позволяет использовать один или нескольким удаленных индексов на локальном компьютере или на удаленных машинах.</li>
+</ul>
+<p><!-- *_HELP Are the possible improvements below accurate?_* --></p>
+<p>Возможные улучшения этой реализации будут включать:</p>
+<ul>
+	<li>Текущая реализация посылает вызов <code>put()</code> на все узлы. Вместо этого, мы могли бы использовать хэш-таблицу для отправки вызовов <code>put()</code> только одному узлу хранения и распространяя хранилище на все узлы.
+	<ul>
+		<li>Обратите внимание, что с этой стратегией мы теряем избыточность. Как мы можем сохранить избыточность до того, пока не требуется полной репликации?</li>
+	</ul></li>
+	<li>Мы не делаем ничего интересного с падениями и сбоями в системе (мы, например, не обрабатывает исключения).</li>
+</ul>
+<p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> Локальный скрипт <code>./sbt</code> гарантирует, что версия <span class="caps">SBT</span> не изменяет то, что мы знаем обо всех имеющися библиотеках.</p>
+<p class="footnote" id="fn2"><a href="#fnr2"><sup>2</sup></a> В <code>target/gen-scala/com/twitter/searchbird/SearchbirdService.scala</code>.</p>
+<p class="footnote" id="fn3"><a href="#fnr3"><sup>3</sup></a> Смотрите Ostrich&#8217;s «README»: https://github.com/twitter/ostrich/blob/master/<span class="caps">README</span>.md для получения дополнительной информации.</p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>
