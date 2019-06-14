@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Simple Build Tool</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">Simple Build Tool</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="advanced-types.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="coll2.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>This lesson covers <span class="caps">SBT</span>! Specific topics include:</p>
+<ul>
+	<li>creating an sbt project</li>
+	<li>basic commands</li>
+	<li>the sbt console</li>
+	<li>continuous command execution</li>
+	<li>customizing your project</li>
+	<li>custom commands</li>
+	<li>quick tour of sbt source (if time)</li>
+</ul>
+<h2>About <span class="caps">SBT</span></h2>
+<p><span class="caps">SBT</span> is a modern build tool. While it is written in Scala and provides many Scala conveniences, it is a general purpose build tool.</p>
+<h2>Why <span class="caps">SBT</span>?</h2>
+<ul>
+	<li>Sane(ish) dependency management
+	<ul>
+		<li>Ivy for dependency management</li>
+		<li>Only-update-on-request model</li>
+	</ul></li>
+	<li>Full Scala language support for creating tasks</li>
+	<li>Continuous command execution</li>
+	<li>Launch <span class="caps">REPL</span> in project context</li>
+</ul>
+<h2>Getting Started</h2>
+<ul>
+	<li><a href="https://www.scala-sbt.org/release/docs/Getting-Started/Setup.html">Download the jar</a></li>
+	<li>Create an sbt shell script that calls the jar, e.g.</li>
+</ul>
+<pre>
+java -Xmx512M -jar sbt-launch.jar "$@"
+</pre>
+<ul>
+	<li>make sure it&#8217;s executable and in your path</li>
+	<li>run sbt to create your project</li>
+</ul>
+<pre>
+[local ~/projects]$ sbt
+Project does not exist, create new project? (y/N/s) y
+Name: sample
+Organization: com.twitter
+Version [1.0]: 1.0-SNAPSHOT
+Scala version [2.7.7]: 2.8.1
+sbt version [0.7.4]:      
+Getting Scala 2.7.7 ...
+:: retrieving :: org.scala-tools.sbt#boot-scala
+	confs: [default]
+	2 artifacts copied, 0 already retrieved (9911kB/221ms)
+Getting org.scala-tools.sbt sbt_2.7.7 0.7.4 ...
+:: retrieving :: org.scala-tools.sbt#boot-app
+	confs: [default]
+	15 artifacts copied, 0 already retrieved (4096kB/167ms)
+[success] Successfully initialized directory structure.
+Getting Scala 2.8.1 ...
+:: retrieving :: org.scala-tools.sbt#boot-scala
+	confs: [default]
+	2 artifacts copied, 0 already retrieved (15118kB/386ms)
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
+&gt; 
+</pre>
+<p>Note that it&#8217;s good form to start out with a <span class="caps">SNAPSHOT</span> version of your project.</p>
+<h2>Project Layout</h2>
+<ul>
+	<li><code>project</code> &#8211; project definition files
+	<ul>
+		<li><code>project/build/</code> <em>yourproject</em> <code>.scala</code> &#8211; the main project definition file</li>
+		<li><code>project/build.properties</code> &#8211; project, sbt and scala version definitions</li>
+	</ul></li>
+	<li><code>src/main</code> &#8211; your app code goes here, in a subdirectory indicating the<br />
+code&#8217;s language (e.g. <code>src/main/scala</code>, <code>src/main/java</code>)</li>
+	<li><code>src/main/resources</code> &#8211; static files you want added to your jar<br />
+  (e.g. logging config)</li>
+	<li><code>src/test</code> &#8211; like <code>src/main</code>, but for tests</li>
+	<li><code>lib_managed</code> &#8211; the jar files your project depends on. Populated by sbt update</li>
+	<li><code>target</code> &#8211; the destination for generated stuff (e.g. generated thrift<br />
+  code, class files, jars)</li>
+</ul>
+<h2>Adding Some Code</h2>
+<p>We&#8217;ll be creating a simple <span class="caps">JSON</span> parser for simple tweets.  Add the following code to<br />
+<code>src/main/scala/com/twitter/sample/SimpleParser.scala</code></p>
+<pre>
+package com.twitter.sample
+
+case class SimpleParsed(id: Long, text: String)
+
+class SimpleParser {
+
+  val tweetRegex = "\"id\":(.*),\"text\":\"(.*)\"".r
+
+  def parse(str: String) = {
+    tweetRegex.findFirstMatchIn(str) match {
+      case Some(m) =&gt; {
+        val id = str.substring(m.start(1), m.end(1)).toInt
+        val text = str.substring(m.start(2), m.end(2))
+        Some(SimpleParsed(id, text))
+      }
+      case _ =&gt; None
+    }
+  }
+}
+</pre>
+<p>This is ugly and buggy, but should compile.</p>
+<h2>Testing in the Console</h2>
+<p><span class="caps">SBT</span> can be used both as a command line script and as a build console.  We&#8217;ll be primarily using it as a build console, but most commands can be run standalone by passing the command as an argument to <span class="caps">SBT</span>, e.g.</p>
+<pre>
+sbt test
+</pre>
+<p>Note that if a command takes arguments, you need to quote the entire<br />
+argument path, e.g.</p>
+<p><code>sbt 'test-only com.twitter.sample.SampleSpec'</code></p>
+<p>It&#8217;s weird that way.</p>
+<p>Anyway. To start working with our code, launch sbt</p>
+<pre>
+[local ~/projects/sbt-sample]$ sbt
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using sbt.DefaultProject with sbt 0.7.4 and Scala 2.7.7
+&gt; 
+</pre>
+<p><span class="caps">SBT</span> allows you to start a Scala <span class="caps">REPL</span> with all your project<br />
+dependencies loaded. It compiles your project source before launching<br />
+the console, providing us a quick way to bench test our parser.</p>
+<pre>
+&gt; console
+[info] 
+[info] == compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling main sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 3 classes.
+[info] == compile ==
+[info] 
+[info] == copy-test-resources ==
+[info] == copy-test-resources ==
+[info] 
+[info] == test-compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling test sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 0 classes.
+[info] == test-compile ==
+[info] 
+[info] == copy-resources ==
+[info] == copy-resources ==
+[info] 
+[info] == console ==
+[info] Starting scala interpreter...
+[info] 
+Welcome to Scala version 2.8.1.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_22).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala&gt; 
+</pre>
+<p>Our code has compiled, and we&#8217;re provide the typical Scala prompt.  We&#8217;ll create a new parser, an exemplar tweet, and ensure it &#8220;works&#8221;</p>
+<pre>
+scala&gt; import com.twitter.sample._            
+import com.twitter.sample._
+
+scala&gt; val tweet = """{"id":1,"text":"foo"}"""
+tweet: java.lang.String = {"id":1,"text":"foo"}
+
+scala&gt; val parser = new SimpleParser          
+parser: com.twitter.sample.SimpleParser = com.twitter.sample.SimpleParser@71060c3e
+
+scala&gt; parser.parse(tweet)                    
+res0: Option[com.twitter.sample.SimpleParsed] = Some(SimpleParsed(1,"foo"))
+
+scala&gt; 
+</pre>
+<h2>Adding Dependencies</h2>
+<p>Our simple parser works for this very small set of inputs, but we want to add tests and break it.  The first step is adding the specs test library and a real <span class="caps">JSON</span> parser to our project.  To do this we have to go beyond the default <span class="caps">SBT</span> project layout and create a project.</p>
+<p><span class="caps">SBT</span> considers Scala files in the project/build directory to be project definitions.  Add the following to project/build/SampleProject.scala</p>
+<pre>
+import sbt._
+
+class SampleProject(info: ProjectInfo) extends DefaultProject(info) {
+  val jackson = "org.codehaus.jackson" % "jackson-core-asl" % "1.6.1"
+  val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
+}
+</pre>
+<p>A project definition is an <span class="caps">SBT</span> class.  In our case we extend SBT&#8217;s DefaultProject.</p>
+<p>You declare dependencies by specifying a val that is a dependency.  <span class="caps">SBT</span> uses reflection to scan all the dependency vals in your project and build up a dependency tree at build time.  The syntax here may be new, but this is equivalent to the maven dependency</p>
+<pre>
+&lt;dependency&gt;
+  &lt;groupId&gt;org.codehaus.jackson&lt;/groupId&gt;
+  &lt;artifactId&gt;jackson-core-asl&lt;/artifactId&gt;
+  &lt;version&gt;1.6.1&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.scala-tools.testing&lt;/groupId&gt;
+  &lt;artifactId&gt;specs_2.8.0&lt;/artifactId&gt;
+  &lt;version&gt;1.6.5&lt;/version&gt;
+  &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;
+</pre>
+<p>Now we can pull down dependencies for our project.  From the command line (not the sbt console), run sbt update</p>
+<pre>
+[local ~/projects/sbt-sample]$ sbt update
+[info] Building project sample 1.0-SNAPSHOT against Scala 2.8.1
+[info]    using SampleProject with sbt 0.7.4 and Scala 2.7.7
+[info] 
+[info] == update ==
+[info] :: retrieving :: com.twitter#sample_2.8.1 [sync]
+[info] 	confs: [compile, runtime, test, provided, system, optional, sources, javadoc]
+[info] 	1 artifacts copied, 0 already retrieved (2785kB/71ms)
+[info] == update ==
+[success] Successful.
+[info] 
+[info] Total time: 1 s, completed Nov 24, 2010 8:47:26 AM
+[info] 
+[info] Total session time: 2 s, completed Nov 24, 2010 8:47:26 AM
+[success] Build completed successfully.
+</pre>
+<p>You&#8217;ll see that sbt retrieved the specs library.  You&#8217;ll now also have a lib_managed directory, and lib_managed/scala_2.8.1/test will have specs_2.8.0-1.6.5.jar</p>
+<h2>Adding Tests</h2>
+<p>Now that we have a test library added, put the following code in<br />
+src/test/scala/com/twitter/sample/SimpleParserSpec.scala</p>
+<pre>
+package com.twitter.sample
+
+import org.specs._
+
+object SimpleParserSpec extends Specification {
+  "SimpleParser" should {
+    val parser = new SimpleParser()
+    "work with basic tweet" in {
+      val tweet = """{"id":1,"text":"foo"}"""
+      parser.parse(tweet) match {
+        case Some(parsed) =&gt; {
+          parsed.text must be_==("foo")
+          parsed.id must be_==(1)
+        }
+        case _ =&gt; fail("didn't parse tweet")
+      }
+    }
+  }
+}
+</pre>
+<p>In the sbt console, run test</p>
+<pre>
+&gt; test
+[info] 
+[info] == compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling main sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 3 classes.
+[info] == compile ==
+[info] 
+[info] == test-compile ==
+[info]   Source analysis: 0 new/modified, 0 indirectly invalidated, 0 removed.
+[info] Compiling test sources...
+[info] Nothing to compile.
+[info]   Post-analysis: 10 classes.
+[info] == test-compile ==
+[info] 
+[info] == copy-test-resources ==
+[info] == copy-test-resources ==
+[info] 
+[info] == copy-resources ==
+[info] == copy-resources ==
+[info] 
+[info] == test-start ==
+[info] == test-start ==
+[info] 
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] SimpleParserSpec
+[info] SimpleParser should
+[info]   + work with basic tweet
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] 
+[info] == test-complete ==
+[info] == test-complete ==
+[info] 
+[info] == test-finish ==
+[info] Passed: : Total 1, Failed 0, Errors 0, Passed 1, Skipped 0
+[info]  
+[info] All tests PASSED.
+[info] == test-finish ==
+[info] 
+[info] == test-cleanup ==
+[info] == test-cleanup ==
+[info] 
+[info] == test ==
+[info] == test ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 8:54:45 AM
+&gt; 
+</pre>
+<p>Our test works!  Now we can add more.  One of the nice things <span class="caps">SBT</span> provides is a way to run triggered actions.  Prefacing an action with a tilde starts up a loop that runs the action any time source files change.  Lets run ~test and see what happens.</p>
+<pre>
+[info] == test ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 8:55:50 AM
+1. Waiting for source changes... (press enter to interrupt)
+</pre>
+<p>Now let&#8217;s add the following test cases</p>
+<pre>
+    "reject a non-JSON tweet" in {
+      val tweet = """"id":1,"text":"foo""""
+      parser.parse(tweet) match {
+        case Some(parsed) =&gt; fail("didn't reject a non-JSON tweet")
+        case e =&gt; e must be_==(None)
+      }
+    }
+
+    "ignore nested content" in {
+      val tweet = """{"id":1,"text":"foo","nested":{"id":2}}"""
+      parser.parse(tweet) match {
+        case Some(parsed) =&gt; {
+          parsed.text must be_==("foo")
+          parsed.id must be_==(1)
+        }
+        case _ =&gt; fail("didn't parse tweet")
+      }
+    }
+
+    "fail on partial content" in {
+      val tweet = """{"id":1}"""
+      parser.parse(tweet) match {
+        case Some(parsed) =&gt; fail("didn't reject a partial tweet")
+        case e =&gt; e must be_==(None)
+      }
+    }
+</pre>
+<p>After we save our file, <span class="caps">SBT</span> detects our changes, runs tests, and informs us our parser is lame</p>
+<pre>
+[info] == com.twitter.sample.SimpleParserSpec ==
+[info] SimpleParserSpec
+[info] SimpleParser should
+[info]   + work with basic tweet
+[info]   x reject a non-JSON tweet
+[info]     didn't reject a non-JSON tweet (Specification.scala:43)
+[info]   x ignore nested content
+[info]     'foo","nested":{"id' is not equal to 'foo' (SimpleParserSpec.scala:31)
+[info]   + fail on partial content
+</pre>
+<p>So let&#8217;s rework our <span class="caps">JSON</span> parser to be real</p>
+<pre>
+package com.twitter.sample
+
+import org.codehaus.jackson._
+import org.codehaus.jackson.JsonToken._
+
+case class SimpleParsed(id: Long, text: String)
+
+class SimpleParser {
+
+  val parserFactory = new JsonFactory()
+
+  def parse(str: String) = {
+    val parser = parserFactory.createJsonParser(str)
+    if (parser.nextToken() == START_OBJECT) {
+      var token = parser.nextToken()
+      var textOpt:Option[String] = None
+      var idOpt:Option[Long] = None
+      while(token != null) {
+        if (token == FIELD_NAME) {
+          parser.getCurrentName() match {
+            case "text" =&gt; {
+              parser.nextToken()
+              textOpt = Some(parser.getText())
+            }
+            case "id" =&gt; {
+              parser.nextToken()
+              idOpt = Some(parser.getLongValue())
+            }
+            case _ =&gt; // noop
+          }
+        }
+        token = parser.nextToken()
+      }
+      if (textOpt.isDefined &amp;&amp; idOpt.isDefined) {
+        Some(SimpleParsed(idOpt.get, textOpt.get))
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+  }
+}
+</pre>
+<p>This is a simple Jackson parser.  When we save, <span class="caps">SBT</span> recompiles our code and reruns our tests.  Getting better!</p>
+<pre>
+info] SimpleParser should
+[info]   + work with basic tweet
+[info]   + reject a non-JSON tweet
+[info]   x ignore nested content
+[info]     '2' is not equal to '1' (SimpleParserSpec.scala:32)
+[info]   + fail on partial content
+[info] == com.twitter.sample.SimpleParserSpec ==
+</pre>
+<p>Uh oh.  We need to check for nested objects.  Let&#8217;s add some ugly<br />
+guards to our token reading loop.</p>
+<pre>
+  def parse(str: String) = {
+    val parser = parserFactory.createJsonParser(str)
+    var nested = 0
+    if (parser.nextToken() == START_OBJECT) {
+      var token = parser.nextToken()
+      var textOpt:Option[String] = None
+      var idOpt:Option[Long] = None
+      while(token != null) {
+        if (token == FIELD_NAME &amp;&amp; nested == 0) {
+          parser.getCurrentName() match {
+            case "text" =&gt; {
+              parser.nextToken()
+              textOpt = Some(parser.getText())
+            }
+            case "id" =&gt; {
+              parser.nextToken()
+              idOpt = Some(parser.getLongValue())
+            }
+            case _ =&gt; // noop
+          }
+        } else if (token == START_OBJECT) {
+          nested += 1
+        } else if (token == END_OBJECT) {
+          nested -= 1
+        }
+        token = parser.nextToken()
+      }
+      if (textOpt.isDefined &amp;&amp; idOpt.isDefined) {
+        Some(SimpleParsed(idOpt.get, textOpt.get))
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+  }
+</pre>
+<p>And&#8230; it works!</p>
+<h2>Packaging and Publishing</h2>
+<p>At this point we can run the package command to generate a jar file.  However we may want to share our jar with other teams.  To do this we&#8217;ll build on StandardProject, which gives us a big head start.</p>
+<p>The first step is include StandardProject as an <span class="caps">SBT</span> plugin.  Plugins are a way to introduce dependencies to your build, rather than your project.  These dependencies are defined in project/plugins/Plugins.scala.  Add the following to the Plugins.scala file.</p>
+<pre>
+import sbt._
+
+class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
+  val twitterMaven = "twitter.com" at "https://maven.twttr.com/"
+  val defaultProject = "com.twitter" % "standard-project" % "0.7.14"
+}
+</pre>
+<p>Note that we&#8217;ve specified a maven repository as well as a dependency.  That&#8217;s because the standard project library is hosted by us, which isn&#8217;t one of the default repos sbt checks.</p>
+<p>We&#8217;ll also update our project definition to extend StandardProject, include an <span class="caps">SVN</span> publishing trait, and define the repository we wish to publish to.  Alter SampleProject.scala to the following</p>
+<pre>
+import sbt._
+import com.twitter.sbt._
+
+class SampleProject(info: ProjectInfo) extends StandardProject(info) with SubversionPublisher {
+  val jackson = "org.codehaus.jackson" % "jackson-core-asl" % "1.6.1"
+  val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
+
+  override def subversionRepository = Some("https://svn.local.twitter.com/maven/")
+}
+</pre>
+<p>Now if we run the publish action we&#8217;ll see the following</p>
+<pre>
+[info] == deliver ==
+IvySvn Build-Version: null
+IvySvn Build-DateTime: null
+[info] :: delivering :: com.twitter#sample;1.0-SNAPSHOT :: 1.0-SNAPSHOT :: release :: Wed Nov 24 10:26:45 PST 2010
+[info] 	delivering ivy file to /Users/mmcbride/projects/sbt-sample/target/ivy-1.0-SNAPSHOT.xml
+[info] == deliver ==
+[info] 
+[info] == make-pom ==
+[info] Wrote /Users/mmcbride/projects/sbt-sample/target/sample-1.0-SNAPSHOT.pom
+[info] == make-pom ==
+[info] 
+[info] == publish ==
+[info] :: publishing :: com.twitter#sample
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
+[info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
+[info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
+[info] 	published ivy to com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
+[info] Binary diff deleting com/twitter/sample/1.0-SNAPSHOT
+[info] Commit finished r977 by 'mmcbride' at Wed Nov 24 10:26:47 PST 2010
+[info] Copying from com/twitter/sample/.upload to com/twitter/sample/1.0-SNAPSHOT
+[info] Binary diff finished : r978 by 'mmcbride' at Wed Nov 24 10:26:47 PST 2010
+[info] == publish ==
+[success] Successful.
+[info] 
+[info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
+</pre>
+<p>And (after some time), we can go to <a href="https://binaries.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/">binaries.local.twitter.com</a> to see our published jar.</p>
+<h2>Adding Tasks</h2>
+<p>Tasks are Scala functions.  The simplest way to add a task is to include a val in your project definition using the task method, e.g.</p>
+<pre>
+lazy val print = task {log.info("a test action"); None}
+</pre>
+<p>If you want dependencies and a description you can add them like this</p>
+<pre>
+lazy val print = task {log.info("a test action"); None}.dependsOn(compile) describedAs("prints a line after compile")
+</pre>
+<p>If we reload our project and run the print action we&#8217;ll see the following</p>
+<pre>
+&gt; print
+[info] 
+[info] == print ==
+[info] a test action
+[info] == print ==
+[success] Successful.
+[info] 
+[info] Total time: 0 s, completed Nov 24, 2010 11:05:12 AM
+&gt; 
+</pre>
+<p>So it works.  If you&#8217;re defining a task in a single project this works just fine.  However if you&#8217;re defining this in a plugin it&#8217;s fairly inflexible.  I may want to</p>
+<pre>
+lazy val print = printAction
+def printAction = printTask.dependsOn(compile) describedAs("prints a line after compile")
+def printTask = task {log.info("a test action"); None}
+</pre>
+<p>This allows consumers to override the task itself, the dependencies and/or description of the task, or the action.  Most built in <span class="caps">SBT</span> actions follow this pattern.  As an example, we can modify the builtin package task to print the current timestamp by doing the following</p>
+<pre>
+lazy val printTimestamp = task { log.info("current time is " + System.currentTimeMillis); None}
+override def packageAction = super.packageAction.dependsOn(printTimestamp)
+</pre>
+<p>There are many examples in StandardProject of tweaking <span class="caps">SBT</span> defaults and adding custom tasks.</p>
+<h2>Quick Reference</h2>
+<h3>Common Commands</h3>
+<ul>
+	<li>actions &#8211; show actions available for this project</li>
+	<li>update &#8211; downloads dependencies</li>
+	<li>compile &#8211; compiles source</li>
+	<li>test &#8211; runs tests</li>
+	<li>package &#8211; creates a publishable jar file</li>
+	<li>publish-local &#8211; installs the built jar in your local ivy cache</li>
+	<li>publish &#8211; pushes your jar to a remote repo (if configured)</li>
+</ul>
+<h3>Moar Commands</h3>
+<ul>
+	<li>test-failed &#8211; run any specs that failed</li>
+	<li>test-quick &#8211; run any specs that failed and/or had dependencies updated</li>
+	<li>clean-cache &#8211; remove all sorts of sbt cached stuff.  Like clean for sbt</li>
+	<li>clean-lib &#8211; remove everything in lib_managed</li>
+</ul>
+<h3>Project Layout</h3>
+<p><span class="caps">TBD</span></p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

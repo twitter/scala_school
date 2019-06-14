@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Java + Scala</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">Java + Scala</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="concurrency.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="finagle.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>В этом уроке вы узнаете о совместимости с Java.</p>
+<ul>
+	<li>Javap</li>
+	<li>Классы</li>
+	<li>Исключения</li>
+	<li>Трейты</li>
+	<li>Объекты</li>
+	<li>Замыкания и функции</li>
+	<li>Изменчивость</li>
+</ul>
+<h2>Javap</h2>
+<p>javap &#8211; это это инструмент, который поставляется вместе с <span class="caps">JDK</span>. Не с <span class="caps">JRE</span>. Между ними есть разница. Javap декомпилирует определения класса и показывает вам, что внутри. Использовать его довольно просто</p>
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
+Compiled from "Scalaisms.scala"
+public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
+    public abstract java.lang.String traitName();
+    public abstract java.lang.String upperTraitName();
+}
+</pre>
+<p>Если вы преподчитаете что-нибудь пожестче, то можете поглядеть на байткод</p>
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap -c MyTrait\$class
+Compiled from "Scalaisms.scala"
+public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
+public static java.lang.String upperTraitName(com.twitter.interop.MyTrait);
+  Code:
+   0:	aload_0
+   1:	invokeinterface	#12,  1; //InterfaceMethod com/twitter/interop/MyTrait.traitName:()Ljava/lang/String;
+   6:	invokevirtual	#17; //Method java/lang/String.toUpperCase:()Ljava/lang/String;
+   9:	areturn
+
+public static void $init$(com.twitter.interop.MyTrait);
+  Code:
+   0:	return
+
+}
+</pre>
+<p>Если вы удивлены почему какие-то вещи не работают в среде Java, доставайте javap!</p>
+<h2>Классы</h2>
+<p>Следует учитывать 4 свойства при использовании Scala <em>класса</em> в Java</p>
+<ul>
+	<li>Параметры класса</li>
+	<li>val класса</li>
+	<li>var класса</li>
+	<li>Исключения</li>
+</ul>
+<p>Мы спроектируем простой Scala класс, чтобы показать полный спектр возможностей</p>
+<pre>
+package com.twitter.interop
+
+import java.io.IOException
+import scala.throws
+import scala.reflect.{BeanProperty, BooleanBeanProperty}
+
+class SimpleClass(name: String, val acc: String, @BeanProperty var mutable: String) {
+  val foo = "foo"
+  var bar = "bar"
+  @BeanProperty
+  val fooBean = "foobean"
+  @BeanProperty
+  var barBean = "barbean"
+  @BooleanBeanProperty
+  var awesome = true
+
+  def dangerFoo() = {
+    throw new IOException("SURPRISE!")
+  }
+
+  @throws(classOf[IOException])
+  def dangerBar() = {
+    throw new IOException("NO SURPRISE!")
+  }
+}
+</pre>
+<h3>Параметры класса</h3>
+<ul>
+	<li>по умолчанию, параметры класса являются эффективными аргументами конструктора в Java.  Это означает, что вы не можете получить доступ к ним вне класса.</li>
+</ul>
+<pre>
+class SimpleClass(acc_: String) {
+  val acc = acc_
+}
+</pre>
+<p>что делает его доступным из кода на Java подобно другим val</p>
+<h3>Val переменные</h3>
+<ul>
+	<li>val переменные определяют метод, доступный из Java. Вы можете получить доступ к val переменной «foo» через метод «foo()»</li>
+</ul>
+<h3>Var переменные</h3>
+<ul>
+	<li>var переменные определяют метод <name>_$eq. Вы можете вызвать его так</li>
+</ul>
+<pre>
+foo$_eq("newfoo");
+</pre>
+<h3>BeanProperty</h3>
+<p>Вым можете комментировать val и var переменные с помощью @BeanProperty. Она генерирует геттеры/сеттеры подобно тому, как определяются <span class="caps">POJO</span> геттеры/сеттеры. Если вам нужен вариант isFoo, используйте аннотацию BooleanBeanProperty. Ранее уродливый foo$_eq становится</p>
+<pre>
+setFoo("newfoo");
+getFoo();
+</pre>
+<h3>Исключения</h3>
+<p>Scala не проверяет исключения. Java проверяет. Мы не будем вдаваться, в этот философский спор, но это <strong>важно</strong>, когда вы хотите иметь возможность отлавливать исключения в Java. Определения dangerFoo и dangerBar демонстрируют это. В Java я не могу сделать этого</p>
+<pre>
+        // исключение стирается!
+        try {
+            s.dangerFoo();
+        } catch (IOException e) {
+            // Плохой стиль
+        }
+
+</pre>
+<p>Java жалуется, что s.dangerFoo никогда не бросает IOException. Мы можем попытаться отлавливать Throwable, но это «хромое» решение.</p>
+<p>Вместо этого, для хорошего пользователя Scala достойная идея, это использовать бросания аннотаций, как мы делали в dangerBar. Это позволяет нам продолжить использование отмеченных исключений в Java.</p>
+<h3>Что еще почитать по этой теме</h3>
+<p>Полный список Scala аннотаций для поддержки совместимости Java можно найти здесь https://www.scala-lang.org/node/106.</p>
+<h2>Трейты</h2>
+<p>Как можно получить интерфейс + реализация? Давайте возьмем простое определение трейта и посмотрим</p>
+<pre>
+trait MyTrait {
+  def traitName:String
+  def upperTraitName = traitName.toUpperCase
+}
+</pre>
+<p>Этот трейт имеет один абстрактный метод (traitName) и один реализованный метод (upperTraitName). Что Scala генерирует для нас? Интерфейс с именем MyTrait, и соответствующую реализацию с именем MyTrait$class.</p>
+<p>Реализация MyTrait, то что вы ожидаете</p>
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait
+Compiled from "Scalaisms.scala"
+public interface com.twitter.interop.MyTrait extends scala.ScalaObject{
+    public abstract java.lang.String traitName();
+    public abstract java.lang.String upperTraitName();
+}
+</pre>
+<p>Реализация MyTrait$class более интересна</p>
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap MyTrait\$class
+Compiled from "Scalaisms.scala"
+public abstract class com.twitter.interop.MyTrait$class extends java.lang.Object{
+    public static java.lang.String upperTraitName(com.twitter.interop.MyTrait);
+    public static void $init$(com.twitter.interop.MyTrait);
+}
+</pre>
+<p>MyTrait$class имеет только статичные методы, которые принимает экземпляр MyTrait. Это дает нам ключ к пониманию того, как расширить трейт в Java.</p>
+<p>Наша первая попытка реализована ниже</p>
+<pre>
+package com.twitter.interop;
+
+public class JTraitImpl implements MyTrait {
+    private String name = null;
+
+    public JTraitImpl(String name) {
+        this.name = name;
+    }
+
+    public String traitName() {
+        return name;
+    }
+}
+</pre>
+<p>И мы получаем следущую ошибку</p>
+<pre>
+[info] Compiling main sources...
+[error] /Users/mmcbride/projects/interop/src/main/java/com/twitter/interop/JTraitImpl.java:3: com.twitter.interop.JTraitImpl is not abstract and does not override abstract method upperTraitName() in com.twitter.interop.MyTrait
+[error] public class JTraitImpl implements MyTrait {
+[error]        ^
+</pre>
+<p>мы <em>можем</em> просто реализовать это сами. Но есть другой способ.</p>
+<pre>
+package com.twitter.interop;
+
+    public String upperTraitName() {
+        return MyTrait$class.upperTraitName(this);
+    }
+</pre>
+<p>Мы можем передать этот вызов сгенерированной Scala реализации. Мы также можем переопределить его, если захотим.</p>
+<h2>Объекты</h2>
+<p>Объекты &#8211; это способ реализации статических методов/синглтонов на Scala. Использование их в Java является немного странным. Существует не такой стилистически идеальный способ, чтобы использовать их, но в Scala 2.8 об этом не стоит беспокоиться</p>
+<p>Объект Scala компилируется в класс, имя которого заканчивается на «$». Давайте создадим класс и соответствующий объект</p>
+<pre>
+class TraitImpl(name: String) extends MyTrait {
+  def traitName = name
+}
+
+object TraitImpl {
+  def apply = new TraitImpl("foo")
+  def apply(name: String) = new TraitImpl(name)
+}
+</pre>
+<p>Мы можем просто обратиться к нему в Java, например так</p>
+<pre>
+MyTrait foo = TraitImpl$.MODULE$.apply("foo");
+</pre>
+<p>Сейчас вы можете спросить себя, что это за чушь? Это верно. давайте посмотрим что внутри TraitImpl$</p>
+<pre>
+local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap TraitImpl\$
+Compiled from "Scalaisms.scala"
+public final class com.twitter.interop.TraitImpl$ extends java.lang.Object implements scala.ScalaObject{
+    public static final com.twitter.interop.TraitImpl$ MODULE$;
+    public static {};
+    public com.twitter.interop.TraitImpl apply();
+    public com.twitter.interop.TraitImpl apply(java.lang.String);
+}
+</pre>
+<p>Там на самом деле нет никаких статических методов. Вместо этого он имеет статический член с именем <span class="caps">MODULE</span>$. Реализация метода передает все этому члену. Это делает доступ уродливым, но работоспособным, если вы знаете как использовать <span class="caps">MODULE</span>$.</p>
+<h3>Методы переадресации</h3>
+<p>В Scala 2.8 работать с объектами стало немного проще. Если у вас есть класс с соответствующим объектом, на 2.8 компилятор сгенерирует методы переадресации на класс-спутник. Так что, если вы написали код на 2.8, вы можете получить доступ к методам в объекте TraitImpl, например так</p>
+<pre>
+MyTrait foo = TraitImpl.apply("foo");
+</pre>
+<h2>Замыкания</h2>
+<p>Одной из важных особенностей Scala является возможность использования функций первого рода. Давайте определим класс, который имеет методы, принимающие функции в качестве аргументов.</p>
+<pre>
+class ClosureClass {
+  def printResult[T](f: =&gt; T) = {
+    println(f)
+  }
+
+  def printResult[T](f: String =&gt; T) = {
+    println(f("HI THERE"))
+  }
+}
+</pre>
+<p>В Scala я могу вызвать их, например так</p>
+<pre>
+val cc = new ClosureClass
+cc.printResult { "HI MOM" }
+</pre>
+<p>В Java это не так просто, но тоже не сложно. Давайте посмотрим из чего на самом деле состоит ClosureClass:</p>
+<pre>
+[local ~/projects/interop/target/scala_2.8.1/classes/com/twitter/interop]$ javap ClosureClass
+Compiled from "Scalaisms.scala"
+public class com.twitter.interop.ClosureClass extends java.lang.Object implements scala.ScalaObject{
+    public void printResult(scala.Function0);
+    public void printResult(scala.Function1);
+    public com.twitter.interop.ClosureClass();
+}
+</pre>
+<p>Все не так страшно. «f: =&gt; T» переводится в «Function0», а «f: String =&gt; T» переводится в «Function1». Scala фактически объявляет Function0 через Function22, поддерживающая до 22 аргументов. Которой, на самом деле, достаточно.</p>
+<p>Теперь нам нужно определить, как это сделать в Java. Оказывается Scala предоставляет AbstractFunction0 и AbstractFunction1, которые мы можем передать вот так</p>
+<pre>
+    @Test public void closureTest() {
+        ClosureClass c = new ClosureClass();
+        c.printResult(new AbstractFunction0() {
+                public String apply() {
+                    return "foo";
+                }
+            });
+        c.printResult(new AbstractFunction1&lt;String, String&gt;() {
+                public String apply(String arg) {
+                    return arg + "foo";
+                }
+            });
+    }
+</pre>
+<p>Заметьте, что мы можем использовать обобщенные функции, чтобы определить параметры аргументов.</p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

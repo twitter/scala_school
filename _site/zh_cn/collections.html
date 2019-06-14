@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - 集合</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">集合</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="basics2.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="pattern-matching-and-functional-composition.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>课程内容:</p>
+<ul>
+	<li>基本数据结构
+	<ul>
+		<li><a href="#Arrays">数组 Array</a></li>
+		<li><a href="#Lists">列表 List</a></li>
+		<li><a href="#Sets">集合 Set</a></li>
+		<li><a href="#Tuple">元组 Tuple</a></li>
+		<li><a href="#Maps">映射 Map</a></li>
+		<li><a href="#Option">选项 Option</a></li>
+	</ul></li>
+	<li>函数组合子
+	<ul>
+		<li><a href="#map">map</a></li>
+		<li><a href="#foreach">foreach</a></li>
+		<li><a href="#filter">filter</a></li>
+		<li><a href="#zip">zip</a></li>
+		<li><a href="#partition">partition</a></li>
+		<li><a href="#find">find</a></li>
+		<li><a href="#drop">drop and dropWhile</a></li>
+		<li><a href="#fold">foldRight and foldLeft</a></li>
+		<li><a href="#flatten">flatten</a></li>
+		<li><a href="#flatMap">flatMap</a></li>
+		<li><a href="#generalized">扩展函数组合子</a></li>
+		<li><a href="#vsMap">Map?</a></li>
+	</ul></li>
+</ul>
+<h1>基本数据结构</h1>
+<p>Scala提供了一些不错的集合。</p>
+<p><strong>参考</strong> Effective Scala 对怎样使用<a href="https://twitter.github.com/effectivescala/#Collections">集合</a>的观点。</p>
+<h2 id="Arrays">数组 Array</h2>
+<p>数组是有序的，可以包含重复项，并且可变。</p>
+<pre>
+scala&gt; val numbers = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: Array[Int] = Array(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala&gt; numbers(3) = 10
+
+scala&gt; numbers
+numbers: Array[Int] = Array(1, 2, 3, 10, 5, 1, 2, 3, 4, 5)
+</pre>
+<h2 id="Lists">列表 List</h2>
+<p>列表是有序的，可以包含重复项，不可变。</p>
+<pre>
+scala&gt; val numbers = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: List[Int] = List(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+
+scala&gt; numbers(3) = 10
+&lt;console&gt;:9: error: value update is not a member of List[Int]
+              numbers(3) = 10
+</pre>
+<h2 id="Sets">集合 Set</h2>
+<p>集合无序且不可包含重复项。</p>
+<pre>
+scala&gt; val numbers = Set(1, 2, 3, 4, 5, 1, 2, 3, 4, 5)
+numbers: scala.collection.immutable.Set[Int] = Set(5, 1, 2, 3, 4)
+</pre>
+<h2 id="Tuple">元组 Tuple</h2>
+<p>元组在不使用类的情况下，将元素组合起来形成简单的逻辑集合。</p>
+<pre>
+scala&gt; val hostPort = ("localhost", 80)
+hostPort: (String, Int) = (localhost, 80)
+</pre>
+<p>与样本类不同，元组不能通过名称获取字段，而是使用位置下标来读取对象；而且这个下标基于1，而不是基于0。</p>
+<pre>
+scala&gt; hostPort._1
+res0: String = localhost
+
+scala&gt; hostPort._2
+res1: Int = 80
+</pre>
+<p>元组可以很好得与模式匹配相结合。</p>
+<pre>
+hostPort match {
+  case ("localhost", port) =&gt; ...
+  case (host, port) =&gt; ...
+}
+</pre>
+<p>在创建两个元素的元组时，可以使用特殊语法：<code>-&gt;</code></p>
+<pre>
+scala&gt; 1 -&gt; 2
+res0: (Int, Int) = (1,2)
+</pre>
+<p><strong>参考</strong> Effective Scala 对 <a href="https://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">解构绑定</a> （“拆解”一个元组）的观点。</p>
+<h2 id="Maps">映射 Map</h2>
+<p>它可以持有基本数据类型。</p>
+<pre>
+Map(1 -&gt; 2)
+Map("foo" -&gt; "bar")
+</pre>
+<p>这看起来像是特殊的语法，不过不要忘了上文讨论的<code>-&gt;</code>可以用来创建二元组。</p>
+<p>Map()方法也使用了从第一节课学到的变参列表：<code>Map(1 -&gt; "one", 2 -&gt; "two")</code>将变为 <code>Map((1, "one"), (2, "two"))</code>，其中第一个元素是映射的键，第二个元素是映射的值。</p>
+<p>映射的值可以是映射甚至是函数。</p>
+<pre>
+Map(1 -&gt; Map("foo" -&gt; "bar"))
+</pre>
+
+<pre>
+Map("timesTwo" -&gt; { timesTwo(_) })
+</pre>
+<h2 id="Option">选项 Option</h2>
+<p><code>Option</code> 是一个表示有可能包含值的容器。</p>
+<p>Option基本的接口是这样的：</p>
+<pre>
+trait Option[T] {
+  def isDefined: Boolean
+  def get: T
+  def getOrElse(t: T): T
+}
+</pre>
+<p>Option本身是泛型的，并且有两个子类： <code>Some[T]</code> 或 <code>None</code></p>
+<p>我们看一个使用Option的例子：</p>
+<p><code>Map.get</code> 使用 <code>Option</code> 作为其返回值，表示这个方法也许不会返回你请求的值。</p>
+<pre>
+scala&gt; val numbers = Map("one" -&gt; 1, "two" -&gt; 2)
+numbers: scala.collection.immutable.Map[java.lang.String,Int] = Map(one -&gt; 1, two -&gt; 2)
+
+scala&gt; numbers.get("two")
+res0: Option[Int] = Some(2)
+
+scala&gt; numbers.get("three")
+res1: Option[Int] = None
+</pre>
+<p>现在我们的数据似乎陷在<code>Option</code>中了，我们怎样获取这个数据呢？</p>
+<p>直觉上想到的可能是基于<code>isDefined</code>方法进行条件判断。</p>
+<pre>
+// We want to multiply the number by two, otherwise return 0.
+val result = if (res1.isDefined) {
+  res1.get * 2
+} else {
+  0
+}
+</pre>
+<p>我们建议使用<code>getOrElse</code>或模式匹配处理这个结果。</p>
+<p><code>getOrElse</code> 让你轻松地定义一个默认值。</p>
+<pre>
+val result = res1.getOrElse(0) * 2
+</pre>
+<p>模式匹配能自然地配合<code>Option</code>使用。</p>
+<pre>
+val result = res1 match {
+  case Some(n) =&gt; n * 2
+  case None =&gt; 0
+}
+</pre>
+<p><strong>参考</strong> Effective Scala 对使用<a href="https://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>的意见。</p>
+<h1 id="combinators">函数组合子（Functional Combinators）</h1>
+<p><code>List(1, 2, 3) map squared</code>对列表中的每一个元素都应用了<code>squared</code>平方函数，并返回一个新的列表<code>List(1, 4, 9)</code>。我们把类似于<code>map</code>的操作称作<em>组合子</em>。 （如果想要更好的定义，你可以看看Stackoverflow上对<a href="https://stackoverflow.com/questions/7533837/explanation-of-combinators-for-the-working-man">组合子的说明</a>。）他们常被用在标准的数据结构上。</p>
+<h2 id="map">map</h2>
+<p><code>map</code>对列表中的每个元素应用一个函数，返回应用后的元素所组成的列表。</p>
+<pre>
+scala&gt; val numbers = List(1, 2, 3, 4)
+numbers: List[Int] = List(1, 2, 3, 4)
+
+scala&gt; numbers.map((i: Int) =&gt; i * 2)
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+<p>或传入一个函数 (Scala编译器自动把我们的方法转换为函数)</p>
+<pre>
+scala&gt; def timesTwo(i: Int): Int = i * 2
+timesTwo: (i: Int)Int
+
+scala&gt; numbers.map(timesTwo)
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+<h2 id="foreach">foreach</h2>
+<p><code>foreach</code>很像map，但没有返回值。foreach仅用于有副作用[side-effects]的函数。</p>
+<pre>
+scala&gt; numbers.foreach((i: Int) =&gt; i * 2)
+</pre>
+<p>什么也没有返回。</p>
+<p>你可以尝试存储返回值，但它会是Unit类型（即void）</p>
+<pre>
+scala&gt; val doubled = numbers.foreach((i: Int) =&gt; i * 2)
+doubled: Unit = ()
+</pre>
+<h2 id="filter">filter</h2>
+<p><code>filter</code>移除任何对传入函数计算结果为false的元素。返回一个布尔值的函数通常被称为谓词函数[或判定函数]。</p>
+<pre>
+scala&gt; numbers.filter((i: Int) =&gt; i % 2 == 0)
+res0: List[Int] = List(2, 4)
+</pre>
+
+<pre>
+scala&gt; def isEven(i: Int): Boolean = i % 2 == 0
+isEven: (i: Int)Boolean
+
+scala&gt; numbers.filter(isEven)
+res2: List[Int] = List(2, 4)
+</pre>
+<h2 id="zip">zip</h2>
+<p><code>zip</code>将两个列表的内容聚合到一个对偶列表中。</p>
+<pre>
+scala&gt; List(1, 2, 3).zip(List("a", "b", "c"))
+res0: List[(Int, String)] = List((1,a), (2,b), (3,c))
+</pre>
+<h2 id="partition">partition</h2>
+<p><code>partition</code>将使用给定的谓词函数分割列表。</p>
+<pre>
+scala&gt; val numbers = List(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+scala&gt; numbers.partition(_ % 2 == 0)
+res0: (List[Int], List[Int]) = (List(2, 4, 6, 8, 10),List(1, 3, 5, 7, 9))
+</pre>
+<h2 id="find">find</h2>
+<p><code>find</code>返回集合中第一个匹配谓词函数的元素。</p>
+<pre>
+scala&gt; numbers.find((i: Int) =&gt; i &gt; 5)
+res0: Option[Int] = Some(6)
+</pre>
+<h2 id="drop">drop &amp; dropWhile</h2>
+<p><code>drop</code> 将删除前i个元素</p>
+<pre>
+scala&gt; numbers.drop(5)
+res0: List[Int] = List(6, 7, 8, 9, 10)
+</pre>
+<p><code>dropWhile</code> 将删除匹配谓词函数的第一个元素。例如，如果我们在numbers列表上使用<code>dropWhile</code>函数来去除奇数, <code>1</code>将被丢弃（但<code>3</code>不会被丢弃，因为他被<code>2</code>“保护”了）。</p>
+<pre>
+scala&gt; numbers.dropWhile(_ % 2 != 0)
+res0: List[Int] = List(2, 3, 4, 5, 6, 7, 8, 9, 10)
+</pre>
+<h2 id="fold">foldLeft</h2>
+<pre>
+scala&gt; numbers.foldLeft(0)((m: Int, n: Int) =&gt; m + n)
+res0: Int = 55
+</pre>
+<p>0为初始值（记住numbers是List[Int]类型），m作为一个累加器。</p>
+<p>可视化观察运行过程：</p>
+<pre>
+scala&gt; numbers.foldLeft(0) { (m: Int, n: Int) =&gt; println("m: " + m + " n: " + n); m + n }
+m: 0 n: 1
+m: 1 n: 2
+m: 3 n: 3
+m: 6 n: 4
+m: 10 n: 5
+m: 15 n: 6
+m: 21 n: 7
+m: 28 n: 8
+m: 36 n: 9
+m: 45 n: 10
+res0: Int = 55
+</pre>
+<h3>foldRight</h3>
+<p>和foldLeft一样，只是运行过程相反。</p>
+<pre>
+scala&gt; numbers.foldRight(0) { (m: Int, n: Int) =&gt; println("m: " + m + " n: " + n); m + n }
+m: 10 n: 0
+m: 9 n: 10
+m: 8 n: 19
+m: 7 n: 27
+m: 6 n: 34
+m: 5 n: 40
+m: 4 n: 45
+m: 3 n: 49
+m: 2 n: 52
+m: 1 n: 54
+res0: Int = 55
+</pre>
+<h2 id="flatten">flatten</h2>
+<p><code>flatten</code>将嵌套结构扁平化一个层级。</p>
+<pre>
+scala&gt; List(List(1, 2), List(3, 4)).flatten
+res0: List[Int] = List(1, 2, 3, 4)
+</pre>
+<h2 id="flatMap">flatMap</h2>
+<p><code>flatMap</code>是一种常用的组合子，结合映射[mapping]和扁平化[flattening]。 flatMap需要一个处理嵌套列表的函数，然后将结果串连起来。</p>
+<pre>
+scala&gt; val nestedNumbers = List(List(1, 2), List(3, 4))
+nestedNumbers: List[List[Int]] = List(List(1, 2), List(3, 4))
+
+scala&gt; nestedNumbers.flatMap(x =&gt; x.map(_ * 2))
+res0: List[Int] = List(2, 4, 6, 8)
+</pre>
+<p>可以把它看做是“先映射后扁平化”的快捷操作：</p>
+<pre>
+scala&gt; nestedNumbers.map((x: List[Int]) =&gt; x.map(_ * 2)).flatten
+res1: List[Int] = List(2, 4, 6, 8)
+</pre>
+<p>这个例子先调用map，然后调用flatten，这就是“组合子”的特征，也是这些函数的本质。</p>
+<p><strong>参考</strong> Effective Scala 对<a href="https://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>的意见。</p>
+<h2 id="generalized">扩展函数组合子</h2>
+<p>现在我们已经学过集合上的一些函数。</p>
+<p>我们将尝试写自己的函数组合子。</p>
+<p>有趣的是，上面所展示的每一个函数组合子都可以用fold方法实现。让我们看一些例子。</p>
+<pre>
+def ourMap(numbers: List[Int], fn: Int =&gt; Int): List[Int] = {
+  numbers.foldRight(List[Int]()) { (x: Int, xs: List[Int]) =&gt;
+    fn(x) :: xs
+  }
+}
+
+scala&gt; ourMap(numbers, timesTwo(_))
+res0: List[Int] = List(2, 4, 6, 8, 10, 12, 14, 16, 18, 20)
+</pre>
+<p>为什么是<tt>List[Int]()</tt>？Scala没有聪明到理解你的目的是将结果积聚在一个空的Int类型的列表中。</p>
+<h2 id="vsMap">Map?</h2>
+<p>所有展示的函数组合子都可以在Map上使用。Map可以被看作是一个二元组的列表，所以你写的函数要处理一个键和值的二元组。</p>
+<pre>
+scala&gt; val extensions = Map("steve" -&gt; 100, "bob" -&gt; 101, "joe" -&gt; 201)
+extensions: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101), (joe,201))
+</pre>
+<p>现在筛选出电话分机号码低于200的条目。</p>
+<pre>
+scala&gt; extensions.filter((namePhone: (String, Int)) =&gt; namePhone._2 &lt; 200)
+res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
+</pre>
+<p>因为参数是元组，所以你必须使用位置获取器来读取它们的键和值。呃！</p>
+<p>幸运的是，我们其实可以使用模式匹配更优雅地提取键和值。</p>
+<pre>
+scala&gt; extensions.filter({case (name, extension) =&gt; extension &lt; 200})
+res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
+</pre>
+<p>为什么这个代码可以工作？为什么你可以传递一个部分模式匹配？</p>
+<p>敬请关注下周的内容！</p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

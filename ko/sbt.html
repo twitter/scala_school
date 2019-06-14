@@ -8,13 +8,13 @@
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
     <!-- Le styles -->
-    <link rel="stylesheet" href="/bootstrap-1.1.0.min.css">
-    <link rel="stylesheet" href="/style.css">
-    <link rel="stylesheet" href="/small-screens.css">
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -72,7 +72,7 @@
 </ul>
 <h2>시작하기</h2>
 <ul>
-	<li><a href="http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html">jar를 다운로드하라</a></li>
+	<li><a href="https://www.scala-sbt.org/release/docs/Getting-Started/Setup.html">jar를 다운로드하라</a></li>
 	<li>아래 예와 같이 다운로드 받은 jar를 호출하는 셀 스크립트를 작성하라.</li>
 </ul>
 <pre>
@@ -484,7 +484,7 @@ info] SimpleParser should
 import sbt._
 
 class Plugins(info: ProjectInfo) extends PluginDefinition(info) {
-  val twitterMaven = "twitter.com" at "http://maven.twttr.com/"
+  val twitterMaven = "twitter.com" at "https://maven.twttr.com/"
   val defaultProject = "com.twitter" % "standard-project" % "0.7.14"
 }
 </pre>
@@ -498,7 +498,7 @@ class SampleProject(info: ProjectInfo) extends StandardProject(info) with Subver
   val jackson = "org.codehaus.jackson" % "jackson-core-asl" % "1.6.1"
   val specs = "org.scala-tools.testing" % "specs_2.8.0" % "1.6.5" % "test"
 
-  override def subversionRepository = Some("http://svn.local.twitter.com/maven/")
+  override def subversionRepository = Some("https://svn.local.twitter.com/maven/")
 }
 </pre>
 <p>이제 publish 명령을 내리면 결과를 불 수 있다.</p>
@@ -516,11 +516,11 @@ IvySvn Build-DateTime: null
 [info] 
 [info] == publish ==
 [info] :: publishing :: com.twitter#sample
-[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
 [info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.jar
-[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
 [info] 	published sample to com/twitter/sample/1.0-SNAPSHOT/sample-1.0-SNAPSHOT.pom
-[info] Scheduling publish to http://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
+[info] Scheduling publish to https://svn.local.twitter.com/maven/com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
 [info] 	published ivy to com/twitter/sample/1.0-SNAPSHOT/ivy-1.0-SNAPSHOT.xml
 [info] Binary diff deleting com/twitter/sample/1.0-SNAPSHOT
 [info] Commit finished r977 by 'mmcbride' at Wed Nov 24 10:26:47 PST 2010
@@ -531,7 +531,7 @@ IvySvn Build-DateTime: null
 [info] 
 [info] Total time: 4 s, completed Nov 24, 2010 10:26:47 AM
 </pre>
-<p>그 후(시간이 조금 지나고 나면) binaries.local.twitter.com:http://binaries.local.twitter.com/maven/com/twitter/sample/1.0-<span class="caps">SNAPSHOT</span>/에 가 보면 배포한 jar파일을 볼 수 있다.</p>
+<p>그 후(시간이 조금 지나고 나면) binaries.local.twitter.com:https://binaries.local.twitter.com/maven/com/twitter/sample/1.0-<span class="caps">SNAPSHOT</span>/에 가 보면 배포한 jar파일을 볼 수 있다.</p>
 <h2>작업(task) 추가하기</h2>
 <p>작업은 스칼라 함수이다. 작업을 추가하는 제일 쉬운 방법은 프로젝트 정의에 task 메소드를 사용한 val을 추가하는 것이다.</p>
 <pre>
@@ -593,19 +593,19 @@ override def packageAction = super.packageAction.dependsOn(printTimestamp)
       <div class="row">
         <div class="span16">
           <p>
-            Built at <a href="http://twitter.com/twitter"
+            Built at <a href="https://twitter.com/twitter"
             target="_blank">@twitter</a> by
-            <a href="http://twitter.com/stevej" target="_blank">@stevej</a>,
-            <a href="http://twitter.com/marius" target="_blank">@marius</a>, and
-            <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a>
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
             with much help from
-            <a href="http://twitter.com/evanm" target="_blank">@evanm</a>,
-            <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
-            <a href="http://twitter.com/kevino" target="_blank">@kevino</a>,
-            <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>,
-            <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
-            <a href="http://twitter.com/wickman" target="_blank">@wickman</a>,
-            <a href="http://twitter.com/mccv" target="_blank">@mccv</a>
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
             and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
             Russian translation by
             <a href="https://github.com/appigram">appigram</a>;
@@ -614,7 +614,7 @@ override def packageAction = super.packageAction.dependsOn(printTimestamp)
             Korean translation by
             <a href="https://github.com/enshahar">enshahar</a>;<br />
             <br />
-            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>
       </div>

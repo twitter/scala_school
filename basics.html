@@ -8,13 +8,13 @@
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
     <!-- Le styles -->
-    <link rel="stylesheet" href="/bootstrap-1.1.0.min.css">
-    <link rel="stylesheet" href="/style.css">
-    <link rel="stylesheet" href="/small-screens.css">
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -91,7 +91,7 @@
 <h3>Think Scala</h3>
 <p>Scala is not just a nicer Java.  You should learn it with a fresh mind- you will get more out of these classes.</p>
 <h3>Get Scala</h3>
-<p>Scala School&#8217;s examples work with <a href="http://www.scala-lang.org/download/2.9.3.html">Scala 2.9.x</a> . If you use Scala 2.10.x or newer, <em>most</em> examples work OK, but not all.</p>
+<p>Scala School&#8217;s examples work with <a href="https://www.scala-lang.org/download/2.9.3.html">Scala 2.9.x</a> . If you use Scala 2.10.x or newer, <em>most</em> examples work OK, but not all.</p>
 <h3>Start the Interpreter</h3>
 <p>Start the included <code>sbt console</code>.</p>
 <pre>
@@ -317,7 +317,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
   def log(m: Double, base: Double) = math.log(m) / math.log(base)
 }
 </pre>
-<p><strong>See Also</strong> Effective Scala points out that a <a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">Type alias</a> is better than <code>extends</code> if the subclass isn&#8217;t actually different from the superclass. A Tour of Scala describes <a href="http://www.scala-lang.org/node/125">Subclassing</a>.</p>
+<p><strong>See Also</strong> Effective Scala points out that a <a href="https://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">Type alias</a> is better than <code>extends</code> if the subclass isn&#8217;t actually different from the superclass. A Tour of Scala describes <a href="https://www.scala-lang.org/node/125">Subclassing</a>.</p>
 <h3>Overloading methods</h3>
 <pre>
 class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
@@ -369,12 +369,12 @@ class BMW extends Car with Shiny {
   val shineRefraction = 12
 }
 </pre>
-<p><strong>See Also</strong> Effective Scala has opinions about <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">trait</a>.</p>
+<p><strong>See Also</strong> Effective Scala has opinions about <a href="https://twitter.github.com/effectivescala/#Object oriented programming-Traits">trait</a>.</p>
 <p><strong>When do you want a Trait instead of an Abstract Class?</strong> If you want to define an interface-like type, you might find it difficult to choose between a trait or an abstract class. Either one lets you define a type with some behavior, asking extenders to define some other behavior. Some rules of thumb:</p>
 <ul>
 <li>Favor using traits. It&#8217;s handy that a class can extend several traits; a class can extend only one class.<br />
 <li>If you need a constructor parameter, use an abstract class. Abstract class constructors can take parameters; trait constructors can&#8217;t. For example, you can&#8217;t say <code>trait t(i: Int) {}</code>; the <code>i</code> parameter is illegal.</ul>
-<p>You are not the first person to ask this question. See fuller answers at <a href="http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes">stackoverflow:Scala traits vs abstract classes</a>, <a href="http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait">Difference between Abstract Class and Trait</a>, and <a href="http://www.artima.com/pins1ed/traits.html#12.7">Programming in Scala: To trait, or not to trait?</a></p>
+<p>You are not the first person to ask this question. See fuller answers at <a href="https://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes">stackoverflow:Scala traits vs abstract classes</a>, <a href="https://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait">Difference between Abstract Class and Trait</a>, and <a href="https://www.artima.com/pins1ed/traits.html#12.7">Programming in Scala: To trait, or not to trait?</a></p>
 <h2 id="types">Types</h2>
 <p>Earlier, you saw that we defined a function that took an <code>Int</code> which is a type of Number. Functions can also be generic and work on any type. When that occurs, you&#8217;ll see a type parameter introduced with the square bracket syntax. Here&#8217;s an example of a Cache of generic Keys and Values.</p>
 <pre>
@@ -396,19 +396,19 @@ def remove[K](key: K)
       <div class="row">
         <div class="span16">
           <p>
-            Built at <a href="http://twitter.com/twitter"
+            Built at <a href="https://twitter.com/twitter"
             target="_blank">@twitter</a> by
-            <a href="http://twitter.com/stevej" target="_blank">@stevej</a>,
-            <a href="http://twitter.com/marius" target="_blank">@marius</a>, and
-            <a href="http://twitter.com/lahosken" target="_blank">@lahosken</a>
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
             with much help from
-            <a href="http://twitter.com/evanm" target="_blank">@evanm</a>,
-            <a href="http://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
-            <a href="http://twitter.com/kevino" target="_blank">@kevino</a>,
-            <a href="http://twitter.com/zuercher" target="_blank">@zuercher</a>,
-            <a href="http://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
-            <a href="http://twitter.com/wickman" target="_blank">@wickman</a>,
-            <a href="http://twitter.com/mccv" target="_blank">@mccv</a>
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
             and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
             Russian translation by
             <a href="https://github.com/appigram">appigram</a>;
@@ -417,7 +417,7 @@ def remove[K](key: K)
             Korean translation by
             <a href="https://github.com/enshahar">enshahar</a>;<br />
             <br />
-            Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
           </p>
         </div>
       </div>

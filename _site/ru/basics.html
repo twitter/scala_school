@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Основы</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">Основы</a></h3>
+          <ul class="nav secondary-nav">
+            
+            
+              <li><a href="basics2.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>В этом уроке вы узнаете:</p>
+<ul>
+	<li><a href="#overview">Обзор лекций</a></li>
+	<li><a href="#expressions">Выражения</a></li>
+	<li><a href="#val">Переменные</a></li>
+	<li><a href="#functions">Функции</a></li>
+	<li><a href="#class">Классы</a></li>
+	<li><a href="#extends">Основы наследования</a></li>
+	<li><a href="#trait">Трейты</a></li>
+	<li><a href="#types">Типы</a></li>
+</ul>
+<h2 id="overview">Обзор лекций</h2>
+<p>В первые несколько недель вы узнаете об основах синтаксиса и основных идеях, заложенных в язык Scala. Позже мы начнем раскрывать подробности на примерах.</p>
+<p>Некоторые примеры будем писать прямо в интерпретаторе, другие в исходном файле.</p>
+<p>Имея под рукой интерпретатор, можно легко исследовать проблемы.</p>
+<h3>Почему Scala?</h3>
+<ul>
+	<li>Выразительность
+	<ul>
+		<li>Функции первого класса</li>
+		<li>Замыкания</li>
+	</ul></li>
+	<li>Краткость
+	<ul>
+		<li>Вывод типов</li>
+		<li>Буквенный синтаксис для создания функции</li>
+	</ul></li>
+	<li>Взаимодействие с Java
+	<ul>
+		<li>Можно использовать Java библиотеки</li>
+		<li>Можно использовать Java инструменты</li>
+		<li>Нет потерь производительности</li>
+	</ul></li>
+</ul>
+<h3>Как работает Scala?</h3>
+<ul>
+	<li>Компиляция в байт-код Java</li>
+	<li>Работает с любой стандартной <span class="caps">JVM</span>
+	<ul>
+		<li>Или даже с некоторыми нестандартными <span class="caps">JVM</span>, например Dalvik</li>
+		<li>Компилятор Scala написан автором компилятора Java</li>
+	</ul></li>
+</ul>
+<h3>Что еще нужно знать о Scala</h3>
+<p>Scala лучше Java в некоторых аспектах. Перед тем как начинать изучать язык Scala, очистите свой разум, из этого выйдет больше толку.</p>
+<h3>Запускаем интерпретатор</h3>
+<p>Наберите в консоли <code>sbt console</code>.</p>
+<pre>
+$ sbt console
+
+[...]
+
+Welcome to Scala version 2.8.0.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_20).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala&gt;
+</pre>
+<h2 id="expressions">Выражения</h2>
+<pre>
+scala&gt; 1 + 1
+res0: Int = 2
+</pre>
+<p>res0 &#8211; автоматически создаваемое имя для переменной, которое интерпретатор дает результату вашего выражения. Переменная имеет тип Int и содержит целочисленное значение 2.</p>
+<p>Все (ну, почти) в Scala &#8211; выражение.</p>
+<h2 id="val">Константы</h2>
+<p>Вы можете присвоить собственное имя результату выражения.</p>
+<pre>
+scala&gt; val two = 1 + 1
+two: Int = 2
+</pre>
+<p>Для переменной с ключевым словом val вы не можете изменить ранее присвоенное значение.</p>
+<h3>Переменные</h3>
+<p>Если вам нужно изменить значение константы, вы должны использовать ключевое слово <code>var</code></p>
+<pre>
+scala&gt; var name = "steve"
+name: java.lang.String = steve
+
+scala&gt; name = "marius"
+name: java.lang.String = marius
+</pre>
+<h2 id="functions">Функции</h2>
+<p>Вы можете создать функцию с помощью ключевого слова def.</p>
+<pre>
+scala&gt; def addOne(m: Int): Int = m + 1
+addOne: (m: Int)Int
+</pre>
+<p>В Scala, вам нужно точно указывать тип, который принимает переменная в параметрах функции. К счастью, интерпретатор возвращает используемый функцией тип обратно.</p>
+<pre>
+scala&gt; val three = addOne(2)
+three: Int = 3
+</pre>
+<p>Вы можете опускать скобки при использовании функций, если они не имеют аргументов.</p>
+<pre>
+scala&gt; def three() = 1 + 2
+three: ()Int
+
+scala&gt; three()
+res2: Int = 3
+
+scala&gt; three
+res3: Int = 3
+</pre>
+<h3>Анонимные функции</h3>
+<p>Вы можете создавать анонимные функции.</p>
+<pre>
+scala&gt; (x: Int) =&gt; x + 1
+res2: (Int) =&gt; Int = &lt;function1&gt;
+</pre>
+<p>Эта функция увеличит на 1 значение, которое было передано в анонимную функцию; значение именуется как x.</p>
+<pre>
+scala&gt; res2(1)
+res3: Int = 2
+</pre>
+<p>Вы можете передавать анонимные функции как параметры или сохранять их в переменных.</p>
+<pre>
+scala&gt; val addOne = (x: Int) =&gt; x + 1
+addOne: (Int) =&gt; Int = &lt;function1&gt;
+
+scala&gt; addOne(1)
+res4: Int = 2
+</pre>
+<p>Если ваша функция состоит из множества выражений, вы можете использовать фигурные скобки {}, чтобы обезопасить себя.</p>
+<pre>
+def timesTwo(i: Int): Int = {
+  println("hello world")
+  i * 2
+}
+</pre>
+<p>Тоже самое верно и для анонимной функции</p>
+<pre>
+scala&gt; { i: Int =&gt;
+  println("hello world")
+  i * 2
+}
+res0: (Int) =&gt; Int = &lt;function1&gt;
+</pre>
+<p>Вы часто будете видеть подобный синтаксис при передачи анонимной функции в качестве параметра.</p>
+<h3>Частичный вызов функций</h3>
+<p>Вы можете использовать частичный вызов функций, обозначаемый знаком нижнего подчеркивания(_), этот знак позже будет подменен вызовом функции.</p>
+<pre>
+scala&gt; def adder(m: Int, n: Int) = m + n
+adder: (m: Int,n: Int)Int
+</pre>
+
+<pre>
+scala&gt; val add2 = adder(2, _:Int)
+add2: (Int) =&gt; Int = &lt;function1&gt;
+
+scala&gt; add2(3)
+res50: Int = 5
+</pre>
+<p>Вы можете использовать частичный вызов функций с любым аргументом из списка аргументов, а не только с последним из них, как в примере.</p>
+<h3>Каррирование функций</h3>
+<p>Иногда требуется передача каких-то аргументов в вашу функцию прямо сейчас, а других через некоторое время.</p>
+<p>Ниже пример функции, которая позволяет умножать два числа. В одном месте вызова функции вы решите, какой из аргументов будет множителем, а позднее вызывая функцию, вы сможете установить множимое.</p>
+<pre>
+scala&gt; def multiply(m: Int)(n: Int): Int = m * n
+multiply: (m: Int)(n: Int)Int
+</pre>
+<p>Вы можете вызвать функцию напрямую с двумя аргументами.</p>
+<pre>
+scala&gt; multiply(2)(3)
+res0: Int = 6
+</pre>
+<p>Вы можете передать первый аргумент, а второй аргумент объявить как частично вызываемый.</p>
+<pre>
+scala&gt; val timesTwo = multiply(2) _
+timesTwo: (Int) =&gt; Int = &lt;function1&gt;
+
+scala&gt; timesTwo(3)
+res1: Int = 6
+</pre>
+<p>Вы можете взять любую функцию с множеством аргументов и произвести ее каррирование. Давайте попробуем использовать функцию, которую рассматривали раньше, например <code>adder</code></p>
+<pre>
+scala&gt; (adder _).curried
+res1: (Int) =&gt; (Int) =&gt; Int = &lt;function1&gt;
+</pre>
+<p>См. подробнее о <a href="https://ru.wikipedia.org/wiki/%D0%9A%D0%B0%D1%80%D1%80%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5">Каррировании</a></p>
+<h3>Использование переменного количества аргументов</h3>
+<p>Существует специальный синтаксис для методов, которые могут принимать параметры одного и того же типа.</p>
+<pre>
+def capitalizeAll(args: String*) = {
+  args.map { arg =&gt;
+    arg.capitalize
+  }
+}
+
+scala&gt; capitalizeAll("rarity", "applejack")
+res2: Seq[String] = ArrayBuffer(Rarity, Applejack)
+</pre>
+<h2 id="class">Классы</h2>
+<pre>
+scala&gt; class Calculator {
+     |   val brand: String = "HP"
+     |   def add(m: Int, n: Int): Int = m + n
+     | }
+
+// Здесь мы объявили класс Calculator
+
+scala&gt; val calc = new Calculator
+calc: Calculator = Calculator@e75a11
+
+scala&gt; calc.add(1, 2)
+res1: Int = 3
+
+scala&gt; calc.brand
+res2: String = "HP"
+</pre>
+<p>В примере объявляется метод и поле с ключевым словом val. Методы &#8211; это функции, которые имеют доступ к внутренним сущностям класса.</p>
+<h3>Конструктор</h3>
+<p>Конструкторы не являются специальными методами, их код находится в классе за пределами определения метода. Давайте расширим наш пример с калькулятором. Будем принимать аргумент конструктора и использовать его для инициализации внутреннего состояния.</p>
+<pre>
+class Calculator(brand: String) {
+  /**
+   * Конструктор.
+   */
+  val color: String = if (brand == "TI") {
+    "blue"
+  } else if (brand == "HP") {
+    "black"
+  } else {
+    "white"
+  }
+
+  // Метод экземпляра класса.
+  def add(m: Int, n: Int): Int = m + n
+}
+</pre>
+<p>Обратите внимание на два различных способа написания комментариев.</p>
+<h3>Выражения</h3>
+<p>Наш пример с калькулятором дает хороший пример того, как Scala ориентирован на выражения (expression-oriented). Значение переменной color было присвоено благодаря if/else выражению. Scala сильно ориентирован на выражения: большинство вещей делается с помощью выражений, а не утверждений.</p>
+<h2 id="extends">Наследование</h2>
+<pre>
+class ScientificCalculator(brand: String) extends Calculator(brand) {
+  def log(m: Double, base: Double) = math.log(m) / math.log(base)
+}
+</pre>
+<p><strong>Смотрите также:</strong> В Effective Scala указывается на то, что лучше использовать <a href="https://twitter.github.com/effectivescala/index-ru.html#Типы и обобщенные типы-Псевдонимы типов">Псевдонимы типов</a> вместо <code>extends</code>, особенно если подкласс практически ничем не отличается от суперкласса. В &#8220;Туре по языку Scala&#8221; вы найдете более подробное описание <a href="https://www.scala-lang.org/node/125">Подклассов</a>.</p>
+<h3>Перегрузка методов</h3>
+<pre>
+class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
+  def log(m: Int): Double = log(m, math.exp(1))
+}
+</pre>
+<h2 id="trait">Трейты</h2>
+<p><code>Трейты</code> &#8211; это коллекция полей и методов, которые вы можете расширить или примешать к вашему классу.</p>
+<pre>
+trait Car {
+  val brand: String
+}
+</pre>
+
+<pre>
+class BMW extends Car {
+  val brand = "BMW"
+}
+</pre>
+<p><strong>Смотрите также:</strong> В Effective Scala есть описание <a href="https://twitter.github.com/effectivescala/index-ru.html#Объектно-ориентированное программирование-Трейты(Traits)">Трейтов</a>.</p>
+<h2 id="types">Типы</h2>
+<p>Ранее вы могли видеть, что мы определили функцию, принимающая тип <code>Int</code>, который является одним из видов Number. Функция может быть объявлена как обобщенная (generic) и после этого может работать с любым типом. Когда объявлена такая функция, вы увидите <pre>параметр-тип</pre> размещенный внутри квадратных скобок:<br />
+Вы можете думать о них, как о множестве параметров-типов. Рассмотрим пример трейта Кэш (Cache), который принимает параметры-типы (K, V) для ключей и их значений.</p>
+<pre>
+trait Cache[K, V] {
+  def get(key: K): V
+  def put(key: K, value: V)
+  def delete(key: K)
+}
+</pre>
+<p>Методы тоже могут иметь параметры-типы</p>
+<pre>
+def remove[K](key: K)
+</pre>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>
