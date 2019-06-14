@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Pattern matching & functional composition</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">Pattern matching & functional composition</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="collections.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="type-basics.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>This lesson covers:</p>
+<ul>
+	<li><a href="#composition">Function Composition</a>
+	<ul>
+		<li>compose</li>
+		<li>andThen</li>
+	</ul></li>
+	<li><a href="#curryvspartial">Currying vs Partial Application</a></li>
+	<li><a href="#PartialFunction">PartialFunctions</a>
+	<ul>
+		<li>range and domain</li>
+		<li>composition with orElse</li>
+	</ul></li>
+	<li><a href="#case">What is a case statement?</a></li>
+</ul>
+<h2 id="composition">Function Composition</h2>
+<p>Let&#8217;s make two aptly-named functions:</p>
+<pre>
+scala&gt; def f(s: String) = "f(" + s + ")"
+f: (String)java.lang.String
+
+scala&gt; def g(s: String) = "g(" + s + ")"
+g: (String)java.lang.String
+</pre>
+<h3>compose</h3>
+<p><code>compose</code> makes a new function that composes other functions <code>f(g(x))</code></p>
+<pre>
+scala&gt; val fComposeG = f _ compose g _
+fComposeG: (String) =&gt; java.lang.String = &lt;function&gt;
+
+scala&gt; fComposeG("yay")
+res0: java.lang.String = f(g(yay))
+</pre>
+<h3>andThen</h3>
+<p><code>andThen</code> is like <code>compose</code>, but calls the first function and then the second, <code>g(f(x))</code></p>
+<pre>
+scala&gt; val fAndThenG = f _ andThen g _
+fAndThenG: (String) =&gt; java.lang.String = &lt;function&gt;
+
+scala&gt; fAndThenG("yay")
+res1: java.lang.String = g(f(yay))
+</pre>
+<h2 id="curryvspartial">Currying vs Partial Application</h2>
+<h3>case statements</h3>
+<h4>So just what are case statements?</h4>
+<p>It&#8217;s a subclass of function called a PartialFunction.</p>
+<h4>What is a collection of multiple case statements?</h4>
+<p>They are multiple PartialFunctions composed together.</p>
+<h2 id="PartialFunction">Understanding PartialFunction</h2>
+<p>A function works for every argument of the defined type. In other words, a function defined as (Int) =&gt; String takes any Int and returns a String.</p>
+<p>A Partial Function is only defined for certain values of the defined type.  A Partial Function (Int) =&gt; String might not accept every Int.</p>
+<p><code>isDefinedAt</code> is a method on PartialFunction that can be used to determine if the PartialFunction will accept a given argument.</p>
+<p><i>Note</i> <code>PartialFunction</code> is unrelated to a partially applied function that we talked about earlier.</p>
+<p><strong>See Also</strong> Effective Scala has opinions about <a href="https://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.</p>
+<pre>
+scala&gt; val one: PartialFunction[Int, String] = { case 1 =&gt; "one" }
+one: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; one.isDefinedAt(1)
+res0: Boolean = true
+
+scala&gt; one.isDefinedAt(2)
+res1: Boolean = false
+</pre>
+<p>You can apply a partial function.</p>
+<pre>
+scala&gt; one(1)
+res2: String = one
+</pre>
+<p>PartialFunctions can be composed with something new, called orElse, that reflects whether the PartialFunction is defined over the supplied argument.</p>
+<pre>
+scala&gt; val two: PartialFunction[Int, String] = { case 2 =&gt; "two" }
+two: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; val three: PartialFunction[Int, String] = { case 3 =&gt; "three" }
+three: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; val wildcard: PartialFunction[Int, String] = { case _ =&gt; "something else" }
+wildcard: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; val partial = one orElse two orElse three orElse wildcard
+partial: PartialFunction[Int,String] = &lt;function1&gt;
+
+scala&gt; partial(5)
+res24: String = something else
+
+scala&gt; partial(3)
+res25: String = three
+
+scala&gt; partial(2)
+res26: String = two
+
+scala&gt; partial(1)
+res27: String = one
+
+scala&gt; partial(0)
+res28: String = something else
+</pre>
+<h3 id="case">The mystery of case.</h3>
+<p>Last week we saw something curious. We saw a case statement used where a function is normally used.</p>
+<pre>
+scala&gt; case class PhoneExt(name: String, ext: Int)
+defined class PhoneExt
+
+scala&gt; val extensions = List(PhoneExt("steve", 100), PhoneExt("robey", 200))
+extensions: List[PhoneExt] = List(PhoneExt(steve,100), PhoneExt(robey,200))
+
+scala&gt; extensions.filter { case PhoneExt(name, extension) =&gt; extension &lt; 200 }
+res0: List[PhoneExt] = List(PhoneExt(steve,100))
+</pre>
+<p>Why does this work?</p>
+<p>filter takes a function. In this case a predicate function of (PhoneExt) =&gt; Boolean.</p>
+<p>A PartialFunction is a subtype of Function so filter can also take a PartialFunction!</p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Searchbird</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">Searchbird</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="finagle.html">&laquo;Previous</a></li>
+            
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>我们要使用Scala和先前介绍的 <a href="https://github.com/twitter/finagle">Finagle</a> 框架构建一个简单的分布式搜索引擎。</p>
+<h3>设计目标：大图景</h3>
+<p>从广义上讲，我们的设计目标包括 <em>抽象</em> （abstraction：在不知道其内部的所有细节的前提下，利用该系统功能的能力）、 <em>模块化</em> （modularity：把系统分解为小而简单的片段，从而更容易被理解和/或被更换的能力）和 <em>扩展性</em> （scalability：用简单直接的方法给系统扩容的能力）。</p>
+<p>我们要描述的系统有三个部分： （1） <em>客户端</em> 发出请求，（2） <em>服务端</em> 接收请求并应答，和（3） <em>传送</em> 机制来这些通信包装起来。通常情况下，客户端和服务器位于不同的机器上，通过网络上的一个特定的 <a href="https://en.wikipedia.org/wiki/Port_(computer_networking)"><em>端口</em></a> 进行通信，但在这个例子中，它们将运行在同一台机器上（而且仍然使用端口进行通信） 。在我们的例子中，客户端和服务器将用Scala编写，传送协议将使用 <a href="https://thrift.apache.org/">Thrift</a> 处理。本教程的主要目的是展示一个简单的具有良好可扩展性的服务器和客户端。</p>
+<h3>探索默认的引导程序项目</h3>
+<p>首先，使用 <a href="https://github.com/twitter/scala-bootstrapper">scala-bootstrapper</a> 创建一个骨架项目（ “ Searchbird ” ）。这将创建一个简单的基于 <a href="https://twitter.github.com/finagle/">Finagle</a> 和key-value内存存储的Scala服务。我们将扩展这个工程以支持搜索值，并进而支持多进程多个内存存储的搜索。</p>
+<pre>
+$ mkdir searchbird ; cd searchbird
+$ scala-bootstrapper searchbird
+writing build.sbt
+writing config/development.scala
+writing config/production.scala
+writing config/staging.scala
+writing config/test.scala
+writing console
+writing Gemfile
+writing project/plugins.sbt
+writing README.md
+writing sbt
+writing src/main/scala/com/twitter/searchbird/SearchbirdConsoleClient.scala
+writing src/main/scala/com/twitter/searchbird/SearchbirdServiceImpl.scala
+writing src/main/scala/com/twitter/searchbird/config/SearchbirdServiceConfig.scala
+writing src/main/scala/com/twitter/searchbird/Main.scala
+writing src/main/thrift/searchbird.thrift
+writing src/scripts/searchbird.sh
+writing src/scripts/config.sh
+writing src/scripts/devel.sh
+writing src/scripts/server.sh
+writing src/scripts/service.sh
+writing src/test/scala/com/twitter/searchbird/AbstractSpec.scala
+writing src/test/scala/com/twitter/searchbird/SearchbirdServiceSpec.scala
+writing TUTORIAL.md
+</pre>
+<p>首先，来看下 <code>scala-bootstrapper</code> 为我们创建的默认项目。这是一个模板。虽然最终将替换它的大部分内容，不过作为支架它还是很方便的。它定义了一个简单（但完整）的key-value存储，并包含了配置、thrift接口、统计输出和日志记录。</p>
+<p>在我们看代码之前，先运行一个客户端和服务器，看看它是如何工作的。这里是我们构建的：</p>
+<p><img src="../searchbird-1.svg" title="Searchbird implementation, revision 1" alt="Searchbird implementation, revision 1" /></p>
+<p>这里是我们的服务输出的接口。由于Searchbird服务是一个 <a href="https://thrift.apache.org/">Thrift</a>  服务（和我们大部分服务一样），因而其外部接口使用Thrift IDL（“接口描述语言”）定义。</p>
+<h5>src/main/thrift/searchbird.thrift</h5>
+<pre>
+service SearchbirdService {
+  string get(1: string key) throws(1: SearchbirdException ex)
+
+  void put(1: string key, 2: string value)
+}
+</pre>
+<p>这是非常直观的：我们的服务 <code>SearchbirdService</code> 输出两个RPC方法 <code>get</code> 和 <code>put</code> 。他们组成了一个到key-value存储的简单接口。</p>
+<p>现在，让我们运行默认的服务，启动客户端连接到这个服务，并通过这个接口来探索他们。打开两个窗口，一个用于服务器，一个用于客户端。</p>
+<p>在第一个窗口中，用交互模式启动SBT（在命令行中运行 <code>./sbt</code><sup class="footnote" id="fnr1"><a href="#fn1">1</a></sup>），然后构建和运行项目内SBT。这会运行 <code>Main.scala</code> 定义的 <code>主</code> 进程。</p>
+<pre>
+$ ./sbt
+...
+&gt; compile
+&gt; run -f config/development.scala
+...
+[info] Running com.twitter.searchbird.Main -f config/development.scala
+</pre>
+<p>配置文件 (<code>development.scala</code>) 实例化一个新的服务，并监听9999端口。客户端可以连接到9999端口使用此服务。</p>
+<p>现在，我们将使用 <code>控制台</code> shell脚本初始化和运行一个客户端实例，即 <code>SearchbirdConsoleClient</code> 实例 (<code>SearchbirdConsoleClient.scala</code>) 。在另一个窗口中运行此脚本：</p>
+<pre>
+$ ./console 127.0.0.1 9999
+[info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
+'client' is bound to your thrift client.
+
+finagle-client&gt;
+</pre>
+<p>客户端对象 <code>client</code> 现在连接到本地计算机上的9999端口，并可以跟服务交互了。接下来我们发送一些请求：</p>
+<pre>
+scala&gt; client.put("marius", "Marius Eriksen")
+res0: ...
+
+scala&gt; client.put("stevej", "Steve Jenson")
+res1: ...
+
+scala&gt; client.get("marius")
+res2: com.twitter.util.Future[String] = ...
+
+scala&gt; Await.result(client.get("marius"))
+res3: String = Marius Eriksen
+</pre>
+<p>（第二个 <code>Await.result()</code> 调用解析 <code>client.get()</code> 返回的 <code>Future</code> 类型值，阻塞直到该值准备好。）</p>
+<p>该服务器还输出运行统计（配置文件中指定这些信息在9900端口）。这不仅方便对各个服务器进行检查，也利于聚集全局的服务统计（以机器可读的JSON接口）。打开第三个窗口来查看这些统计：</p>
+<pre>
+$ curl localhost:9900/stats.txt
+counters:
+  Searchbird/connects: 1
+  Searchbird/received_bytes: 264
+  Searchbird/requests: 3
+  Searchbird/sent_bytes: 128
+  Searchbird/success: 3
+  jvm_gc_ConcurrentMarkSweep_cycles: 1
+  jvm_gc_ConcurrentMarkSweep_msec: 15
+  jvm_gc_ParNew_cycles: 24
+  jvm_gc_ParNew_msec: 191
+  jvm_gc_cycles: 25
+  jvm_gc_msec: 206
+gauges:
+  Searchbird/connections: 1
+  Searchbird/pending: 0
+  jvm_fd_count: 135
+  jvm_fd_limit: 10240
+  jvm_heap_committed: 85000192
+  jvm_heap_max: 530186240
+  jvm_heap_used: 54778640
+  jvm_nonheap_committed: 89657344
+  jvm_nonheap_max: 136314880
+  jvm_nonheap_used: 66238144
+  jvm_num_cpus: 4
+  jvm_post_gc_CMS_Old_Gen_used: 36490088
+  jvm_post_gc_CMS_Perm_Gen_used: 54718880
+  jvm_post_gc_Par_Eden_Space_used: 0
+  jvm_post_gc_Par_Survivor_Space_used: 1315280
+  jvm_post_gc_used: 92524248
+  jvm_start_time: 1345072684280
+  jvm_thread_count: 16
+  jvm_thread_daemon_count: 7
+  jvm_thread_peak_count: 16
+  jvm_uptime: 1671792
+labels:
+metrics:
+  Searchbird/handletime_us: (average=9598, count=4, maximum=19138, minimum=637, p25=637, p50=4265, p75=14175, p90=19138, p95=19138, p99=19138, p999=19138, p9999=19138, sum=38393)
+  Searchbird/request_latency_ms: (average=4, count=3, maximum=9, minimum=0, p25=0, p50=5, p75=9, p90=9, p95=9, p99=9, p999=9, p9999=9, sum=14)
+</pre>
+<p>除了我们自己的服务统计信息以外，还有一些通用的JVM统计。</p>
+<p>现在，让我们来看看配置、服务器和客户端的实现代码。</p>
+<h5>&#8230;/config/SearchbirdServiceConfig.scala</h5>
+<p>配置是一个Scala的特质，有一个方法 <code>apply: RuntimeEnvironment =&gt; T</code> 来创建一些 <code>T</code> 。在这个意义上，配置是“工厂” 。在运行时，配置文件（通过使用Scala编译器库）被取值为一个脚本，并产生一个配置对象。 <code>RuntimeEnvironment</code> 是一个提供各种运行参数（命令行标志， JVM版本，编译时间戳等）查询的一个对象。</p>
+<p><code>SearchbirdServiceConfig</code> 类就是这样一个配置类。它使用其默认值一起指定配置参数。 （Finagle 支持一个通用的跟踪系统，我们在本教程将不会介绍： <a href="https://github.com/twitter/zipkin">Zipkin</a> 一个集合/聚合轨迹的 分布式跟踪系统。）</p>
+<pre>
+class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
+  var thriftPort: Int = 9999
+  var tracerFactory: Tracer.Factory = NullTracer.factory
+
+  def apply(runtime: RuntimeEnvironment) = new SearchbirdServiceImpl(this)
+}
+</pre>
+<p>在我们的例子中，我们要创建一个 <code>SearchbirdService.ThriftServer</code>。这是由thrift代码生成器生成的服务器类型<sup class="footnote" id="fnr2"><a href="#fn2">2</a></sup>。</p>
+<h5>&#8230;/Main.scala</h5>
+<p>在SBT控制台中键入“run”调用 <code>main</code> ，这将配置和初始化服务器。它读取配置（在 <code>development.scala</code> 中指定，并会作为参数传给“run”），创建 <code>SearchbirdService.ThriftServer</code> ，并启动它。 <code>RuntimeEnvironment.loadRuntimeConfig</code> 执行配置赋值，并把自身作为一个参数来调用 <code>apply</code> <sup class="footnote" id="fnr3"><a href="#fn3">3</a></sup>。</p>
+<pre>
+object Main {
+  private val log = Logger.get(getClass)
+
+  def main(args: Array[String]) {
+    val runtime = RuntimeEnvironment(this, args)
+    val server = runtime.loadRuntimeConfig[SearchbirdService.ThriftServer]
+    try {
+      log.info("Starting SearchbirdService")
+      server.start()
+    } catch {
+      case e: Exception =&gt;
+        log.error(e, "Failed starting SearchbirdService, exiting")
+        ServiceTracker.shutdown()
+        System.exit(1)
+    }
+  }
+}
+</pre>
+<h5>&#8230;/SearchbirdServiceImpl.scala</h5>
+<p>这是实质的服务：我们用自己的实现扩展 <code>SearchbirdService.ThriftServer</code> 。回忆一下thrift为我们生成的 <code>SearchbirdService.ThriftServer</code> 。它为每一个thrift方法生成一个Scala方法。到目前为止，在我们的例子中生成的接口是：</p>
+<pre>
+trait SearchbirdService {
+  def put(key: String, value: String): Future[Void]
+  def get(key: String): Future[String]
+}
+</pre>
+<p>返回值是 <code>Future[Value]</code> 而不是直接返回值，可以推迟它们的计算（finagle的 <a href="finagle.html">文档</a> 有 <code>Future</code> 更多的细节）。对本教程的目的来说，你唯一需要知道的有关 <code>Future</code> 的知识点是，可以通过 <code>get()</code> 获取其值。</p>
+<p><code>scala-bootstrapper</code> 默认实现的key-value存储很简单：它提供了一个通过 <code>get</code> 和 <code>put</code> 访问的 <code>数据库</code> 数据结构。</p>
+<pre>
+class SearchbirdServiceImpl(config: SearchbirdServiceConfig) extends SearchbirdService.ThriftServer {
+  val serverName = "Searchbird"
+  val thriftPort = config.thriftPort
+  override val tracerFactory = config.tracerFactory
+
+  val database = new mutable.HashMap[String, String]()
+
+  def get(key: String) = {
+    database.get(key) match {
+      case None =&gt;
+        log.debug("get %s: miss", key)
+        Future.exception(SearchbirdException("No such key"))
+      case Some(value) =&gt;
+        log.debug("get %s: hit", key)
+        Future(value)
+    }
+  }
+
+  def put(key: String, value: String) = {
+    log.debug("put %s", key)
+    database(key) = value
+    Future.Unit
+  }
+
+  def shutdown() = {
+    super.shutdown(0.seconds)
+  }
+}
+</pre>
+<p>其结果是构建在 Scala <code>HashMap</code> 上的一个简单thrift接口。</p>
+<h2>一个简单的搜索引擎</h2>
+<p>现在，我们将扩展现有的例子，来创建一个简单的搜索引擎。然后，我们将进一步扩展它成为由多个分片组成的 <em>分布式</em> 搜索引擎，使我们能够适应比单台机器内存更大的语料库。</p>
+<p>为了简单起见，我们将最小化扩展目前的thrift服务，以支持搜索操作。使用模型是用 <code>put</code> 把文件加入搜索引擎，其中每个文件包含了一系列的记号（词），那么我们就可以输入一串记号，然后搜索会返回包含这个串中所有记号的所有文件。该体系结构是与前面的例子相同，但增加了一个新的@search@调用。</p>
+<p><img src="../searchbird-2.svg" title="Searchbird implementation, revision 2" alt="Searchbird implementation, revision 2" /></p>
+<p>要实现这样一个搜索引擎需要修改以下两个文件：</p>
+<h5>src/main/thrift/searchbird.thrift</h5>
+<pre>
+service SearchbirdService {
+  string get(1: string key) throws(1: SearchbirdException ex)
+
+  void put(1: string key, 2: string value)
+
+  list&lt;string&gt; search(1: string query)
+}
+</pre>
+<p>我们增加了一个 <code>search</code> 方法来搜索当前哈希表，返回其值与查询匹配的键列表。实现也很简单直观：</p>
+<h5>&#8230;/SearchbirdServiceImpl.scala</h5>
+<p>大部分修改都在这个文件中。</p>
+<p>现在的 <code>数据库</code> HashMap保存一个正向索引来持有到文档的键映射。我们重命名它为 <code>forward</code> 并增加一个 <code>倒排（reverse）</code> 索引（映射记号到所有包含该记号的文件）。所以在  <code>SearchbirdServiceImpl.scala</code> 中，更换 <code>database</code> 定义：</p>
+<pre>
+val forward = new mutable.HashMap[String, String]
+  with mutable.SynchronizedMap[String, String]
+val reverse = new mutable.HashMap[String, Set[String]]
+  with mutable.SynchronizedMap[String, Set[String]]
+</pre>
+<p>在 <code>get</code> 调用中，使用 <code>forward</code> 替换 <code>数据库</code> 即可，在其他方面 <code>get</code> 保持不变（仅执行正向查找）。不过 <code>put</code> 还需要改变：我们还需要为文件中的每个令牌填充反向索引，把文件的键附加到令牌关联的列表中。用下面的代码替换 <code>put</code> 调用。给定一个特定的搜索令牌，我们现在可以使用 <code>反向</code> 映射来查找文件。</p>
+<pre>
+def put(key: String, value: String) = {
+  log.debug("put %s", key)
+
+  forward(key) = value
+
+  // serialize updaters
+  synchronized {
+    value.split(" ").toSet foreach { token =&gt;
+      val current = reverse.getOrElse(token, Set())
+      reverse(token) = current + key
+    }
+  }
+
+  Future.Unit
+}
+</pre>
+<p>需要注意的是（即使 <code>HashMap</code> 是线程安全的）同时只能有一个线程可以更新 <code>倒排</code> 索引，以确保对映射条目的 读-修改-写 是一个原子操作。 （这段代码过于保守；在进行 检索-修改-写 操作时，它锁定了整个映射，而不是锁定单个条目。）。另外还要注意使用 <code>Set</code> 作为数据结构；这可以确保即使一个文件中两次出现同样的符号，它也只会被 <code>foreach</code> 循环处理一次。</p>
+<p>这个实现仍然有一个问题，作为留给读者的一个练习：当我们用一个新文档覆盖的一个键的时候，我们诶有删除任何倒排索引中引用的旧文件。</p>
+<p>现在进入搜索引擎的核心：新的 <code>search</code> 方法。他应该解析查询，寻找匹配的文档，然后对这些列表做相交操作。这将产生包含所有查询中的标记的文件列表。在Scala中可以很直接地表达；添加这段代码到 <code>SearchbirdServiceImpl</code> 类中：</p>
+<pre>
+def search(query: String) = Future.value {
+  val tokens = query.split(" ")
+  val hits = tokens map { token =&gt; reverse.getOrElse(token, Set()) }
+  val intersected = hits reduceLeftOption { _ &amp; _ } getOrElse Set()
+  intersected.toList
+}
+</pre>
+<p>在这段短短的代码中有几件事情是值得关注的。在构建命中列表时，如果键（ <code>token</code> ）没有被发现， <code>getOrElse</code>  会返回其第二个参数（在这种情况下，一个空 <code>Set</code> ）。我们使用left-reduce执行实际的相交操作。特别是当 <code>reduceLeftOption</code> 发现 <code>hits</code> 为空时将不会继续尝试执行reduce操作。这使我们能够提供一个默认值，而不是抛出一个异常。其实这相当于：</p>
+<pre>
+def search(query: String) = Future.value {
+  val tokens = query.split(" ")
+  val hits = tokens map { token =&gt; reverse.getOrElse(token, Set()) }
+  if (hits.isEmpty)
+    Nil
+  else
+    hits reduceLeft { _ &amp; _ } toList
+}
+</pre>
+<p>使用哪种方式大多是个人喜好的问题，虽然函数式风格往往会避开带有合理默认值的条件语句。</p>
+<p>现在，我们可以尝试在控制台中实验我们新的实现。重启服务器：</p>
+<pre>
+$ ./sbt
+...
+&gt; compile
+&gt; run -f config/development.scala
+...
+[info] Running com.twitter.searchbird.Main -f config/development.scala
+</pre>
+<p>然后再从searchbird目录，启动客户端：</p>
+<pre>
+$ ./console 127.0.0.1 9999
+...
+[info] Running com.twitter.searchbird.SearchbirdConsoleClient 127.0.0.1 9999
+'client' is bound to your thrift client.
+
+finagle-client&gt;
+</pre>
+<p>粘贴以下说明到控制台：</p>
+<p><!--
+grep -h '^(desc|title):' ../web/_posts/* | tr A-Z a-z | tr '=''\-+.,:' ' ' | awk '
+/^title/ { title=$2 }
+/^desc/ {
+	d=""
+	for(i = 2; i < NF; i++) { d = d " " $i }
+	print "$client.put(\"" title "\", \"" d "\")"
+}'
+--></p>
+<pre>
+client.put("basics", " values functions classes methods inheritance try catch finally expression oriented")
+client.put("basics", " case classes objects packages apply update functions are objects (uniform access principle) pattern")
+client.put("collections", " lists maps functional combinators (map foreach filter zip")
+client.put("pattern", " more functions! partialfunctions more pattern")
+client.put("type", " basic types and type polymorphism type inference variance bounds")
+client.put("advanced", " advanced types view bounds higher kinded types recursive types structural")
+client.put("simple", " all about sbt the standard scala build")
+client.put("more", " tour of the scala collections")
+client.put("testing", " write tests with specs a bdd testing framework for")
+client.put("concurrency", " runnable callable threads futures twitter")
+client.put("java", " java interop using scala from")
+client.put("searchbird", " building a distributed search engine using")
+</pre>
+<p>现在，我们可以执行一些搜索，返回包含搜索词的文件的键。</p>
+<pre>
+&gt; Await.result(client.search("functions"))
+res12: Seq[String] = ArrayBuffer(basics)
+
+&gt; Await.result(client.search("java"))
+res13: Seq[String] = ArrayBuffer(java)
+
+&gt; Await.result(client.search("java scala"))
+res14: Seq[String] = ArrayBuffer(java)
+
+&gt; Await.result(client.search("functional"))
+res15: Seq[String] = ArrayBuffer(collections)
+
+&gt; Await.result(client.search("sbt"))
+res16: Seq[String] = ArrayBuffer(simple)
+
+&gt; Await.result(client.search("types"))
+res17: Seq[String] = ArrayBuffer(type, advanced)
+</pre>
+<p>回想一下，如果调用返回一个 <code>Future</code> ，我们必须使用一个阻塞的 <code>get()</code> 来获取其中包含的值。我们可以使用 <code>Future.collect</code> 命令来创建多个并发请求，并等待所有请求成功返回：</p>
+<pre>
+&gt; import com.twitter.util.Future
+...
+&gt; Await.result(Future.collect(Seq(
+    client.search("types"),
+    client.search("sbt"),
+    client.search("functional")
+  )))
+res18: Seq[Seq[String]] = ArrayBuffer(ArrayBuffer(type, advanced), ArrayBuffer(simple), ArrayBuffer(collections))
+</pre>
+<h2>分发我们的服务</h2>
+<p>单台机器上一个简单的内存搜索引擎将无法搜索超过内存大小的语料库。现在，我们要大胆改进，用一个简单的分片计划来构建分布式节点。下面是框图：</p>
+<p><img src="../searchbird-3.svg" title="Distributed Searchbird service" alt="Distributed Searchbird service" /></p>
+<h3>抽象</h3>
+<p>为了帮助我们的工作，我们会先介绍另一个抽象 <code>索引</code> 来解耦 <code>SearchbirdService</code> 对索引实现的依赖。这是一个直观的重构。我们首先添加一个索引文件到构建 (创建文件 <code>searchbird/src/main/scala/com/twitter/searchbird/Index.scala</code> ):</p>
+<h5>&#8230;/Index.scala</h5>
+<pre>
+package com.twitter.searchbird
+
+import scala.collection.mutable
+import com.twitter.util._
+import com.twitter.conversions.time._
+import com.twitter.logging.Logger
+import com.twitter.finagle.builder.ClientBuilder
+import com.twitter.finagle.thrift.ThriftClientFramedCodec
+
+trait Index {
+  def get(key: String): Future[String]
+  def put(key: String, value: String): Future[Unit]
+  def search(key: String): Future[List[String]]
+}
+
+class ResidentIndex extends Index {
+  val log = Logger.get(getClass)
+
+  val forward = new mutable.HashMap[String, String]
+    with mutable.SynchronizedMap[String, String]
+  val reverse = new mutable.HashMap[String, Set[String]]
+    with mutable.SynchronizedMap[String, Set[String]]
+
+  def get(key: String) = {
+    forward.get(key) match {
+      case None =&gt;
+        log.debug("get %s: miss", key)
+        Future.exception(SearchbirdException("No such key"))
+      case Some(value) =&gt;
+        log.debug("get %s: hit", key)
+        Future(value)
+    }
+  }
+
+  def put(key: String, value: String) = {
+    log.debug("put %s", key)
+
+    forward(key) = value
+
+    // admit only one updater.
+    synchronized {
+      (Set() ++ value.split(" ")) foreach { token =&gt;
+        val current = reverse.get(token) getOrElse Set()
+        reverse(token) = current + key
+      }
+    }
+
+    Future.Unit
+  }
+
+  def search(query: String) = Future.value {
+    val tokens = query.split(" ")
+    val hits = tokens map { token =&gt; reverse.getOrElse(token, Set()) }
+    val intersected = hits reduceLeftOption { _ &amp; _ } getOrElse Set()
+    intersected.toList
+  }
+}
+</pre>
+<p>现在，我们把thrift服务转换成一个简单的调度机制：为每一个 <code>索引</code> 实例提供一个thrift接口。这是一个强大的抽象，因为它分离了索引实现和服务实现。服务不再知道索引的任何细节；索引可以是本地的或远程的，甚至可能是许多索引的组合，但服务并不关心，索引实现可能会更改但是不用修改服务。</p>
+<p>将 <code>SearchbirdServiceImpl</code> 类定义更换为以下（简单得多）的代码（其中不再包含索引实现细节）。注意初始化服务器现在需要第二个参数 <code>Index</code> 。</p>
+<h5>&#8230;/SearchbirdServiceImpl.scala</h5>
+<pre>
+class SearchbirdServiceImpl(config: SearchbirdServiceConfig, index: Index) extends SearchbirdService.ThriftServer {
+  val serverName = "Searchbird"
+  val thriftPort = config.thriftPort
+
+  def get(key: String) = index.get(key)
+  def put(key: String, value: String) =
+    index.put(key, value) flatMap { _ =&gt; Future.Unit }
+  def search(query: String) = index.search(query)
+
+  def shutdown() = {
+    super.shutdown(0.seconds)
+  }
+}
+</pre>
+<h5>&#8230;/config/SearchbirdServiceConfig.scala</h5>
+<p>相应地更新 <code>SearchbirdServiceConfig</code> 的 <code>apply</code> 调用：</p>
+<pre>
+class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
+  var thriftPort: Int = 9999
+  var tracerFactory: Tracer.Factory = NullTracer.factory
+
+  def apply(runtime: RuntimeEnvironment) = new SearchbirdServiceImpl(this, new ResidentIndex)
+}
+</pre>
+<p>我们将建立一个简单的分布式系统，一个主节点组织查询其子节点。为了实现这一目标，我们将需要两个新的 <code>Index</code> 类型。一个代表远程索引，另一种是其他多个 <code>Index</code> 实例的组合索引。这样我们的服务就可以实例化多个远程索引的复合索引来构建分布式索引。请注意这两个 <code>Index</code> 类型具有相同的接口，所以服务器不需要知道它们所连接的索引是远程的还是复合的。</p>
+<h5>&#8230;/Index.scala</h5>
+<p>在 <code>Index.scala</code> 中定义了 <code>CompositeIndex</code> :</p>
+<pre>
+class CompositeIndex(indices: Seq[Index]) extends Index {
+  require(!indices.isEmpty)
+
+  def get(key: String) = {
+    val queries = indices.map { idx =&gt;
+      idx.get(key) map { r =&gt; Some(r) } handle { case e =&gt; None }
+    }
+
+    Future.collect(queries) flatMap { results =&gt;
+      results.find { _.isDefined } map { _.get } match {
+        case Some(v) =&gt; Future.value(v)
+        case None =&gt; Future.exception(SearchbirdException("No such key"))
+      }
+    }
+  }
+
+  def put(key: String, value: String) =
+    Future.exception(SearchbirdException("put() not supported by CompositeIndex"))
+
+  def search(query: String) = {
+    val queries = indices.map { _.search(query) rescue { case _=&gt; Future.value(Nil) } }
+    Future.collect(queries) map { results =&gt; (Set() ++ results.flatten) toList }
+  }
+}
+</pre>
+<p>组合索引构建在一组相关 <code>Index</code> 实例的基础上。注意它并不关心这些实例实际上是如何实现的。这种组合类型在构建不同查询机制的时候具有极大的灵活性。我们没有定义拆分机制，所以复合索引不支持 <code>put</code> 操作。这些请求被直接交由子节点处理。 <code>get</code> 的实现是查询所有子节点，并提取第一个成功的结果。如果没有成功结果的话，则抛出一个异常。注意因为没有结果是通过抛出一个异常表示的，所以我们 <code>处理Future</code> ，是将任何异常转换成 <code>None</code> 。在实际系统中，我们很可能会为遗漏值填入适当的错误码，而不是使用异常。异常在构建原型时是方便和适宜的，但不能很好地组合。为了把真正的例外和遗漏值区分开，必须要检查异常本身。相反，把这种区别直接嵌入在返回值的类型中是更好的风格。</p>
+<p><!-- *_HELP This implementation appears to not give any more scalability than the previous scheme; since the index appears to be completely replicated across all client machines, we can't store a larger amount of data. We'd require a more sophisticated @put()@ scheme that distributed puts to only one index, wouldn't we? Alternately, we could improve throughput by only sending @get()@ requests to one node rather than all nodes._* --></p>
+<p><code>search</code> 像以前一样工作。和提取第一个结果不同，我们把它们组合起来，通过使用 <code>Set</code> 确保其唯一性。</p>
+<p><code>RemoteIndex</code> 提供了到远程服务器的一个 <code>Index</code> 接口。</p>
+<pre>
+class RemoteIndex(hosts: String) extends Index {
+  val transport = ClientBuilder()
+    .name("remoteIndex")
+    .hosts(hosts)
+    .codec(ThriftClientFramedCodec())
+    .hostConnectionLimit(1)
+    .timeout(500.milliseconds)
+    .build()
+  val client = new SearchbirdService.FinagledClient(transport)
+
+  def get(key: String) = client.get(key)
+  def put(key: String, value: String) = client.put(key, value) map { _ =&gt; () }
+  def search(query: String) = client.search(query) map { _.toList }
+}
+</pre>
+<p>这样就使用一些合理的默认值，调用代理，稍微调整类型，就构造出一个finagle thrift客户端。</p>
+<h3>全部放在一起</h3>
+<p>现在我们拥有了需要的所有功能。我们需要调整配置，以便能够调用一个给定的节点，不管是主节点亦或是数据分片节点。为了做到这一点，我们将通过创建一个新的配置项来在系统中枚举分片。我们还需要添加 <code>Index</code> 参数到我们的 <code>SearchbirdServiceImpl</code> 实例。然后，我们将使用命令行参数（还记得 <code>Config</code> 是如何做到的吗）在这两种模式中启动服务器。</p>
+<h5>&#8230;/config/SearchbirdServiceConfig.scala</h5>
+<pre>
+class SearchbirdServiceConfig extends ServerConfig[SearchbirdService.ThriftServer] {
+  var thriftPort: Int = 9999
+  var shards: Seq[String] = Seq()
+
+  def apply(runtime: RuntimeEnvironment) = {
+    val index = runtime.arguments.get("shard") match {
+      case Some(arg) =&gt;
+        val which = arg.toInt
+        if (which &gt;= shards.size || which &lt; 0)
+          throw new Exception("invalid shard number %d".format(which))
+
+        // override with the shard port
+        val Array(_, port) = shards(which).split(":")
+        thriftPort = port.toInt
+
+        new ResidentIndex
+
+      case None =&gt;
+        require(!shards.isEmpty)
+        val remotes = shards map { new RemoteIndex(_) }
+        new CompositeIndex(remotes)
+    }
+
+    new SearchbirdServiceImpl(this, index)
+  }
+}
+</pre>
+<p>现在，我们将调整配置：添加“分片”初始化到 <code>SearchbirdServiceConfig</code> 的初始化中（我们可以通过端口9000访问分片0，9001访问分片1，依次类推）。</p>
+<h5>config/development.scala</h5>
+<pre>
+new SearchbirdServiceConfig {
+  // Add your own config here
+  shards = Seq(
+    "localhost:9000",
+    "localhost:9001",
+    "localhost:9002"
+  )
+  ...
+</pre>
+<p>注释掉 <code>admin.httpPort</code> 的设置（我们不希望在同一台机器上运行多个服务，而不注释的话这些服务都会试图打开相同的端口）：</p>
+<pre>
+  // admin.httpPort = 9900
+</pre>
+<p>现在，如果我们不带任何参数调用我们的服务器程序，它会启动一个主节点来和所有分片通信。如果我们指定一个分片参数，它会在指定端口启动一个分片服务器。</p>
+<p>让我们试试吧！我们将启动3个服务：2个分片和1个主节点。首先编译改动：</p>
+<pre>
+$ ./sbt
+&gt; compile
+...
+&gt; exit
+</pre>
+<p>然后启动三个服务：</p>
+<pre>
+$ ./sbt 'run -f config/development.scala -D shard=0'
+$ ./sbt 'run -f config/development.scala -D shard=1'
+$ ./sbt 'run -f config/development.scala'
+</pre>
+<p>您可以在3个不同的窗口中分别运行，或在同一窗口开始依次逐个运行，等待其启动后，只用ctrl-z悬挂这个命令，并使用 <code>bg</code> 将它放在后台执行。</p>
+<p>然后，我们将通过控制台与它们进行互动。首先，让我们填充一些数据在两个分片节点。从searchbird目录运行：</p>
+<pre>
+$ ./console localhost 9000
+...
+&gt; client.put("fromShardA", "a value from SHARD_A")
+&gt; client.put("hello", "world")
+</pre>
+<pre>
+$ ./console localhost 9001
+...
+&gt; client.put("fromShardB", "a value from SHARD_B")
+&gt; client.put("hello", "world again")
+</pre>
+<p>一旦完成就可以退出这些控制台会话。现在通过主节点查询我们的数据库（9999端口）：</p>
+<pre>
+$ ./console localhost 9999
+[info] Running com.twitter.searchbird.SearchbirdConsoleClient localhost 9999
+'client' is bound to your thrift client.
+
+finagle-client&gt; Await.result(client.get("hello"))
+res0: String = world
+
+finagle-client&gt; Await.result(client.get("fromShardC"))
+SearchbirdException(No such key)
+...
+
+finagle-client&gt; Await.result(client.get("fromShardA"))
+res2: String = a value from SHARD_A
+
+finagle-client&gt; Await.result(client.search("hello"))
+res3: Seq[String] = ArrayBuffer()
+
+finagle-client&gt; Await.result(client.search("world"))
+res4: Seq[String] = ArrayBuffer(hello)
+
+finagle-client&gt; Await.result(client.search("value"))
+res5: Seq[String] = ArrayBuffer(fromShardA, fromShardB)
+</pre>
+<p>这个设计有多个数据抽象，允许更加模块化和可扩展的实现：</p>
+<ul>
+	<li><code>ResidentIndex</code> 数据结构对网络、服务器或客户端一无所知。</li>
+	<li><code>CompositeIndex</code> 对其索引构成的底层数据结构和组合方式一无所知；它只是简单地把请求分配给他们。</li>
+	<li>服务器相同的 <code>search</code> 接口（特质）允许服务器查询其本地数据结构(<code>ResidentIndex</code>) ，或分发到其他服务器(<code>CompositeIndex</code>) 查询，而不需要知道这个区别，这是从调用隐藏的。</li>
+	<li><code>SearchbirdServiceImpl</code> 和 <code>Index</code> 现在是相互独立的模块，这使服务实现变得简单，同时实现了服务和其数据结构之间的分离。</li>
+	<li>这个设计灵活到允许一个或多个远程索引运行在本地机器或远程机器上。</li>
+</ul>
+<p><!-- *_HELP Are the possible improvements below accurate?_* --></p>
+<p>这个实现的可能改进将包括：</p>
+<ul>
+	<li>当前的实现将 <code>put()</code> 调用发送到所有节点。取而代之，我们可以使用一个哈希表，将 <code>put()</code>调用只发送到一个节点，而在所有节点之间分配存储。
+	<ul>
+		<li>但是值得注意的是，在这个策略下我们失去了冗余。我们怎样在不需要完全复制的前提下保持一定的冗余度呢？</li>
+	</ul></li>
+	<li>当系统出错时我们没有做任何有趣的处理（例如我们没有处理任何异常）。</li>
+</ul>
+<p class="footnote" id="fn1"><a href="#fnr1"><sup>1</sup></a> 本地 <code>./sbt</code> 脚本只是保证该SBT版本和我们知道的所有库是一致的。</p>
+<p class="footnote" id="fn2"><a href="#fnr2"><sup>2</sup></a> 在 <code>target/gen-scala/com/twitter/searchbird/SearchbirdService.scala</code> 。</p>
+<p class="footnote" id="fn3"><a href="#fnr3"><sup>3</sup></a> 更多信息见Ostrich&#8217;s <a href="https://github.com/twitter/ostrich/blob/master/README.md"><span class="caps">README</span></a> 。</p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

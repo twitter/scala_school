@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Основы типов и полиморфизма</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">Основы типов и полиморфизма</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="pattern-matching-and-functional-composition.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="advanced-types.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>В этом уроке вы узнаете:</p>
+<ul>
+	<li>«Что такое статические типы?»:#background</li>
+	<li>«Типы в Scala»:#scala</li>
+	<li>«Параметрический полиморфизм»:#parametricpoly</li>
+	<li>«Вывод типа: Хиндли-Милнер и локальный вывод типа»:#inference</li>
+	<li>«Изменчивость»:#variance</li>
+	<li>«Ограничения»:#bounds</li>
+	<li>«Квантификация»:#quantification</li>
+</ul>
+<h2 id="background">Что такое статические типы? Почему они полезны?</h2>
+<p>По словам Пирса: «Система типов — это синтаксический способ для автоматической проверки отсутствия определенного ошибочного поведения, путем классификации фраз программы по видам значений, которые они вычисляют».</p>
+<p>Типы позволяют определить область определения функции и ее множество значений. Например, из математики, мы привыкли видеть:</p>
+<pre>
+f: R -&gt; N
+</pre>
+<p>это говорит нам, что функция «f» отображает значения из множества действительных чисел в значения множества натуральных чисел.</p>
+<p>Как-то абстрактно, это означает, что нам нужен <em>конкретный</em> тип. Система типов дает нам больше возможностей для выражения этих множеств.</p>
+<p>Учитывая эти замечания, компилятор теперь может <em>статически</em> (во время компиляции) проверить <em>корректность</em> программы. Это означает, что компиляция будет прервана, если значения (во время выполнения) не будут соответствовать ограничениям накладываемым программой.</p>
+<p>Вообще говоря, проверка типов может лишь гарантировать то, что <em>некорректные</em> программы не будут скомпилированы. Она не может гарантировать, что каждый вариант программы <em>будет</em> скомпилирован.</p>
+<p>С увеличением выразительности в системе типов, мы можем писать более надежный код, потому что это позволяет нам доказать инварианты в нашей программе еще ​​до того, как она заработает (по ошибкам самих типов в модуле, конечно!). Попытки научного сообщества расширить границы выразительности очень тяжелы, в том числе выразительность типов зависящих от значений!</p>
+<p>Обратите внимание, что вся информация о типе удаляется во время компиляции. Она больше не нужна. Это называется стиранием.</p>
+<h2 id="scala">Типы в Scala</h2>
+<p>Мощная система типов Scala позволяет писать очень богатые выражения. Вот главные особенности:</p>
+<ul>
+	<li><strong>параметрический полиморфизм</strong>, проще говоря, обобщенное программирование</li>
+	<li><strong>(локальный) вывод типа</strong>, проще говоря, вам не требуется писать так: <code>val i: Int = 12: Int</code></li>
+	<li><strong>квантор существования</strong>, проще говоря, определяется что-то <em>для некоторого</em> неименованного типа</li>
+	<li><strong>виды</strong> о них мы узнаем на следующей неделе, но если говорить проще, «преобразование» значений одного типа в другой.</li>
+</ul>
+<h2 id="parametricpoly">Параметрический полиморфизм</h2>
+<p>Полиморфизм используется для того, чтобы писать общий код (для значений различных типов) без ущерба для всего богатсва статической типизации.</p>
+<p>Например, без параметрического полиморфизма, общий список структур данных всегда будет выглядеть следующим образом (и это действительно выглядело так в Java до введения обобщенных типов):</p>
+<pre>
+scala&gt; 2 :: 1 :: "bar" :: "foo" :: Nil
+res5: List[Any] = List(2, 1, bar, foo)
+</pre>
+<p>Сейчас мы не можем восстановить информацию о типе каждого элемента списка</p>
+<pre>
+scala&gt; res5.head
+res6: Any = 2
+</pre>
+<p>и наше приложение будет опираться на ряд вызовов («asInstanceOf[]»), и у нас будет отсутствовать типобезопасность (потому что все вызовы динамические).</p>
+<p>Полиморфизм достигается через определение <em>типовых переменных</em>.</p>
+<pre>
+scala&gt; def drop1[A](l: List[A]) = l.tail
+drop1: [A](l: List[A])List[A]
+
+scala&gt; drop1(List(1,2,3))
+res1: List[Int] = List(2, 3)
+</pre>
+<h3>Scala обладает полиморфизмом 1-го ранга</h3>
+<p>Проще говоря, это означает, что существуют некоторые концепции типов, которые вы захотите использовать в Scala, и которые являются «слишком общими» для компилятора, чтобы он их понял. Предположим, у вас есть некоторые функции</p>
+<pre>
+def toList[A](a: A) = List(a)
+</pre>
+<p>которые вы хотите использовать:</p>
+<pre>
+def foo[A, B](f: A =&gt; List[A], b: B) = f(b)
+</pre>
+<p>Это определение не скомпилируется, потому что все типовые переменные должны быть определены при вызове. Даже если вы «точно объявили» тип <code>B</code>,</p>
+<pre>
+def foo[A](f: A =&gt; List[A], i: Int) = f(i)
+</pre>
+<p>&#8230; вы получите ошибку типа.</p>
+<h2 id="inference">Вывод типа</h2>
+<p>Традиционным возражением против статической типизации является то, что она имеет много синтаксических накладных расходов. Scala снимает это ограничение путем предоставления <em>вывода типа</em>.</p>
+<p>Классический метод для вывода типов в функциональных языках программирования &#8211; это метод <em>Хиндли-Милнер</em>, который был впервые применен в ML.</p>
+<p>Система вывода типов в Scala работает немного по-другому, но близка по духу: выводить ограничения и пытаться определить тип.</p>
+<p>В Scala, например, вы не можете выполнить следующие действия:</p>
+<pre>
+scala&gt; { x =&gt; x }
+&lt;console&gt;:7: error: missing parameter type
+       { x =&gt; x }
+</pre>
+<p>Хотя в OCaml, вы можете:</p>
+<pre>
+# fun x -&gt; x;;
+- : 'a -&gt; 'a = &lt;fun&gt;
+</pre>
+<p>В Scala все типы выводятся <em>на месте</em>. Скала считывает одно выражение за раз. Например:</p>
+<pre>
+scala&gt; def id[T](x: T) = x
+id: [T](x: T)T
+
+scala&gt; val x = id(322)
+x: Int = 322
+
+scala&gt; val x = id("hey")
+x: java.lang.String = hey
+
+scala&gt; val x = id(Array(1,2,3,4))
+x: Array[Int] = Array(1, 2, 3, 4)
+</pre>
+<p>Сейчас типы определены, Scala компилятор вывел типовый параметр для нас. Отметим также, что нам не нужно указывать тип возвращаемого значения явно.</p>
+<h2 id="variance">Изменчивость</h2>
+<p>Система типов Scala составляет иерархию классов вместе с полиморфизмом. Иерархия классов позволяет определять отношения для подтипов. Главный вопрос, который появляется при смешивании ООП с полиморфизмом: если <tt>T&#8217;</tt> является подклассом <tt>T</tt>, является ли <tt>Container[T&#8217;]</tt> подклассом <tt>Container[T]</tt>? Разница в замечаниях позволяет выразить следующие отношения между иерархией классов и полиморфными типами:</p>
+<table>
+	<tr>
+		<td>                </td>
+		<td><strong>Означает</strong>                    </td>
+		<td> <strong>Нотация языка Scala</strong></td>
+	</tr>
+	<tr>
+		<td><strong>ковариант</strong>     </td>
+		<td>C[T&#8217;] это подкласс класса C[T]</td>
+		<td> [+T]</td>
+	</tr>
+	<tr>
+		<td><strong>контрвариант</strong>  </td>
+		<td>C[T] это подкласс класса C[T&#8217;]</td>
+		<td> [-T]</td>
+	</tr>
+	<tr>
+		<td><strong>инвариант</strong>     </td>
+		<td>C[T] и C[T&#8217;] не взаимосвязаны </td>
+		<td> [T] </td>
+	</tr>
+</table>
+<p>Связь подтипа на самом деле означает: если T&#8217; является подтипом, для данного типа T, можете ли вы заменить его?</p>
+<pre>
+scala&gt; class Covariant[+A]
+defined class Covariant
+
+scala&gt; val cv: Covariant[AnyRef] = new Covariant[String]
+cv: Covariant[AnyRef] = Covariant@4035acf6
+
+scala&gt; val cv: Covariant[String] = new Covariant[AnyRef]
+&lt;console&gt;:6: error: type mismatch;
+ found   : Covariant[AnyRef]
+ required: Covariant[String]
+       val cv: Covariant[String] = new Covariant[AnyRef]
+                                   ^
+</pre>
+
+<pre>
+scala&gt; class Contravariant[-A]
+defined class Contravariant
+
+scala&gt; val cv: Contravariant[String] = new Contravariant[AnyRef]
+cv: Contravariant[AnyRef] = Contravariant@49fa7ba
+
+scala&gt; val fail: Contravariant[AnyRef] = new Contravariant[String]
+&lt;console&gt;:6: error: type mismatch;
+ found   : Contravariant[String]
+ required: Contravariant[AnyRef]
+       val fail: Contravariant[AnyRef] = new Contravariant[String]
+                                     ^
+</pre>
+<p>контрвариант выглядит странным. Когда он используется? Небольшой сюрприз!</p>
+<pre>
+trait Function1 [-T1, +R] extends AnyRef
+</pre>
+<p>Если вы думаете о замещении, в этом есть смысл. Давайте сначала определим простую иерархию классов:</p>
+<pre>
+scala&gt; class Animal { val sound = "rustle" }
+defined class Animal
+
+scala&gt; class Bird extends Animal { override val sound = "call" }
+defined class Bird
+
+scala&gt; class Chicken extends Bird { override val sound = "cluck" }
+defined class Chicken
+</pre>
+<p>Допустим вам нужна функция, которая принимает параметр <code>Bird</code>:</p>
+<pre>
+scala&gt; val getTweet: (Bird =&gt; String) = // TODO
+</pre>
+<p>Простая библиотека животных имеет функцию, которая делает то, что вам нужно, но она принимает параметр <code>Animal</code>.  В большинстве ситуаций, если вы говорите «Мне нужно ___, у меня есть подкласс класса ___», все будет хорошо. Но параметры функции контрвариантны. Если вам нужна функция, которая принимает параметр <code>Bird</code> и у вас есть функция которая принимает параметр <code>Chicken</code>, функция будет «шокирована» параметром <code>Duck</code>. Но с функцией, которая принимает параметр <code>Animal</code> все будет хорошо:</p>
+<pre>
+scala&gt; val getTweet: (Bird =&gt; String) = ((a: Animal) =&gt; a.sound )
+getTweet: Bird =&gt; String = &lt;function1&gt;
+</pre>
+<p>Возвращаемый тип значения функции — ковариантен. Если вам нужна функция, которая возвращает <code>Bird</code>, но имеется функция, которая возвращает <code>Chicken</code>, то все хорошо.</p>
+<pre>
+scala&gt; val hatch: (() =&gt; Bird) = (() =&gt; new Chicken )
+hatch: () =&gt; Bird = &lt;function0&gt;
+</pre>
+<h2 id="bounds">Ограничения</h2>
+<p>Scala позволяет ограничить полиморфные переменные, используя <em>ограничения</em>. Эти ограничения отражают отношения подтипов.</p>
+<pre>
+scala&gt; def cacophony[T](things: Seq[T]) = things map (_.sound)
+&lt;console&gt;:7: error: value sound is not a member of type parameter T
+       def cacophony[T](things: Seq[T]) = things map (_.sound)
+                                                        ^
+
+scala&gt; def biophony[T &lt;: Animal](things: Seq[T]) = things map (_.sound)
+biophony: [T &lt;: Animal](things: Seq[T])Seq[java.lang.String]
+
+scala&gt; biophony(Seq(new Chicken, new Bird))
+res5: Seq[java.lang.String] = List(cluck, call)
+</pre>
+<p>Нижние границы типа, также поддерживаются. Они связаны с контрвариантом. Скажем, у нас есть некоторый класс Node:</p>
+<pre>
+scala&gt; class Node[T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+</pre>
+<p>Но мы хотим сделать ковариантным тип T:</p>
+<pre>
+scala&gt; class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+&lt;console&gt;:6: error: covariant type T occurs in contravariant position in type T of value v
+       class Node[+T](x: T) { def sub(v: T): Node[T] = new Node(v) }
+                                      ^
+</pre>
+<p>Напомним, что аргументы метода являются контрвариантными, и поэтому, если мы выполняем нашу замену, используя те же классы, как и раньше:</p>
+<pre>
+class Node[Bird](x: Bird) { def sub(v: Bird): Node[Bird] = new Node(v) }
+</pre>
+<p>этот класс <strong>не является</strong> подклассом класса</p>
+<pre>
+class Node[Animal](x: Animal) { def sub(v: Animal): Node[Animal] = new Node(v) }
+</pre>
+<p>потому что Animal не может быть заменен на Bird внутри «sub». Тем не менее, мы можем использовать нижнюю границу для обеспечения корректности.</p>
+<pre>
+scala&gt; class Node[+T](x: T) { def sub[U &gt;: T](v: U): Node[U] = new Node(v) }
+defined class Node
+
+scala&gt; (new Node(new Bird)).sub(new Bird)
+res5: Node[Bird] = Node@4efade06
+
+scala&gt; ((new Node(new Bird)).sub(new Bird)).sub(new Animal)
+res6: Node[Animal] = Node@1b2b2f7f
+
+scala&gt; ((new Node(new Bird)).sub(new Bird)).asInstanceOf[Node[Chicken]]
+res7: Node[Chicken] = Node@6924181b
+
+scala&gt; (((new Node(new Bird)).sub(new Bird)).sub(new Animal)).sub(new Chicken)
+res8: Node[Animal] = Node@3088890d
+</pre>
+<p>Заметьте также как тип изменяется в последующих вызовах «sub».</p>
+<h2 id="quantification">Квантификация</h2>
+<p>Иногда вы не заботитесь о том, чтобы дать имя типовой переменной, например:</p>
+<pre>
+scala&gt; def count[A](l: List[A]) = l.size
+count: [A](List[A])Int
+</pre>
+<p>Вместо этого вы можете использовать «заменитель»:</p>
+<pre>
+scala&gt; def count(l: List[_]) = l.size
+count: (List[_])Int
+</pre>
+<p>Это короткая запись для:</p>
+<pre>
+scala&gt; def count(l: List[T forSome { type T }]) = l.size
+count: (List[T forSome { type T }])Int
+</pre>
+<p>Заметьте, что квантификация может получиться сложной:</p>
+<pre>
+scala&gt; def drop1(l: List[_]) = l.tail
+drop1: (List[_])List[Any]
+</pre>
+<p>А вдруг мы потеряли информацию о типе! Чтобы понять, что происходит, вернемся к «зубодробительному» синтаксису:</p>
+<pre>
+scala&gt; def drop1(l: List[T forSome { type T }]) = l.tail
+drop1: (List[T forSome { type T }])List[T forSome { type T }]
+</pre>
+<p>Мы не можем ничего сказать о T, потому что тип не позволяет это сделать.</p>
+<p>Вы можете также применять ограничения для замены типовых переменных:</p>
+<pre>
+scala&gt; def hashcodes(l: Seq[_ &lt;: AnyRef]) = l map (_.hashCode)
+hashcodes: (Seq[_ &lt;: AnyRef])Seq[Int]
+
+scala&gt; hashcodes(Seq(1,2,3))
+&lt;console&gt;:7: error: type mismatch;
+ found   : Int(1)
+ required: AnyRef
+Note: primitive types are not implicitly converted to AnyRef.
+You can safely force boxing by casting x.asInstanceOf[AnyRef].
+       hashcodes(Seq(1,2,3))
+                     ^
+
+scala&gt; hashcodes(Seq("one", "two", "three"))
+res1: Seq[Int] = List(110182, 115276, 110339486)
+</pre>
+<p><strong>Смотрите также:</strong> <a href="https://www.drmaciver.com/2008/03/existential-types-in-scala/">Реальные типы в Scala от D. R. MacIver</a></p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>
