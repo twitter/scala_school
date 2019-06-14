@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - More collections</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">More collections</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="sbt.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="specs.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>Scala提供了一套很好的集合实现，提供了一些集合类型的抽象。这让你的代码可以与<code>Foo</code>的集合交互，而无需担心该集合是是一个<code>List</code>，还是<code>Set</code>，或是任何你有的类型。</p>
+<p><a href="https://www.decodified.com/scala/collections-api.xml">这里</a> 提供了一个很好的页面来查看各种集合的默认实现，并链接到他们的scala在线文档。</p>
+<ul>
+	<li><a href="#basics">基础知识</a> 你会随时用到的基本集合类型</li>
+	<li><a href="#hierarchy">层次结构</a> 集合抽象层次</li>
+	<li><a href="#methods">方法</a> 方法</li>
+	<li><a href="#mutable">可变集合</a> 可变</li>
+	<li><a href="#java">Java集合</a> 与java集合交互</li>
+</ul>
+<h2 id="basics">基础知识</h2>
+<h3>表 List</h3>
+<p>标准的链表。</p>
+<pre>
+scala&gt; List(1, 2, 3)
+res0: List[Int] = List(1, 2, 3)
+</pre>
+<p>你可以用函数式语言的方式连接它们。</p>
+<pre>
+scala&gt; 1 :: 2 :: 3 :: Nil
+res1: List[Int] = List(1, 2, 3)
+</pre>
+<p><strong>参考</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/immutable/List.html">API文档</a></p>
+<h3>集 Set</h3>
+<p>集没有重复</p>
+<pre>
+scala&gt; Set(1, 1, 2)
+res2: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+<p><strong>参考</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/immutable/Set.html">API文档</a></p>
+<h3>序列 Seq</h3>
+<p>序列有一个给定的顺序。</p>
+<pre>
+scala&gt; Seq(1, 1, 2)
+res3: Seq[Int] = List(1, 1, 2)
+</pre>
+<p>（请注意返回的是一个列表。因为<code>Seq</code>是一个特质；而列表是序列的很好实现。如你所见，<code>Seq</code>也是一个工厂单例对象，可以用来创建列表。）</p>
+<p><strong>参考</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/Seq.html">API文档</a></p>
+<h3>映射 Map</h3>
+<p>映射是键值容器。</p>
+<pre>
+scala&gt; Map('a' -&gt; 1, 'b' -&gt; 2)
+res4: scala.collection.immutable.Map[Char,Int] = Map((a,1), (b,2))
+</pre>
+<p><strong>参考</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/immutable/Map.html">API文档</a></p>
+<h2 id="hierarchy">层次结构</h2>
+<p>下面介绍的都是特质，它们在可变的（mutable）和不可变的（immutable）的包中都有特定实现。</p>
+<h3>Traversable</h3>
+<p>所有集合都可以被遍历。这个特质定义了标准函数组合子。 这些组合子根据 <code>foreach</code> 来写，所有集合必须实现。</p>
+<p><strong>参考</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/Traversable.html">API文档</a></p>
+<h3>Iterable</h3>
+<p><code>iterator()</code>方法返回一个Iterator来迭代元素。</p>
+<p><strong>参考</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/Iterable.html">API文档</a></p>
+<h3>Seq 序列</h3>
+<p>有顺序的对象序列。</p>
+<p><strong>参考</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/Seq.html">API文档</a></p>
+<h3>Set 集</h3>
+<p>没有重复的对象集合。</p>
+<p><strong>参考</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/immutable/Set.html">API文档</a></p>
+<h3>Map</h3>
+<p>键值对。</p>
+<p><strong>参考</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/immutable/Map.html">API文档</a></p>
+<h2 id="methods">方法</h2>
+<h3>Traversable</h3>
+<p>下面所有方法在子类中都是可用的。参数和返回值的类型可能会因为子类的覆盖而看起来不同。</p>
+<pre>
+def head : A
+def tail : Traversable[A]
+</pre>
+<p>这里是函数组合子定义的地方。</p>
+<p><code>
+def map [B] (f: (A) =&gt; B) : CC[B]
+</code></p>
+<p>返回每个元素都被 <code>f</code> 转化的集合</p>
+<p><code>
+def foreach[U](f: Elem =&gt; U): Unit
+</code></p>
+<p>在集合中的每个元素上执行 <code>f</code> 。</p>
+<p><code>
+def find (p: (A) =&gt; Boolean) : Option[A]
+</code></p>
+<p>返回匹配谓词函数的第一个元素</p>
+<p><code>
+def filter (p: (A) =&gt; Boolean) : Traversable[A]
+</code></p>
+<p>返回所有匹配谓词函数的元素集合</p>
+<p>划分：</p>
+<p><code>
+def partition (p: (A) ⇒ Boolean) : (Traversable[A], Traversable[A])
+</code></p>
+<p>按照谓词函数把一个集合分割成两部分</p>
+<p><code>
+def groupBy [K] (f: (A) =&gt; K) : Map[K, Traversable[A]]
+</code></p>
+<p>转换：</p>
+<p>有趣的是，你可以转换集合类型。</p>
+<pre>
+def toArray : Array[A]
+def toArray [B &gt;: A] (implicit arg0: ClassManifest[B]) : Array[B]
+def toBuffer [B &gt;: A] : Buffer[B]
+def toIndexedSeq [B &gt;: A] : IndexedSeq[B]
+def toIterable : Iterable[A]
+def toIterator : Iterator[A]
+def toList : List[A]
+def toMap [T, U] (implicit ev: &lt;:&lt;[A, (T, U)]) : Map[T, U]
+def toSeq : Seq[A]
+def toSet [B &gt;: A] : Set[B]
+def toStream : Stream[A]
+def toString () : String
+def toTraversable : Traversable[A]
+</pre>
+<p>把映射转换为一个数组，您会得到一个键值对的数组。</p>
+<pre>
+scala&gt; Map(1 -&gt; 2).toArray
+res41: Array[(Int, Int)] = Array((1,2))
+</pre>
+<h3>Iterable</h3>
+<p>添加一个迭代器的访问。</p>
+<pre>
+  def iterator: Iterator[A]
+</pre>
+<p>一个迭代器能给你提供什么？</p>
+<pre>
+def hasNext(): Boolean
+def next(): A
+</pre>
+<p>这是非常Java式的。你通常不会看到在Scala中使用迭代器，通常更容易出现的是函数组合器或for循环的使用。</p>
+<h3>Set</h3>
+<pre>
+  def contains(key: A): Boolean
+  def +(elem: A): Set[A]
+  def -(elem: A): Set[A]
+</pre>
+<h3>Map</h3>
+<p>通过键查找的键值对的序列。</p>
+<p>可以像这样将一个键值对列表传入apply()</p>
+<pre>
+scala&gt; Map("a" -&gt; 1, "b" -&gt; 2)
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2))
+</pre>
+<p>或者像这样：</p>
+<pre>
+scala&gt; Map(("a", 2), ("b", 2))
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,2), (b,2))
+</pre>
+<h6>题外话</h6>
+<p>什么是<code>-&gt;</code>？这不是特殊的语法，这是一个返回元组的方法。</p>
+<pre>
+scala&gt; "a" -&gt; 2
+
+res0: (java.lang.String, Int) = (a,2)
+</pre>
+<p>请记住，这仅仅是下面代码的语法糖</p>
+<pre>
+scala&gt; "a".-&gt;(2)
+
+res1: (java.lang.String, Int) = (a,2)
+</pre>
+<p>您也可以使用<code>++</code>操作符构建</p>
+<pre>
+scala&gt; Map.empty ++ List(("a", 1), ("b", 2), ("c", 3))
+res0: scala.collection.immutable.Map[java.lang.String,Int] = Map((a,1), (b,2), (c,3))
+</pre>
+<h3>常用的子类</h3>
+<p><strong>HashSet和HashMap</strong> 的快速查找，这些集合的最常用的形式。 <a href="https://www.scala-lang.org/api/current/scala/collection/immutable/HashSet.html">HashSet <span class="caps">API</span></a>, <a href="https://www.scala-lang.org/api/current/scala/collection/immutable/HashMap.html">HashMap <span class="caps">API</span></a></p>
+<p><strong>TreeMap</strong> 是SortedMap的一个子类，它可以让你进行有序访问。 <a href="https://www.scala-lang.org/api/current/scala/collection/immutable/TreeMap.html">TreeMap <span class="caps">API</span></a></p>
+<p><strong>Vector</strong> 快速随机选择和快速更新。 <a href="https://www.scala-lang.org/api/current/scala/collection/immutable/Vector.html">Vector <span class="caps">API</span></a></p>
+<pre>
+scala&gt; IndexedSeq(1, 2, 3)
+res0: IndexedSeq[Int] = Vector(1, 2, 3)
+</pre>
+<p><strong>Range</strong> 等间隔的Int有序序列。你经常会在for循环看到。 <a href="https://www.scala-lang.org/api/current/scala/collection/immutable/Range.html">Range <span class="caps">API</span></a></p>
+<pre>
+scala&gt; for (i &lt;- 1 to 3) { println(i) }
+1
+2
+3
+</pre>
+<p>Ranges支持标准的函数组合子。</p>
+<pre>
+scala&gt; (1 to 3).map { i =&gt; i }
+res0: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 2, 3)
+</pre>
+<h3>默认实现</h3>
+<p>使用特质的apply方法会给你默认实现的实例，例如，Iterable(1, 2)会返回一个列表作为其默认实现。</p>
+<pre>
+scala&gt; Iterable(1, 2)
+
+res0: Iterable[Int] = List(1, 2)
+</pre>
+<p>序列Seq也是一样的，正如我们前面所看到的</p>
+<pre>
+scala&gt; Seq(1, 2)
+res3: Seq[Int] = List(1, 2)
+
+scala&gt; Iterable(1, 2)
+res1: Iterable[Int] = List(1, 2)
+
+scala&gt; Sequence(1, 2)
+warning: there were deprecation warnings; re-run with -deprecation for details
+res2: Seq[Int] = List(1, 2)
+</pre>
+<p>Set</p>
+<pre>
+scala&gt; Set(1, 2)
+res31: scala.collection.immutable.Set[Int] = Set(1, 2)
+</pre>
+<h3>一些描述性的特质</h3>
+<p><strong>IndexedSeq</strong> 快速随机访问元素和一个快速的长度操作。&quot;API 文档&quot;:https://www.scala-lang.org/api/current/scala/collection/IndexedSeq.html</p>
+<p><strong>LinearSeq</strong> 通过head快速访问第一个元素，也有一个快速的tail操作。 <a href="https://www.scala-lang.org/api/current/scala/collection/LinearSeq.html">API文档</a></p>
+<h4>可变 vs 不可变</h4>
+<p>不可变</p>
+<p>优点</p>
+<ul>
+	<li>在多线程中不会改变</li>
+</ul>
+<p>缺点</p>
+<ul>
+	<li>一点也不能改变</li>
+</ul>
+<p>Scala允许我们是务实的，它鼓励不变性，但不惩罚我们需要的可变性。这和var vs. val非常相似。我们总是先从val开始并在必要时回退为var。</p>
+<p>我们赞成使用不可改变的版本的集合，但如果性能使然，也可以切换到可变的。使用不可变集合意味着你在多线程不会意外地改变事物。</p>
+<h2 id="mutable">可变集合</h2>
+<p>前面讨论的所有类都是不可变的。让我们来讨论常用的可变集合。</p>
+<p><strong>HashMap</strong> 定义了 <code>getOrElseUpdate</code>, <code>+=</code> <a href="https://www.scala-lang.org/api/current/scala/collection/mutable/HashMap.html">HashMap <span class="caps">API</span></a></p>
+<pre>
+scala&gt; val numbers = collection.mutable.Map(1 -&gt; 2)
+numbers: scala.collection.mutable.Map[Int,Int] = Map((1,2))
+
+scala&gt; numbers.get(1)
+res0: Option[Int] = Some(2)
+
+scala&gt; numbers.getOrElseUpdate(2, 3)
+res54: Int = 3
+
+scala&gt; numbers
+res55: scala.collection.mutable.Map[Int,Int] = Map((2,3), (1,2))
+
+scala&gt; numbers += (4 -&gt; 1)
+res56: numbers.type = Map((2,3), (4,1), (1,2))
+</pre>
+<p><strong>ListBuffer和ArrayBuffer</strong> 定义 <code>+=</code>        <a href="https://www.scala-lang.org/api/current/scala/collection/mutable/ListBuffer.html">ListBuffer <span class="caps">API</span></a>, <a href="https://www.scala-lang.org/api/current/scala/collection/mutable/ArrayBuffer.html">ArrayBuffer <span class="caps">API</span></a></p>
+<p><strong>LinkedList and DoubleLinkedList</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html">LinkedList <span class="caps">API</span></a>, <a href="https://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html">DoubleLinkedList <span class="caps">API</span></a><br />
+<strong>LinkedList和DoubleLinkedList</strong>    <a href="https://www.scala-lang.org/api/current/scala/collection/mutable/LinkedList.html">LinkedList <span class="caps">API</span></a>, <a href="https://www.scala-lang.org/api/current/scala/collection/mutable/DoubleLinkedList.html">DoubleLinkedList <span class="caps">API</span></a></p>
+<p><strong>PriorityQueue</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/mutable/PriorityQueue.html"><span class="caps">API</span> 文档</a></p>
+<p><strong>Stack 和 ArrayStack</strong> <a href="https://www.scala-lang.org/api/current/scala/collection/mutable/Stack.html">Stack <span class="caps">API</span></a>, <a href="https://www.scala-lang.org/api/current/scala/collection/mutable/ArrayStack.html">ArrayStack <span class="caps">API</span></a></p>
+<p><strong>StringBuilder</strong> 有趣的是，StringBuilder的是一个集合。                            <a href="https://www.scala-lang.org/api/current/scala/collection/mutable/StringBuilder.html">API文档</a></p>
+<h2 id="java">与Java生活</h2>
+<p>您可以通过<a href="https://www.scala-lang.org/api/current/index.html#scala.collection.JavaConverters$">JavaConverters package</a>轻松地在Java和Scala的集合类型之间转换。它用<code>asScala</code> 装饰常用的Java集合以和用<code>asJava</code> 方法装饰Scala集合。</p>
+<pre>
+   import scala.collection.JavaConverters._
+   val sl = new scala.collection.mutable.ListBuffer[Int]
+   val jl : java.util.List[Int] = sl.asJava
+   val sl2 : scala.collection.mutable.Buffer[Int] = jl.asScala
+   assert(sl eq sl2)
+</pre>
+<p>双向转换：</p>
+<pre>
+scala.collection.Iterable &lt;=&gt; java.lang.Iterable
+scala.collection.Iterable &lt;=&gt; java.util.Collection
+scala.collection.Iterator &lt;=&gt; java.util.{ Iterator, Enumeration }
+scala.collection.mutable.Buffer &lt;=&gt; java.util.List
+scala.collection.mutable.Set &lt;=&gt; java.util.Set
+scala.collection.mutable.Map &lt;=&gt; java.util.{ Map, Dictionary }
+scala.collection.mutable.ConcurrentMap &lt;=&gt; java.util.concurrent.ConcurrentMap
+</pre>
+<p>此外，也提供了以下单向转换</p>
+<pre>
+scala.collection.Seq =&gt; java.util.List
+scala.collection.mutable.Seq =&gt; java.util.List
+scala.collection.Set =&gt; java.util.Set
+scala.collection.Map =&gt; java.util.Map
+</pre>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

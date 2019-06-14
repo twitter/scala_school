@@ -1,0 +1,10 @@
+lib_managed/
+target/
+dist/
+project/boot/
+project/plugins/project/
+project/plugins/src_managed/
+*.log
+*.tmproj
+.DS_Store
+*.swp

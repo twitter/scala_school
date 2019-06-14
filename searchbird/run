@@ -1,0 +1,125 @@
+#!/bin/bash
+
+function path_append {
+  _var=$1
+  _path=$2
+  eval "
+    if [[ -z \"\$$_var\" ]] ; then
+      export $_var=$_path
+    elif ! echo \$$_var | egrep -q \"(^|:)$_path($|:)\" ; then
+      export $_var=\$$_var:$_path
+    fi"
+}
+
+function path_prepend() {
+    _var=$1
+    _path=$2
+    eval "
+    if [[ -z \"\$$_var\" ]] ; then
+      export $_var=$_path
+    elif ! echo \$$_var | egrep -q \"(^|:)$_path($|:)\" ; then
+      export $_var=$_path:\$$_var
+    fi"
+}
+
+function find_sbt_root {
+  while [ ! -d project -a "x$PWD" != "x/" ] ; do
+    cd ..
+  done
+
+  if [ "x$PWD" = "/" ]; then
+    echo "couldn't find sbt project!" 1>&2
+    exit 1
+  fi
+
+  echo $PWD
+}
+
+function ensure_java_bin_on_path {
+  if [ -d "$JAVA_HOME" ]; then
+      __java_bindir="$JAVA_HOME/bin"
+  else
+      __java_bindir=`which java | xargs readlink | xargs dirname`
+  fi
+
+  if [ -x "$__java_bindir/java" ]; then
+    path_append PATH $__java_bindir
+  else
+    echo "Binary 'java' is not on the PATH, and JAVA_HOME is not set. Fix one of these."
+    exit 1
+  fi
+}
+
+function include {
+  _var=$1
+  _dir=$2
+
+  for jar in $_dir/lib_managed/compile/*.jar; do
+    path_append $_var $jar
+  done
+
+  for jar in $_dir/lib/*.jar; do
+    path_append $_var $jar
+  done
+
+  path_append $_var $_dir/src/main/resources
+  path_append $_var $_dir/target/classes
+}
+
+ensure_java_bin_on_path
+
+root=$(find_sbt_root)
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
+if [ -z $project ]; then
+  project="."
+fi
+
+set -- $(getopt i:ygdh: "$@")
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -i)
+      include CP $2
+      ;;
+    -y)
+      JAVA_OPTS="-agentlib:yjpagent $JAVA_OPTS"
+      ;;
+    -g)
+      GC_OPTS="-verbosegc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -Xloggc:/tmp/gc.log"
+      ;;
+    -d)
+      JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n $JAVA_OPTS"
+      ;;
+    -h)
+      path_prepend DYLD_LIBRARY_PATH $2
+      JAVA_OPTS="-Xbootclasspath/a:$2 -agentlib:heapster $JAVA_OPTS"
+      ;;
+    --) shift; break;;
+  esac
+  shift
+done
+
+if [ $# -eq 0 ]; then
+    echo "usage: $0 [-i INCLUDE] [-h HEAPSTER] [-ygd] CLASS ..." >&2
+    echo "  -i INCLUDE include in the classpath the project with the sbt root INCLUDE" >&2 
+    echo "  -h HEAPSTER use heapster in the directory HEAPSTER"  >&2
+    echo "  -y enable yourkit debugging" >&2
+    echo "  -g enable GC debugging/logging" >&2
+    echo "  -d enable JVM debugging" >&2
+    exit 1
+fi
+
+## Set up the classpath. Scala base jars first.
+path_prepend CP $root/project/boot/scala-2.8.1/lib/scala-library.jar
+path_prepend CP $root/project/boot/scala-2.8.1/lib/scala-compiler.jar
+
+# This goes last:
+include CP $root
+
+# Disable IPv6
+export JAVA_OPTS="-Djava.net.preferIPv4Stack=true $JAVA_OPTS"
+
+export JAVA_OPTS="$JAVA_OPTS -server -Xmx2G -XX:MaxPermSize=256m -XX:+UseConcMarkSweepGC -XX:+UseParNewGC $GC_OPTS"
+exec java $JAVA_OPTS -cp $CP "$@"

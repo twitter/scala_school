@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Параллельность в Scala</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">Параллельность в Scala</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="specs.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="java.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <ul>
+	<li><a href="#runnable">Runnable/Callable</a></li>
+	<li><a href="#Thread">Потоки</a></li>
+	<li><a href="#executor">Executors/ExecutorService</a></li>
+	<li><a href="#Future">Futures</a></li>
+	<li><a href="#danger">Проблема безопасности потока</a></li>
+	<li><a href="#example">Пример: Поисковый движок</a></li>
+	<li><a href="#solutions">Решения</a></li>
+</ul>
+<h2 id="runnable">Runnable/Callable</h2>
+<p>Runnable имеет один метод, который не возвращает значения.</p>
+<pre>
+trait Runnable {
+  def run(): Unit
+}
+</pre>
+<p>Callable за исключением предыдущего трейта возвращает значение</p>
+<pre>
+trait Callable[V] {
+  def call(): V
+}
+</pre>
+<h2 id="Thread">Потоки</h2>
+<p>Параллельные вычисления в Scala построены поверх модели параллельных вычислений в Java.</p>
+<p>На Sun <span class="caps">JVM</span>, с большой нагрузкой на IO, мы можем запустить десятки тысяч потоков на одном компьютере.</p>
+<p>Thread принимает параметром Runnable. Вы должны вызвать <code>start</code> в Thread, для того чтобы запустить Runnable.</p>
+<pre>
+scala&gt; val hello = new Thread(new Runnable {
+  def run() {
+    println("hello world")
+  }
+})
+hello: java.lang.Thread = Thread[Thread-3,5,main]
+
+scala&gt; hello.start
+hello world
+
+</pre>
+<p>Когда вы видите класс реализующий Runnable, знайте, что он предназначен для запуска кем-то в Thread определенной работы.</p>
+<h3>Что-нибудь однопоточное</h3>
+<p>Ниже представлен кусочек кода, который работает, но имеет некоторые проблемы</p>
+<pre>
+import java.net.{Socket, ServerSocket}
+import java.util.concurrent.{Executors, ExecutorService}
+import java.util.Date
+
+class NetworkService(port: Int, poolSize: Int) extends Runnable {
+  val serverSocket = new ServerSocket(port)
+
+  def run() {
+    while (true) {
+      // Здесь будет блокировка, пока не произойдет соединение.
+      val socket = serverSocket.accept()
+      (new Handler(socket)).run()
+    }
+  }
+}
+
+class Handler(socket: Socket) extends Runnable {
+  def message = (Thread.currentThread.getName() + "\n").getBytes
+
+  def run() {
+    socket.getOutputStream.write(message)
+    socket.getOutputStream.close()
+  }
+}
+
+(new NetworkService(2020, 2)).run
+</pre>
+<p>Каждый запрос будет посылать ответ с именем текущего потока, который всегда <code>main</code>.</p>
+<p>Основным недостатком этого кода является то, что только один запрос может отвечать в данный момент!</p>
+<p>Вы можете поместить каждый запрос в Thread. Просто поменяйте</p>
+<pre>
+(new Handler(socket)).run()
+</pre>
+<p>на</p>
+<pre>
+(new Thread(new Handler(socket))).start()
+</pre>
+<p>а вдруг вам захочется заново использовать потоки или изменить политику поведения потока?</p>
+<h2 id="executor">Executors</h2>
+<p>С релизом Java 5, было решено, что требуется более абстрактный интерфейс для Потоков.</p>
+<p>Вы можете получить <code>ExecutorService</code>, используя статические методы с объектом <code>Executors</code>. Эти методы позволяют вам конфигурировать <code>ExecutorService</code> с множеством возможностей, таких как пул потоков.</p>
+<p>Ниже представлен наш старый блокирующий сетевой сервер, позовляющий использовать параллельные запросы.</p>
+<pre>
+import java.net.{Socket, ServerSocket}
+import java.util.concurrent.{Executors, ExecutorService}
+import java.util.Date
+
+class NetworkService(port: Int, poolSize: Int) extends Runnable {
+  val serverSocket = new ServerSocket(port)
+  val pool: ExecutorService = Executors.newFixedThreadPool(poolSize)
+
+  def run() {
+    try {
+      while (true) {
+        // This will block until a connection comes in.
+        val socket = serverSocket.accept()
+        pool.execute(new Handler(socket))
+      }
+    } finally {
+      pool.shutdown()
+    }
+  }
+}
+
+class Handler(socket: Socket) extends Runnable {
+  def message = (Thread.currentThread.getName() + "\n").getBytes
+
+  def run() {
+    socket.getOutputStream.write(message)
+    socket.getOutputStream.close()
+  }
+}
+
+(new NetworkService(2020, 2)).run
+</pre>
+<p>Ниже, представленные соединения показывают, как внутренние потоки могут использоваться повторно.</p>
+<pre>
+$ nc localhost 2020
+pool-1-thread-1
+
+$ nc localhost 2020
+pool-1-thread-2
+
+$ nc localhost 2020
+pool-1-thread-1
+
+$ nc localhost 2020
+pool-1-thread-2
+</pre>
+<h2 id="Future">Futures</h2>
+<p><code>Future</code> предоставляет возможность асинхронных вычислений. Вы можете обернуть ваши вычисления с помощью Future и когда вам будет нужен результат, вы просто вызовите блокирование метода <code>get()</code>.  <code>Executor</code> возвращают <code>Future</code>.</p>
+<p><code>FutureTask</code> &#8211; это трейт Runnable и спроектирован для запуска с помощью <code>Executor</code></p>
+<pre>
+val future = new FutureTask[String](new Callable[String]() {
+  def call(): String = {
+    searcher.search(target);
+}})
+executor.execute(future)
+</pre>
+<p>Теперь мне нужны результаты, поэтому устанавливаем блокировку пока они не будут получены.</p>
+<pre>
+val blockingResult = Await.result(future)
+</pre>
+<p><strong>Смотрите также:</strong> В Effective Scala есть описание <a href="https://twitter.github.com/effectivescala/index-ru.html#Стандартные билиотеки Twitter-Futures">Futures</a> .</p>
+<h2 id="danger">Проблема безопасности потока</h2>
+<pre>
+class Person(var name: String) {
+  def set(changedName: String) {
+    name = changedName
+  }
+}
+</pre>
+<p>Эта программа не является безопасной в многопоточной среде. Если два потока имеют ссылки на тот же экземпляр Person и вызывает <code>set</code>, вы не можете предсказать, что <code>name</code> будет в конце обоих вызовов.</p>
+<p>В модели памяти Java, каждый процессор имеет право кэшировать значения в L1 и L2 кэш, и два потока работающих на разных процессорах, могут иметь свои собственные виды данных.</p>
+<p>Давайте поговорим о некоторых инструментах, которые позволяют держать виды данных в потоках согласованными.</p>
+<h3>Три инструмента</h3>
+<h4>Синхронизация</h4>
+<p>Мьютексы позволяют владеть семантикой вычислений. Когда вы входите в мьютекс, вы являетесь его владельцем. Наиболее распространенный способ использования мьютекса в <span class="caps">JVM</span> является синхронизация каких-то состояний. В этом случае, мы будем синхронизировать наш userMap.</p>
+<p>В <span class="caps">JVM</span>, можно синхронизировать любой экземпляр, если только это не null.</p>
+<pre>
+class Person(var name: String) {
+  def set(changedName: String) {
+    this.synchronized {
+      name = changedName
+    }
+  }
+}
+</pre>
+<h4>Изменчивость</h4>
+<p>В Java 5 перешли к модели памяти, изменчивые и синхронизированные потоки в основном похожи, за исключением того, что в изменчивых потоках разрешен null.</p>
+<p><code>synchronized</code> позволяет более тонкую блокировку. <code>volatile</code> синхронизирован при каждом доступе.</p>
+<pre>
+class Person(@volatile var name: String) {
+  def set(changedName: String) {
+    name = changedName
+  }
+}
+</pre>
+<h4>AtomicReference</h4>
+<p>Также в Java 5 был добавлен целый набор низкоуровневых примитивов для параллельных вычислений. Одним из них является класс <code>AtomicReference</code></p>
+<pre>
+import java.util.concurrent.atomic.AtomicReference
+
+class Person(val name: AtomicReference[String]) {
+  def set(changedName: String) {
+    name.set(changedName)
+  }
+}
+</pre>
+<h4>Значит это ничего не стоит?</h4>
+<p>@AtomicReference является самым дорогостоящим из этих двух вариантов, поскольку вы должны пройти через метод диспетчер для доступа к значениям.</p>
+<p><code>volatile</code> и <code>synchronized</code> строятся поверх встроенных мониторов в Java. Мониторы стоят очень мало, если нет никаких разногласий. <code>synchronized</code> позволяет более тонкий контроль над синхронизацией, будет меньше конкуренции, поэтому <code>synchronized</code>, как правило, самый дешевый вариант.</p>
+<p>Когда вы входите в точки синхронизации, пытаетесь обратиться к изменчивым ссылкам или используете AtomicReferences, Java заставляет процессор очистить кэш-память и обеспечивает согласованное представление данных.</p>
+<p>ПОЖАЛУЙСТА, ПОПРАВЬТЕ МЕНЯ, ЕСЛИ Я ЗДЕСЬ ОШИБАЮСЬ. Это сложная тема, и я уверен, что будут продолжительные дискуссии на этот счет.</p>
+<h3>Другие полезные инструменты Java 5</h3>
+<p>Как я ранее заметил, Java 5 принес много полезных вещей благодаря <code>AtomicReference</code>.</p>
+<h4>CountDownLatch</h4>
+<p><code>CountDownLatch</code> &#8211; это простой механизм для использования множества потоков и их взаимодействия.</p>
+<pre>
+val doneSignal = new CountDownLatch(2)
+doAsyncWork(1)
+doAsyncWork(2)
+
+doneSignal.await()
+println("both workers finished!")
+</pre>
+<p>Среди прочего, он отлично подходит для юнит-тестов. Допустим, вы делаете некоторую асинхронную работу и хотите убедиться, что функции завершена. Просто ваши функции должны иметь блокировку <code>CountDown</code> и <code>await</code> в тесте.</p>
+<h4>AtomicInteger/Long</h4>
+<p>Для испльзования Int и Long во многих задачах были добавлены <code>AtomicInteger</code> и <code>AtomicLong</code>.</p>
+<h4>AtomicBoolean</h4>
+<p>Я думаю не нужно объяснять зачем это нужно.</p>
+<h4>ReadWriteLocks</h4>
+<p><code>ReadWriteLock</code> позволяет вам блокировать потоки читателей и писателей.  Читатель блокируется, когда писатель установил блокировку.</p>
+<h2 id="example">Давайте построим небезопасный поисковый движок</h2>
+<p>У нас есть простой инвертированный индекс, который потоконебезопасен. Наши инвертированные индексные карты &#8211; это часть имени конкретного пользователя.</p>
+<p>Все написано в простой форме, предполагая лишь однопоточный доступ.</p>
+<p>Обратите внимание на альтернативный стандартный конструктор <code>this()</code>, который использует <code>mutable.HashMap</code></p>
+<pre>
+import scala.collection.mutable
+
+case class User(name: String, id: Int)
+
+class InvertedIndex(val userMap: mutable.Map[String, User]) {
+
+  def this() = this(new mutable.HashMap[String, User])
+
+  def tokenizeName(name: String): Seq[String] = {
+    name.split(" ").map(_.toLowerCase)
+  }
+
+  def add(term: String, user: User) {
+    userMap += term -&gt; user
+  }
+
+  def add(user: User) {
+    tokenizeName(user.name).foreach { term =&gt;
+      add(term, user)
+    }
+  }
+}
+</pre>
+<p>Я пока оставил возможность получения пользователей вне нашего индекса. Мы вернемся к этому позже.</p>
+<h2 id="solutions">А теперь давайте сделаем код безопасным</h2>
+<p>В нашем инвертированном индексе, для userMap не гарантируется безопасность. Несколько клиентов могут попытаться добавить элементы в одно и то же время и имеют ту же видимость ошибок, которую мы видели в нашем первом примере <code>Person</code>.</p>
+<p>Так как userMap не является потокобезопасным, то как мы можем держать только один поток изменив его?</p>
+<p>Вы могли бы рассмотреть блокировку userMap при добавлении.</p>
+<pre>
+def add(user: User) {
+  userMap.synchronized {
+    tokenizeName(user.name).foreach { term =&gt;
+      add(term, user)
+    }
+  }
+}
+</pre>
+<p>К сожалению, это слишком грубо. Всегда старайтесь сделать так много дорогостоящей работы за пределами мьютекса насколько это возможно. Помните, что я говорил, блокировка должна быть дешевой, если нет никаких разногласий. Если вы сделаете меньше работы внутри блока, будет меньше разногласий.</p>
+<pre>
+def add(user: User) {
+  // tokenizeName как было измерено, самая дорога операция
+  val tokens = tokenizeName(user.name)
+
+  tokens.foreach { term =&gt;
+    userMap.synchronized {
+      add(term, user)
+    }
+  }
+}
+</pre>
+<h2>SynchronizedMap</h2>
+<p>Мы может смешать сихнронизацию с изменяющимся HashMap, используя трейт SynchronizedMap.</p>
+<p>Мы можем расширить наш существующий InvertedIndex, давая пользователям простой способ построения синхронизированного индекса.</p>
+<pre>
+import scala.collection.mutable.SynchronizedMap
+
+class SynchronizedInvertedIndex(userMap: mutable.Map[String, User]) extends InvertedIndex(userMap) {
+  def this() = this(new mutable.HashMap[String, User] with SynchronizedMap[String, User])
+}
+</pre>
+<p>Если вы посмотрите на реализацию, вы поймете, что это просто синхронизация каждого метода, так что пока это безопасно, оно не может быть таким производительным как бы вам этого хотелось.</p>
+<h2>Java ConcurrentHashMap</h2>
+<p>Java поставляется с прекрасным потокобезопасным ConcurrentHashMap. К счастью, мы можем использовать JavaConversions, чтобы использовать семантику Scala.</p>
+<p>В самом деле, мы можем легко создать новый код, используя потокобезопасный InvertedIndex, как продолжение старого небезопасного.</p>
+<pre>
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.JavaConversions._
+
+class ConcurrentInvertedIndex(userMap: collection.mutable.ConcurrentMap[String, User])
+    extends InvertedIndex(userMap) {
+
+  def this() = this(new ConcurrentHashMap[String, User])
+}
+</pre>
+<h2>Давайте загрузим наш InvertedIndex</h2>
+<h3>Простой способ</h3>
+<pre>
+
+trait UserMaker {
+  def makeUser(line: String) = line.split(",") match {
+    case Array(name, userid) =&gt; User(name, userid.trim().toInt)
+  }
+}
+
+class FileRecordProducer(path: String) extends UserMaker {
+  def run() {
+    Source.fromFile(path, "utf-8").getLines.foreach { line =&gt;
+      index.add(makeUser(line))
+    }
+  }
+}
+</pre>
+<p>Для каждой строки в нашем файле, мы вызываем <code>makeUser</code>, а затем <code>add</code> для нашего InvertedIndex. Если мы используем параллельный InvertedIndex, мы можем вызвать добавление в параллельном потоке и makeUser не будет иметь побочных эффектов, он является потокобезопасным.</p>
+<p>Мы не можем прочитать файл параллельно, но мы <em>можем</em> создать пользователя и добавить его в индекс параллельно.</p>
+<h3>Решение: Producer/Consumer</h3>
+<p>Общий шаблон для асинхронных вычислений состоит в том, чтобы отделить производителей от потребителей и заставить их взаимодействовать только через <code>Queue(Очередь)</code>. Давайте рассмотрим, как это будет работать для нашего индексатора в поисковом движке.</p>
+<pre>
+import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue}
+
+// Concrete producer
+class Producer[T](path: String, queue: BlockingQueue[T]) implements Runnable {
+  public void run() {
+    Source.fromFile(path, "utf-8").getLines.foreach { line =&gt;
+      queue.put(line)
+    }
+  }
+}
+
+// Абстрактный потребитель
+abstract class Consumer[T](queue: BlockingQueue[T]) implements Runnable {
+  public void run() {
+    while (true) {
+      val item = queue.take()
+      consume(item)
+    }
+  }
+
+  def consume(x: T)
+}
+
+val queue = new LinkedBlockingQueue[String]()
+
+// Один поток для потребителя
+val producer = new Producer[String]("users.txt", q)
+new Thread(producer).start()
+
+trait UserMaker {
+  def makeUser(line: String) = line.split(",") match {
+    case Array(name, userid) =&gt; User(name, userid.trim().toInt)
+  }
+}
+
+class IndexerConsumer(index: InvertedIndex, queue: BlockingQueue[String]) extends Consumer[String](queue) with UserMaker {
+  def consume(t: String) = index.add(makeUser(t))
+}
+
+// Давайте представим, что у нас 8 ядер на данной машине.
+val cores = 8
+val pool = Executors.newFixedThreadPool(cores)
+
+// Распределим по одному потребителю на каждое ядро.
+for (i &lt;- i to cores) {
+  pool.submit(new IndexerConsumer[String](index, q))
+}
+</pre>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

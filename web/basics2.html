@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Scala School - Basics continued</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container-fluid fixed">
+          <h3><a href="index.html">Basics continued</a></h3>
+          <ul class="nav secondary-nav">
+            
+              <li><a href="basics.html">&laquo;Previous</a></li>
+            
+            
+              <li><a href="collections.html">Next&raquo;</a></li>
+            
+          </ul>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid" style="padding-top: 60px;">
+      <p>This lesson covers:</p>
+<ul>
+	<li><a href="#apply">apply</a></li>
+	<li><a href="#object">objects</a></li>
+	<li><a href="#fnobj">Functions are Objects</a></li>
+	<li><a href="#package">packages</a></li>
+	<li><a href="#match">pattern matching</a></li>
+	<li><a href="#caseclass">case classes</a></li>
+	<li><a href="#exception">try-catch-finally</a></li>
+</ul>
+<h2 id="apply">apply methods</h2>
+<p>apply methods give you a nice syntactic sugar for when a class or object has one main use.</p>
+<pre>
+scala&gt; class Foo {}
+defined class Foo
+
+scala&gt; object FooMaker {
+     |   def apply() = new Foo
+     | }
+defined module FooMaker
+
+scala&gt; val newFoo = FooMaker()
+newFoo: Foo = Foo@5b83f762
+</pre>
+<p>or</p>
+<pre>
+scala&gt; class Bar {
+     |   def apply() = 0
+     | }
+defined class Bar
+
+scala&gt; val bar = new Bar
+bar: Bar = Bar@47711479
+
+scala&gt; bar()
+res8: Int = 0
+</pre>
+<p>Here our instance object looks like we&#8217;re calling a method. More on that later!</p>
+<h2 id="object">Objects</h2>
+<p>Objects are used to hold single instances of a class. Often used for factories.</p>
+<pre>
+object Timer {
+  var count = 0
+
+  def currentCount(): Long = {
+    count += 1
+    count
+  }
+}
+</pre>
+<p>How to use</p>
+<pre>
+scala&gt; Timer.currentCount()
+res0: Long = 1
+</pre>
+<p>Classes and Objects can have the same name.  The object is called a &#8216;Companion Object&#8217;.  We commonly use Companion Objects for Factories.</p>
+<p>Here is a trivial example that only serves to remove the need to use &#8216;new&#8217; to create an instance.</p>
+<pre>
+class Bar(foo: String)
+
+object Bar {
+  def apply(foo: String) = new Bar(foo)
+}
+</pre>
+<h2 id="fnobj">Functions are Objects</h2>
+<p>In Scala, we talk about object-functional programming often.  What does that mean? What is a Function, really?</p>
+<p>A Function is a set of traits. Specifically, a function that takes one argument is an instance of a Function1 trait. This trait defines the <code>apply()</code> syntactic sugar we learned earlier, allowing you to call an object like you would a function.</p>
+<pre>
+scala&gt; object addOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined module addOne
+
+scala&gt; addOne(1)
+res2: Int = 2
+</pre>
+<p>There is Function0 through 22.  Why 22?  It&#8217;s an arbitrary magic number.  I&#8217;ve never needed a function with more than 22 arguments so it seems to work out.</p>
+<p>The syntactic sugar of apply helps unify the duality of object and functional programming.  You can pass classes around and use them as functions and functions are just instances of classes under the covers.</p>
+<p>Does this mean that every time you define a method in your class, you&#8217;re actually getting an instance of Function*?  No, methods in classes are methods.  Methods defined standalone in the repl are Function* instances.</p>
+<p>Classes can also extend Function and those instances can be called with ().</p>
+<pre>
+scala&gt; class AddOne extends Function1[Int, Int] {
+     |   def apply(m: Int): Int = m + 1
+     | }
+defined class AddOne
+
+scala&gt; val plusOne = new AddOne()
+plusOne: AddOne = &lt;function1&gt;
+
+scala&gt; plusOne(1)
+res0: Int = 2
+</pre>
+<p>A nice short-hand for <code>extends Function1[Int, Int]</code> is <code>extends (Int =&gt; Int)</code></p>
+<pre>
+class AddOne extends (Int =&gt; Int) {
+  def apply(m: Int): Int = m + 1
+}
+</pre>
+<h2 id="package">Packages</h2>
+<p>You can organize your code inside of packages.</p>
+<pre>
+package com.twitter.example
+</pre>
+<p>at the top of a file will declare everything in the file to be in that package.</p>
+<p>Values and functions cannot be outside of a class or object.  Objects are a useful tool for organizing static functions.</p>
+<pre>
+package com.twitter.example
+
+object colorHolder {
+  val BLUE = "Blue"
+  val RED = "Red"
+}
+</pre>
+<p>Now you can access the members directly</p>
+<pre>
+println("the color is: " + com.twitter.example.colorHolder.BLUE)
+</pre>
+<p>Notice what the scala repl says when you define this object:</p>
+<pre>
+scala&gt; object colorHolder {
+     |   val Blue = "Blue"
+     |   val Red = "Red"
+     | }
+defined module colorHolder
+</pre>
+<p>This gives you a small hint that the designers of Scala designed objects to be part of Scala&#8217;s module system.</p>
+<h2 id="match">Pattern Matching</h2>
+<p>One of the most useful parts of Scala.</p>
+<p>Matching on values</p>
+<pre>
+val times = 1
+
+times match {
+  case 1 =&gt; "one"
+  case 2 =&gt; "two"
+  case _ =&gt; "some other number"
+}
+</pre>
+<p>Matching with guards</p>
+<pre>
+times match {
+  case i if i == 1 =&gt; "one"
+  case i if i == 2 =&gt; "two"
+  case _ =&gt; "some other number"
+}
+</pre>
+<p>Notice how we captured the value in the variable &#8216;i&#8217;.</p>
+<p>The <code>_</code> in the last case statement is a wildcard; it ensures that we can handle any statement. Otherwise you will suffer a runtime error if you pass in a number that doesn&#8217;t match. We discuss this more later.</p>
+<p><strong>See Also</strong> Effective Scala has opinions about <a href="https://twitter.github.com/effectivescala/#Functional programming-Pattern matching">when to use pattern matching</a> and <a href="https://twitter.github.com/effectivescala/#Formatting-Pattern matching">pattern matching formatting</a>. A Tour of Scala describes <a href="https://www.scala-lang.org/node/120">Pattern Matching</a></p>
+<h3>Matching on type</h3>
+<p>You can use <code>match</code> to handle values of different types differently.</p>
+<pre>
+def bigger(o: Any): Any = {
+  o match {
+    case i: Int if i &lt; 0 =&gt; i - 1
+    case i: Int =&gt; i + 1
+    case d: Double if d &lt; 0.0 =&gt; d - 0.1
+    case d: Double =&gt; d + 0.1
+    case text: String =&gt; text + "s"
+  }
+}
+</pre>
+<h3>Matching on class members</h3>
+<p>Remember our calculator from earlier.</p>
+<p>Let&#8217;s classify them according to type.</p>
+<p>Here&#8217;s the painful way first.</p>
+<pre>
+def calcType(calc: Calculator) = calc match {
+  case _ if calc.brand == "HP" &amp;&amp; calc.model == "20B" =&gt; "financial"
+  case _ if calc.brand == "HP" &amp;&amp; calc.model == "48G" =&gt; "scientific"
+  case _ if calc.brand == "HP" &amp;&amp; calc.model == "30B" =&gt; "business"
+  case _ =&gt; "unknown"
+}
+</pre>
+<p>Wow, that&#8217;s painful.  Thankfully Scala provides some nice tools specifically for this.</p>
+<h2 id="caseclass">Case Classes</h2>
+<p>case classes are used to conveniently store and match on the contents of a class. You can construct them without using new.</p>
+<pre>
+scala&gt; case class Calculator(brand: String, model: String)
+defined class Calculator
+
+scala&gt; val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+</pre>
+<p>case classes automatically have equality and nice toString methods based on the constructor arguments.</p>
+<pre>
+scala&gt; val hp20b = Calculator("HP", "20b")
+hp20b: Calculator = Calculator(hp,20b)
+
+scala&gt; val hp20B = Calculator("HP", "20b")
+hp20B: Calculator = Calculator(hp,20b)
+
+scala&gt; hp20b == hp20B
+res6: Boolean = true
+</pre>
+<p>case classes can have methods just like normal classes.</p>
+<h6>Case Classes with pattern matching</h6>
+<p>case classes are designed to be used with pattern matching.  Let&#8217;s simplify our calculator classifier example from earlier.</p>
+<pre>
+val hp20b = Calculator("HP", "20B")
+val hp30b = Calculator("HP", "30B")
+
+def calcType(calc: Calculator) = calc match {
+  case Calculator("HP", "20B") =&gt; "financial"
+  case Calculator("HP", "48G") =&gt; "scientific"
+  case Calculator("HP", "30B") =&gt; "business"
+  case Calculator(ourBrand, ourModel) =&gt; "Calculator: %s %s is of unknown type".format(ourBrand, ourModel)
+}
+</pre>
+<p>Other alternatives for that last match</p>
+<pre>
+  case Calculator(_, _) =&gt; "Calculator of unknown type"
+</pre>
+OR we could simply not specify that it&#8217;s a Calculator at all.
+
+<pre>
+  case _ =&gt; "Calculator of unknown type"
+</pre>
+OR we could re-bind the matched value with another name
+
+<pre>
+  case c@Calculator(_, _) =&gt; "Calculator: %s of unknown type".format(c)
+</pre>
+<h2 id="exception">Exceptions</h2>
+<p>Exceptions are available in Scala via a try-catch-finally syntax that uses pattern matching.</p>
+<pre>
+try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException =&gt; log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+<p><code>try</code>s are also expression-oriented</p>
+<pre>
+val result: Int = try {
+  remoteCalculatorService.add(1, 2)
+} catch {
+  case e: ServerIsDownException =&gt; {
+    log.error(e, "the remote calculator service is unavailable. should have kept your trusty HP.")
+    0
+  }
+} finally {
+  remoteCalculatorService.close()
+}
+</pre>
+<p>This is not an example of excellent programming style, just an example of try-catch-finally resulting in expressions like most everything else in Scala.</p>
+<p>Finally will be called after an exception has been handled and is not part of the expression.</p>
+    </div> <!-- /container-fluid -->
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

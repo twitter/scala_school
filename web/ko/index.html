@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>스칼라 학교</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link rel="stylesheet" href="bootstrap-1.1.0.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="small-screens.css">
+
+    <style>
+    h2 { padding-top: 0px; }
+    </style>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-39101739-7', 'twitter.github.io');
+      ga('send', 'pageview');
+
+    </script>
+  </head>
+
+  <body>
+    <div class="container-fluid">
+
+            <div class="hero-unit">
+        <h1>스칼라 학교!</h1>
+        <p>&empty; 에서 분산 서비스까지</p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span8">
+          <p><b>다른 언어:</b> <a href="../index.html">English</a> <a href="../ru/index.html">Русский</a></p>
+
+          <h2>소개</h2>
+          <p>스칼라 학교는 트위터에서 기획된 강좌로, 경력이 많은 엔지니어들이 생산성 높은 <a href="https://www.scala-lang.org/">스칼라(Scala)</a> 프로그래머가 되도록 준비시키기 위한 것이었다. 스칼라는 비교적 새로운 언어이지만, 많은 기존 개념을 활용하고 있다. 따라서 이 강좌에서는 독자들이 개념에 대해서는 어느정도 잘 알고 있다고 가정하고 이를 스칼라에서 어떻게 사용하는지를 보여줄 것이다. 이런 방식을 택하면 엔지니어들이 더 효과적이고 빠르게 일정 수준에 도달할 수 있음을 알게 되었다. 이 글은 강좌에서 사용된 보조 교재이다. 하지만 그 자체로도 유용하다는 사실을 알게 되었다.
+          </p>
+
+          <h2>접근방식</h2>
+          <p>스칼라를 가르칠 때, 발전된 자바로 다루기 보다는 새로운 언어로 취급하는 편이 더 합리적이라 생각한다. 자바 경험이 필요하지는 않다. 인터프리터와 객체지향-함수형 언어 스타일, 그리고 여기(트위터)에서 프로그래밍하는 스타일에 더 촛점을 맞출 것이다. 유지보수성, 표현의 명확성, 그리고 타입 시스템의 기능을 최대한 활용하는 쪽에 강조점이 주어질 것이다.</p>
+          <p>대부분의 강좌에서는 스칼라 REPL만 있으면 충분하다. 강좌를 따라해 보고 더 많은 실험을 해보길 바란다. 각 강좌를 스칼라를 탐구하기 위한 출발점으로 삼아라.</p>
+
+          <h2>추가 정보</h2>
+          <p>다음 링크에서 더 많은 것을 배울 수 있다.
+          <ul>
+          <li><strong><a href="https://twitter.github.com/effectivescala/">효율적 스칼라(Effective Scala)</a></strong> 트위터의 스칼라 "성공 사례"이다. 트위터 코드에 사용된 여러 용례를 익히는 데 유용하다.</li>
+          <li><strong><a href="https://www.scala-lang.org/node/197">scala-lang.org 문서</a></strong>에는 자습서, 메뉴얼, API 참조문서, 여러 도서 등에 대한 정보가 포함되어 있다.</li>
+          <li><strong><a href="https://www.scala-lang.org/api/">Scala API 문서</a></strong></li>
+          </ul>
+
+          <h3>한글 번역: <a href="https://enshahar.com/">오현석(Hyunsok Oh)</a>
+
+        </div>
+        <div class="span6">
+          <h2>Lessons</h2>
+            <dl>
+              
+                <dt><a href="basics.html">기초</a></dt>
+                <dd>값, 함수, 클래스, 메소드, 상속, try-catch-finally. 식 중심의 프로그래밍</dd>
+              
+                <dt><a href="basics2.html">기초(계속)</a></dt>
+                <dd>케이스 클래스, 객체, 패키지, apply, update, 함수는 객체이다(동일한 억세스 원칙), 패턴 매치</dd>
+              
+                <dt><a href="collections.html">컬렉션</a></dt>
+                <dd>리스트, 맵, 함수 콤비네이터(map, foreach, filter, zip, fold들)</dd>
+              
+                <dt><a href="pattern-matching-and-functional-composition.html">패턴 매치와 함수 합성</a></dt>
+                <dd>함수에 대한 추가 설명, 부분함수, 패턴 매치에 대한 설명</dd>
+              
+                <dt><a href="type-basics.html">타입과 다형성의 기초</a></dt>
+                <dd>기본 타입, 타입 다형성, 타입 추론, 공변성, 바운드, 한정하기</dd>
+              
+                <dt><a href="advanced-types.html">타입(고급 주제)</a></dt>
+                <dd>타입에 대한 추가 설명, 뷰 바운드, 상류 타입, 재귀적 타입, 구조적 타입</dd>
+              
+                <dt><a href="sbt.html">SBT</a></dt>
+                <dd>표준 스칼라 빌드 도구인 SBT에 대한 설명</dd>
+              
+                <dt><a href="coll2.html">컬렉션(계속)</a></dt>
+                <dd>스칼라 컬렉션 라이브러리 소개</dd>
+              
+                <dt><a href="specs.html">specs로 테스트하기</a></dt>
+                <dd>Scala 테스트 프레임워크 Specs로 테스트하기</dd>
+              
+                <dt><a href="concurrency.html">스칼라의 동시성</a></dt>
+                <dd>Runnable, Callable, 쓰레드, Future</dd>
+              
+                <dt><a href="java.html">Java + Scala</a></dt>
+                <dd>자바에서 스칼라 사용하기</dd>
+              
+                <dt><a href="finagle.html">피네이글(Finagle) 소개</a></dt>
+                <dd>피네이글 기본 요소: Future, Servie, Filter, Builder</dd>
+              
+                <dt><a href="searchbird.html">검색조(Searchbird)</a></dt>
+                <dd>피네이글로 분산 검색 엔진 만들기</dd>
+              
+            </dl>
+       </div>
+      </div>
+    </div> <!-- /container-fluid -->
+
+    <!-- banner -->
+    <a href="https://github.com/twitter/scala_school"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+  </body>
+</html>
+
+
+    </div> <!-- /container-fluid -->
+
+    <!-- Footer -->
+<div id="footer">
+  <div class="inner">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="span16">
+          <p>
+            Built at <a href="https://twitter.com/twitter"
+            target="_blank">@twitter</a> by
+            <a href="https://twitter.com/stevej" target="_blank">@stevej</a>,
+            <a href="https://twitter.com/marius" target="_blank">@marius</a>, and
+            <a href="https://twitter.com/lahosken" target="_blank">@lahosken</a>
+            with much help from
+            <a href="https://twitter.com/evanm" target="_blank">@evanm</a>,
+            <a href="https://twitter.com/sprsquish" target="_blank">@sprsquish</a>,
+            <a href="https://twitter.com/kevino" target="_blank">@kevino</a>,
+            <a href="https://twitter.com/zuercher" target="_blank">@zuercher</a>,
+            <a href="https://twitter.com/timtrueman" target="_blank">@timtrueman</a>,
+            <a href="https://twitter.com/wickman" target="_blank">@wickman</a>,
+            <a href="https://twitter.com/mccv" target="_blank">@mccv</a>
+            and <a href="https://github.com/garciparedes" target="_blank">@garciparedes</a>;
+            Russian translation by
+            <a href="https://github.com/appigram">appigram</a>;
+            Chinese simple translation by
+            <a href="https://github.com/jasonqu">jasonqu</a>;
+            Korean translation by
+            <a href="https://github.com/enshahar">enshahar</a>;<br />
+            <br />
+            Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License v2.0</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </body>
+</html>

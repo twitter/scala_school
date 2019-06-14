@@ -1,0 +1,24 @@
+begin
+  require 'rubygems'
+  require "bundler/setup"
+  require "railsless-deploy"
+rescue LoadError => e
+  puts e.message
+  abort "Please gem install railsless-deploy"
+end
+
+set :user, :twitter
+set :application, "searchbird"
+set :repository, "https://git.local.twitter.com/ro/#{application}"
+
+task :staging do
+  role :app, "server1", "server2", "etc"
+end
+
+task :canary do
+  role :app, "server1"
+end
+
+task :production do
+  role :app, "server1", "server2", "etc"
+end

@@ -1,0 +1,10 @@
+;; This config was generated using ensime-config-gen. Feel free to customize its contents manually.
+
+(
+
+:project-package "com.twitter.interop"
+
+:use-sbt t
+
+:compile-jars ("libs" "lib_managed/compile" "lib_managed/test")
+)
