@@ -1,0 +1,15 @@
+@media screen and (max-width: 1024px) {
+  dl dd {
+    margin-bottom: 18px;
+  }
+  div.container {
+    width: 90%;
+  }
+  .row .span16,
+  .row .span8,
+  .row .span6 {
+    float: none;
+    width: 100%;
+    margin-left: 0;
+  }
+}
