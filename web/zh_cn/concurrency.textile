@@ -185,7 +185,7 @@ executor.execute(future)
 val blockingResult = Await.result(future)
 </pre>
 
-*参考* <a href="finagle.html">Scala School的Finagle介绍</a>中大量使用了<code>Future</code>，包括一些把它们结合起来的不错的方法。以及 Effective Scala 对<a href="https://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a>的意见。
+*参考* <a href="finagle.html">Scala School的Finagle介绍</a>中大量使用了<code>Future</code>，包括一些把它们结合起来的不错的方法。以及 Effective Scala 对<a href="https://twitter.github.io/effectivescala/#Twitter's standard libraries-Futures">Futures</a>的意见。
 
 h2(#danger). 线程安全问题
 

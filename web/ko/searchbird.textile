@@ -14,7 +14,7 @@ h3. 설계 목표: 전체 그림
 
 h3. 기본 시작 프로젝트 살펴보기
 
-우선, 뼈대 프로젝트("Searchbird")를 "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper 를 이용해 만들자. 이 명령어는 메모리 내장 키-값 저장소를 외부로 노출시키는 간단한 "피네이글":https://twitter.github.com/finagle/ 기반 스칼라 서비스를 만든다. 이를 사용해 값을 검색하도록 확장할 것이다. 그리고 다시 이를 여러 프로세스들이 제공하는 여러 메모리 저장소에서 검색 가능  하도록 확장할 것이다.
+우선, 뼈대 프로젝트("Searchbird")를 "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper 를 이용해 만들자. 이 명령어는 메모리 내장 키-값 저장소를 외부로 노출시키는 간단한 "피네이글":https://twitter.github.io/finagle/ 기반 스칼라 서비스를 만든다. 이를 사용해 값을 검색하도록 확장할 것이다. 그리고 다시 이를 여러 프로세스들이 제공하는 여러 메모리 저장소에서 검색 가능  하도록 확장할 것이다.
 
 <pre>
 $ mkdir searchbird ; cd searchbird

@@ -30,7 +30,7 @@ h1. Основные структуры данных
 
 В Scala существует несколько прекрасных коллекций.
 
-*Смотрите также:* В Effective Scala описывается как использовать <a href="https://twitter.github.com/effectivescala/index-ru.html#Коллекции">Коллекции</a>.
+*Смотрите также:* В Effective Scala описывается как использовать <a href="https://twitter.github.io/effectivescala/index-ru.html#Коллекции">Коллекции</a>.
 
 h2(#Lists). Списки
 
@@ -83,7 +83,7 @@ scala> 1 -> 2
 res0: (Int, Int) = (1,2)
 </pre>
 
-*Смотрите также:* В Effective Scala описывается <a href="https://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Разрушение связей (Destructuring bindings)">разрушение связей</a> ("распаковка" кортежа).
+*Смотрите также:* В Effective Scala описывается <a href="https://twitter.github.io/effectivescala/index-ru.html#Функциональное программирование-Разрушение связей (Destructuring bindings)">разрушение связей</a> ("распаковка" кортежа).
 
 h2(#Maps). Карты
 
@@ -169,7 +169,7 @@ val result = res1 match {
 }
 </code>
 
-*Смотрите также:* В Effective Scala описываются <a href="https://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-Опция">Опции</a>.
+*Смотрите также:* В Effective Scala описываются <a href="https://twitter.github.io/effectivescala/index-ru.html#Функциональное программирование-Опция">Опции</a>.
 
 h1. Функциональные комбинаторы
 
@@ -350,7 +350,7 @@ res1: List[Int] = List(2, 4, 6, 8)
 
 в этом примере вызывается map, а позднее flatten, как пример "комбинаторной" природы этих функций.
 
-*Смотрите также:* В Effective Scala описывается <a href="https://twitter.github.com/effectivescala/index-ru.html#Функциональное программирование-`flatMap`">flatMap</a>.
+*Смотрите также:* В Effective Scala описывается <a href="https://twitter.github.io/effectivescala/index-ru.html#Функциональное программирование-`flatMap`">flatMap</a>.
 
 h2(#generalized). Обобщенные функциональные комбинаторы
 
