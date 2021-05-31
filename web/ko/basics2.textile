@@ -198,7 +198,7 @@ times match {
 
 마지막 경우의 <code>_</code>는 와일드카드이다. 즉, 모든 경우를 처리한다. 만약 이 부분이 없다면 매치되지 않는 값이 들어온 경우 런타임 에러가 발생할 것이다. 이에 대해서는 나중에 살펴보겠다.
 
-*See Also* 효율적인 스칼라에서 <a href="https://twitter.github.com/effectivescala/#Functional programming-Pattern matching">패턴매치를 사용해야 하는 경우</a>와 <a href="https://twitter.github.com/effectivescala/#Formatting-Pattern matching">패턴 매칭을 어떤 형식으로 할지</a>에 대해 설명한다. 스칼라 여행에서도 <a href="https://www.scala-lang.org/node/120">패턴매칭</a>을 다룬다.
+*See Also* 효율적인 스칼라에서 <a href="https://twitter.github.io/effectivescala/#Functional programming-Pattern matching">패턴매치를 사용해야 하는 경우</a>와 <a href="https://twitter.github.io/effectivescala/#Formatting-Pattern matching">패턴 매칭을 어떤 형식으로 할지</a>에 대해 설명한다. 스칼라 여행에서도 <a href="https://www.scala-lang.org/node/120">패턴매칭</a>을 다룬다.
 
 h3. 타입에 대해 매치시키기
 

@@ -74,7 +74,7 @@ h2(#PartialFunction). 理解PartialFunction(偏函数)
 
 __注意__ 偏函数<code>PartialFunction</code> 和我们前面提到的部分应用函数是无关的。
 
-*参考* Effective Scala 对<a href="https://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>的意见。
+*参考* Effective Scala 对<a href="https://twitter.github.io/effectivescala/#Functional programming-Partial functions">PartialFunction</a>的意见。
 
 <pre>
 scala> val one: PartialFunction[Int, String] = { case 1 => "one" }

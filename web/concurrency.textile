@@ -186,7 +186,7 @@ Now I need the results so let's block until its done.
 val blockingResult = Await.result(future)
 </pre>
 
-*See Also* <a href="finagle.html">Scala School's Finagle page</a> has plenty of examples of using <code>Future</code>s, including some nice ways to combine them. Effective Scala has opinions about <a href="https://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .
+*See Also* <a href="finagle.html">Scala School's Finagle page</a> has plenty of examples of using <code>Future</code>s, including some nice ways to combine them. Effective Scala has opinions about <a href="https://twitter.github.io/effectivescala/#Twitter's standard libraries-Futures">Futures</a> .
 
 h2(#danger). Thread Safety Problem
 

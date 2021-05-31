@@ -30,7 +30,7 @@ h1. 기본 데이터 구조
 
 스칼라는 유용한 컬렉션을 여러 개 제공한다.
 
-*See Also* 효율적인 스칼라에서도 <a href="https://twitter.github.com/effectivescala/#Collections">컬렉션 사용법</a>에 대해 다루고 있다.
+*See Also* 효율적인 스칼라에서도 <a href="https://twitter.github.io/effectivescala/#Collections">컬렉션 사용법</a>에 대해 다루고 있다.
 
 h2(#Lists). 리스트
 
@@ -83,7 +83,7 @@ scala> 1 -> 2
 res0: (Int, Int) = (1,2)
 </pre>
 
-*See Also* 효율적인 스칼라에서 <a href="https://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">구조를 허무는 바인딩(destructuring binding)</a>("튜플 벗기기")에 대해 다룬다.
+*See Also* 효율적인 스칼라에서 <a href="https://twitter.github.io/effectivescala/#Functional programming-Destructuring bindings">구조를 허무는 바인딩(destructuring binding)</a>("튜플 벗기기")에 대해 다룬다.
 
 h2(#Maps). 맵
 
@@ -169,7 +169,7 @@ val result = res1 match {
 }
 </code>
 
-*See Also* 효율적인 스칼라를 보면 <a href="https://twitter.github.com/effectivescala/#Functional programming-Options">옵션</a>에 대한 글이 있다.
+*See Also* 효율적인 스칼라를 보면 <a href="https://twitter.github.io/effectivescala/#Functional programming-Options">옵션</a>에 대한 글이 있다.
  
 h1(#combinators). 함수 콤비네이터
 
@@ -355,7 +355,7 @@ res1: List[Int] = List(2, 4, 6, 8)
 ㅡ
 위의 예는 map과 flatten을 서로 엮어서 콤비네이터로 활용하는 것을 보여준다.
 
-*See Also* 효율적인 스칼라에 <a href="https://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>에 대해 다룬 글이 있다.
+*See Also* 효율적인 스칼라에 <a href="https://twitter.github.io/effectivescala/#Functional programming-`flatMap`">flatMap</a>에 대해 다룬 글이 있다.
 
 h2(#generalized). 일반적인 함수 콤비네이터
 

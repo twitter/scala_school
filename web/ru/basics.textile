@@ -302,7 +302,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 }
 </pre>
 
-*Смотрите также:* В Effective Scala указывается на то, что лучше использовать <a href="https://twitter.github.com/effectivescala/index-ru.html#Типы и обобщенные типы-Псевдонимы типов">Псевдонимы типов</a> вместо <code>extends</code>, особенно если подкласс практически ничем не отличается от суперкласса. В "Туре по языку Scala" вы найдете более подробное описание <a href="https://www.scala-lang.org/node/125">Подклассов</a>.
+*Смотрите также:* В Effective Scala указывается на то, что лучше использовать <a href="https://twitter.github.io/effectivescala/index-ru.html#Типы и обобщенные типы-Псевдонимы типов">Псевдонимы типов</a> вместо <code>extends</code>, особенно если подкласс практически ничем не отличается от суперкласса. В "Туре по языку Scala" вы найдете более подробное описание <a href="https://www.scala-lang.org/node/125">Подклассов</a>.
 
 h3. Перегрузка методов
 
@@ -329,7 +329,7 @@ class BMW extends Car {
 }
 </pre>
 
-*Смотрите также:* В Effective Scala есть описание <a href="https://twitter.github.com/effectivescala/index-ru.html#Объектно-ориентированное программирование-Трейты(Traits)">Трейтов</a>.
+*Смотрите также:* В Effective Scala есть описание <a href="https://twitter.github.io/effectivescala/index-ru.html#Объектно-ориентированное программирование-Трейты(Traits)">Трейтов</a>.
 
 h2(#types). Типы
 

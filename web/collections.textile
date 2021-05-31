@@ -32,7 +32,7 @@ h1. Basic Data Structures
 
 Scala provides some nice collections.
 
-*See Also* Effective Scala has opinions about how to use <a href="https://twitter.github.com/effectivescala/#Collections">collections</a>.
+*See Also* Effective Scala has opinions about how to use <a href="https://twitter.github.io/effectivescala/#Collections">collections</a>.
 
 h2(#Arrays). Arrays
 
@@ -102,7 +102,7 @@ scala> 1 -> 2
 res0: (Int, Int) = (1,2)
 </pre>
 
-*See Also* Effective Scala has opinions about <a href="https://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">destructuring bindings</a> ("unpacking" a tuple).
+*See Also* Effective Scala has opinions about <a href="https://twitter.github.io/effectivescala/#Functional programming-Destructuring bindings">destructuring bindings</a> ("unpacking" a tuple).
 
 h2(#Maps). Maps
 
@@ -188,7 +188,7 @@ val result = res1 match {
 }
 </pre>
 
-*See Also* Effective Scala has opinions about <a href="https://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>.
+*See Also* Effective Scala has opinions about <a href="https://twitter.github.io/effectivescala/#Functional programming-Options">Options</a>.
 
 h1(#combinators). Functional Combinators
 
@@ -371,7 +371,7 @@ res1: List[Int] = List(2, 4, 6, 8)
 
 that example calling map and then flatten is an example of the "combinator"-like nature of these functions.
 
-*See Also* Effective Scala has opinions about <a href="https://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>.
+*See Also* Effective Scala has opinions about <a href="https://twitter.github.io/effectivescala/#Functional programming-`flatMap`">flatMap</a>.
 
 h2(#generalized). Generalized functional combinators
 

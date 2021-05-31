@@ -345,7 +345,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 }
 </pre>
 
-*See Also* Effective Scala points out that a <a href="https://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">Type alias</a> is better than <code>extends</code> if the subclass isn't actually different from the superclass. A Tour of Scala describes <a href="https://www.scala-lang.org/node/125">Subclassing</a>.
+*See Also* Effective Scala points out that a <a href="https://twitter.github.io/effectivescala/#Types%20and%20Generics-Type%20aliases">Type alias</a> is better than <code>extends</code> if the subclass isn't actually different from the superclass. A Tour of Scala describes <a href="https://www.scala-lang.org/node/125">Subclassing</a>.
 
 h3. Overloading methods
 
@@ -408,7 +408,7 @@ class BMW extends Car with Shiny {
 }
 </pre>
 
-*See Also* Effective Scala has opinions about <a href="https://twitter.github.com/effectivescala/#Object oriented programming-Traits">trait</a>.
+*See Also* Effective Scala has opinions about <a href="https://twitter.github.io/effectivescala/#Object oriented programming-Traits">trait</a>.
 
 *When do you want a Trait instead of an Abstract Class?* If you want to define an interface-like type, you might find it difficult to choose between a trait or an abstract class. Either one lets you define a type with some behavior, asking extenders to define some other behavior. Some rules of thumb:
 

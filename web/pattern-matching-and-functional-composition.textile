@@ -74,7 +74,7 @@ A Partial Function is only defined for certain values of the defined type.  A Pa
 
 __Note__ <code>PartialFunction</code> is unrelated to a partially applied function that we talked about earlier.
 
-*See Also* Effective Scala has opinions about <a href="https://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.
+*See Also* Effective Scala has opinions about <a href="https://twitter.github.io/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.
 
 <pre>
 scala> val one: PartialFunction[Int, String] = { case 1 => "one" }

@@ -186,7 +186,7 @@ executor.execute(future)
 val blockingResult = Await.result(future)
 </pre>
 
-*See Also* <a href="finagle.html">스칼라 학교의 Finagle 페이지</a>에는 <code>Future</code>를 사용한 예제가 많이 있다. 그 중에는 Future를 서로 엮는 멋진 방법을 보여주는 것들도 있다.  효율적 스칼라에서도 <a href="https://twitter.github.com/effectivescala/#Twitter's standard libraries-Futures">Future</a>에 대해 다룬다.
+*See Also* <a href="finagle.html">스칼라 학교의 Finagle 페이지</a>에는 <code>Future</code>를 사용한 예제가 많이 있다. 그 중에는 Future를 서로 엮는 멋진 방법을 보여주는 것들도 있다.  효율적 스칼라에서도 <a href="https://twitter.github.io/effectivescala/#Twitter's standard libraries-Futures">Future</a>에 대해 다룬다.
 
 h2(#danger). 쓰레드 안전성 문제
 

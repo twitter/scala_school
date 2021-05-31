@@ -14,7 +14,7 @@ The system we're going to describe has three pieces: (1) _clients_ that makes re
 
 h3. Exploring the default bootstrapper project
 
-First, create a skeleton project ("Searchbird") using "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper. This creates a simple "Finagle":https://twitter.github.com/finagle/ -based Scala service that exports an in-memory key-value store. We'll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.
+First, create a skeleton project ("Searchbird") using "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper. This creates a simple "Finagle":https://twitter.github.io/finagle/ -based Scala service that exports an in-memory key-value store. We'll extend this to support searching of the values, and then extend it to support searching multiple in-memory stores over several processes.
 
 <pre>
 $ mkdir searchbird ; cd searchbird
