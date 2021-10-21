@@ -32,7 +32,7 @@ h1. 基本数据结构
 
 Scala提供了一些不错的集合。
 
-*参考* Effective Scala 对怎样使用<a href="https://twitter.github.com/effectivescala/#Collections">集合</a>的观点。
+*参考* Effective Scala 对怎样使用<a href="https://twitter.github.io/effectivescala/#Collections">集合</a>的观点。
 
 h2(#Arrays). 数组 Array
 
@@ -105,7 +105,7 @@ scala> 1 -> 2
 res0: (Int, Int) = (1,2)
 </pre>
 
-*参考* Effective Scala 对 <a href="https://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">解构绑定</a> （“拆解”一个元组）的观点。
+*参考* Effective Scala 对 <a href="https://twitter.github.io/effectivescala/#Functional programming-Destructuring bindings">解构绑定</a> （“拆解”一个元组）的观点。
 
 h2(#Maps). 映射 Map
 
@@ -191,7 +191,7 @@ val result = res1 match {
 }
 </pre>
 
-*参考* Effective Scala 对使用<a href="https://twitter.github.com/effectivescala/#Functional programming-Options">Options</a>的意见。
+*参考* Effective Scala 对使用<a href="https://twitter.github.io/effectivescala/#Functional programming-Options">Options</a>的意见。
 
 h1(#combinators). 函数组合子（Functional Combinators）
 
@@ -372,7 +372,7 @@ res1: List[Int] = List(2, 4, 6, 8)
 
 这个例子先调用map，然后调用flatten，这就是“组合子”的特征，也是这些函数的本质。
 
-*参考* Effective Scala 对<a href="https://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>的意见。
+*参考* Effective Scala 对<a href="https://twitter.github.io/effectivescala/#Functional programming-`flatMap`">flatMap</a>的意见。
 
 h2(#generalized). 扩展函数组合子
 

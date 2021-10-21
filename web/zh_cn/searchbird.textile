@@ -14,7 +14,7 @@ h3. 设计目标：大图景
 
 h3. 探索默认的引导程序项目
 
-首先，使用 "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper 创建一个骨架项目（ “ Searchbird ” ）。这将创建一个简单的基于 "Finagle":https://twitter.github.com/finagle/ 和key-value内存存储的Scala服务。我们将扩展这个工程以支持搜索值，并进而支持多进程多个内存存储的搜索。
+首先，使用 "scala-bootstrapper":https://github.com/twitter/scala-bootstrapper 创建一个骨架项目（ “ Searchbird ” ）。这将创建一个简单的基于 "Finagle":https://twitter.github.io/finagle/ 和key-value内存存储的Scala服务。我们将扩展这个工程以支持搜索值，并进而支持多进程多个内存存储的搜索。
 
 <pre>
 $ mkdir searchbird ; cd searchbird

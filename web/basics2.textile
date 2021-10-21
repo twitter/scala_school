@@ -197,7 +197,7 @@ Notice how we captured the value in the variable 'i'.
 
 The <code>_</code> in the last case statement is a wildcard; it ensures that we can handle any statement. Otherwise you will suffer a runtime error if you pass in a number that doesn't match. We discuss this more later.
 
-*See Also* Effective Scala has opinions about <a href="https://twitter.github.com/effectivescala/#Functional programming-Pattern matching">when to use pattern matching</a> and <a href="https://twitter.github.com/effectivescala/#Formatting-Pattern matching">pattern matching formatting</a>. A Tour of Scala describes <a href="https://www.scala-lang.org/node/120">Pattern Matching</a>
+*See Also* Effective Scala has opinions about <a href="https://twitter.github.io/effectivescala/#Functional programming-Pattern matching">when to use pattern matching</a> and <a href="https://twitter.github.io/effectivescala/#Formatting-Pattern matching">pattern matching formatting</a>. A Tour of Scala describes <a href="https://www.scala-lang.org/node/120">Pattern Matching</a>
 
 h3. Matching on type
 

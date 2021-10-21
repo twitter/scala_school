@@ -337,7 +337,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 }
 </pre>
 
-*See Also* "효율적인 스칼라(effective scala)"에서는 하위클래스가 상위클래스와 실제 다르지 않을 경우 <a href="https://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">타입 별명</a>이 <code>extends(확장)</code>보다 더 낫다고 말한다. 스칼라 여행(Tour of Scala)에서는 <a href="https://www.scala-lang.org/node/125">상속하기(Subclassing)</a>에 대해 다루고 있다.
+*See Also* "효율적인 스칼라(effective scala)"에서는 하위클래스가 상위클래스와 실제 다르지 않을 경우 <a href="https://twitter.github.io/effectivescala/#Types%20and%20Generics-Type%20aliases">타입 별명</a>이 <code>extends(확장)</code>보다 더 낫다고 말한다. 스칼라 여행(Tour of Scala)에서는 <a href="https://www.scala-lang.org/node/125">상속하기(Subclassing)</a>에 대해 다루고 있다.
 
 h3. 메소드 중복정의(Overloading)
 
@@ -400,7 +400,7 @@ class BMW extends Car with Shiny {
 }
 </pre>
 
-*See Also* 효율적인 스칼라도 <a href="https://twitter.github.com/effectivescala/#Object oriented programming-Traits">트레잇에</a> 대해 다루고 있다.
+*See Also* 효율적인 스칼라도 <a href="https://twitter.github.io/effectivescala/#Object oriented programming-Traits">트레잇에</a> 대해 다루고 있다.
 .
 
 *추상클래스 대신 트레잇를 사용해야 하는 경우는 언제인가?* 인터페이스 역할을 하는 타입을 설계할 때 트레잇과 추상클래스 중 어떤 것을 골라야 할까? 두 가지 다 어떤 동작을 하는 타입을 만들 수 있으며, 확장하는 쪽에서 일부를 구현하도록 요청한다. 중요한 규칙은 다음과 같다.
