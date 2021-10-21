@@ -49,7 +49,7 @@ In practice, you won't write code that sends a request and then calls <code>Awai
 
 If you've used other asynchronous APIs, you perhaps cringed when you saw the word "callbacks" just now. You might associate them with illegible code flows, functions hiding far from where they're invoked. But Futures can take advantage of Scala's first-class functions to present a more-readable code flow. You can define a simpler handler function in the place where it's invoked.
 
-For example to, write code that dispatches a request and then "handles" the response, you can keep the code together:
+For example, to write code that dispatches a request and then "handles" the response, you can keep the code together:
 
 <pre>
 val future = dispatch(req) // returns immediately, but future is "empty"
