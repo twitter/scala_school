@@ -1,0 +1,147 @@
+---
+prev: collections.textile
+next: type-basics.textile
+title: Pattern matching & functional composition
+layout: post
+---
+
+เนื้อหาในบทนี้จะครอบคลุมถึง:
+
+* "Function Composition":#composition
+** compose
+** andThen
+* "Currying vs Partial Application":#curryvspartial
+* "PartialFunctions":#PartialFunction
+** range and domain
+** composition with orElse
+* "What is a case statement?":#case
+
+h2(#composition). Function Composition
+
+ลองสร้างฟังก์ชันขึ้นมาเป็น aptly-named functions
+
+<pre>
+scala> def f(s: String) = "f(" + s + ")"
+f: (String)java.lang.String
+
+scala> def g(s: String) = "g(" + s + ")"
+g: (String)java.lang.String
+</pre>
+
+h3. compose
+
+<code>compose</code> ทำให้ฟังก์ชันสามารถรวมกันฟังก์ชันอื่นได้ <code>f(g(x))</code>
+
+<pre>
+scala> val fComposeG = f _ compose g _
+fComposeG: (String) => java.lang.String = <function>
+
+scala> fComposeG("yay")
+res0: java.lang.String = f(g(yay))
+</pre>
+
+h3. andThen
+
+<code>andThen</code> เหมือนกับ <code>compose</code> แต่จะเรียกฟังก์ชันแรกก่อนถึงจะเรียกฟังก์ชันที่สอง <code>g(f(x))</code>
+
+<pre>
+scala> val fAndThenG = f _ andThen g _
+fAndThenG: (String) => java.lang.String = <function>
+
+scala> fAndThenG("yay")
+res1: java.lang.String = g(f(yay))
+</pre>
+
+h2(#curryvspartial). Currying vs Partial Application
+
+h3. case statements
+
+h4. อะไรคือ case statements หว่ะ?
+
+มันเป็น Subclass ของฟังก์ชันที่มีชื่อว่า PartialFunction
+
+h4. อะไรคือ Collection ของ Case statements หลายๆ ตัว?
+
+ก็พวกมันมี PartialFunction หลายๆตัวมา compose เข้าด้วยกันหน่ะซิ
+
+h2(#PartialFunction). ทำความเข้าใจกับ PartialFunction
+
+ฟังก์ชันจะทำงานสำหรับทุกๆ อาร์กิวเมนต์ที่กำหนดตามชนิดของมัน อีกความหมายหนึ่งก็คือฟังก์ชันที่กำหนดเป็น (Int) => String นั่นก็คือมันรับ Int แล้วรีเทิร์นเป็น String กลับออกมา
+
+ตัว Partial Fuction หรือฟังก์ชันแบบบางส่วนจะถูกกำหนดว่ามีเฉพาะค่าบางค่าของชนิดตัวแปรที่กำหนดเท่านั้นทีทำงานได้ อย่างเช่นถ้าเป็นฟังก์ชันแบบบางส่วนของ (Int) => String นั่นก็ไม่ได้หมายความว่าจะใส่ Int อะไรเข้ามามันก็ทำงาน มันทำงานแค่กับบาง Int เท่านั้น
+
+<code>isDefinedAt</code> เป็นเมธอตที่อยู่บน PartialFunction ซึ่งสามารถที่จะใช้ทดสอบดูว่าอาร์กิวเมนต์ไหนบ้างที่จะยอมรับใน PartialFunction นั้น
+
+__Note__ <code>PartialFunction</code> ไม่เกี่ยวกันกับ partially applied function ที่เราเคยคุยกันมาก่อนหน้า
+
+*อ่านด้วย* Effective Scala มีความเห็นเกี่ยวกับ <a href="http://twitter.github.com/effectivescala/#Functional programming-Partial functions">PartialFunction</a>.
+
+<pre>
+scala> val one: PartialFunction[Int, String] = { case 1 => "one" }
+one: PartialFunction[Int,String] = <function1>
+
+scala> one.isDefinedAt(1)
+res0: Boolean = true
+
+scala> one.isDefinedAt(2)
+res1: Boolean = false
+</pre>
+
+เราสามารถใช้ฟังก์ชันได้
+
+<pre>
+scala> one(1)
+res2: String = one
+</pre>
+
+PartialFunctions สามารถรวมกับอะไรใหม่ๆที่เราจะคุยกันนี้ก็คือ orElse ซึ่งมันจะเป็นตัวสะท้อนว่าเรากำหนดอาร์กิวเมนต์ของ PartialFunction เกินกว่าที่มันมีให้ใช้ได้หรือเปล่า
+
+<pre>
+scala> val two: PartialFunction[Int, String] = { case 2 => "two" }
+two: PartialFunction[Int,String] = <function1>
+
+scala> val three: PartialFunction[Int, String] = { case 3 => "three" }
+three: PartialFunction[Int,String] = <function1>
+
+scala> val wildcard: PartialFunction[Int, String] = { case _ => "something else" }
+wildcard: PartialFunction[Int,String] = <function1>
+
+scala> val partial = one orElse two orElse three orElse wildcard
+partial: PartialFunction[Int,String] = <function1>
+
+scala> partial(5)
+res24: String = something else
+
+scala> partial(3)
+res25: String = three
+
+scala> partial(2)
+res26: String = two
+
+scala> partial(1)
+res27: String = one
+
+scala> partial(0)
+res28: String = something else
+</pre>
+
+h3(#case). ความลึกลับของ case.
+
+สัปดาห์ที่แล้วเรามีความอยากรู้อยากเห็น จากการที่เราเห็นแล้วว่า case statement ถูกใช้งานกับฟังก์ชันทั่วๆ ไป
+
+<pre>
+scala> case class PhoneExt(name: String, ext: Int)
+defined class PhoneExt
+
+scala> val extensions = List(PhoneExt("steve", 100), PhoneExt("robey", 200))
+extensions: List[PhoneExt] = List(PhoneExt(steve,100), PhoneExt(robey,200))
+
+scala> extensions.filter { case PhoneExt(name, extension) => extension < 200 }
+res0: List[PhoneExt] = List(PhoneExt(steve,100))
+</pre>
+
+มันทำงานยังไงนะ?
+
+filter ใช้ฟังก์ชัน ในกรณีนี้เป็น Predicate function ของ (PhoneExt) => Boolean
+
+ตัว PartialFunction เป็น subtype ของ Function ดังนั้นแล้ว filter จังสามารถรับเอา PartialFunction ได้!

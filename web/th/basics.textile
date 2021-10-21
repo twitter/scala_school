@@ -1,0 +1,439 @@
+---
+layout: post
+title: Basics
+next: basics2.textile
+---
+
+ในบทนี้เนื้อหาจะครอบคลุมถึง:
+* "อะไรคือ Class":#overview
+* "expressions":#expressions
+* "values":#val
+* "functions":#functions
+* "classes":#class
+* "inheritance เบื้อต้น":#extends
+* "traits":#trait
+* "types":#types
+
+h2(#overview). อะไรคือ Class
+
+ในสัปดาห์แรกๆ เราจะคุยกันถึงเบื้อต้นของไวยากรณ์และแนวคิด ดังนั้นเราจึงจะเริ่มต้นด้วยการลองเราตัวอย่างมาให้คุณดู
+
+ในบางตัวอย่างนั้นเราจะทำในตัว Interpreter และบางตัวอย่างเราจะทำในไฟล์โค้ด
+
+การมี Interpreter นั้นจะทำให้เราเห็นภาพและเข้าใจได้สฃง่ายกว่าในการสังเกตปัญหาที่เกิดขึ้น
+
+
+h3. แล้วทำไมต้อง Scala?
+
+* Expressive
+** First-class functions
+** Closures
+* กระชับ
+** มี Type inference
+** Literal syntax สำหรับการสร้างฟังก์ชัน
+* การทำงานร่วมกันกับ Java
+** ใช้ Library ของ Java ซ้ำได้
+** ใช้ Tools ของ Java ซ้ำได้
+** ไม่เสียประสิทธิภาพ
+
+h3. Scala ทำงานอย่างไร?
+
+* คอมไพล์เป็น Java bytecode
+* สามารถทำงานได้กับ JVM มาตรฐานทั่วไป
+** หรือแม้กระทั้ง JVM ที่ไม่ตรงตามมาตรฐาน เช่น Dalvik (JVM ใน Android)
+** Scala compiler เป็นคนเขียนคนเดียวกับที่เขียน Java compiler (เฮีย Martin Odersky)
+
+h3. คิดว่า Scala ?
+
+Scala ไม่ใช่แค่ดีกว่า Java นะแต่คุณสามารถเรียนรู้จากที่ไม่มีอะไร ไม่จำเป็นต้องผ่าน Java มาก่อนก็สามารถเข้าใจได้
+
+h3. Get Scala
+
+โรงเรียน Scala ทำตัวอย่างโดยใช้ "Scala 2.9.x":http://www.scala-lang.org/download/2.9.3.html ถ้าคุณใช้รุ่น 2.10.x หรือใหม่กว่ามันก็อาจจะใช้ได้อยู่แต่อาจจะไม่ทั้งหมดอะนะ
+
+h3. เริ่มใช้ Interpreter
+
+เราจะเริ่มใช้ผ่าน SBT โดยเรียก <code>sbt console</code>.
+
+<pre>
+$ sbt console
+
+[...]
+
+Welcome to Scala version 2.8.0.final (Java HotSpot(TM) 64-Bit Server VM, Java 1.6.0_20).
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala>
+</pre>
+
+
+h2(#expressions). Expressions
+
+<pre>
+scala> 1 + 1
+res0: Int = 2
+</pre>
+
+res0 จะถูกสร้างอัตโนมัติโดยเป็นชื่อของค่าที่ได้รับมาจาก Interpreter เพื่อแสดงผลลัพธ์ของคำสั่ง ซึ่งมีชนิดของตัวแปรเป็น Int ที่เก็บตัวแประ Interger 2 เอาไว้
+
+(เกือบจะ) ทั้งหมดของ Scala เป็น Expression (หรือนิพจน์ในภาษาไทย)
+
+h2(#val). Values
+
+คุณสามารถเก็บผลลัพธ์ของนิพจน์ไว้ในชื่อตัวแปรได้ (จะสังเกตว่าไม่ใช่ลักษระ res0 แล้ว)
+
+<pre>
+scala> val two = 1 + 1
+two: Int = 2
+</pre>
+
+และคุณไม่สามารถเปลี่ยนแปลงค่าใน val ได้นะ
+
+h3. Variables
+
+ถ้าคุณอยากจะเปลี่ยนแปลงค่าหล่ะ Scala ก็มีคำตอบให้คุณคือไปใช้ <code>var</code> แทน
+
+<pre>
+scala> var name = "steve"
+name: java.lang.String = steve
+
+scala> name = "marius"
+name: java.lang.String = marius
+</pre>
+
+h2(#functions). Functions
+
+ทีนี้ถ้าคุณจะสร้างฟังก์ชันก็สามารถสร้างได้่โดยใช้คำสั่ง def
+
+<pre>
+scala> def addOne(m: Int): Int = m + 1
+addOne: (m: Int)Int
+</pre>
+
+ใน Scala คุณสามารถที่จะกำหนด Signature ของฟังก์ชันเพื่อระบบชนิดของตัวแปรที่เป็นพารามิเตอร์ของฟังก์ชันได้ จากนั้นตัว Interpreter ก็จะบอก Type signature กับมาดังตัวอย่าง
+
+<pre>
+scala> val three = addOne(2)
+three: Int = 3
+</pre>
+
+ในฟังก์ชันที่ไม่มีพารามิเตอร์เราสามารถเอาวงเล็กออกได้เลย
+
+<pre>
+scala> def three() = 1 + 2
+three: ()Int
+
+scala> three()
+res2: Int = 3
+
+scala> three
+res3: Int = 3
+</pre>
+
+h3. Anonymous Functions
+
+คุณสามารถสร้าง Anonymous functions หรือฟังก์ชันที่ไม่มีชื่อได้
+
+<pre>
+scala> (x: Int) => x + 1
+res2: (Int) => Int = <function1>
+</pre>
+
+ฟังก์ชันนี้ทำหน้าที่รับพารามิเตอร์ x เป็น Integer จากนั้นนำ x ไปบวกกับ 1
+
+<pre>
+scala> res2(1)
+res3: Int = 2
+</pre>
+
+เราสามารถส่ง Anonymous functions ไปที่ไหน หรือจะเก็บไว้ในตัวแปรก็สามารถทำได้เช่นกัน
+
+<pre>
+scala> val addOne = (x: Int) => x + 1
+addOne: (Int) => Int = <function1>
+
+scala> addOne(1)
+res4: Int = 2
+</pre>
+
+และถ้าฟังก์ชันของคุณมีหลายๆ บรรทัดก็สามารถใช้วงเล็บปีกกา {} ครอบหให้กลายเป็นบล๊อคของชุดคำสั่งได้
+
+<pre>
+def timesTwo(i: Int): Int = {
+  println("hello world")
+  i * 2
+}
+</pre>
+
+นี่เป็นเรื่องจริงที่เกิดขึ้นกับ Anonymous function โอ้วพระสงฑ์!
+
+<pre>
+scala> { i: Int =>
+  println("hello world")
+  i * 2
+}
+res0: (Int) => Int = <function1>
+</pre>
+
+เราจะเห็นรูปแบบการเขียนโปรแกรมแบบนี้อยู่บ่อยๆ เมื่อมีการส่ง Anonymous function เป็นอาร์กิวเมนต์ให้ฟังก์ชัน (อาร์กิวเมนต์บางทีก็เรียกพารามิเตอร์)
+
+h3. Partial application
+
+คุณสามารถที่จะฟังก์ชันแค่บางส่วนได้โดยการใชเครื่องหมายขีดล่าง _ (underscore) ซึ่งมันจะให้ฟังก์ชันใหม่ออกมา ภาษา Scala ใช้เครื่องหมายขีดล่างนี้ในหลากหลายความหมายขึ้นอยู่กับบริบทที่ใช้งานมัน แต่ยังไงซะคุณก็สามาคิดเอาง่ายๆ ว่ามันเป็นสัญลักษณ์มหัศจรรย์ที่ไม่มีชื่อ ยกตัวอย่างในบริบทของ <code>{ _ + 2 }</code> ตัวขีดล่างหมายถึงพารามิเตอร์ที่ไม่มีชื่อ หรือจะใช้แบบนี้ก็ได้:
+
+<pre>
+scala> def adder(m: Int, n: Int) = m + n
+adder: (m: Int,n: Int)Int
+</pre>
+
+<pre>
+scala> val add2 = adder(2, _:Int)
+add2: (Int) => Int = <function1>
+
+scala> add2(3)
+res50: Int = 5
+</pre>
+
+จะเห็นว่าคุณสามารถที่จะเลือกทำแค่บางส่วนของอาร์กิวเมนต์ก็ได้ <code> adder(2, _:Int)<ฝcode>
+
+h3. Curried functions
+
+บางครั้งมันก็เข้าใจได้ง่ายถ้าหากว่าเรากำหนดค่าบางอาร์กิวเมนต์ของฟังก์ชันในตอนนี้ส่วนตัวอื่นเอาไว้ทีหลังค่อยกำหนด
+
+นี่คือตัวอย่างของฟังก์ชันที่ประกาศไว้ให้คุณสามารถเอาตัวเลขสองตัวมาคูณกันได้ ที่บริเวณหนึ่งที่เรียกใช้คุณอาจจะกำหนดว่าตัวคูณคือตัวไหน และเมื่อถึงจุดหนึ่งคุณถึงจะเลือกตัวตั้งของการคูณนี้
+
+<pre>
+scala> def multiply(m: Int)(n: Int): Int = m * n
+multiply: (m: Int)(n: Int)Int
+</pre>
+
+คุณสามารถเรียกใช้โดยกำหนดทั้งสองพารามิเตอร์ให้เลยแบบนี้ก็หมูเลยดิ
+
+<pre>
+scala> multiply(2)(3)
+res0: Int = 6
+</pre>
+
+หรือจะกำหนดแค่ส่วนของพารามิเตอร์ตัวแรก จากนั้นค่อยกำหนดบางส่วน (partially apply) กับพารามิเตอร์ตัวที่สอง
+
+<pre>
+scala> val timesTwo = multiply(2) _
+timesTwo: (Int) => Int = <function1>
+
+scala> timesTwo(3)
+res1: Int = 6
+</pre>
+
+เรราสามารถที่จะดึงเอาฟังก์ชันของอาร์กิวเมนต์ใดๆ และ Curry มัน เดี๋ยวลองกับฟังก์ชัน <code>adder</code> ที่เราเคยพูดถึงนี่เลย 
+
+<pre>
+scala> val curriedAdd = (adder _).curried
+curriedAdd: Int => (Int => Int) = <function1>
+
+scala> val addTwo = curriedAdd(2)
+addTwo: Int => Int = <function1>
+
+scala> addTwo(4)
+res22: Int = 6
+</pre>
+
+h3. ตัวแปรพารามิเตอร์แบบยาว
+
+นี่เป็นลักษณะของไวยากรณ์พิเศษสำหรับเมธอตที่สามารารับเอาพารามิเตอร์ที่มีขนิดตัวแปรซ้ำๆ กันได้ เช่นถ้าจะใช้ฟังก์ชัน <code>capitalize</code> ของ String กับหลายๆ สตริงแล้วหล่ะก็ คุณสามารถเขียนโค้ดได้ประมาณนี้:
+
+<pre>
+def capitalizeAll(args: String*) = {
+  args.map { arg =>
+    arg.capitalize
+  }
+}
+
+scala> capitalizeAll("rarity", "applejack")
+res2: Seq[String] = ArrayBuffer(Rarity, Applejack)
+</pre>
+
+h2(#class). Classes
+
+<pre>
+scala> class Calculator {
+     |   val brand: String = "HP"
+     |   def add(m: Int, n: Int): Int = m + n
+     | }
+defined class Calculator
+
+scala> val calc = new Calculator
+calc: Calculator = Calculator@e75a11
+
+scala> calc.add(1, 2)
+res1: Int = 3
+
+scala> calc.brand
+res2: String = "HP"
+</pre>
+
+ตัวอย่างของโค้ดด้านบนนั้นเป็นการประกาศเมธอตด้วย def และฟิลด์ด้วย val ตัวที่เราเรียกมันว่าเป็นเมธอตก็แค่ฟังก์ชันที่สามารถเข้าถึงสถานะของคลาสได้
+
+h3. Constructor
+
+Constructor ไม่ใช้เมธอตพิเศษอะไรเหมือนกัน มันเป็นสิ่งที่ถูกเขียนไว้นอกบล๊อคของเมธอตในคลาสของคุณ ดูตัวอย่าง Calculator ด้านล่างดิ มันรับอาร์กิวเมนต์ของ Constructor มาแล้วก็เอาไปใช้กำหนดสถานะเริ่มต้นให้กับอินสเตนท์
+
+<pre>
+class Calculator(brand: String) {
+  /**
+   * A constructor.
+   */
+  val color: String = if (brand == "TI") {
+    "blue"
+  } else if (brand == "HP") {
+    "black"
+  } else {
+    "white"
+  }
+
+  // An instance method.
+  def add(m: Int, n: Int): Int = m + n
+}
+</pre>
+
+ไปไงหล่ะข้างบนเป็นการคอมเมนตสองแบบที่แตกต่างกัน (น่าตื่นเต้นตรงไหนหว่ะ) 
+
+คุณสามารถกำหนด Constructor เพื่อสร้างอินสเตนท์ดังนี้:
+
+<pre>
+scala> val calc = new Calculator("HP")
+calc: Calculator = Calculator@1e64cc4d
+
+scala> calc.color
+res0: String = black
+</pre>
+
+h3. Expressions
+
+ตัวอย่าง Calculator ของเราเป็นการยกตัวอย่างว่า Scala เป็นลักษณะภาษาที่เน้นนิพจน์ (Expression-oriented) ได้ยังไง โดยที่ตัวแปร color จะเป็นข้อความว่าสีอะไรนั้นขึ้นอยู่กับตัว if/else ว่าตรงตามเงื่อไขไหน ซึ่งลักษณะของ Scala ก็จะเน้นนิพจน์คือส่วนใหญ่จะเป็นนิพจน์มากกว่าที่จะเป็นสเตทเมนต์
+
+h3. นอกเหนือจากนี้: Functions vs Methods
+
+ฟังก์ชันกับเมธอตถ้ามองภาพกว้างมันสามารถสับเปลี่ยนกันได้นะ เพราะความจริงแล้วฟังก์ชันและเมธอตมันคล้ายกันมากๆ คุณอาจจะจำไม่ได้ว่า<em>อะไร</em> ที่คุณเรียกว่าฟังก์ชันอะไรที่เรียกว่าเมธอต แต่เมื่อคุณกระโจนเข้าไปในโลกที่แคร์ระหว่างข้อแตกต่างของฟังก์ชันและเมธอตแล้วหล่ะก็มันอาจจะทำให้คุณสับสนเอาได้
+
+<pre>
+scala> class C {
+     |   var acc = 0
+     |   def minc = { acc += 1 }
+     |   val finc = { () => acc += 1 }
+     | }
+defined class C
+
+scala> val c = new C
+c: C = C@1af1bd6
+
+scala> c.minc // เรียก c.minc()
+
+scala> c.finc //ส่งค่ากลับมาเป็นฟังก์ชัน:
+res2: () => Unit = <function0>
+</pre>
+
+ในตอนที่คุณเรียก "ฟังก์ชัน" หนึ่งโดยไม่ใส่วงเล็บแต่ตัวอื่นอาจจะไม่ใช่อย่างนั้น คุณอาจจะคิดว่า <em> อ่าาาส์ ฉันคิดว่าฉันรู้แล้วแหละว่าฟังก์ชันใน Scala ทำงานยังไง แต่เอ๊ะ อาจจะไม่? ทำไมบางทีมันถึงจำเป็นต้องต้องมีวงเล็บด้วยว่ะ</em> บางทีคุณอาจจะเข้าใจว่ามันเป็นฟังก์ชันแต่ที่คุณใช้ๆ ไปนั้นเป็นเมธอต
+
+ในทางปฏิบัติคุณก็ยังคงสามารถที่จะทำอะไรต่อมิอะไรได้โดยทำตาเบลอๆ ไม่ต้องแยกแยะความแตกต่างกันระหว่างฟังก์ชันกับเมธอต แต่ถ้าคุณเป็นมือใหม่กับ Scala แล้วยังไปอ่าน <a href="https://www.google.com/search?q=difference+scala+function+method">คำอธิบายความแตกต่างของมัน</a> มาอีกคุณอาจจะธาตุไฟเข้าแทรกเจอปัญหาตามที่เขาคุยกันอีกซึ่งมันเพิ่มความซับซ้อนสำหรับการเรียนใหม่ๆ แต่นั่นก็ไม่ได้หมายความว่าคุณเจอปัญหากับการใช้ Scala มันแค่หมายความว่าความแตกต่างระหว่างฟังก็ชันและเมธอตนั้นเป็นส่วนที่บอบบางเพียงพอที่จะต้องเขาใจในตัวภาษามาสักหน่อยก่อนแล้วเพราะตรงนั้นเป็นส่วนที่ต้องขุดลึกลงไปในรายละเอียด
+
+h2(#extends). Inheritance
+
+<pre>
+class ScientificCalculator(brand: String) extends Calculator(brand) {
+  def log(m: Double, base: Double) = math.log(m) / math.log(base)
+}
+</pre>
+
+*อ่านด้วย* Effective Scala ชี้ให้เห็นว่า <a href="http://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">Type alias</a> ดีกว่าการ <code>extends</code> ถ้า subclass ไม้ได้แตกต่างจาก superclass จริงๆ. A Tour of Scala อธิบายเรื่อง <a href="http://www.scala-lang.org/node/125">Subclassing</a>.
+
+h3. เมธอต Overloading
+
+<pre>
+class EvenMoreScientificCalculator(brand: String) extends ScientificCalculator(brand) {
+  def log(m: Int): Double = log(m, math.exp(1))
+}
+</pre>
+
+h3. Abstract Classes
+
+คุณสามารถกำหนด <em>abstract class</em>, ซึ่งเป็นคลาสที่ประกาศบางเมธอตเอาไว้แต่ไม่ได้มีโค้ดทำงานแต่ subclass ที่สืบทอดมันมานั้นจะเขียนโค้ดที่สามารถทำงานได้ไว้ในเมธอตที่อยู่บน subclass เหล่านั้น และดังนั้นมันทำให้คุณไม่สามารถสร้างอินสเตนท์จาก abstract class ตรงๆ ได้
+
+<pre>
+scala> abstract class Shape {
+     |   def getArea():Int    // subclass จะมีเมธอตนี้ด้วย
+     | }
+defined class Shape
+
+scala> class Circle(r: Int) extends Shape {
+     |   def getArea():Int = { r * r * 3 }
+     | }
+defined class Circle
+
+scala> val s = new Shape
+<console>:8: error: class Shape is abstract; cannot be instantiated
+       val s = new Shape
+               ^
+
+scala> val c = new Circle(2)
+c: Circle = Circle@65c0035b
+</pre>
+
+h2(#trait). Traits
+
+<code>traits</code> เป็นชุดของฟิลด์และพฤติกรรมที่คุณสามารถ extend หรือ mixin ในคลาสของคุณได้
+
+<pre>
+trait Car {
+  val brand: String
+}
+
+trait Shiny {
+  val shineRefraction: Int
+}
+</pre>
+
+<pre>
+class BMW extends Car {
+  val brand = "BMW"
+}
+</pre>
+
+ในคลาสหนึ่งๆ สามารถที่จะ extend จากหลาย trait ได้โดยใช้dคีย์เวิร์ด <code>with</code>:
+
+<pre>
+class BMW extends Car with Shiny {
+  val brand = "BMW"
+  val shineRefraction = 12
+}
+</pre>
+
+*อ่านด้วย* Effective Scala ให้ความเห็นเกี่ยวกับ <a href="http://twitter.github.com/effectivescala/#Object oriented programming-Traits">trait</a>.
+
+*เมื่อไหร่ก็ตามที่คุณควรจะใช้ Trait แทนที่จะเป็น Abstract class?* ถ้าคุณอยากจะกำหนดชนิดให้ลักษณะที่คล้ายกับ Interface คุณจะพบกับความยากลำบากในการเลือกระหว่าง Trait และ Abstract class ทั้งการกำหนดชนิดโดยพฤติกรรมบางรูปแบบแล้วมากำหนดพฤติกรรมอื่นเพิ่มเติม
+กฏโดยทั่วๆ ไป:
+
+<ul>
+<li>เลือกใช้ไว้ก่อน traits. มันเหมาะกว่าที่จะใช้ trait ก็เพราะว่าคลาสสามาร extend ได้จากหลาย trait แต่คลาสสามารถ extend ได้แค่คลาสเดียว
+<li>ถ้าคุณอยากได้พารามิเตอร์ของ Constructor ให้ใช้ Abstract class เพราะตัว Constructor ของ Abstract class มันรับพารามิเตอร์ได้ด้วย ในขณะที่ trait ทำไม่ได้ ยกตัวอย่างเช่น คุณไม่สามารถกำหนด <code>trait t(i: Int) {}</code>; เพราะพารามิเตอร์ <code>i</code> จะผดกฏของภาษา
+</ul>
+
+คุณไม่ใช้คนแรกหรอกที่ถามคำถามแบบนี้ ดูคำตอบแบบเต็มๆ ได้ที่ "stackoverflow:Scala traits vs abstract classes":http://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes, "Difference between Abstract Class and Trait":http://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait, and "Programming in Scala: To trait, or not to trait?":http://www.artima.com/pins1ed/traits.html#12.7
+
+h2(#types). Types
+
+ตอนแรกๆ คุณได้เห็นที่เรากหนดฟังก์ชันที่รับเอา <code>Int</code> ซึ่งเป็นชนิดหนึ่งของ Number ตัวฟังก์ชั้นสามารถเป็น Generic และที่แนะนำให้ทำงานในตัวแปรชนิดนั้นๆ ซึ่งคุณจะเห็นมันอยู่ในรูปแบบของวงเล็บใหญ่ [] นี่เป็นตัวอย่างของ Cache ที่มี Generic เป็น Keys และ Values
+
+<pre>
+trait Cache[K, V] {
+  def get(key: K): V
+  def put(key: K, value: V)
+  def delete(key: K)
+}
+</pre>
+
+เมธอตก็สามารถมี Type introdece หรือการแนะนำชนิดของตัวแปรได้เช่นกัน
+
+<pre>
+def remove[K](key: K)
+</pre>

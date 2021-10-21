@@ -1,0 +1,58 @@
+---
+layout: default
+title: โรงเรียน Scala
+---
+
+      <div class="hero-unit">
+        <h1>โรงเรียน Scala!</h1>
+        <p>&nbsp;&nbsp;จากความว่างเปล่า &empty; สู่การกระจายบริการ</p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span8">
+
+          <p><b>ภาษาอื่นๆ:</b></p>
+
+          <ul style="list-style-type: none;">
+          <li><a href="ko/index.html">한국어</a>
+          <li><a href="ru/index.html">Русский</a>
+          <li><a href="zh_cn/index.html">简体中文</a></b>
+          <li><a href="th/index.html">ภาษาไทย</a></b>
+          </ul>
+
+          <h2>เกี่ยวกับเรา</h2>
+          <p>โรงเรียน Scala เริ่มขึ้นจากการที่เป็นซีรีย์บรรยายภายในของ Twitter เพื่อเตรียมความพร้อมของวิศวกรให้เป็นวิศวกรภาษา <a href="http://www.scala-lang.org/">Scala</a> ที่มีประสิทธิผล. Scala เป็นภาษาโปรแกรมที่มีลักษณะใหม่ แต่ก็ยังคงแนวคิดหลายๆอย่างจากภาษาที่มีอยู่แล้วทำให้เกิดความคุ้นเคยได้ง่าย ดังนั้นเราจะถือว่าผู้ศึกษามีความรู้เรื่องแนวคิดการโปรแกรมมาก่อนแล้วแหละเราจะแสดงการในมันใน Scala เพราะเราพบว่ามันเป็นแนวทางที่มีประสิทธิภาพเพื่อจะทำให้วิศวกรเรียนรู้ได้อย่างรวดเร็ว ซึ่งเอกสารนี้ก็ใช้ประกอบในการบรรยายเหล่านั้นและเราคิดว่ามันน่าจะมีประโยชน์ในการนำไปใช้งานของแต่ละคนของผู้ศึกษาเอง
+          </p>
+
+          <h2>เป้าประสงค์</h2>
+          <p>
+          เราคิดว่ามันจะเข้าใจได้ดีกว่าถ้าเราไม่ได้เรียนรู้ Scala ในฐานะที่มันปรับปรุงมาจากภาษา Java แต่ให้ผู้ศึกษาคิดซะว่ามันเป็นภาษาใหม่ถอดด้ามเลย เราไม่ได้คาดหวังว่าผู้ศึกษาจะต้องผ่านประสบการณ์จาก Java มาก่อน ดังนั้นให้สนใจไปที่ตัว Interpreter และลักษณะสไตล์ object-fuctional ของภาษา Scala รวมทั้งรูปแบบการเขียนโปรแกรมตามเอกสารนี้ได้เลย โดยที่ในเอกสารนี้จะเน้นหนักไปที่ความสามารถดูแลรักษาโค้ด, ความชัดเจนของคำสั่งและการใช้ประโยชน์ของระบบชนิดตัวแปรใน Scala
+          <p>ในเนื้อหาในแต่ละบทของเอกสารนั้นส่วนใหญ่ไม่ต้องใช้ซอฟต์แวร์อื่นประกอบการทำความเข้าใจ ยกเว้นแค่ Scala REPL ที่เราอยากให้คุณลองทำไปด้วยตามในเนื้อหา แต่จะลองเล่นภายหลังก็ได้ ซึ่งบทเรียนเหล่านั้นจะถูกใช้เป็นหลักแล้วอธิบายถึงตัวภาษา</p>
+
+          <h2>ดังนั้น</h2>
+          <p>คุณสามารถเรียนรู้จากที่อื่นเพิ่มเติมได้ เช่น:
+          <ul>
+          <li><strong><a href="http://twitter.github.com/effectivescala/">Effective Scala</a></strong> Twitter's "best practices" for Scala. Useful for understanding idioms in Twitter's code.</li>
+          <li><strong><a href="http://docs.scala-lang.org">scala-lang.org Documentation</a></strong> Links to tutorials, manuals, API reference, books, ...</li>
+          <li><strong><a href="http://www.scala-lang.org/api/">Scala API Documentation</a></strong></li>
+          </ul>
+
+        </div>
+        <div class="span6">
+          <h2>บทเรียน</h2>
+            <dl>
+              {% for lesson in site.lessons %}
+                <dt><a href="{{ lesson.url }}">{{ lesson.title }}</a></dt>
+                <dd>{{ lesson.desc }}</dd>
+              {% endfor %}
+            </dl>
+       </div>
+      </div>
+    </div> <!-- /container -->
+
+    <!-- banner -->
+    <a href="https://github.com/twitter/scala_school"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+  </body>
+</html>
