@@ -23,6 +23,8 @@ Sometimes you don't need to specify that one type is equal/sub/super another, ju
 *Implicit* functions allow automatic conversion. More precisely, they allow on-demand function application when this can help satisfy type inference. e.g.:
 
 <pre>
+import scala.language.implicitConversions
+
 scala> implicit def strToInt(x: String) = x.toInt
 strToInt: (x: String)Int
 
