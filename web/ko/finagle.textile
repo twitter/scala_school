@@ -98,7 +98,7 @@ scala>
 h3. 순차 합성(Sequential composition)
 
 Future에도 <a href="collections.html#combinators">컬렉션 API의 콤비네이터와와 유사한</a> 콤비네이터가 있다(예: map, flatMap).
-기억을 되살려 보자. 컬렉션의 콤비네이터를 사용하면 "정수의 리스트와 정수를 제곱하는 <tt>squre</tt>함수가 있다. 그 함수를 내 정수 리스트에 적용해서 제곱된 값의 리스트를 구하자" 같은 표현이 가능하다. 아주 깔끔하다. 콤비네이터 함수와 다른 함수들을 함께 조합하면 새로운 함수를 정의하는 효과를 얻는다. Future 콤비네이터로는 "나는 미래에 정수가 될 Future가 있고, <tt>squire</tt>가 있다. 이 함수를 Future에 적용해서 이 미래에 정수가 될 잠재적 정수의 제곱을 구하자"라고 할 수 있다.
+기억을 되살려 보자. 컬렉션의 콤비네이터를 사용하면 "정수의 리스트와 정수를 제곱하는 <tt>square</tt>함수가 있다. 그 함수를 내 정수 리스트에 적용해서 제곱된 값의 리스트를 구하자" 같은 표현이 가능하다. 아주 깔끔하다. 콤비네이터 함수와 다른 함수들을 함께 조합하면 새로운 함수를 정의하는 효과를 얻는다. Future 콤비네이터로는 "나는 미래에 정수가 될 Future가 있고, <tt>square</tt>가 있다. 이 함수를 Future에 적용해서 이 미래에 정수가 될 잠재적 정수의 제곱을 구하자"라고 할 수 있다.
 
 만약 비동기 API를 정의한다면, 요청 값이 API에 들어오고, API는 Future로 둘러싸인 응답을 돌려줄 것이다. 따라서 입력과 함수를 Future로 바꿔주는 콤비네이터가 있다면 아주 유용할 것이다. 이를 사용하면 비동기 API를 다른 동기식 API를 기반으로 정의할 수 있기 때문이다.
 
@@ -114,7 +114,7 @@ Future에도 <a href="collections.html#combinators">컬렉션 API의 콤비네�
 두 <code>Future</code>중 하나라도 실패하면 flatMap의 결과값으로 나온 <code>Future</code>도 또한 실패할 것이다.
 묵시적으로 오류를 넘기는 것을 통해 의미상 중요한 경우에만 오류를 처리할 수 있다. <code>flatMap</code>은 이런 의미를 가지는 콤비네이터를 정의할 때 표준적으로 사용하는 이름이다.
 
-Future가 있고, 그 결과에 비동기 API를 젹용할 생각이면 <tt>flatMap</tt>을 써라. 예를 들어 Future[User]가 있고 어떤 사용자 계정이 사용중지되었는지를 표시하는 Future[Boolean]이 필요하다 하자. 어떤 사용자가 사용정지상태인지를 파악하는 <code>isBanned</code> API가 있을 것이다. 그런데, 이 함수가 비동기적이라 하자. 이럴 때 flatMap을 쓸 수 있다.
+Future가 있고, 그 결과에 비동기 API를 적용할 생각이면 <tt>flatMap</tt>을 써라. 예를 들어 Future[User]가 있고 어떤 사용자 계정이 사용중지되었는지를 표시하는 Future[Boolean]이 필요하다 하자. 어떤 사용자가 사용정지상태인지를 파악하는 <code>isBanned</code> API가 있을 것이다. 그런데, 이 함수가 비동기적이라 하자. 이럴 때 flatMap을 쓸 수 있다.
 
 <pre>
 scala> import com.twitter.util.{Await, Future,Promise}
@@ -329,7 +329,7 @@ def getTimeline(cred: Credentials): Future[Timeline] =
 }
 </pre>
 
-이 가상의 예제는 순차와 동시 합성을 함께 사용한다. 비율 제약이 걸려 예외가 발생하는 경우를 빼고는 아무 오류 처리가 없다는 점을 확인해 보라. 사용된 Future중 어느 하나가 실패한다면, 그 사실은 반환되는 <code>Future</code>에 자동으로 전달된다.
+이 가상의 예제는 순차와 동시 합성을 함께 사용한다. 비율 제약이 걸려 예외가 발생하는 경우를 빼고는 아무 오류 처리가 없다는 점을 확인해 보라. 사용된 Future 중 어느 하나가 실패한다면, 그 사실은 반환되는 <code>Future</code>에 자동으로 전달된다.
 
 <a name="combined_combinator_example_thumbnail">&nbsp;</a>
 
@@ -688,7 +688,7 @@ h2(#DontBlock). 블록하지 말자(제대로 하는게 아니라면)
 
 * 코드가 블록되는 연산(<code>apply</code>나 <code>get</code>)을 호출한다면, <a href="https://github.com/twitter/finagle#Using%20Future%20Pools">Future Pool</a>을 사용해 그 블록되는 코드를 감싸라. 이렇게 하면 블록킹 연산이 자체 쓰레드 풀 안에서 실행되고, Future를 통해 완료(또는 실패)시점을 알 수 있게 된다. 또한 이 Future는 다른 Future와 함성할 수 있다.
 
-* Future의 순차 합성을 사용한다면 Future중이 블록되는게 있는지 우려할 필요가 없다.
+* Future의 순차 합성을 사용한다면 Future 중에 블록되는게 있는지 우려할 필요가 없다.
 
 fn1. 경고. 다른 "Future" 클래스도 존재한다. <code>com.twitter.util.Future</code>을 <code>scala.concurrent.Future</code>나 <code>java.util.concurrent.Future</code>와 혼동하지 말라!
 
