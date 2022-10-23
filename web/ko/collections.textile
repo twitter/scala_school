@@ -30,7 +30,7 @@ h1. 기본 데이터 구조
 
 스칼라는 유용한 컬렉션을 여러 개 제공한다.
 
-*See Also* 효율적인 스칼라에서도 <a href="https://twitter.github.com/effectivescala/#Collections">컬렉션 사용법</a>에 대해 다루고 있다.
+*See Also* 효율적인 스칼라에서도 <a href="https://twitter.github.io/effectivescala/#Collections">컬렉션 사용법</a>에 대해 다루고 있다.
 
 h2(#Lists). 리스트
 
@@ -50,7 +50,7 @@ res0: scala.collection.immutable.Set[Int] = Set(1, 2)
 
 h2(#Tuple). 튜플
 
-튜플을 사용하면 클래스를 정의하지 않고도 여러 아이템을 쉽게 한데 묶을 수 있다. 
+튜플을 사용하면 클래스를 정의하지 않고도 여러 아이템을 쉽게 한데 묶을 수 있다.
 
 <pre>
 scala> val hostPort = ("localhost", 80)
@@ -83,7 +83,7 @@ scala> 1 -> 2
 res0: (Int, Int) = (1,2)
 </pre>
 
-*See Also* 효율적인 스칼라에서 <a href="https://twitter.github.com/effectivescala/#Functional programming-Destructuring bindings">구조를 허무는 바인딩(destructuring binding)</a>("튜플 벗기기")에 대해 다룬다.
+*See Also* 효율적인 스칼라에서 <a href="https://twitter.github.io/effectivescala/#Functional programming-Destructuring bindings">구조를 허무는 바인딩(destructuring binding)</a>("튜플 벗기기")에 대해 다룬다.
 
 h2(#Maps). 맵
 
@@ -169,8 +169,8 @@ val result = res1 match {
 }
 </code>
 
-*See Also* 효율적인 스칼라를 보면 <a href="https://twitter.github.com/effectivescala/#Functional programming-Options">옵션</a>에 대한 글이 있다.
- 
+*See Also* 효율적인 스칼라를 보면 <a href="https://twitter.github.io/effectivescala/#Functional programming-Options">옵션</a>에 대한 글이 있다.
+
 h1(#combinators). 함수 콤비네이터
 
 (역주: 콤비네이터란 이름에 웬지 모를 위압감을 느낄지도 모르겠는데, 콤비네이터는 함수와 컬렉션 등 다른 식을 받아서 적절한 작업을 해주는 조합 장치(함수) 정도로 생각하면 된다.)
@@ -205,7 +205,7 @@ foreach는 맵과 비슷하지만, 반환하는 것이 없다. 따라서 foreach
 scala> numbers.foreach((i: Int) => i * 2)
 </pre>
 
-위 코드는 아무것도 반환하지 않는다. 
+위 코드는 아무것도 반환하지 않는다.
 
 반환되는 값을 변수에 넣을 수도 있다. 하지만, 그 타입은 Unit(즉, void)이다.
 
@@ -269,7 +269,7 @@ scala> numbers.drop(5)
 res0: List[Int] = List(6, 7, 8, 9, 10)
 </pre>
 
-<code>dropWhile</code>은 리스트의 앞에서 술어함수를 만족하는 원소를 없앤다. 술어함수가 최초로 거짓을 반환하면 그 뒤의 원소들은 살아 남는다. 
+<code>dropWhile</code>은 리스트의 앞에서 술어함수를 만족하는 원소를 없앤다. 술어함수가 최초로 거짓을 반환하면 그 뒤의 원소들은 살아 남는다.
 예를 들어 numbers 리스트에서 홀수를  <code>dropWhile</code>하면 <code>1</code>이 떨어져 나간다. (하지만 <code>3</code>은 <code>2</code>가 "방패막이"가 되기 때문에 결과 리스트에 들어간다).
 
 <pre>
@@ -355,11 +355,11 @@ res1: List[Int] = List(2, 4, 6, 8)
 ㅡ
 위의 예는 map과 flatten을 서로 엮어서 콤비네이터로 활용하는 것을 보여준다.
 
-*See Also* 효율적인 스칼라에 <a href="https://twitter.github.com/effectivescala/#Functional programming-`flatMap`">flatMap</a>에 대해 다룬 글이 있다.
+*See Also* 효율적인 스칼라에 <a href="https://twitter.github.io/effectivescala/#Functional programming-`flatMap`">flatMap</a>에 대해 다룬 글이 있다.
 
 h2(#generalized). 일반적인 함수 콤비네이터
 
-지금까지 컬렉션에 작업을 수행시 골라잡을 수 있는 함수를 몇가지 배웠다. 
+지금까지 컬렉션에 작업을 수행시 골라잡을 수 있는 함수를 몇가지 배웠다.
 
 이제 자신만의 함수 콤비네이터를 만들 수 있다면 더 좋을 것이다.
 
@@ -397,7 +397,7 @@ res0: scala.collection.immutable.Map[String,Int] = Map((steve,100), (bob,101))
 
 filter는 전달된 함수에 투플을 넘긴다. 따라서 키와 값 중 원하는 것을 위치 억세서를 사용해 구분해야 한다. 영 좋지 않다!
 
-다행히도 패턴 매치를 사용해 쉽게 키와 값을 분리할 수 있다. 
+다행히도 패턴 매치를 사용해 쉽게 키와 값을 분리할 수 있다.
 
 <pre>
 scala> extensions.filter({case (name, extension) => extension < 200})
