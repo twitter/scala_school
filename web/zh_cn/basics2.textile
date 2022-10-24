@@ -200,7 +200,7 @@ times match {
 在最后一行指令中的<code>_</code>是一个通配符；它保证了我们可以处理所有的情况。
 否则当传进一个不能被匹配的数字的时候，你将获得一个运行时错误。我们以后会继续讨论这个话题的。
 
-*参考* Effective Scala 对<a href="https://twitter.github.com/effectivescala/#Functional programming-Pattern matching">什么时候使用模式匹配</a> 和 <a href="https://twitter.github.com/effectivescala/#Formatting-Pattern matching">模式匹配格式化</a>的建议. A Tour of Scala 也描述了 <a href="https://www.scala-lang.org/node/120">模式匹配</a>
+*参考* Effective Scala 对<a href="https://twitter.github.io/effectivescala/#Functional programming-Pattern matching">什么时候使用模式匹配</a> 和 <a href="https://twitter.github.io/effectivescala/#Formatting-Pattern matching">模式匹配格式化</a>的建议. A Tour of Scala 也描述了 <a href="https://www.scala-lang.org/node/120">模式匹配</a>
 
 
 h3. 匹配类型

@@ -16,7 +16,7 @@ next: basics2.textile
 
 h2(#overview). 이번 강좌에 대해
 
-처음에는 기본적인 문법과 개념을 다룰 것이다. 그 후, 더 많은 연습문제를 통해 점점 범위를 넓힐 것이다. 
+처음에는 기본적인 문법과 개념을 다룰 것이다. 그 후, 더 많은 연습문제를 통해 점점 범위를 넓힐 것이다.
 
 예제 중 일부는 인터프리터에서 작성된 것을 보일 것이고, 나머지는 소스파일로 된 것을 보여줄것이다.
 
@@ -197,7 +197,7 @@ h3. 커리 함수(Curried functions)
 
 떄로 함수의 인자중 일부를 적용하고, 나머지는 나중에 적용하게 남겨두는 것이 더 쓸모있는 경우가 있다.
 
-다음은 두 수를 곱하는 곱셈기를 만들 수 있는 함수이다. 첫 호출시 승수를 지정하고, 나중에 피승수를 지정할 수 있다. 
+다음은 두 수를 곱하는 곱셈기를 만들 수 있는 함수이다. 첫 호출시 승수를 지정하고, 나중에 피승수를 지정할 수 있다.
 
 <pre>
 scala> def multiply(m: Int)(n: Int): Int = m * n
@@ -337,7 +337,7 @@ class ScientificCalculator(brand: String) extends Calculator(brand) {
 }
 </pre>
 
-*See Also* "효율적인 스칼라(effective scala)"에서는 하위클래스가 상위클래스와 실제 다르지 않을 경우 <a href="https://twitter.github.com/effectivescala/#Types%20and%20Generics-Type%20aliases">타입 별명</a>이 <code>extends(확장)</code>보다 더 낫다고 말한다. 스칼라 여행(Tour of Scala)에서는 <a href="https://www.scala-lang.org/node/125">상속하기(Subclassing)</a>에 대해 다루고 있다.
+*See Also* "효율적인 스칼라(effective scala)"에서는 하위클래스가 상위클래스와 실제 다르지 않을 경우 <a href="https://twitter.github.io/effectivescala/#Types%20and%20Generics-Type%20aliases">타입 별명</a>이 <code>extends(확장)</code>보다 더 낫다고 말한다. 스칼라 여행(Tour of Scala)에서는 <a href="https://www.scala-lang.org/node/125">상속하기(Subclassing)</a>에 대해 다루고 있다.
 
 h3. 메소드 중복정의(Overloading)
 
@@ -400,7 +400,7 @@ class BMW extends Car with Shiny {
 }
 </pre>
 
-*See Also* 효율적인 스칼라도 <a href="https://twitter.github.com/effectivescala/#Object oriented programming-Traits">트레잇에</a> 대해 다루고 있다.
+*See Also* 효율적인 스칼라도 <a href="https://twitter.github.io/effectivescala/#Object oriented programming-Traits">트레잇에</a> 대해 다루고 있다.
 .
 
 *추상클래스 대신 트레잇를 사용해야 하는 경우는 언제인가?* 인터페이스 역할을 하는 타입을 설계할 때 트레잇과 추상클래스 중 어떤 것을 골라야 할까? 두 가지 다 어떤 동작을 하는 타입을 만들 수 있으며, 확장하는 쪽에서 일부를 구현하도록 요청한다. 중요한 규칙은 다음과 같다.
@@ -410,7 +410,7 @@ class BMW extends Car with Shiny {
 <li>생성자 매개변수가 필요한 경우라면 추상 클래스를 사용하라. 추상 클래스의 생성자는 매개변수를 받을 수 있지만, 트레잇의 생성자는 그렇지 않다. 예를 들어 <code>trait t(i: Int) {}</code> 에서 <code>i</code> 매개변수는 허용되지 않는다.
 </ul>
 
-당신이 이런 질문을 한 첫번째 사람은 아니다. 스택 오버플로우에서 "트레잇과 추상 클래스의 비교":https://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes, "추상 클래스와 트레잇의 차이":https://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait, 
+당신이 이런 질문을 한 첫번째 사람은 아니다. 스택 오버플로우에서 "트레잇과 추상 클래스의 비교":https://stackoverflow.com/questions/1991042/scala-traits-vs-abstract-classes, "추상 클래스와 트레잇의 차이":https://stackoverflow.com/questions/2005681/difference-between-abstract-class-and-trait,
 또는 "스칼라 프로그래밍: 트레잇냐 아니냐 그것이 문제로다?":https://www.artima.com/pins1ed/traits.html#12.7 등을 참조하라.
 
 h2(#types). 타입
